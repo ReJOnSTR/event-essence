@@ -25,8 +25,8 @@ export default function Index() {
     
     setEvents([...events, newEvent]);
     toast({
-      title: "Event created",
-      description: "Your event has been successfully created.",
+      title: "Etkinlik oluşturuldu",
+      description: "Etkinliğiniz başarıyla oluşturuldu.",
     });
   };
 
@@ -34,10 +34,10 @@ export default function Index() {
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Calendar</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Takvim</h1>
           <Button onClick={() => setIsDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Event
+            Etkinlik Ekle
           </Button>
         </div>
         

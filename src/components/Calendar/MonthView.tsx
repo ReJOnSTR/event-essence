@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay } from "date-fns";
+import { tr } from 'date-fns/locale';
 import { CalendarEvent, DayCell } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -19,13 +21,11 @@ export default function MonthView({ events, onDateSelect }: MonthViewProps) {
     const end = endOfMonth(date);
     const days = eachDayOfInterval({ start, end });
     
-    // Add padding days at the start
     const startDay = start.getDay();
     const prefixDays = Array.from({ length: startDay }, (_, i) => 
       addDays(start, -(startDay - i))
     );
     
-    // Add padding days at the end
     const endDay = end.getDay();
     const suffixDays = Array.from({ length: 6 - endDay }, (_, i) =>
       addDays(end, i + 1)
@@ -45,22 +45,36 @@ export default function MonthView({ events, onDateSelect }: MonthViewProps) {
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          {format(currentDate, "MMMM yyyy")}
-        </h2>
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={prevMonth}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={nextMonth}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+      <div className="flex flex-col space-y-4 mb-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            {format(currentDate, "MMMM yyyy", { locale: tr })}
+          </h2>
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" onClick={prevMonth}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={nextMonth}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+
+        <Tabs defaultValue="month" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="day">Günlük</TabsTrigger>
+            <TabsTrigger value="week">Haftalık</TabsTrigger>
+            <TabsTrigger value="month">Aylık</TabsTrigger>
+            <TabsTrigger value="year">Yıllık</TabsTrigger>
+            <TabsTrigger value="today" onClick={() => setCurrentDate(new Date())}>
+              Bugün
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+        {["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"].map((day) => (
           <div
             key={day}
             className="bg-gray-50 p-2 text-sm font-medium text-calendar-gray text-center"
