@@ -6,15 +6,16 @@ import { cn } from "@/lib/utils";
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface MonthViewProps {
   events: CalendarEvent[];
   onDateSelect: (date: Date) => void;
+  currentDate?: Date;
+  isYearView?: boolean;
 }
 
-export default function MonthView({ events, onDateSelect }: MonthViewProps) {
-  const [currentDate, setCurrentDate] = useState(new Date());
+export default function MonthView({ events, onDateSelect, currentDate: propCurrentDate, isYearView = false }: MonthViewProps) {
+  const [currentDate, setCurrentDate] = useState(propCurrentDate || new Date());
   
   const getDaysInMonth = (date: Date): DayCell[] => {
     const start = startOfMonth(date);
@@ -44,9 +45,9 @@ export default function MonthView({ events, onDateSelect }: MonthViewProps) {
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
-      <div className="flex flex-col space-y-4 mb-4">
-        <div className="flex items-center justify-between">
+    <div className={cn("w-full mx-auto", !isYearView && "max-w-7xl")}>
+      {!isYearView && (
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-gray-900">
             {format(currentDate, "MMMM yyyy", { locale: tr })}
           </h2>
@@ -59,19 +60,7 @@ export default function MonthView({ events, onDateSelect }: MonthViewProps) {
             </Button>
           </div>
         </div>
-
-        <Tabs defaultValue="month" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="day">Günlük</TabsTrigger>
-            <TabsTrigger value="week">Haftalık</TabsTrigger>
-            <TabsTrigger value="month">Aylık</TabsTrigger>
-            <TabsTrigger value="year">Yıllık</TabsTrigger>
-            <TabsTrigger value="today" onClick={() => setCurrentDate(new Date())}>
-              Bugün
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      )}
 
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
         {["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"].map((day) => (
@@ -89,17 +78,20 @@ export default function MonthView({ events, onDateSelect }: MonthViewProps) {
             onClick={() => onDateSelect(day.date)}
             className={cn(
               "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
-              !day.isCurrentMonth && "bg-gray-50 text-gray-400"
+              !day.isCurrentMonth && "bg-gray-50 text-gray-400",
+              isYearView && "min-h-[60px]"
             )}
           >
             <div className="text-sm font-medium mb-1">
               {format(day.date, "d")}
             </div>
-            <div className="space-y-1">
-              {day.events.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
+            {!isYearView && (
+              <div className="space-y-1">
+                {day.events.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>

@@ -1,15 +1,22 @@
 import { useState } from "react";
 import MonthView from "@/components/Calendar/MonthView";
+import DayView from "@/components/Calendar/DayView";
+import WeekView from "@/components/Calendar/WeekView";
+import YearView from "@/components/Calendar/YearView";
 import EventDialog from "@/components/Calendar/EventDialog";
 import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+type ViewType = "day" | "week" | "month" | "year";
 
 export default function Index() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState<ViewType>("month");
   const { toast } = useToast();
 
   const handleDateSelect = (date: Date) => {
@@ -30,6 +37,19 @@ export default function Index() {
     });
   };
 
+  const renderView = () => {
+    switch (currentView) {
+      case "day":
+        return <DayView date={selectedDate} events={events} />;
+      case "week":
+        return <WeekView date={selectedDate} events={events} />;
+      case "year":
+        return <YearView date={selectedDate} events={events} onDateSelect={handleDateSelect} />;
+      default:
+        return <MonthView events={events} onDateSelect={handleDateSelect} />;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
@@ -40,8 +60,28 @@ export default function Index() {
             Etkinlik Ekle
           </Button>
         </div>
+
+        <Tabs value={currentView} className="w-full mb-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="day" onClick={() => setCurrentView("day")}>
+              Günlük
+            </TabsTrigger>
+            <TabsTrigger value="week" onClick={() => setCurrentView("week")}>
+              Haftalık
+            </TabsTrigger>
+            <TabsTrigger value="month" onClick={() => setCurrentView("month")}>
+              Aylık
+            </TabsTrigger>
+            <TabsTrigger value="year" onClick={() => setCurrentView("year")}>
+              Yıllık
+            </TabsTrigger>
+            <TabsTrigger value="today" onClick={() => setSelectedDate(new Date())}>
+              Bugün
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         
-        <MonthView events={events} onDateSelect={handleDateSelect} />
+        {renderView()}
         
         <EventDialog
           isOpen={isDialogOpen}
