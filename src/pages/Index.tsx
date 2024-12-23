@@ -40,9 +40,9 @@ export default function Index() {
   const renderView = () => {
     switch (currentView) {
       case "day":
-        return <DayView date={selectedDate} events={events} />;
+        return <DayView date={selectedDate} events={events} onDateSelect={handleDateSelect} />;
       case "week":
-        return <WeekView date={selectedDate} events={events} />;
+        return <WeekView date={selectedDate} events={events} onDateSelect={handleDateSelect} />;
       case "year":
         return <YearView date={selectedDate} events={events} onDateSelect={handleDateSelect} />;
       default:
