@@ -18,11 +18,13 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const today = new Date();
 
-  const nextWeek = () => {
+  const nextWeek = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onDateSelect(addWeeks(date, 1));
   };
   
-  const prevWeek = () => {
+  const prevWeek = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onDateSelect(subWeeks(date, 1));
   };
 
