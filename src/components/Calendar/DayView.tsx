@@ -44,10 +44,28 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
           {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={prevDay}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={(e) => {
+              e.preventDefault();
+              const prev = new Date(date);
+              prev.setDate(date.getDate() - 1);
+              onDateSelect(prev);
+            }}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={nextDay}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={(e) => {
+              e.preventDefault();
+              const next = new Date(date);
+              next.setDate(date.getDate() + 1);
+              onDateSelect(next);
+            }}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
