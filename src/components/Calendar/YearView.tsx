@@ -15,8 +15,15 @@ export default function YearView({ date, events, onDateSelect }: YearViewProps) 
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
 
-  const nextYear = () => onDateSelect(addYears(date, 1));
-  const prevYear = () => onDateSelect(subYears(date, 1));
+  const nextYear = () => {
+    const next = addYears(date, 1);
+    onDateSelect(next);
+  };
+
+  const prevYear = () => {
+    const prev = subYears(date, 1);
+    onDateSelect(prev);
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto">

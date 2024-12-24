@@ -20,15 +20,13 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const today = new Date();
 
-  const nextDay = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const nextDay = () => {
     const next = new Date(date);
     next.setDate(date.getDate() + 1);
     onDateSelect(next);
   };
 
-  const prevDay = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const prevDay = () => {
     const prev = new Date(date);
     prev.setDate(date.getDate() - 1);
     onDateSelect(prev);
