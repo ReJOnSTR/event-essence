@@ -1,10 +1,9 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface DayViewProps {
   date: Date;
@@ -18,17 +17,14 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
   );
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const today = new Date();
 
-  const nextDay = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const nextDay = () => {
     const next = new Date(date);
     next.setDate(date.getDate() + 1);
     onDateSelect(next);
   };
 
-  const prevDay = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const prevDay = () => {
     const prev = new Date(date);
     prev.setDate(date.getDate() - 1);
     onDateSelect(prev);
@@ -37,35 +33,14 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <div className={cn(
-          "text-2xl font-semibold",
-          isSameDay(date, today) && "text-blue-600"
-        )}>
+        <div className="text-2xl font-semibold">
           {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={(e) => {
-              e.preventDefault();
-              const prev = new Date(date);
-              prev.setDate(date.getDate() - 1);
-              onDateSelect(prev);
-            }}
-          >
+          <Button variant="outline" size="icon" onClick={prevDay}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={(e) => {
-              e.preventDefault();
-              const next = new Date(date);
-              next.setDate(date.getDate() + 1);
-              onDateSelect(next);
-            }}
-          >
+          <Button variant="outline" size="icon" onClick={nextDay}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

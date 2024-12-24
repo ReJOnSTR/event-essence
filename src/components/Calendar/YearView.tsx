@@ -15,11 +15,8 @@ export default function YearView({ date, events, onDateSelect }: YearViewProps) 
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
 
-  const handleDateChange = (newDate: Date, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDateSelect(newDate);
-  };
+  const nextYear = () => onDateSelect(addYears(date, 1));
+  const prevYear = () => onDateSelect(subYears(date, 1));
 
   return (
     <div className="w-full max-w-7xl mx-auto">
@@ -28,18 +25,10 @@ export default function YearView({ date, events, onDateSelect }: YearViewProps) 
           {format(date, "yyyy", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={(e) => handleDateChange(subYears(date, 1), e)}
-          >
+          <Button variant="outline" size="icon" onClick={prevYear}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={(e) => handleDateChange(addYears(date, 1), e)}
-          >
+          <Button variant="outline" size="icon" onClick={nextYear}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

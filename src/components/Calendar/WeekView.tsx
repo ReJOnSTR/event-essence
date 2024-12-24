@@ -1,10 +1,9 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isSameDay } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface WeekViewProps {
   date: Date;
@@ -16,13 +15,9 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const today = new Date();
 
-  const handleDateChange = (newDate: Date, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDateSelect(newDate);
-  };
+  const nextWeek = () => onDateSelect(addWeeks(date, 1));
+  const prevWeek = () => onDateSelect(subWeeks(date, 1));
 
   return (
     <div className="w-full max-w-7xl mx-auto overflow-x-auto">
@@ -31,18 +26,10 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
           {format(weekStart, "MMMM yyyy", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={(e) => handleDateChange(subWeeks(date, 1), e)}
-          >
+          <Button variant="outline" size="icon" onClick={prevWeek}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={(e) => handleDateChange(addWeeks(date, 1), e)}
-          >
+          <Button variant="outline" size="icon" onClick={nextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -53,15 +40,9 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
         {weekDays.map((day) => (
           <div
             key={day.toString()}
-            className={cn(
-              "bg-white p-2 text-center",
-              isSameDay(day, today) && "bg-blue-50"
-            )}
+            className="bg-white p-2 text-center"
           >
-            <div className={cn(
-              "font-medium",
-              isSameDay(day, today) && "text-blue-600"
-            )}>
+            <div className="font-medium">
               {format(day, "EEEE", { locale: tr })}
             </div>
             <div className="text-sm text-gray-500">
@@ -78,10 +59,7 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
             {weekDays.map((day) => (
               <div
                 key={`${day}-${hour}`}
-                className={cn(
-                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
-                  isSameDay(day, today) && "bg-blue-50"
-                )}
+                className="bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50"
                 onClick={() => {
                   const eventDate = new Date(day);
                   eventDate.setHours(hour);
