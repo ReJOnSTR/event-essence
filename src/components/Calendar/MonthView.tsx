@@ -16,6 +16,7 @@ interface MonthViewProps {
 
 export default function MonthView({ events, onDateSelect, currentDate: propCurrentDate, isYearView = false }: MonthViewProps) {
   const [currentDate, setCurrentDate] = useState(propCurrentDate || new Date());
+  const today = new Date();
   
   const getDaysInMonth = (date: Date): DayCell[] => {
     const start = startOfMonth(date);
@@ -39,8 +40,15 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
     }));
   };
 
-  const nextMonth = () => setCurrentDate(addDays(endOfMonth(currentDate), 1));
-  const prevMonth = () => setCurrentDate(addDays(startOfMonth(currentDate), -1));
+  const nextMonth = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentDate(addDays(endOfMonth(currentDate), 1));
+  };
+  
+  const prevMonth = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentDate(addDays(startOfMonth(currentDate), -1));
+  };
 
   const days = getDaysInMonth(currentDate);
 
@@ -79,10 +87,14 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
             className={cn(
               "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
               !day.isCurrentMonth && "bg-gray-50 text-gray-400",
-              isYearView && "min-h-[60px]"
+              isYearView && "min-h-[60px]",
+              isSameDay(day.date, today) && "bg-blue-50"
             )}
           >
-            <div className="text-sm font-medium mb-1">
+            <div className={cn(
+              "text-sm font-medium mb-1",
+              isSameDay(day.date, today) && "text-blue-600"
+            )}>
               {format(day.date, "d")}
             </div>
             {!isYearView && (

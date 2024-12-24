@@ -1,9 +1,10 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DayViewProps {
   date: Date;
@@ -17,14 +18,17 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
   );
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
+  const today = new Date();
 
-  const nextDay = () => {
+  const nextDay = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const next = new Date(date);
     next.setDate(date.getDate() + 1);
     onDateSelect(next);
   };
 
-  const prevDay = () => {
+  const prevDay = (e: React.MouseEvent) => {
+    e.stopPropagation();
     const prev = new Date(date);
     prev.setDate(date.getDate() - 1);
     onDateSelect(prev);
@@ -33,7 +37,10 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <div className="text-2xl font-semibold">
+        <div className={cn(
+          "text-2xl font-semibold",
+          isSameDay(date, today) && "text-blue-600"
+        )}>
           {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
         </div>
         <div className="flex gap-2">
