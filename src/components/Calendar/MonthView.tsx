@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { CalendarEvent, DayCell } from "@/types/calendar";
 import { cn } from "@/lib/utils";
@@ -39,8 +39,15 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
     }));
   };
 
-  const nextMonth = () => setCurrentDate(addDays(endOfMonth(currentDate), 1));
-  const prevMonth = () => setCurrentDate(addDays(startOfMonth(currentDate), -1));
+  const nextMonth = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentDate(addDays(endOfMonth(currentDate), 1));
+  };
+
+  const prevMonth = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentDate(addDays(startOfMonth(currentDate), -1));
+  };
 
   const days = getDaysInMonth(currentDate);
 
@@ -79,10 +86,14 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
             className={cn(
               "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
               !day.isCurrentMonth && "bg-gray-50 text-gray-400",
+              isToday(day.date) && "bg-blue-50",
               isYearView && "min-h-[60px]"
             )}
           >
-            <div className="text-sm font-medium mb-1">
+            <div className={cn(
+              "text-sm font-medium mb-1",
+              isToday(day.date) && "text-calendar-blue"
+            )}>
               {format(day.date, "d")}
             </div>
             {!isYearView && (

@@ -1,9 +1,10 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface WeekViewProps {
   date: Date;
@@ -16,8 +17,15 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextWeek = () => onDateSelect(addWeeks(date, 1));
-  const prevWeek = () => onDateSelect(subWeeks(date, 1));
+  const nextWeek = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDateSelect(addWeeks(date, 1));
+  };
+
+  const prevWeek = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDateSelect(subWeeks(date, 1));
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto overflow-x-auto">
@@ -40,7 +48,10 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
         {weekDays.map((day) => (
           <div
             key={day.toString()}
-            className="bg-white p-2 text-center"
+            className={cn(
+              "bg-white p-2 text-center",
+              isToday(day) && "text-calendar-blue"
+            )}
           >
             <div className="font-medium">
               {format(day, "EEEE", { locale: tr })}
@@ -59,7 +70,10 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
             {weekDays.map((day) => (
               <div
                 key={`${day}-${hour}`}
-                className="bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50"
+                className={cn(
+                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
+                  isToday(day) && "bg-blue-50"
+                )}
                 onClick={() => {
                   const eventDate = new Date(day);
                   eventDate.setHours(hour);
