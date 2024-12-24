@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addMonths, startOfYear, addYears, subYears, isToday } from "date-fns";
+import { format, addMonths, startOfYear, addYears, subYears } from "date-fns";
 import { tr } from 'date-fns/locale';
 import MonthView from "./MonthView";
 import { Button } from "@/components/ui/button";
@@ -15,20 +15,13 @@ export default function YearView({ date, events, onDateSelect }: YearViewProps) 
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
 
-  const nextYear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDateSelect(addYears(date, 1));
-  };
-  
-  const prevYear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDateSelect(subYears(date, 1));
-  };
+  const nextYear = () => onDateSelect(addYears(date, 1));
+  const prevYear = () => onDateSelect(subYears(date, 1));
 
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <div className={`text-2xl font-semibold ${isToday(date) ? 'text-blue-600' : ''}`}>
+        <div className="text-2xl font-semibold">
           {format(date, "yyyy", { locale: tr })}
         </div>
         <div className="flex gap-2">

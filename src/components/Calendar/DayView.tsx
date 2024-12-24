@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday } from "date-fns";
+import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
@@ -18,15 +18,13 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextDay = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const nextDay = () => {
     const next = new Date(date);
     next.setDate(date.getDate() + 1);
     onDateSelect(next);
   };
 
-  const prevDay = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const prevDay = () => {
     const prev = new Date(date);
     prev.setDate(date.getDate() - 1);
     onDateSelect(prev);
@@ -35,7 +33,7 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
-        <div className={`text-2xl font-semibold ${isToday(date) ? 'text-blue-600' : ''}`}>
+        <div className="text-2xl font-semibold">
           {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
         </div>
         <div className="flex gap-2">

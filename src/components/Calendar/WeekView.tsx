@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
@@ -16,15 +16,8 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextWeek = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDateSelect(addWeeks(date, 1));
-  };
-  
-  const prevWeek = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDateSelect(subWeeks(date, 1));
-  };
+  const nextWeek = () => onDateSelect(addWeeks(date, 1));
+  const prevWeek = () => onDateSelect(subWeeks(date, 1));
 
   return (
     <div className="w-full max-w-7xl mx-auto overflow-x-auto">
@@ -47,7 +40,7 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
         {weekDays.map((day) => (
           <div
             key={day.toString()}
-            className={`bg-white p-2 text-center ${isToday(day) ? 'text-blue-600 font-bold' : ''}`}
+            className="bg-white p-2 text-center"
           >
             <div className="font-medium">
               {format(day, "EEEE", { locale: tr })}
