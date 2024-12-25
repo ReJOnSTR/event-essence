@@ -20,13 +20,15 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
   const nextWeek = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onDateSelect(addWeeks(date, 1));
+    const next = addWeeks(date, 1);
+    onDateSelect(next);
   };
 
   const prevWeek = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onDateSelect(subWeeks(date, 1));
+    const prev = subWeeks(date, 1);
+    onDateSelect(prev);
   };
 
   return (
@@ -36,10 +38,18 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
           {format(weekStart, "MMMM yyyy", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={prevWeek}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={prevWeek}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={nextWeek}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={nextWeek}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
