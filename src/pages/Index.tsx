@@ -62,7 +62,7 @@ export default function Index() {
         </div>
 
         <Tabs value={currentView} className="w-full mb-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="day" onClick={() => setCurrentView("day")}>
               Günlük
             </TabsTrigger>
@@ -74,9 +74,6 @@ export default function Index() {
             </TabsTrigger>
             <TabsTrigger value="year" onClick={() => setCurrentView("year")}>
               Yıllık
-            </TabsTrigger>
-            <TabsTrigger value="today" onClick={() => setSelectedDate(new Date())}>
-              Bugün
             </TabsTrigger>
           </TabsList>
         </Tabs>

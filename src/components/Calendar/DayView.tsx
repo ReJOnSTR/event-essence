@@ -20,6 +20,7 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const nextDay = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     const next = new Date(date);
     next.setDate(date.getDate() + 1);
@@ -27,6 +28,7 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
   };
 
   const prevDay = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     const prev = new Date(date);
     prev.setDate(date.getDate() - 1);
