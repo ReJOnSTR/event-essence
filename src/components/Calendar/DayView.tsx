@@ -41,6 +41,12 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
     onDateSelect(new Date());
   };
 
+  const handleHourClick = (hour: number) => {
+    const eventDate = new Date(date);
+    eventDate.setHours(hour);
+    onDateSelect(eventDate);
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
@@ -51,13 +57,25 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
           {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={prevDay}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={prevDay}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={goToToday}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={goToToday}
+          >
             <CalendarDays className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={nextDay}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={nextDay}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -70,11 +88,7 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
             </div>
             <div 
               className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50"
-              onClick={() => {
-                const eventDate = new Date(date);
-                eventDate.setHours(hour);
-                onDateSelect(eventDate);
-              }}
+              onClick={() => handleHourClick(hour)}
             >
               {dayEvents
                 .filter(event => new Date(event.start).getHours() === hour)

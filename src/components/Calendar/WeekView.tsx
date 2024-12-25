@@ -37,6 +37,12 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
     onDateSelect(new Date());
   };
 
+  const handleCellClick = (day: Date, hour: number) => {
+    const eventDate = new Date(day);
+    eventDate.setHours(hour);
+    onDateSelect(eventDate);
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto overflow-x-auto">
       <div className="flex items-center justify-between mb-4">
@@ -44,13 +50,25 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
           {format(weekStart, "MMMM yyyy", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={prevWeek}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={prevWeek}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={goToToday}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={goToToday}
+          >
             <CalendarDays className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={nextWeek}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={nextWeek}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

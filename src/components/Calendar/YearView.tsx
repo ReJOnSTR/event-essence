@@ -40,13 +40,25 @@ export default function YearView({ date, events, onDateSelect }: YearViewProps) 
           {format(date, "yyyy", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={prevYear}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={prevYear}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={goToToday}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={goToToday}
+          >
             <CalendarDays className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={nextYear}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={nextYear}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

@@ -40,11 +40,13 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
   };
 
   const nextMonth = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setCurrentDate(addDays(endOfMonth(currentDate), 1));
   };
 
   const prevMonth = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setCurrentDate(addDays(startOfMonth(currentDate), -1));
   };
@@ -67,13 +69,25 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
             {format(currentDate, "MMMM yyyy", { locale: tr })}
           </h2>
           <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={prevMonth}>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={prevMonth}
+            >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={goToToday}>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={goToToday}
+            >
               <CalendarDays className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" onClick={nextMonth}>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={nextMonth}
+            >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
