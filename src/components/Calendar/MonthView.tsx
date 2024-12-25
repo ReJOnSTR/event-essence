@@ -77,11 +77,12 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button 
-              variant="outline" 
-              size="icon" 
+              variant="outline"
               onClick={goToToday}
+              className="flex gap-2 items-center"
             >
               <CalendarDays className="h-4 w-4" />
+              Bugün
             </Button>
             <Button 
               variant="outline" 

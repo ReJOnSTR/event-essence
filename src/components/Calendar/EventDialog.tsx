@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CalendarEvent } from "@/types/calendar";
+import { format } from "date-fns";
 
 interface EventDialogProps {
   isOpen: boolean;
@@ -17,6 +18,15 @@ export default function EventDialog({ isOpen, onClose, onSave, selectedDate }: E
   const [description, setDescription] = useState("");
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
+
+  useEffect(() => {
+    if (isOpen) {
+      const hours = selectedDate.getHours();
+      const formattedHours = hours.toString().padStart(2, '0');
+      setStartTime(`${formattedHours}:00`);
+      setEndTime(`${(hours + 1) % 24}:00`);
+    }
+  }, [isOpen, selectedDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
