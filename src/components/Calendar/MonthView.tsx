@@ -5,7 +5,7 @@ import { CalendarEvent, DayCell } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -49,6 +49,14 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
     setCurrentDate(addDays(startOfMonth(currentDate), -1));
   };
 
+  const goToToday = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const today = new Date();
+    setCurrentDate(today);
+    onDateSelect(today);
+  };
+
   const days = getDaysInMonth(currentDate);
 
   return (
@@ -61,6 +69,9 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
           <div className="flex gap-2">
             <Button variant="outline" size="icon" onClick={prevMonth}>
               <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={goToToday}>
+              <CalendarDays className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="icon" onClick={nextMonth}>
               <ChevronRight className="h-4 w-4" />

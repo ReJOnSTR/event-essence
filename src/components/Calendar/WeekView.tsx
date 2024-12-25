@@ -3,7 +3,7 @@ import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday } from "date-
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface WeekViewProps {
@@ -31,6 +31,12 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
     onDateSelect(prev);
   };
 
+  const goToToday = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDateSelect(new Date());
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto overflow-x-auto">
       <div className="flex items-center justify-between mb-4">
@@ -38,18 +44,13 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
           {format(weekStart, "MMMM yyyy", { locale: tr })}
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={prevWeek}
-          >
+          <Button variant="outline" size="icon" onClick={prevWeek}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={nextWeek}
-          >
+          <Button variant="outline" size="icon" onClick={goToToday}>
+            <CalendarDays className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={nextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

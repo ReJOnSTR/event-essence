@@ -3,7 +3,7 @@ import { format, addMonths, startOfYear, addYears, subYears } from "date-fns";
 import { tr } from 'date-fns/locale';
 import MonthView from "./MonthView";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 
 interface YearViewProps {
   date: Date;
@@ -27,6 +27,12 @@ export default function YearView({ date, events, onDateSelect }: YearViewProps) 
     onDateSelect(subYears(date, 1));
   };
 
+  const goToToday = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDateSelect(new Date());
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
@@ -36,6 +42,9 @@ export default function YearView({ date, events, onDateSelect }: YearViewProps) 
         <div className="flex gap-2">
           <Button variant="outline" size="icon" onClick={prevYear}>
             <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={goToToday}>
+            <CalendarDays className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="icon" onClick={nextYear}>
             <ChevronRight className="h-4 w-4" />
