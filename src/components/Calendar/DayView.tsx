@@ -47,6 +47,12 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
     onDateSelect(eventDate);
   };
 
+  const shouldShowEvent = (event: CalendarEvent, hour: number) => {
+    const eventStartHour = event.start.getHours();
+    const eventEndHour = event.end.getHours();
+    return hour >= eventStartHour && hour < eventEndHour;
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4" onClick={(e) => e.stopPropagation()}>
@@ -92,7 +98,7 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
               onClick={() => handleHourClick(hour)}
             >
               {dayEvents
-                .filter(event => new Date(event.start).getHours() === hour)
+                .filter(event => shouldShowEvent(event, hour))
                 .map(event => (
                   <EventCard key={event.id} event={event} />
                 ))}

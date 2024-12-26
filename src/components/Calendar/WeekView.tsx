@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, isSameDay, differenceInHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,13 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
     const eventDate = new Date(day);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
+  };
+
+  const shouldShowEvent = (event: CalendarEvent, day: Date, hour: number) => {
+    if (!isSameDay(event.start, day)) return false;
+    const eventStartHour = event.start.getHours();
+    const eventEndHour = event.end.getHours();
+    return hour >= eventStartHour && hour < eventEndHour;
   };
 
   return (
@@ -109,11 +116,7 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
                 onClick={() => handleCellClick(day, hour)}
               >
                 {events
-                  .filter(
-                    event =>
-                      format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
-                      new Date(event.start).getHours() === hour
-                  )
+                  .filter(event => shouldShowEvent(event, day, hour))
                   .map(event => (
                     <EventCard key={event.id} event={event} />
                   ))}
