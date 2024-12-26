@@ -64,7 +64,7 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
   return (
     <div className={cn("w-full mx-auto", !isYearView && "max-w-7xl")}>
       {!isYearView && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4" onClick={(e) => e.stopPropagation()}>
           <h2 className="text-2xl font-semibold text-gray-900">
             {format(currentDate, "MMMM yyyy", { locale: tr })}
           </h2>

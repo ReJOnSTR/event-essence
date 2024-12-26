@@ -45,7 +45,7 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
 
   return (
     <div className="w-full max-w-7xl mx-auto overflow-x-auto">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4" onClick={(e) => e.stopPropagation()}>
         <div className="text-2xl font-semibold">
           {format(weekStart, "MMMM yyyy", { locale: tr })}
         </div>
@@ -106,11 +106,7 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
                   "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
                   isToday(day) && "bg-blue-50"
                 )}
-                onClick={() => {
-                  const eventDate = new Date(day);
-                  eventDate.setHours(hour);
-                  onDateSelect(eventDate);
-                }}
+                onClick={() => handleCellClick(day, hour)}
               >
                 {events
                   .filter(

@@ -49,7 +49,7 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4" onClick={(e) => e.stopPropagation()}>
         <div className={cn(
           "text-2xl font-semibold",
           isToday(date) && "text-calendar-blue"
