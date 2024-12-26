@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, isSameDay } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, isSameDay, differenceInHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
@@ -43,14 +43,11 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
     onDateSelect(eventDate);
   };
 
-  const getEventStyle = (event: CalendarEvent) => {
-    const startHour = event.start.getHours();
-    const endHour = event.end.getHours();
-    const duration = endHour - startHour;
-    return {
-      gridRow: `span ${duration}`,
-      marginTop: '0'
-    };
+  const shouldShowEvent = (event: CalendarEvent, day: Date, hour: number) => {
+    if (!isSameDay(event.start, day)) return false;
+    const eventStartHour = event.start.getHours();
+    const eventEndHour = event.end.getHours();
+    return hour >= eventStartHour && hour < eventEndHour;
   };
 
   return (
@@ -113,21 +110,15 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
               <div
                 key={`${day}-${hour}`}
                 className={cn(
-                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
+                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
                   isToday(day) && "bg-blue-50"
                 )}
                 onClick={() => handleCellClick(day, hour)}
               >
-                {hour === 0 && events
-                  .filter(event => isSameDay(event.start, day))
+                {events
+                  .filter(event => shouldShowEvent(event, day, hour))
                   .map(event => (
-                    <div
-                      key={event.id}
-                      style={getEventStyle(event)}
-                      className="absolute w-full"
-                    >
-                      <EventCard key={event.id} event={event} />
-                    </div>
+                    <EventCard key={event.id} event={event} />
                   ))}
               </div>
             ))}

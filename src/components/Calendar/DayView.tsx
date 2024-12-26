@@ -47,14 +47,10 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
     onDateSelect(eventDate);
   };
 
-  const getEventStyle = (event: CalendarEvent) => {
-    const startHour = event.start.getHours();
-    const endHour = event.end.getHours();
-    const duration = endHour - startHour;
-    return {
-      gridRow: `span ${duration}`,
-      marginTop: '0'
-    };
+  const shouldShowEvent = (event: CalendarEvent, hour: number) => {
+    const eventStartHour = event.start.getHours();
+    const eventEndHour = event.end.getHours();
+    return hour >= eventStartHour && hour < eventEndHour;
   };
 
   return (
@@ -98,18 +94,14 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
             <div 
-              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
+              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50"
               onClick={() => handleHourClick(hour)}
             >
-              {hour === 0 && dayEvents.map(event => (
-                <div
-                  key={event.id}
-                  style={getEventStyle(event)}
-                  className="absolute w-full"
-                >
-                  <EventCard event={event} />
-                </div>
-              ))}
+              {dayEvents
+                .filter(event => shouldShowEvent(event, hour))
+                .map(event => (
+                  <EventCard key={event.id} event={event} />
+                ))}
             </div>
           </div>
         ))}
