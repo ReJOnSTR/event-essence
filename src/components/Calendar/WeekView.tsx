@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, isSameDay } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
@@ -41,20 +41,6 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
     const eventDate = new Date(day);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
-  };
-
-  const calculateEventStyle = (event: CalendarEvent) => {
-    const startHour = event.start.getHours();
-    const endHour = event.end.getHours();
-    const duration = endHour - startHour;
-    
-    return {
-      position: 'absolute' as const,
-      top: `${startHour * 60}px`,
-      height: `${duration * 60}px`,
-      left: '0',
-      right: '0',
-    };
   };
 
   return (
@@ -117,17 +103,19 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
               <div
                 key={`${day}-${hour}`}
                 className={cn(
-                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
+                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
                   isToday(day) && "bg-blue-50"
                 )}
                 onClick={() => handleCellClick(day, hour)}
               >
-                {hour === 0 && events
-                  .filter(event => isSameDay(event.start, day))
+                {events
+                  .filter(
+                    event =>
+                      format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
+                      new Date(event.start).getHours() === hour
+                  )
                   .map(event => (
-                    <div key={event.id} style={calculateEventStyle(event)}>
-                      <EventCard key={event.id} event={event} />
-                    </div>
+                    <EventCard key={event.id} event={event} />
                   ))}
               </div>
             ))}

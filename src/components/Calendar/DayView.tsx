@@ -47,20 +47,6 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
     onDateSelect(eventDate);
   };
 
-  const calculateEventStyle = (event: CalendarEvent) => {
-    const startHour = event.start.getHours();
-    const endHour = event.end.getHours();
-    const duration = endHour - startHour;
-    
-    return {
-      position: 'absolute' as const,
-      top: `${startHour * 60}px`,
-      height: `${duration * 60}px`,
-      left: '0',
-      right: '0',
-    };
-  };
-
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4" onClick={(e) => e.stopPropagation()}>
@@ -102,14 +88,14 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
             <div 
-              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
+              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50"
               onClick={() => handleHourClick(hour)}
             >
-              {hour === 0 && dayEvents.map(event => (
-                <div key={event.id} style={calculateEventStyle(event)}>
-                  <EventCard event={event} />
-                </div>
-              ))}
+              {dayEvents
+                .filter(event => new Date(event.start).getHours() === hour)
+                .map(event => (
+                  <EventCard key={event.id} event={event} />
+                ))}
             </div>
           </div>
         ))}
