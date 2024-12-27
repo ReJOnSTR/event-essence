@@ -45,7 +45,7 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
 
   return (
     <div className="w-full max-w-7xl mx-auto overflow-x-auto">
-      <div className="flex items-center justify-between mb-4" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-center justify-between mb-4">
         <div className="text-2xl font-semibold">
           {format(weekStart, "MMMM yyyy", { locale: tr })}
         </div>
@@ -75,56 +75,56 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
         </div>
       </div>
 
-      <div className="border border-gray-200 rounded-lg min-w-[800px]">
-        <div className="grid grid-cols-8">
-          <div className="border-r border-gray-200"></div>
-          {weekDays.map((day) => (
-            <div
-              key={day.toString()}
-              className={cn(
-                "p-2 text-center border-r border-gray-200",
-                isToday(day) && "text-blue-600"
-              )}
-            >
-              <div className="font-medium">
-                {format(day, "EEEE", { locale: tr })}
-              </div>
-              <div className="text-sm text-gray-500">
-                {format(day, "d MMM", { locale: tr })}
-              </div>
+      <div className="grid grid-cols-8 gap-px bg-gray-200 min-w-[800px]">
+        <div className="bg-white w-16"></div>
+        {weekDays.map((day) => (
+          <div
+            key={day.toString()}
+            className={cn(
+              "bg-white p-2 text-center",
+              isToday(day) && "text-calendar-blue"
+            )}
+          >
+            <div className="font-medium">
+              {format(day, "EEEE", { locale: tr })}
             </div>
-          ))}
+            <div className="text-sm text-gray-500">
+              {format(day, "d MMM", { locale: tr })}
+            </div>
+          </div>
+        ))}
 
-          <div className="border-r border-gray-200">
-            {hours.map((hour) => (
-              <div key={`hour-${hour}`} className="h-[60px] border-b border-gray-200 pr-2 text-right">
-                <span className="text-sm text-gray-500">
-                  {`${hour.toString().padStart(2, '0')}:00`}
-                </span>
+        {hours.map((hour) => (
+          <>
+            <div key={`hour-${hour}`} className="bg-white p-2 text-right text-sm text-gray-500">
+              {`${hour.toString().padStart(2, '0')}:00`}
+            </div>
+            {weekDays.map((day) => (
+              <div
+                key={`${day}-${hour}`}
+                className={cn(
+                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
+                  isToday(day) && "bg-blue-50"
+                )}
+                onClick={() => {
+                  const eventDate = new Date(day);
+                  eventDate.setHours(hour);
+                  onDateSelect(eventDate);
+                }}
+              >
+                {events
+                  .filter(
+                    event =>
+                      format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
+                      new Date(event.start).getHours() === hour
+                  )
+                  .map(event => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
               </div>
             ))}
-          </div>
-
-          {weekDays.map((day) => (
-            <div key={day.toString()} className="relative border-r border-gray-200">
-              {hours.map((hour) => (
-                <div
-                  key={`${day}-${hour}`}
-                  className={cn(
-                    "h-[60px] border-b border-gray-200 cursor-pointer hover:bg-gray-50",
-                    isToday(day) && "bg-blue-50"
-                  )}
-                  onClick={() => handleCellClick(day, hour)}
-                />
-              ))}
-              {events
-                .filter(event => format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'))
-                .map(event => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-            </div>
-          ))}
-        </div>
+          </>
+        ))}
       </div>
     </div>
   );
