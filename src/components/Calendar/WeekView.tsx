@@ -103,14 +103,10 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
               <div
                 key={`${day}-${hour}`}
                 className={cn(
-                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
+                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
                   isToday(day) && "bg-blue-50"
                 )}
-                onClick={() => {
-                  const eventDate = new Date(day);
-                  eventDate.setHours(hour);
-                  onDateSelect(eventDate);
-                }}
+                onClick={() => handleCellClick(day, hour)}
               >
                 {events
                   .filter(

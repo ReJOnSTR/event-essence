@@ -88,7 +88,7 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
             <div 
-              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50"
+              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
               onClick={() => handleHourClick(hour)}
             >
               {dayEvents
