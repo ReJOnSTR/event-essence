@@ -3,7 +3,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMon
 import { tr } from 'date-fns/locale';
 import { CalendarEvent, DayCell } from "@/types/calendar";
 import { cn } from "@/lib/utils";
-import EventCard from "./EventCard";
+import MonthEventCard from "./MonthEventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 
@@ -125,7 +125,7 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
             {!isYearView && (
               <div className="space-y-1">
                 {day.events.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <MonthEventCard key={event.id} event={event} />
                 ))}
               </div>
             )}
