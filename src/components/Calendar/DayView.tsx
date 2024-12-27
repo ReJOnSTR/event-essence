@@ -81,21 +81,19 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
           </Button>
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-[1px] bg-gray-200">
         {hours.map((hour) => (
-          <div key={hour} className="grid grid-cols-12 gap-2">
-            <div className="col-span-1 text-right text-sm text-gray-500">
+          <div key={hour} className="grid grid-cols-12 gap-[1px]">
+            <div className="col-span-1 text-right pr-2 py-1 text-sm text-gray-500 bg-white">
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
             <div 
-              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50"
+              className="col-span-11 h-[60px] bg-white relative cursor-pointer hover:bg-gray-50"
               onClick={() => handleHourClick(hour)}
             >
-              {dayEvents
-                .filter(event => new Date(event.start).getHours() === hour)
-                .map(event => (
-                  <EventCard key={event.id} event={event} />
-                ))}
+              {hour === 0 && dayEvents.map(event => (
+                <EventCard key={event.id} event={event} />
+              ))}
             </div>
           </div>
         ))}

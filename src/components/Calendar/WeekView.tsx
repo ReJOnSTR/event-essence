@@ -75,7 +75,7 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
         </div>
       </div>
 
-      <div className="grid grid-cols-8 gap-px bg-gray-200 min-w-[800px]">
+      <div className="grid grid-cols-8 gap-[1px] bg-gray-200 min-w-[800px]">
         <div className="bg-white w-16"></div>
         {weekDays.map((day) => (
           <div
@@ -103,17 +103,13 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
               <div
                 key={`${day}-${hour}`}
                 className={cn(
-                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
+                  "bg-white h-[60px] relative cursor-pointer hover:bg-gray-50",
                   isToday(day) && "bg-blue-50"
                 )}
                 onClick={() => handleCellClick(day, hour)}
               >
-                {events
-                  .filter(
-                    event =>
-                      format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
-                      new Date(event.start).getHours() === hour
-                  )
+                {hour === 0 && events
+                  .filter(event => format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'))
                   .map(event => (
                     <EventCard key={event.id} event={event} />
                   ))}
