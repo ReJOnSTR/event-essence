@@ -75,48 +75,56 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
         </div>
       </div>
 
-      <div className="grid grid-cols-8 gap-[1px] bg-gray-200 min-w-[800px]">
-        <div className="bg-white w-16"></div>
-        {weekDays.map((day) => (
-          <div
-            key={day.toString()}
-            className={cn(
-              "bg-white p-2 text-center",
-              isToday(day) && "text-calendar-blue"
-            )}
-          >
-            <div className="font-medium">
-              {format(day, "EEEE", { locale: tr })}
+      <div className="border border-gray-200 rounded-lg min-w-[800px]">
+        <div className="grid grid-cols-8">
+          <div className="border-r border-gray-200"></div>
+          {weekDays.map((day) => (
+            <div
+              key={day.toString()}
+              className={cn(
+                "p-2 text-center border-r border-gray-200",
+                isToday(day) && "text-blue-600"
+              )}
+            >
+              <div className="font-medium">
+                {format(day, "EEEE", { locale: tr })}
+              </div>
+              <div className="text-sm text-gray-500">
+                {format(day, "d MMM", { locale: tr })}
+              </div>
             </div>
-            <div className="text-sm text-gray-500">
-              {format(day, "d MMM", { locale: tr })}
-            </div>
-          </div>
-        ))}
+          ))}
 
-        {hours.map((hour) => (
-          <>
-            <div key={`hour-${hour}`} className="bg-white p-2 text-right text-sm text-gray-500">
-              {`${hour.toString().padStart(2, '0')}:00`}
-            </div>
-            {weekDays.map((day) => (
-              <div
-                key={`${day}-${hour}`}
-                className={cn(
-                  "bg-white h-[60px] relative cursor-pointer hover:bg-gray-50",
-                  isToday(day) && "bg-blue-50"
-                )}
-                onClick={() => handleCellClick(day, hour)}
-              >
-                {hour === 0 && events
-                  .filter(event => format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'))
-                  .map(event => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
+          <div className="border-r border-gray-200">
+            {hours.map((hour) => (
+              <div key={`hour-${hour}`} className="h-[60px] border-b border-gray-200 pr-2 text-right">
+                <span className="text-sm text-gray-500">
+                  {`${hour.toString().padStart(2, '0')}:00`}
+                </span>
               </div>
             ))}
-          </>
-        ))}
+          </div>
+
+          {weekDays.map((day) => (
+            <div key={day.toString()} className="relative border-r border-gray-200">
+              {hours.map((hour) => (
+                <div
+                  key={`${day}-${hour}`}
+                  className={cn(
+                    "h-[60px] border-b border-gray-200 cursor-pointer hover:bg-gray-50",
+                    isToday(day) && "bg-blue-50"
+                  )}
+                  onClick={() => handleCellClick(day, hour)}
+                />
+              ))}
+              {events
+                .filter(event => format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'))
+                .map(event => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -52,7 +52,7 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
       <div className="flex items-center justify-between mb-4" onClick={(e) => e.stopPropagation()}>
         <div className={cn(
           "text-2xl font-semibold",
-          isToday(date) && "text-calendar-blue"
+          isToday(date) && "text-blue-600"
         )}>
           {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
         </div>
@@ -81,22 +81,30 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
           </Button>
         </div>
       </div>
-      <div className="space-y-[1px] bg-gray-200">
-        {hours.map((hour) => (
-          <div key={hour} className="grid grid-cols-12 gap-[1px]">
-            <div className="col-span-1 text-right pr-2 py-1 text-sm text-gray-500 bg-white">
-              {`${hour.toString().padStart(2, '0')}:00`}
-            </div>
-            <div 
-              className="col-span-11 h-[60px] bg-white relative cursor-pointer hover:bg-gray-50"
-              onClick={() => handleHourClick(hour)}
-            >
-              {hour === 0 && dayEvents.map(event => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
+      <div className="relative border border-gray-200 rounded-lg">
+        <div className="grid grid-cols-12">
+          <div className="col-span-1 border-r border-gray-200">
+            {hours.map((hour) => (
+              <div key={hour} className="h-[60px] border-b border-gray-200 pr-2 text-right">
+                <span className="text-sm text-gray-500">
+                  {`${hour.toString().padStart(2, '0')}:00`}
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
+          <div className="col-span-11 relative">
+            {hours.map((hour) => (
+              <div 
+                key={hour}
+                className="h-[60px] border-b border-gray-200 cursor-pointer hover:bg-gray-50"
+                onClick={() => handleHourClick(hour)}
+              />
+            ))}
+            {dayEvents.map(event => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
