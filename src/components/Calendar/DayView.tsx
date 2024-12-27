@@ -81,14 +81,14 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
           </Button>
         </div>
       </div>
-      <div className="space-y-0">
+      <div className="space-y-2">
         {hours.map((hour) => (
           <div key={hour} className="grid grid-cols-12 gap-2">
-            <div className="col-span-1 text-right text-sm text-gray-500 h-[60px] flex items-center justify-end pr-2">
+            <div className="col-span-1 text-right text-sm text-gray-500">
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
             <div 
-              className="col-span-11 h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
+              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50"
               onClick={() => handleHourClick(hour)}
             >
               {dayEvents

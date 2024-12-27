@@ -96,14 +96,14 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
 
         {hours.map((hour) => (
           <>
-            <div key={`hour-${hour}`} className="bg-white p-2 text-right text-sm text-gray-500 h-[60px] flex items-center justify-end">
+            <div key={`hour-${hour}`} className="bg-white p-2 text-right text-sm text-gray-500">
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
             {weekDays.map((day) => (
               <div
                 key={`${day}-${hour}`}
                 className={cn(
-                  "bg-white border-t border-gray-200 h-[60px] cursor-pointer hover:bg-gray-50 relative",
+                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50",
                   isToday(day) && "bg-blue-50"
                 )}
                 onClick={() => handleCellClick(day, hour)}
