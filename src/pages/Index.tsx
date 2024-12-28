@@ -94,7 +94,7 @@ export default function Index() {
       case "year":
         return <YearView {...viewProps} />;
       default:
-        return <MonthView events={events} onDateSelect={handleDateSelect} />;
+        return <MonthView {...viewProps} />;
     }
   };
 
@@ -141,6 +141,7 @@ export default function Index() {
           onDelete={handleDeleteEvent}
           selectedDate={selectedDate}
           event={selectedEvent}
+          events={events}
         />
       </div>
     </div>

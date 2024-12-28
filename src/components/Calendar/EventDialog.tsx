@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CalendarEvent } from "@/types/calendar";
-import { format } from "date-fns";
+import { format, isWithinInterval } from "date-fns";
 import { Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface EventDialogProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface EventDialogProps {
   onDelete?: (eventId: string) => void;
   selectedDate: Date;
   event?: CalendarEvent;
+  events: CalendarEvent[];
 }
 
 export default function EventDialog({ 
@@ -22,12 +24,14 @@ export default function EventDialog({
   onSave, 
   onDelete,
   selectedDate,
-  event 
+  event,
+  events 
 }: EventDialogProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -47,6 +51,19 @@ export default function EventDialog({
     }
   }, [isOpen, selectedDate, event]);
 
+  const checkEventOverlap = (start: Date, end: Date) => {
+    return events.some(existingEvent => {
+      if (event && existingEvent.id === event.id) return false;
+      
+      return (
+        isWithinInterval(start, { start: existingEvent.start, end: existingEvent.end }) ||
+        isWithinInterval(end, { start: existingEvent.start, end: existingEvent.end }) ||
+        isWithinInterval(existingEvent.start, { start, end }) ||
+        isWithinInterval(existingEvent.end, { start, end })
+      );
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -58,6 +75,15 @@ export default function EventDialog({
     
     const end = new Date(selectedDate);
     end.setHours(endHours, endMinutes);
+
+    if (checkEventOverlap(start, end)) {
+      toast({
+        title: "Zaman Çakışması",
+        description: "Bu zaman aralığında başka bir etkinlik bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     onSave({
       title,
@@ -80,31 +106,34 @@ export default function EventDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{event ? "Edit Event" : "Add Event"}</DialogTitle>
+          <DialogTitle>{event ? "Etkinliği Düzenle" : "Etkinlik Ekle"}</DialogTitle>
+          <DialogDescription>
+            Etkinlik detaylarını buradan düzenleyebilirsiniz.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Title</label>
+            <label className="text-sm font-medium">Başlık</label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Event title"
+              placeholder="Etkinlik başlığı"
               required
             />
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-sm font-medium">Açıklama</label>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Event description"
+              placeholder="Etkinlik açıklaması"
             />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Start Time</label>
+              <label className="text-sm font-medium">Başlangıç Saati</label>
               <Input
                 type="time"
                 value={startTime}
@@ -113,7 +142,7 @@ export default function EventDialog({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">End Time</label>
+              <label className="text-sm font-medium">Bitiş Saati</label>
               <Input
                 type="time"
                 value={endTime}
@@ -132,14 +161,14 @@ export default function EventDialog({
                 className="flex items-center gap-2"
               >
                 <Trash2 className="h-4 w-4" />
-                Delete
+                Sil
               </Button>
             )}
             <div className="flex gap-2 ml-auto">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                İptal
               </Button>
-              <Button type="submit">Save</Button>
+              <Button type="submit">Kaydet</Button>
             </div>
           </div>
         </form>
