@@ -9,9 +9,10 @@ interface YearViewProps {
   date: Date;
   events: CalendarEvent[];
   onDateSelect: (date: Date) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
-export default function YearView({ date, events, onDateSelect }: YearViewProps) {
+export default function YearView({ date, events, onDateSelect, onEventClick }: YearViewProps) {
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
 
@@ -71,6 +72,7 @@ export default function YearView({ date, events, onDateSelect }: YearViewProps) 
               currentDate={month}
               events={events}
               onDateSelect={onDateSelect}
+              onEventClick={onEventClick}
               isYearView={true}
             />
           </div>

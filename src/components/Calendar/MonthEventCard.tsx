@@ -8,7 +8,7 @@ interface EventCardProps {
 
 export default function MonthEventCard({ event }: EventCardProps) {
   return (
-    <div className="bg-calendar-event text-white text-sm p-1 rounded truncate mb-1">
+    <div className="bg-calendar-event text-white text-sm p-1 rounded truncate mb-1 cursor-pointer hover:brightness-90 transition-colors">
       <div className="flex items-center gap-1">
         <span className="font-medium truncate">{event.title}</span>
         <span className="text-xs whitespace-nowrap">

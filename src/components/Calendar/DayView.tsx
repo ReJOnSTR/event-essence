@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday, addMinutes, setHours, setMinutes } from "date-fns";
+import { format, isToday, addMinutes, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";

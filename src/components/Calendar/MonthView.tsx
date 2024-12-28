@@ -12,9 +12,16 @@ interface MonthViewProps {
   onDateSelect: (date: Date) => void;
   currentDate?: Date;
   isYearView?: boolean;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
-export default function MonthView({ events, onDateSelect, currentDate: propCurrentDate, isYearView = false }: MonthViewProps) {
+export default function MonthView({ 
+  events, 
+  onDateSelect, 
+  currentDate: propCurrentDate, 
+  isYearView = false,
+  onEventClick 
+}: MonthViewProps) {
   const [currentDate, setCurrentDate] = useState(propCurrentDate || new Date());
   
   const getDaysInMonth = (date: Date): DayCell[] => {
@@ -57,6 +64,13 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
     const today = new Date();
     setCurrentDate(today);
     onDateSelect(today);
+  };
+
+  const handleEventClick = (e: React.MouseEvent, event: CalendarEvent) => {
+    e.stopPropagation();
+    if (onEventClick) {
+      onEventClick(event);
+    }
   };
 
   const days = getDaysInMonth(currentDate);
@@ -125,7 +139,9 @@ export default function MonthView({ events, onDateSelect, currentDate: propCurre
             {!isYearView && (
               <div className="space-y-1">
                 {day.events.map((event) => (
-                  <MonthEventCard key={event.id} event={event} />
+                  <div key={event.id} onClick={(e) => handleEventClick(e, event)}>
+                    <MonthEventCard event={event} />
+                  </div>
                 ))}
               </div>
             )}
