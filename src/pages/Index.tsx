@@ -32,6 +32,16 @@ export default function Index() {
     setIsDialogOpen(true);
   };
 
+  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+    setEvents(events.map(event => 
+      event.id === updatedEvent.id ? updatedEvent : event
+    ));
+    toast({
+      title: "Etkinlik güncellendi",
+      description: "Etkinlik başarıyla taşındı.",
+    });
+  };
+
   const handleSaveEvent = (eventData: Omit<CalendarEvent, "id">) => {
     if (selectedEvent) {
       // Update existing event
@@ -73,6 +83,7 @@ export default function Index() {
       events,
       onDateSelect: handleDateSelect,
       onEventClick: handleEventClick,
+      onEventUpdate: handleEventUpdate,
     };
 
     switch (currentView) {
