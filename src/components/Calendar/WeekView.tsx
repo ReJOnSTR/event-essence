@@ -10,9 +10,10 @@ interface WeekViewProps {
   date: Date;
   events: CalendarEvent[];
   onDateSelect: (date: Date) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
-export default function WeekView({ date, events, onDateSelect }: WeekViewProps) {
+export default function WeekView({ date, events, onDateSelect, onEventClick }: WeekViewProps) {
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -115,7 +116,11 @@ export default function WeekView({ date, events, onDateSelect }: WeekViewProps) 
                       new Date(event.start).getHours() === hour
                   )
                   .map(event => (
-                    <EventCard key={event.id} event={event} />
+                    <EventCard 
+                      key={event.id} 
+                      event={event} 
+                      onClick={onEventClick}
+                    />
                   ))}
               </div>
             ))}

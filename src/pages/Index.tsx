@@ -17,34 +17,71 @@ export default function Index() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<ViewType>("month");
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | undefined>();
   const { toast } = useToast();
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
+    setSelectedEvent(undefined);
+    setIsDialogOpen(true);
+  };
+
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setSelectedDate(event.start);
     setIsDialogOpen(true);
   };
 
   const handleSaveEvent = (eventData: Omit<CalendarEvent, "id">) => {
-    const newEvent: CalendarEvent = {
-      ...eventData,
-      id: crypto.randomUUID(),
-    };
-    
-    setEvents([...events, newEvent]);
+    if (selectedEvent) {
+      // Update existing event
+      const updatedEvents = events.map(event => 
+        event.id === selectedEvent.id 
+          ? { ...eventData, id: event.id }
+          : event
+      );
+      setEvents(updatedEvents);
+      toast({
+        title: "Etkinlik güncellendi",
+        description: "Etkinliğiniz başarıyla güncellendi.",
+      });
+    } else {
+      // Create new event
+      const newEvent: CalendarEvent = {
+        ...eventData,
+        id: crypto.randomUUID(),
+      };
+      setEvents([...events, newEvent]);
+      toast({
+        title: "Etkinlik oluşturuldu",
+        description: "Etkinliğiniz başarıyla oluşturuldu.",
+      });
+    }
+  };
+
+  const handleDeleteEvent = (eventId: string) => {
+    setEvents(events.filter(event => event.id !== eventId));
     toast({
-      title: "Etkinlik oluşturuldu",
-      description: "Etkinliğiniz başarıyla oluşturuldu.",
+      title: "Etkinlik silindi",
+      description: "Etkinliğiniz başarıyla silindi.",
     });
   };
 
   const renderView = () => {
+    const viewProps = {
+      date: selectedDate,
+      events,
+      onDateSelect: handleDateSelect,
+      onEventClick: handleEventClick,
+    };
+
     switch (currentView) {
       case "day":
-        return <DayView date={selectedDate} events={events} onDateSelect={handleDateSelect} />;
+        return <DayView {...viewProps} />;
       case "week":
-        return <WeekView date={selectedDate} events={events} onDateSelect={handleDateSelect} />;
+        return <WeekView {...viewProps} />;
       case "year":
-        return <YearView date={selectedDate} events={events} onDateSelect={handleDateSelect} />;
+        return <YearView {...viewProps} />;
       default:
         return <MonthView events={events} onDateSelect={handleDateSelect} />;
     }
@@ -55,7 +92,10 @@ export default function Index() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Takvim</h1>
-          <Button onClick={() => setIsDialogOpen(true)}>
+          <Button onClick={() => {
+            setSelectedEvent(undefined);
+            setIsDialogOpen(true);
+          }}>
             <Plus className="h-4 w-4 mr-2" />
             Etkinlik Ekle
           </Button>
@@ -82,9 +122,14 @@ export default function Index() {
         
         <EventDialog
           isOpen={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
+          onClose={() => {
+            setIsDialogOpen(false);
+            setSelectedEvent(undefined);
+          }}
           onSave={handleSaveEvent}
+          onDelete={handleDeleteEvent}
           selectedDate={selectedDate}
+          event={selectedEvent}
         />
       </div>
     </div>

@@ -10,9 +10,10 @@ interface DayViewProps {
   date: Date;
   events: CalendarEvent[];
   onDateSelect: (date: Date) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
-export default function DayView({ date, events, onDateSelect }: DayViewProps) {
+export default function DayView({ date, events, onDateSelect, onEventClick }: DayViewProps) {
   const dayEvents = events.filter(event => 
     format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
   );
@@ -94,7 +95,11 @@ export default function DayView({ date, events, onDateSelect }: DayViewProps) {
               {dayEvents
                 .filter(event => new Date(event.start).getHours() === hour)
                 .map(event => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    onClick={onEventClick}
+                  />
                 ))}
             </div>
           </div>
