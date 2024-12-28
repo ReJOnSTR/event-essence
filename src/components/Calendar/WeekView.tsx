@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours, setMinutes, addMinutes, differenceInMinutes } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours, setMinutes, addMinutes, differenceInMinutes, parseISO } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
@@ -44,10 +44,18 @@ export default function WeekView({
     const draggedEvent = active.data.current as CalendarEvent;
     const [, dropHour, dayIndex] = over.id.toString().split('-').map(Number);
     const dropMinutes = Math.round((event.delta.y % 60) / 60 * 60);
-    
+
+    // Calculate the new date based on the week start and day index
     const newDate = addDays(weekStart, dayIndex);
-    const newStart = setMinutes(setHours(newDate, dropHour), dropMinutes);
-    const duration = differenceInMinutes(draggedEvent.end, draggedEvent.start);
+    const newStart = new Date(newDate);
+    newStart.setHours(dropHour);
+    newStart.setMinutes(dropMinutes >= 0 ? dropMinutes : 0);
+
+    // Calculate event duration and set new end time
+    const duration = differenceInMinutes(
+      new Date(draggedEvent.end),
+      new Date(draggedEvent.start)
+    );
     const newEnd = addMinutes(newStart, duration);
 
     onEventUpdate({

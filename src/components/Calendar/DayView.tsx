@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday, addMinutes, setHours, setMinutes, differenceInMinutes } from "date-fns";
+import { format, isToday, addMinutes, setHours, setMinutes, differenceInMinutes, parseISO } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
@@ -44,11 +44,21 @@ export default function DayView({
     if (!over) return;
 
     const draggedEvent = active.data.current as CalendarEvent;
-    const dropHour = parseInt(over.id.toString().split('-')[1]);
+    const [, dropHour] = over.id.toString().split('-').map(Number);
+    
+    // Calculate new minutes based on vertical position
     const dropMinutes = Math.round((event.delta.y % 60) / 60 * 60);
+    
+    // Create new start date with the dropped hour and minutes
+    const newStart = new Date(date);
+    newStart.setHours(dropHour);
+    newStart.setMinutes(dropMinutes >= 0 ? dropMinutes : 0);
 
-    const newStart = setMinutes(setHours(new Date(date), dropHour), dropMinutes);
-    const duration = differenceInMinutes(draggedEvent.end, draggedEvent.start);
+    // Calculate event duration and set new end time
+    const duration = differenceInMinutes(
+      new Date(draggedEvent.end),
+      new Date(draggedEvent.start)
+    );
     const newEnd = addMinutes(newStart, duration);
 
     onEventUpdate({
