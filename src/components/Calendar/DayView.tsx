@@ -1,11 +1,12 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday, addMinutes, setHours, setMinutes, differenceInMinutes, parseISO } from "date-fns";
+import { format, isToday, addMinutes, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 interface DayViewProps {
   date: Date;
@@ -43,26 +44,13 @@ export default function DayView({
     if (!over) return;
 
     const draggedEvent = active.data.current as CalendarEvent;
-    const [, dropHour] = over.id.toString().split('-').map(Number);
-    
-    // Calculate minutes based on vertical position
-    const cellHeight = 60; // Height of each hour cell in pixels
-    const dropOffset = event.delta.y % cellHeight;
-    const dropMinutes = Math.floor((dropOffset / cellHeight) * 60);
-    
-    // Create new start date with the dropped hour and calculated minutes
-    const newStart = new Date(date);
-    newStart.setHours(dropHour);
-    newStart.setMinutes(dropMinutes >= 0 ? dropMinutes : 0);
+    const dropHour = parseInt(over.id.toString().split('-')[1]);
+    const dropMinutes = Math.round((event.delta.y % 60) / 60 * 60);
 
-    // Calculate event duration and set new end time
-    const duration = differenceInMinutes(
-      new Date(draggedEvent.end),
-      new Date(draggedEvent.start)
-    );
+    const newStart = setMinutes(setHours(new Date(date), dropHour), dropMinutes);
+    const duration = differenceInMinutes(draggedEvent.end, draggedEvent.start);
     const newEnd = addMinutes(newStart, duration);
 
-    // Update the event with new start and end times
     onEventUpdate({
       ...draggedEvent,
       start: newStart,
@@ -134,6 +122,7 @@ export default function DayView({
       </div>
       <DndContext 
         sensors={sensors}
+        modifiers={[restrictToVerticalAxis]}
         onDragEnd={handleDragEnd}
       >
         <div className="space-y-2">
