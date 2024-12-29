@@ -99,9 +99,9 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full px-4">
+        <div className="flex justify-between items-center py-6">
           <h1 className="text-3xl font-bold text-gray-900">Takvim</h1>
           <Button onClick={() => {
             setSelectedEvent(undefined);

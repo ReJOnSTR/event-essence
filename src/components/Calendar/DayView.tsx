@@ -1,12 +1,10 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday, addMinutes, setHours, setMinutes, differenceInMinutes } from "date-fns";
+import { format, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 interface DayViewProps {
   date: Date;
@@ -28,35 +26,6 @@ export default function DayView({
   );
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    if (!onEventUpdate) return;
-
-    const { active, over } = event;
-    if (!over) return;
-
-    const draggedEvent = active.data.current as CalendarEvent;
-    const dropHour = parseInt(over.id.toString().split('-')[1]);
-    const dropMinutes = Math.round((event.delta.y % 60) / 60 * 60);
-
-    const newStart = setMinutes(setHours(new Date(date), dropHour), dropMinutes);
-    const duration = differenceInMinutes(draggedEvent.end, draggedEvent.start);
-    const newEnd = addMinutes(newStart, duration);
-
-    onEventUpdate({
-      ...draggedEvent,
-      start: newStart,
-      end: newEnd,
-    });
-  };
 
   const nextDay = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -87,7 +56,7 @@ export default function DayView({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full">
       <div className="flex items-center justify-between mb-4">
         <div className={cn(
           "text-2xl font-semibold",
@@ -120,36 +89,30 @@ export default function DayView({
           </Button>
         </div>
       </div>
-      <DndContext 
-        sensors={sensors}
-        modifiers={[restrictToVerticalAxis]}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="space-y-2">
-          {hours.map((hour) => (
-            <div key={hour} className="grid grid-cols-12 gap-2">
-              <div className="col-span-1 text-right text-sm text-gray-500">
-                {`${hour.toString().padStart(2, '0')}:00`}
-              </div>
-              <div 
-                id={`hour-${hour}`}
-                className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
-                onClick={() => handleHourClick(hour)}
-              >
-                {dayEvents
-                  .filter(event => new Date(event.start).getHours() === hour)
-                  .map(event => (
-                    <EventCard 
-                      key={event.id} 
-                      event={event} 
-                      onClick={onEventClick}
-                    />
-                  ))}
-              </div>
+
+      <div className="space-y-2">
+        {hours.map((hour) => (
+          <div key={hour} className="grid grid-cols-12 gap-2">
+            <div className="col-span-1 text-right text-sm text-gray-500">
+              {`${hour.toString().padStart(2, '0')}:00`}
             </div>
-          ))}
-        </div>
-      </DndContext>
+            <div 
+              className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
+              onClick={() => handleHourClick(hour)}
+            >
+              {dayEvents
+                .filter(event => new Date(event.start).getHours() === hour)
+                .map(event => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    onClick={onEventClick}
+                  />
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
