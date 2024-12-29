@@ -45,10 +45,12 @@ export default function DayView({
     const draggedEvent = active.data.current as CalendarEvent;
     const [, dropHour] = over.id.toString().split('-').map(Number);
     
-    // Calculate new minutes based on vertical position
-    const dropMinutes = Math.round((event.delta.y % 60) / 60 * 60);
+    // Calculate minutes based on vertical position
+    const cellHeight = 60; // Height of each hour cell in pixels
+    const dropOffset = event.delta.y % cellHeight;
+    const dropMinutes = Math.floor((dropOffset / cellHeight) * 60);
     
-    // Create new start date with the dropped hour and minutes
+    // Create new start date with the dropped hour and calculated minutes
     const newStart = new Date(date);
     newStart.setHours(dropHour);
     newStart.setMinutes(dropMinutes >= 0 ? dropMinutes : 0);
@@ -60,6 +62,7 @@ export default function DayView({
     );
     const newEnd = addMinutes(newStart, duration);
 
+    // Update the event with new start and end times
     onEventUpdate({
       ...draggedEvent,
       start: newStart,

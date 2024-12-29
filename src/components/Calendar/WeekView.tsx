@@ -43,10 +43,16 @@ export default function WeekView({
 
     const draggedEvent = active.data.current as CalendarEvent;
     const [, dropHour, dayIndex] = over.id.toString().split('-').map(Number);
-    const dropMinutes = Math.round((event.delta.y % 60) / 60 * 60);
-
-    // Calculate the new date based on the week start and day index
+    
+    // Calculate new date based on the weekStart and dayIndex
     const newDate = addDays(weekStart, dayIndex);
+    
+    // Calculate minutes based on vertical position
+    const cellHeight = 60; // Height of each hour cell in pixels
+    const dropOffset = event.delta.y % cellHeight;
+    const dropMinutes = Math.floor((dropOffset / cellHeight) * 60);
+    
+    // Create new start date with the dropped hour and calculated minutes
     const newStart = new Date(newDate);
     newStart.setHours(dropHour);
     newStart.setMinutes(dropMinutes >= 0 ? dropMinutes : 0);
@@ -58,6 +64,7 @@ export default function WeekView({
     );
     const newEnd = addMinutes(newStart, duration);
 
+    // Update the event with new start and end times
     onEventUpdate({
       ...draggedEvent,
       start: newStart,
