@@ -35,9 +35,9 @@ export default function YearView({ date, events, onDateSelect, onEventClick }: Y
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-2xl font-semibold">
+    <div className="w-full px-4">
+      <div className="flex items-center justify-between mb-8">
+        <div className="text-3xl font-bold">
           {format(date, "yyyy", { locale: tr })}
         </div>
         <div className="flex gap-2">
@@ -65,9 +65,12 @@ export default function YearView({ date, events, onDateSelect, onEventClick }: Y
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {months.map((month) => (
-          <div key={month.toString()} className="scale-[0.65] origin-top-left">
+          <div key={month.toString()} className="bg-white rounded-lg shadow-sm p-4">
+            <div className="text-lg font-semibold mb-2 text-center text-gray-700">
+              {format(month, "MMMM", { locale: tr })}
+            </div>
             <MonthView
               currentDate={month}
               events={events}
