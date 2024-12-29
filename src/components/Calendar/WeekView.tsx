@@ -1,16 +1,19 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours, setMinutes } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours, setMinutes, addMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import EventCard from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 interface WeekViewProps {
   date: Date;
   events: CalendarEvent[];
   onDateSelect: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventUpdate?: (event: CalendarEvent) => void;
 }
 
 export default function WeekView({ 
@@ -18,10 +21,41 @@ export default function WeekView({
   events, 
   onDateSelect, 
   onEventClick,
+  onEventUpdate 
 }: WeekViewProps) {
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    if (!onEventUpdate) return;
+
+    const { active, over } = event;
+    if (!over) return;
+
+    const draggedEvent = active.data.current as CalendarEvent;
+    const [, dropHour, dayIndex] = over.id.toString().split('-').map(Number);
+    const dropMinutes = Math.round((event.delta.y % 60) / 60 * 60);
+    
+    const newDate = addDays(weekStart, dayIndex);
+    const newStart = setMinutes(setHours(newDate, dropHour), dropMinutes);
+    const duration = differenceInMinutes(draggedEvent.end, draggedEvent.start);
+    const newEnd = addMinutes(newStart, duration);
+
+    onEventUpdate({
+      ...draggedEvent,
+      start: newStart,
+      end: newEnd,
+    });
+  };
 
   const nextWeek = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,8 +84,8 @@ export default function WeekView({
   };
 
   return (
-    <div className="w-full h-screen">
-      <div className="flex items-center justify-between mb-4 px-4">
+    <div className="w-full max-w-7xl mx-auto overflow-x-auto">
+      <div className="flex items-center justify-between mb-4">
         <div className="text-2xl font-semibold">
           {format(weekStart, "MMMM yyyy", { locale: tr })}
         </div>
@@ -81,57 +115,64 @@ export default function WeekView({
         </div>
       </div>
 
-      <div className="grid grid-cols-8 gap-px bg-gray-200 min-w-full h-[calc(100vh-80px)] overflow-auto">
-        <div className="bg-white w-16"></div>
-        {weekDays.map((day, dayIndex) => (
-          <div
-            key={day.toString()}
-            className={cn(
-              "bg-white p-2 text-center sticky top-0 z-10",
-              isToday(day) && "text-calendar-blue"
-            )}
-          >
-            <div className="font-medium">
-              {format(day, "EEEE", { locale: tr })}
-            </div>
-            <div className="text-sm text-gray-500">
-              {format(day, "d MMM", { locale: tr })}
-            </div>
-          </div>
-        ))}
-
-        {hours.map((hour) => (
-          <>
-            <div key={`hour-${hour}`} className="bg-white p-2 text-right text-sm text-gray-500">
-              {`${hour.toString().padStart(2, '0')}:00`}
-            </div>
-            {weekDays.map((day, dayIndex) => (
-              <div
-                key={`${day}-${hour}`}
-                className={cn(
-                  "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
-                  isToday(day) && "bg-blue-50"
-                )}
-                onClick={() => handleCellClick(day, hour)}
-              >
-                {events
-                  .filter(
-                    event =>
-                      format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
-                      new Date(event.start).getHours() === hour
-                  )
-                  .map(event => (
-                    <EventCard 
-                      key={event.id} 
-                      event={event} 
-                      onClick={onEventClick}
-                    />
-                  ))}
+      <DndContext 
+        sensors={sensors}
+        modifiers={[restrictToVerticalAxis]}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="grid grid-cols-8 gap-px bg-gray-200 min-w-[800px]">
+          <div className="bg-white w-16"></div>
+          {weekDays.map((day, dayIndex) => (
+            <div
+              key={day.toString()}
+              className={cn(
+                "bg-white p-2 text-center",
+                isToday(day) && "text-calendar-blue"
+              )}
+            >
+              <div className="font-medium">
+                {format(day, "EEEE", { locale: tr })}
               </div>
-            ))}
-          </>
-        ))}
-      </div>
+              <div className="text-sm text-gray-500">
+                {format(day, "d MMM", { locale: tr })}
+              </div>
+            </div>
+          ))}
+
+          {hours.map((hour) => (
+            <>
+              <div key={`hour-${hour}`} className="bg-white p-2 text-right text-sm text-gray-500">
+                {`${hour.toString().padStart(2, '0')}:00`}
+              </div>
+              {weekDays.map((day, dayIndex) => (
+                <div
+                  key={`${day}-${hour}`}
+                  id={`cell-${hour}-${dayIndex}`}
+                  className={cn(
+                    "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
+                    isToday(day) && "bg-blue-50"
+                  )}
+                  onClick={() => handleCellClick(day, hour)}
+                >
+                  {events
+                    .filter(
+                      event =>
+                        format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
+                        new Date(event.start).getHours() === hour
+                    )
+                    .map(event => (
+                      <EventCard 
+                        key={event.id} 
+                        event={event} 
+                        onClick={onEventClick}
+                      />
+                    ))}
+                </div>
+              ))}
+            </>
+          ))}
+        </div>
+      </DndContext>
     </div>
   );
 }
