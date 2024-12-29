@@ -3,6 +3,7 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -35,15 +36,20 @@ export default function EventCard({ event, onClick }: EventCardProps) {
   return (
     <div 
       ref={setNodeRef}
-      className="bg-calendar-event text-white text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-move hover:brightness-90 transition-all"
+      className="bg-calendar-event text-white text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-move hover:brightness-90 transition-all group"
       style={style}
       onClick={handleClick}
       {...attributes}
       {...listeners}
     >
-      <div className="font-medium truncate">{event.title}</div>
-      <div className="text-xs">
-        {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
+      <div className="flex items-center gap-1">
+        <GripVertical className="h-4 w-4 opacity-50 group-hover:opacity-100" />
+        <div className="flex-1">
+          <div className="font-medium truncate">{event.title}</div>
+          <div className="text-xs">
+            {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
+          </div>
+        </div>
       </div>
     </div>
   );

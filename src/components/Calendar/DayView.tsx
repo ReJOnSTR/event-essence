@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 interface DayViewProps {
   date: Date;
@@ -132,7 +131,6 @@ export default function DayView({
       </div>
       <DndContext 
         sensors={sensors}
-        modifiers={[restrictToVerticalAxis]}
         onDragEnd={handleDragEnd}
       >
         <div className="space-y-2">

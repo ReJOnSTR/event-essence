@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 
 interface WeekViewProps {
   date: Date;
@@ -125,7 +124,6 @@ export default function WeekView({
 
       <DndContext 
         sensors={sensors}
-        modifiers={[restrictToVerticalAxis]}
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-8 gap-px bg-gray-200 min-w-[800px]">
@@ -148,8 +146,8 @@ export default function WeekView({
           ))}
 
           {hours.map((hour) => (
-            <>
-              <div key={`hour-${hour}`} className="bg-white p-2 text-right text-sm text-gray-500">
+            <React.Fragment key={`hour-${hour}`}>
+              <div className="bg-white p-2 text-right text-sm text-gray-500">
                 {`${hour.toString().padStart(2, '0')}:00`}
               </div>
               {weekDays.map((day, dayIndex) => (
@@ -177,7 +175,7 @@ export default function WeekView({
                     ))}
                 </div>
               ))}
-            </>
+            </React.Fragment>
           ))}
         </div>
       </DndContext>
