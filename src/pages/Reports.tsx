@@ -34,7 +34,6 @@ export default function Reports() {
             <StudentList
               students={students}
               onEditStudent={() => {}}
-              onDelete={() => {}}
               onAddStudent={() => {}}
             />
           </SidebarContent>
