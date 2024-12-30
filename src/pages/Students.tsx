@@ -1,6 +1,7 @@
+import { SidebarProvider } from "@/components/ui/sidebar";
+import StudentList from "@/components/Students/StudentList";
 import { useState } from "react";
 import { Student } from "@/types/calendar";
-import StudentList from "@/components/Students/StudentList";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -13,7 +14,7 @@ export default function Students() {
   const [studentName, setStudentName] = useState("");
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPhone, setStudentPhone] = useState("");
-  const [studentColor, setStudentColor] = useState("#1a73e8");
+  const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
 
   const handleSaveStudent = () => {
@@ -56,7 +57,7 @@ export default function Students() {
     setStudentName(student.name);
     setStudentEmail(student.email || "");
     setStudentPhone(student.phone || "");
-    setStudentColor(student.color || "#1a73e8");
+    setStudentColor(student.color || "#9b87f5");
     setIsStudentDialogOpen(true);
   };
 
@@ -74,44 +75,52 @@ export default function Students() {
     setStudentName("");
     setStudentEmail("");
     setStudentPhone("");
-    setStudentColor("#1a73e8");
+    setStudentColor("#9b87f5");
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Öğrenciler</h1>
-        <Button 
-          onClick={() => {
-            setIsStudentDialogOpen(true);
-            setSelectedStudent(undefined);
-          }}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Öğrenci Ekle
-        </Button>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gray-50 font-sans">
+        <StudentList
+          students={students}
+          onEdit={handleEditStudent}
+          onDelete={handleDeleteStudent}
+        />
+        
+        <div className="flex-1 flex flex-col h-screen overflow-hidden">
+          <div className="flex items-center gap-4 p-4 border-b bg-white">
+            <h1 className="text-2xl font-semibold text-gray-900">Öğrenciler</h1>
+            <div className="ml-auto">
+              <Button onClick={() => {
+                setSelectedStudent(undefined);
+                setIsStudentDialogOpen(true);
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Öğrenci Ekle
+              </Button>
+            </div>
+          </div>
+          
+          <div className="flex-1 overflow-auto p-4">
+            {/* Student list content will go here */}
+          </div>
+        </div>
+
+        <StudentDialog
+          isOpen={isStudentDialogOpen}
+          onClose={handleCloseStudentDialog}
+          onSave={handleSaveStudent}
+          student={selectedStudent}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentEmail={studentEmail}
+          setStudentEmail={setStudentEmail}
+          studentPhone={studentPhone}
+          setStudentPhone={setStudentPhone}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
+        />
       </div>
-
-      <StudentList
-        students={students}
-        onEdit={handleEditStudent}
-        onDelete={handleDeleteStudent}
-      />
-
-      <StudentDialog
-        isOpen={isStudentDialogOpen}
-        onClose={handleCloseStudentDialog}
-        onSave={handleSaveStudent}
-        student={selectedStudent}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        studentEmail={studentEmail}
-        setStudentEmail={setStudentEmail}
-        studentPhone={studentPhone}
-        setStudentPhone={setStudentPhone}
-        studentColor={studentColor}
-        setStudentColor={setStudentColor}
-      />
-    </div>
+    </SidebarProvider>
   );
 }
