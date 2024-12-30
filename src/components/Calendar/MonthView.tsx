@@ -1,8 +1,9 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { CalendarEvent, DayCell, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import MonthEventCard from "./MonthEventCard";
+import { getDefaultStartHour } from "@/utils/settings";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -46,6 +47,12 @@ export default function MonthView({
     }));
   };
 
+  const handleDateClick = (clickedDate: Date) => {
+    const startHour = getDefaultStartHour();
+    const dateWithStartHour = setHours(clickedDate, startHour);
+    onDateSelect(dateWithStartHour);
+  };
+
   const days = getDaysInMonth(date);
 
   return (
@@ -63,7 +70,7 @@ export default function MonthView({
         {days.map((day, idx) => (
           <div
             key={idx}
-            onClick={() => onDateSelect(day.date)}
+            onClick={() => handleDateClick(day.date)}
             className={cn(
               "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
               !day.isCurrentMonth && "bg-gray-50 text-gray-400",
