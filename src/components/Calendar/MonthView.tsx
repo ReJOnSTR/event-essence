@@ -71,11 +71,13 @@ export default function MonthView({
   };
 
   const handleDayClick = (e: React.MouseEvent, date: Date) => {
+    e.preventDefault();
     e.stopPropagation();
     onDateSelect(date);
   };
 
   const handleEventClick = (e: React.MouseEvent, event: CalendarEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     if (onEventClick) {
       onEventClick(event);
@@ -85,7 +87,13 @@ export default function MonthView({
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className={cn("w-full mx-auto", isYearView && "h-full")} onClick={(e) => e.stopPropagation()}>
+    <div 
+      className={cn("w-full mx-auto", isYearView && "h-full")} 
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
       {!isYearView && (
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-gray-900">
@@ -148,9 +156,12 @@ export default function MonthView({
             {!isYearView && (
               <div className="space-y-1">
                 {day.lessons.map((event) => (
-                  <div key={event.id} onClick={(e) => handleEventClick(e, event)}>
-                    <MonthEventCard event={event} students={students} />
-                  </div>
+                  <MonthEventCard 
+                    key={event.id} 
+                    event={event} 
+                    students={students}
+                    onClick={onEventClick}
+                  />
                 ))}
               </div>
             )}
