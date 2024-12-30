@@ -53,13 +53,21 @@ export default function MonthView({
   const nextMonth = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentDate(addDays(endOfMonth(currentDate), 1));
+    const next = addDays(endOfMonth(currentDate), 1);
+    setCurrentDate(next);
+    if (!isYearView) {
+      onDateSelect(next);
+    }
   };
 
   const prevMonth = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentDate(addDays(startOfMonth(currentDate), -1));
+    const prev = addDays(startOfMonth(currentDate), -1);
+    setCurrentDate(prev);
+    if (!isYearView) {
+      onDateSelect(prev);
+    }
   };
 
   const goToToday = (e: React.MouseEvent) => {
@@ -67,20 +75,16 @@ export default function MonthView({
     e.stopPropagation();
     const today = new Date();
     setCurrentDate(today);
-    onDateSelect(today);
+    if (!isYearView) {
+      onDateSelect(today);
+    }
   };
 
   const handleDayClick = (e: React.MouseEvent, date: Date) => {
     e.preventDefault();
     e.stopPropagation();
-    onDateSelect(date);
-  };
-
-  const handleEventClick = (e: React.MouseEvent, event: CalendarEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onEventClick) {
-      onEventClick(event);
+    if (!isYearView) {
+      onDateSelect(date);
     }
   };
 
