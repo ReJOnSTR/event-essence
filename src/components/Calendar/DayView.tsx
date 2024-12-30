@@ -82,7 +82,7 @@ export default function DayView({
                 <div
                   key={`${hour}:${minute}`}
                   className={cn(
-                    "border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative min-h-[15px]",
+                    "cursor-pointer hover:bg-gray-50 relative min-h-[15px]",
                     (!daySettings?.enabled || hour < startHour || hour >= endHour) && 
                     "bg-gray-100 cursor-not-allowed"
                   )}
