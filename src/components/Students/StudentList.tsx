@@ -1,4 +1,4 @@
-import { Plus, FileBarChart, Settings, UserRound } from "lucide-react";
+import { Plus, FileBarChart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -10,23 +10,15 @@ import {
   SidebarGroupContent
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 
 interface StudentListProps {
   students?: Student[];
-  onAddStudent?: () => void;
-  onStudentClick?: (student: Student) => void;
   onEdit?: (student: Student) => void;
   onDelete?: (studentId: string) => void;
+  onAddStudent?: () => void;
 }
 
-export default function StudentList({ 
-  students = [], 
-  onAddStudent,
-  onStudentClick,
-  onEdit,
-  onDelete 
-}: StudentListProps) {
+export default function StudentList({ students = [], onEdit, onDelete, onAddStudent }: StudentListProps) {
   return (
     <>
       <SidebarGroup>
@@ -35,26 +27,17 @@ export default function StudentList({
         </Link>
         <SidebarGroupContent className="border rounded-md p-2">
           <SidebarMenu>
-            {onAddStudent && (
-              <SidebarMenuItem>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start" 
-                  onClick={onAddStudent}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  <span>Öğrenci Ekle</span>
-                </Button>
-              </SidebarMenuItem>
-            )}
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={onAddStudent}>
+                <Plus className="h-4 w-4" />
+                <span>Öğrenci Ekle</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
 
             <ScrollArea className="h-[200px]">
               {students.slice(0, 5).map((student) => (
                 <SidebarMenuItem key={student.id}>
-                  <SidebarMenuButton 
-                    className="w-full cursor-pointer hover:bg-accent"
-                    onClick={() => onStudentClick?.(student)}
-                  >
+                  <SidebarMenuButton className="w-full">
                     <div
                       className="h-2 w-2 rounded-full"
                       style={{ backgroundColor: student.color }}
@@ -67,10 +50,7 @@ export default function StudentList({
                 <div className="mt-2 border-t pt-2">
                   {students.slice(5).map((student) => (
                     <SidebarMenuItem key={student.id}>
-                      <SidebarMenuButton 
-                        className="w-full cursor-pointer hover:bg-accent"
-                        onClick={() => onStudentClick?.(student)}
-                      >
+                      <SidebarMenuButton className="w-full">
                         <div
                           className="h-2 w-2 rounded-full"
                           style={{ backgroundColor: student.color }}
@@ -94,23 +74,6 @@ export default function StudentList({
           </SidebarMenuButton>
         </Link>
       </SidebarGroup>
-
-      <div className="mt-auto">
-        <SidebarGroup>
-          <div className="flex items-center justify-end gap-2">
-            <Link to="/profile" className="block hover:bg-accent rounded-md transition-colors">
-              <SidebarMenuButton className="w-full">
-                <UserRound className="h-4 w-4" />
-              </SidebarMenuButton>
-            </Link>
-            <Link to="/settings" className="block hover:bg-accent rounded-md transition-colors">
-              <SidebarMenuButton className="w-full">
-                <Settings className="h-4 w-4" />
-              </SidebarMenuButton>
-            </Link>
-          </div>
-        </SidebarGroup>
-      </div>
     </>
   );
 }
