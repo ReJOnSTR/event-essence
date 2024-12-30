@@ -44,7 +44,7 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
       {...listeners}
     >
       <div className="font-medium truncate">
-        {student?.name || "İsimsiz Öğrenci"}
+        {student?.name}
       </div>
       <div className="text-xs">
         {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}

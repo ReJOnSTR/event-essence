@@ -14,7 +14,7 @@ export default function MonthEventCard({ event, students }: EventCardProps) {
     <div className="bg-calendar-event text-white text-sm p-1 rounded truncate mb-1 cursor-pointer hover:brightness-90 transition-colors">
       <div className="flex items-center gap-1">
         <span className="font-medium truncate">
-          {student?.name || "İsimsiz Öğrenci"}
+          {student?.name}
         </span>
         <span className="text-xs whitespace-nowrap">
           {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}

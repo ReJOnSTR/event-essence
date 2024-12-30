@@ -166,6 +166,12 @@ export default function Index() {
     setStudentPhone("");
   };
 
+  const goToToday = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedDate(new Date());
+  };
+
   const renderView = () => {
     const viewProps = {
       date: selectedDate,
