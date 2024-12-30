@@ -10,7 +10,7 @@ interface SettingsProps {
   onStudentClick: (student: Student) => void;
 }
 
-export default function Settings({ students, onAddStudent, onStudentClick }: SettingsProps) {
+const Settings = ({ students, onAddStudent, onStudentClick }: SettingsProps) => {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
@@ -44,4 +44,6 @@ export default function Settings({ students, onAddStudent, onStudentClick }: Set
       </div>
     </SidebarProvider>
   );
-}
+};
+
+export default Settings;
