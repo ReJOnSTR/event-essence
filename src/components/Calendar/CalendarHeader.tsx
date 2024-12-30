@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { format } from "date-fns";
-import { tr } from 'date-fns/locale';
 
 interface CalendarHeaderProps {
   date: Date;
@@ -19,9 +17,9 @@ export default function CalendarHeader({
   title 
 }: CalendarHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center justify-between mb-4" onClick={(e) => e.stopPropagation()}>
       <div className="text-2xl font-semibold">
-        {title || format(date, "MMMM yyyy", { locale: tr })}
+        {title}
       </div>
       <div className="flex gap-2">
         <Button 

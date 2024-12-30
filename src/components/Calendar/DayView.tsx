@@ -30,30 +30,37 @@ export default function DayView({
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextDay = () => {
+  const nextDay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const next = new Date(date);
     next.setDate(date.getDate() + 1);
     onDateSelect(next);
   };
 
-  const prevDay = () => {
+  const prevDay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const prev = new Date(date);
     prev.setDate(date.getDate() - 1);
     onDateSelect(prev);
   };
 
-  const goToToday = () => {
+  const goToToday = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     onDateSelect(new Date());
   };
 
-  const handleHourClick = (hour: number) => {
+  const handleHourClick = (e: React.MouseEvent, hour: number) => {
+    e.stopPropagation();
     const eventDate = new Date(date);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" onClick={(e) => e.stopPropagation()}>
       <CalendarHeader
         date={date}
         onPrevious={prevDay}
@@ -70,7 +77,7 @@ export default function DayView({
             </div>
             <div 
               className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
-              onClick={() => handleHourClick(hour)}
+              onClick={(e) => handleHourClick(e, hour)}
             >
               {dayEvents
                 .filter(event => new Date(event.start).getHours() === hour)

@@ -16,20 +16,26 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
 
-  const nextYear = () => {
+  const nextYear = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     onDateSelect(addYears(date, 1));
   };
   
-  const prevYear = () => {
+  const prevYear = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     onDateSelect(subYears(date, 1));
   };
 
-  const goToToday = () => {
+  const goToToday = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     onDateSelect(new Date());
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" onClick={(e) => e.stopPropagation()}>
       <CalendarHeader
         date={date}
         onPrevious={prevYear}
