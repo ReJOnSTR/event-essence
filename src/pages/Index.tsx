@@ -15,9 +15,6 @@ import {
   SidebarProvider,
   Sidebar,
   SidebarContent,
-  SidebarTrigger,
-  SidebarGroup,
-  SidebarGroupLabel,
 } from "@/components/ui/sidebar";
 import { addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
 
@@ -206,34 +203,20 @@ export default function Index() {
   };
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SidebarGroup>
-              <SidebarGroupLabel>Öğrenciler</SidebarGroupLabel>
-              <Button 
-                onClick={() => {
-                  setIsStudentDialogOpen(true);
-                  setSelectedStudent(undefined);
-                }}
-                className="w-full mb-4"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Öğrenci Ekle
-              </Button>
-              <StudentList
-                students={students}
-                onEdit={handleEditStudent}
-                onDelete={handleDeleteStudent}
-              />
-            </SidebarGroup>
+            <StudentList
+              students={students}
+              onEdit={handleEditStudent}
+              onDelete={handleDeleteStudent}
+            />
           </SidebarContent>
         </Sidebar>
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <div className="flex items-center gap-4 p-4 border-b bg-white">
-            <SidebarTrigger />
             <h1 className="text-2xl font-semibold text-gray-900">Özel Ders Takip</h1>
             <div className="ml-auto">
               <Button onClick={() => {
