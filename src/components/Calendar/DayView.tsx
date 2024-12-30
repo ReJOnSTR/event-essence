@@ -1,4 +1,4 @@
-import { CalendarEvent } from "@/types/calendar";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
@@ -12,6 +12,7 @@ interface DayViewProps {
   onDateSelect: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   onEventUpdate?: (event: CalendarEvent) => void;
+  students?: Student[];
 }
 
 export default function DayView({ 
@@ -19,7 +20,8 @@ export default function DayView({
   events, 
   onDateSelect, 
   onEventClick,
-  onEventUpdate 
+  onEventUpdate,
+  students 
 }: DayViewProps) {
   const dayEvents = events.filter(event => 
     format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
@@ -107,6 +109,7 @@ export default function DayView({
                     key={event.id} 
                     event={event} 
                     onClick={onEventClick}
+                    students={students}
                   />
                 ))}
             </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { CalendarEvent } from "@/types/calendar";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
@@ -13,6 +13,7 @@ interface WeekViewProps {
   onDateSelect: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   onEventUpdate?: (event: CalendarEvent) => void;
+  students?: Student[];
 }
 
 export default function WeekView({ 
@@ -20,7 +21,8 @@ export default function WeekView({
   events, 
   onDateSelect, 
   onEventClick,
-  onEventUpdate 
+  onEventUpdate,
+  students 
 }: WeekViewProps) {
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -128,6 +130,7 @@ export default function WeekView({
                       key={event.id} 
                       event={event} 
                       onClick={onEventClick}
+                      students={students}
                     />
                   ))}
               </div>

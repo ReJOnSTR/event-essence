@@ -173,6 +173,7 @@ export default function Index() {
       onDateSelect: handleDateSelect,
       onEventClick: handleLessonClick,
       onEventUpdate: handleLessonUpdate,
+      students: students,
     };
 
     switch (currentView) {
