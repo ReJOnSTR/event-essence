@@ -35,6 +35,7 @@ export default function Index() {
   const [studentName, setStudentName] = useState("");
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPhone, setStudentPhone] = useState("");
+  const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
 
   const handleDateSelect = (date: Date) => {
@@ -117,6 +118,7 @@ export default function Index() {
               name: studentName,
               email: studentEmail,
               phone: studentPhone,
+              color: studentColor,
             }
           : student
       );
@@ -131,6 +133,7 @@ export default function Index() {
         name: studentName,
         email: studentEmail,
         phone: studentPhone,
+        color: studentColor,
       };
       setStudents([...students, newStudent]);
       toast({
@@ -146,6 +149,7 @@ export default function Index() {
     setStudentName(student.name);
     setStudentEmail(student.email || "");
     setStudentPhone(student.phone || "");
+    setStudentColor(student.color || "#9b87f5");
     setIsStudentDialogOpen(true);
   };
 
@@ -168,6 +172,7 @@ export default function Index() {
     setStudentName("");
     setStudentEmail("");
     setStudentPhone("");
+    setStudentColor("#9b87f5");
   };
 
   const handleLessonUpdate = (updatedLesson: Lesson) => {
@@ -281,6 +286,8 @@ export default function Index() {
             setStudentEmail={setStudentEmail}
             studentPhone={studentPhone}
             setStudentPhone={setStudentPhone}
+            studentColor={studentColor}
+            setStudentColor={setStudentColor}
           />
         </div>
       </div>

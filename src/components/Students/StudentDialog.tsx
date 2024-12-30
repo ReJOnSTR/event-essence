@@ -9,6 +9,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface StudentDialogProps {
   isOpen: boolean;
@@ -21,7 +23,18 @@ interface StudentDialogProps {
   setStudentEmail: (email: string) => void;
   studentPhone: string;
   setStudentPhone: (phone: string) => void;
+  studentColor: string;
+  setStudentColor: (color: string) => void;
 }
+
+const STUDENT_COLORS = [
+  { value: "#9b87f5", label: "Mor" },
+  { value: "#F97316", label: "Turuncu" },
+  { value: "#0EA5E9", label: "Mavi" },
+  { value: "#D946EF", label: "Pembe" },
+  { value: "#33C3F0", label: "Açık Mavi" },
+  { value: "#FEC6A1", label: "Şeftali" },
+];
 
 export default function StudentDialog({
   isOpen,
@@ -34,6 +47,8 @@ export default function StudentDialog({
   setStudentEmail,
   studentPhone,
   setStudentPhone,
+  studentColor,
+  setStudentColor,
 }: StudentDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -72,6 +87,34 @@ export default function StudentDialog({
               onChange={(e) => setStudentPhone(e.target.value)}
               placeholder="05XX XXX XX XX"
             />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Renk</label>
+            <RadioGroup
+              value={studentColor}
+              onValueChange={setStudentColor}
+              className="grid grid-cols-3 gap-2"
+            >
+              {STUDENT_COLORS.map((color) => (
+                <div key={color.value} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={color.value}
+                    id={color.value}
+                    className="peer sr-only"
+                  />
+                  <Label
+                    htmlFor={color.value}
+                    className="flex items-center gap-2 rounded-md border-2 border-muted p-2 hover:bg-muted peer-data-[state=checked]:border-primary cursor-pointer"
+                  >
+                    <div
+                      className="h-4 w-4 rounded-full"
+                      style={{ backgroundColor: color.value }}
+                    />
+                    <span className="text-sm">{color.label}</span>
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
           </div>
         </div>
         <DialogFooter>

@@ -17,6 +17,7 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
     height: `${heightInPixels}px`,
     top: `${(new Date(event.start).getMinutes() / 60) * 60}px`,
     zIndex: 10,
+    backgroundColor: student?.color || "#039be5",
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -28,7 +29,7 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
 
   return (
     <div 
-      className="bg-calendar-event text-white text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all"
+      className="text-white text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all"
       style={style}
       onClick={handleClick}
     >
