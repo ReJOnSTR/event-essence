@@ -15,18 +15,18 @@ interface LessonListProps {
   lessons: Lesson[];
   students: Student[];
   selectedStudent: string;
-  startDate: Date;
-  endDate: Date;
+  selectedPeriod: "weekly" | "monthly" | "yearly";
+  selectedDate: Date;
 }
 
 export function LessonList({
   lessons,
   students,
   selectedStudent,
-  startDate,
-  endDate,
+  selectedPeriod,
+  selectedDate,
 }: LessonListProps) {
-  const filteredLessons = getFilteredLessons(lessons, startDate, endDate, selectedStudent);
+  const filteredLessons = getFilteredLessons(lessons, selectedDate, selectedStudent, selectedPeriod);
 
   const getStudentName = (studentId: string | undefined) => {
     if (!studentId) return "Öğrenci Seçilmedi";
