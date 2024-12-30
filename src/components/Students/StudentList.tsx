@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Settings, User } from "lucide-react";
+import { Plus, Settings, User, FileText } from "lucide-react";
 import { Student } from "@/types/calendar";
+import { Link } from "react-router-dom";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -48,19 +49,28 @@ export default function StudentList({ students, onAddStudent, onEditStudent }: S
       </SidebarGroup>
 
       <SidebarFooter>
-        <div className="flex items-center justify-between p-4 border-t">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100">
-              <User className="w-4 h-4 text-purple-600" />
+        <div className="flex flex-col p-4 border-t gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100">
+                <User className="w-4 h-4 text-purple-600" />
+              </div>
+              <div className="text-sm">
+                <div className="font-medium">Öğretmen</div>
+                <div className="text-xs text-gray-500">Profil</div>
+              </div>
             </div>
-            <div className="text-sm">
-              <div className="font-medium">Öğretmen</div>
-              <div className="text-xs text-gray-500">Profil</div>
+            <div className="flex items-center gap-2">
+              <Link to="/reports">
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <FileText className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Settings className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Settings className="h-4 w-4" />
-          </Button>
         </div>
       </SidebarFooter>
     </>
