@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 import MonthView from "@/components/Calendar/MonthView";
 import DayView from "@/components/Calendar/DayView";
@@ -8,7 +9,6 @@ import StudentList from "@/components/Students/StudentList";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -17,7 +17,6 @@ import {
   SidebarContent,
   SidebarTrigger,
   SidebarGroup,
-  SidebarGroupLabel,
 } from "@/components/ui/sidebar";
 import { addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
 
@@ -215,24 +214,12 @@ export default function Index() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SidebarGroup>
-              <SidebarGroupLabel>Öğrenciler</SidebarGroupLabel>
-              <Button 
-                onClick={() => {
-                  setIsStudentDialogOpen(true);
-                  setSelectedStudent(undefined);
-                }}
-                className="w-full mb-4"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Öğrenci Ekle
-              </Button>
-              <StudentList
-                students={students}
-                onEdit={handleEditStudent}
-                onDelete={handleDeleteStudent}
-              />
-            </SidebarGroup>
+            <StudentList
+              students={students}
+              onEdit={handleEditStudent}
+              onDelete={handleDeleteStudent}
+              onAddStudent={() => setIsStudentDialogOpen(true)}
+            />
           </SidebarContent>
         </Sidebar>
         
