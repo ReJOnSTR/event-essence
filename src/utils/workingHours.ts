@@ -25,10 +25,26 @@ const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
 };
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
-  const stored = localStorage.getItem('workingHours');
-  return stored ? JSON.parse(stored) : DEFAULT_WORKING_HOURS;
+  try {
+    const stored = localStorage.getItem('workingHours');
+    if (!stored) return DEFAULT_WORKING_HOURS;
+    
+    const parsed = JSON.parse(stored);
+    // Ensure all days are present with default values
+    return {
+      ...DEFAULT_WORKING_HOURS,
+      ...parsed
+    };
+  } catch (error) {
+    console.error('Error reading working hours from localStorage:', error);
+    return DEFAULT_WORKING_HOURS;
+  }
 };
 
 export const setWorkingHours = (hours: WeeklyWorkingHours): void => {
-  localStorage.setItem('workingHours', JSON.stringify(hours));
+  try {
+    localStorage.setItem('workingHours', JSON.stringify(hours));
+  } catch (error) {
+    console.error('Error saving working hours to localStorage:', error);
+  }
 };

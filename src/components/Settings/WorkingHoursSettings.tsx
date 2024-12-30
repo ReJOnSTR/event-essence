@@ -17,7 +17,7 @@ const DAYS = {
 } as const;
 
 export default function WorkingHoursSettings() {
-  const [workingHours, setWorkingHoursState] = useState(() => getWorkingHours());
+  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(getWorkingHours);
   const { toast } = useToast();
 
   const handleChange = (
@@ -51,7 +51,7 @@ export default function WorkingHoursSettings() {
             <div key={day} className="flex items-center gap-4">
               <div className="flex items-center gap-2 w-40">
                 <Switch
-                  checked={workingHours[day].enabled}
+                  checked={workingHours[day]?.enabled ?? false}
                   onCheckedChange={(checked) => handleChange(day, "enabled", checked)}
                 />
                 <Label>{label}</Label>
@@ -59,17 +59,17 @@ export default function WorkingHoursSettings() {
               <div className="flex items-center gap-2">
                 <Input
                   type="time"
-                  value={workingHours[day].start}
+                  value={workingHours[day]?.start ?? "09:00"}
                   onChange={(e) => handleChange(day, "start", e.target.value)}
-                  disabled={!workingHours[day].enabled}
+                  disabled={!workingHours[day]?.enabled}
                   className="w-32"
                 />
                 <span>-</span>
                 <Input
                   type="time"
-                  value={workingHours[day].end}
+                  value={workingHours[day]?.end ?? "17:00"}
                   onChange={(e) => handleChange(day, "end", e.target.value)}
-                  disabled={!workingHours[day].enabled}
+                  disabled={!workingHours[day]?.enabled}
                   className="w-32"
                 />
               </div>
