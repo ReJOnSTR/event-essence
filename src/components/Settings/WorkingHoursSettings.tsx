@@ -16,8 +16,29 @@ const DAYS = {
   sunday: "Pazar"
 } as const;
 
+const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
+  monday: { enabled: true, start: "09:00", end: "17:00" },
+  tuesday: { enabled: true, start: "09:00", end: "17:00" },
+  wednesday: { enabled: true, start: "09:00", end: "17:00" },
+  thursday: { enabled: true, start: "09:00", end: "17:00" },
+  friday: { enabled: true, start: "09:00", end: "17:00" },
+  saturday: { enabled: false, start: "09:00", end: "17:00" },
+  sunday: { enabled: false, start: "09:00", end: "17:00" }
+};
+
 export default function WorkingHoursSettings() {
-  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(getWorkingHours);
+  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(() => {
+    const savedHours = getWorkingHours();
+    return Object.keys(DAYS).reduce((acc, day) => ({
+      ...acc,
+      [day]: {
+        enabled: savedHours[day as keyof WeeklyWorkingHours]?.enabled ?? DEFAULT_WORKING_HOURS[day as keyof WeeklyWorkingHours].enabled,
+        start: savedHours[day as keyof WeeklyWorkingHours]?.start ?? DEFAULT_WORKING_HOURS[day as keyof WeeklyWorkingHours].start,
+        end: savedHours[day as keyof WeeklyWorkingHours]?.end ?? DEFAULT_WORKING_HOURS[day as keyof WeeklyWorkingHours].end,
+      }
+    }), {} as WeeklyWorkingHours);
+  });
+  
   const { toast } = useToast();
 
   const handleChange = (
