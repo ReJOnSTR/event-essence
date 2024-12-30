@@ -1,5 +1,13 @@
 import { Lesson } from "@/types/calendar";
-import { startOfWeek, startOfMonth, startOfYear, endOfWeek, endOfMonth, endOfYear, isWithinInterval } from "date-fns";
+import { 
+  startOfWeek, 
+  endOfWeek, 
+  startOfMonth, 
+  endOfMonth, 
+  startOfYear, 
+  endOfYear, 
+  isWithinInterval 
+} from "date-fns";
 
 export interface PeriodHours {
   weekly: number;
@@ -12,39 +20,48 @@ export const calculatePeriodHours = (
   selectedDate: Date,
   selectedStudent: string
 ): PeriodHours => {
+  // Seçilen tarihe göre periyot başlangıç ve bitiş tarihlerini belirle
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
-  const monthStart = startOfMonth(selectedDate);
-  const yearStart = startOfYear(selectedDate);
-  
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
+  
+  const monthStart = startOfMonth(selectedDate);
   const monthEnd = endOfMonth(selectedDate);
+  
+  const yearStart = startOfYear(selectedDate);
   const yearEnd = endOfYear(selectedDate);
 
   let weeklyHours = 0;
   let monthlyHours = 0;
   let yearlyHours = 0;
 
+  // Her ders için kontrol et
   lessons.forEach((lesson) => {
     const lessonStart = new Date(lesson.start);
     const lessonEnd = new Date(lesson.end);
+    
+    // Ders süresini saat cinsinden hesapla
     const duration = (lessonEnd.getTime() - lessonStart.getTime()) / (1000 * 60 * 60);
 
+    // Seçilen öğrenciye ait veya tüm öğrenciler seçili ise
     if (selectedStudent === "all" || lesson.studentId === selectedStudent) {
-      // Weekly calculation
+      // Haftalık hesaplama - sadece seçili haftadaki dersler
       if (isWithinInterval(lessonStart, { start: weekStart, end: weekEnd })) {
         weeklyHours += duration;
       }
-      // Monthly calculation
+
+      // Aylık hesaplama - sadece seçili aydaki dersler
       if (isWithinInterval(lessonStart, { start: monthStart, end: monthEnd })) {
         monthlyHours += duration;
       }
-      // Yearly calculation
+
+      // Yıllık hesaplama - sadece seçili yıldaki dersler
       if (isWithinInterval(lessonStart, { start: yearStart, end: yearEnd })) {
         yearlyHours += duration;
       }
     }
   });
 
+  // Saatleri tam sayıya yuvarla
   return {
     weekly: Math.round(weeklyHours),
     monthly: Math.round(monthlyHours),

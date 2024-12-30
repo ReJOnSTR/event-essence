@@ -20,7 +20,7 @@ export function StatsCards({ hours, selectedDate }: StatsCardsProps) {
         <CardContent>
           <div className="text-2xl font-bold">{hours.weekly} Saat</div>
           <p className="text-xs text-muted-foreground">
-            {format(selectedDate, "'Hafta' w, MMMM yyyy", { locale: tr })}
+            {format(selectedDate, "'Hafta' w", { locale: tr })}
           </p>
         </CardContent>
       </Card>
