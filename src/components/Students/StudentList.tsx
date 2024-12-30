@@ -26,6 +26,13 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton onClick={onAddStudent}>
+              <Plus className="h-4 w-4" />
+              <span>Öğrenci Ekle</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link to="/students" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
@@ -33,15 +40,6 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          
-          {onAddStudent && (
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={onAddStudent}>
-                <Plus className="h-4 w-4" />
-                <span>Öğrenci Ekle</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
 
           <ScrollArea className="h-[200px]">
             {students.map((student) => (
