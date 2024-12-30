@@ -1,4 +1,4 @@
-import { CalendarEvent } from "@/types/calendar";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { format, addMonths, startOfYear, addYears, subYears } from "date-fns";
 import { tr } from 'date-fns/locale';
 import MonthView from "./MonthView";
@@ -10,9 +10,10 @@ interface YearViewProps {
   events: CalendarEvent[];
   onDateSelect: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  students?: Student[];
 }
 
-export default function YearView({ date, events, onDateSelect, onEventClick }: YearViewProps) {
+export default function YearView({ date, events, onDateSelect, onEventClick, students }: YearViewProps) {
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
 
@@ -77,6 +78,7 @@ export default function YearView({ date, events, onDateSelect, onEventClick }: Y
               onDateSelect={onDateSelect}
               onEventClick={onEventClick}
               isYearView={true}
+              students={students}
             />
           </div>
         ))}

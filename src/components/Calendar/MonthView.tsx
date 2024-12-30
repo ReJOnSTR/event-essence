@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
-import { CalendarEvent, DayCell } from "@/types/calendar";
+import { CalendarEvent, DayCell, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import MonthEventCard from "./MonthEventCard";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ interface MonthViewProps {
   currentDate?: Date;
   isYearView?: boolean;
   onEventClick?: (event: CalendarEvent) => void;
+  students?: Student[];
 }
 
 export default function MonthView({ 
@@ -20,7 +21,8 @@ export default function MonthView({
   onDateSelect, 
   currentDate: propCurrentDate, 
   isYearView = false,
-  onEventClick 
+  onEventClick,
+  students
 }: MonthViewProps) {
   const [currentDate, setCurrentDate] = useState(propCurrentDate || new Date());
   
@@ -143,7 +145,7 @@ export default function MonthView({
               <div className="space-y-1">
                 {day.lessons.map((event) => (
                   <div key={event.id} onClick={(e) => handleEventClick(e, event)}>
-                    <MonthEventCard event={event} />
+                    <MonthEventCard event={event} students={students} />
                   </div>
                 ))}
               </div>
