@@ -3,89 +3,98 @@ import MonthView from "@/components/Calendar/MonthView";
 import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
-import EventDialog from "@/components/Calendar/EventDialog";
-import { CalendarEvent } from "@/types/calendar";
+import LessonDialog from "@/components/Calendar/LessonDialog";
+import { Lesson, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
+import { 
+  SidebarProvider, 
+  Sidebar, 
+  SidebarContent, 
+  SidebarTrigger,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton
+} from "@/components/ui/sidebar";
 
 type ViewType = "day" | "week" | "month" | "year";
 
 export default function Index() {
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<ViewType>("month");
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | undefined>();
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
   const { toast } = useToast();
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
-    setSelectedEvent(undefined);
+    setSelectedLesson(undefined);
     setIsDialogOpen(true);
   };
 
-  const handleEventClick = (event: CalendarEvent) => {
-    setSelectedEvent(event);
-    setSelectedDate(event.start);
+  const handleLessonClick = (lesson: Lesson) => {
+    setSelectedLesson(lesson);
+    setSelectedDate(lesson.start);
     setIsDialogOpen(true);
   };
 
-  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
-    setEvents(events.map(event => 
-      event.id === updatedEvent.id ? updatedEvent : event
+  const handleLessonUpdate = (updatedLesson: Lesson) => {
+    setLessons(lessons.map(lesson => 
+      lesson.id === updatedLesson.id ? updatedLesson : lesson
     ));
     toast({
-      title: "Etkinlik güncellendi",
-      description: "Etkinlik başarıyla taşındı.",
+      title: "Ders güncellendi",
+      description: "Ders başarıyla taşındı.",
     });
   };
 
-  const handleSaveEvent = (eventData: Omit<CalendarEvent, "id">) => {
-    if (selectedEvent) {
-      // Update existing event
-      const updatedEvents = events.map(event => 
-        event.id === selectedEvent.id 
-          ? { ...eventData, id: event.id }
-          : event
+  const handleSaveLesson = (lessonData: Omit<Lesson, "id">) => {
+    if (selectedLesson) {
+      const updatedLessons = lessons.map(lesson => 
+        lesson.id === selectedLesson.id 
+          ? { ...lessonData, id: lesson.id }
+          : lesson
       );
-      setEvents(updatedEvents);
+      setLessons(updatedLessons);
       toast({
-        title: "Etkinlik güncellendi",
-        description: "Etkinliğiniz başarıyla güncellendi.",
+        title: "Ders güncellendi",
+        description: "Dersiniz başarıyla güncellendi.",
       });
     } else {
-      // Create new event
-      const newEvent: CalendarEvent = {
-        ...eventData,
+      const newLesson: Lesson = {
+        ...lessonData,
         id: crypto.randomUUID(),
       };
-      setEvents([...events, newEvent]);
+      setLessons([...lessons, newLesson]);
       toast({
-        title: "Etkinlik oluşturuldu",
-        description: "Etkinliğiniz başarıyla oluşturuldu.",
+        title: "Ders oluşturuldu",
+        description: "Dersiniz başarıyla oluşturuldu.",
       });
     }
   };
 
-  const handleDeleteEvent = (eventId: string) => {
-    setEvents(events.filter(event => event.id !== eventId));
+  const handleDeleteLesson = (lessonId: string) => {
+    setLessons(lessons.filter(lesson => lesson.id !== lessonId));
     toast({
-      title: "Etkinlik silindi",
-      description: "Etkinliğiniz başarıyla silindi.",
+      title: "Ders silindi",
+      description: "Dersiniz başarıyla silindi.",
     });
   };
 
   const renderView = () => {
     const viewProps = {
       date: selectedDate,
-      events,
+      events: lessons,
       onDateSelect: handleDateSelect,
-      onEventClick: handleEventClick,
-      onEventUpdate: handleEventUpdate,
+      onEventClick: handleLessonClick,
+      onEventUpdate: handleLessonUpdate,
     };
 
     switch (currentView) {
@@ -101,31 +110,46 @@ export default function Index() {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            {/* Sidebar content will be added later */}
+            <SidebarGroup>
+              <SidebarGroupLabel>Öğrenciler</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={() => {
+                    toast({
+                      title: "Yakında",
+                      description: "Öğrenci ekleme özelliği yakında eklenecek.",
+                    });
+                  }}>
+                    <Users className="h-4 w-4" />
+                    <span>Öğrenci Ekle</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
           </SidebarContent>
         </Sidebar>
         
         <div className="flex-1 flex flex-col">
-          <div className="p-4">
+          <div className="p-4 border-b bg-white">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
-                <h1 className="text-3xl font-bold text-gray-900">Takvim</h1>
+                <h1 className="text-2xl font-semibold text-gray-900">Özel Ders Takip</h1>
               </div>
               <Button onClick={() => {
-                setSelectedEvent(undefined);
+                setSelectedLesson(undefined);
                 setIsDialogOpen(true);
               }}>
                 <Plus className="h-4 w-4 mr-2" />
-                Etkinlik Ekle
+                Ders Ekle
               </Button>
             </div>
 
-            <Tabs value={currentView} className="w-full mb-4">
+            <Tabs value={currentView} className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="day" onClick={() => setCurrentView("day")}>
                   Günlük
@@ -143,21 +167,23 @@ export default function Index() {
             </Tabs>
           </div>
           
-          <ScrollArea className="flex-1 px-4 pb-4">
-            {renderView()}
+          <ScrollArea className="flex-1">
+            <div className="p-4">
+              {renderView()}
+            </div>
           </ScrollArea>
           
-          <EventDialog
+          <LessonDialog
             isOpen={isDialogOpen}
             onClose={() => {
               setIsDialogOpen(false);
-              setSelectedEvent(undefined);
+              setSelectedLesson(undefined);
             }}
-            onSave={handleSaveEvent}
-            onDelete={handleDeleteEvent}
+            onSave={handleSaveLesson}
+            onDelete={handleDeleteLesson}
             selectedDate={selectedDate}
-            event={selectedEvent}
-            events={events}
+            event={selectedLesson}
+            events={lessons}
           />
         </div>
       </div>
