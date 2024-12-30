@@ -1,6 +1,6 @@
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { cn } from "@/lib/utils";
@@ -27,35 +27,28 @@ export default function WeekView({
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextWeek = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const nextWeek = () => {
     const next = addWeeks(date, 1);
     onDateSelect(next);
   };
 
-  const prevWeek = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const prevWeek = () => {
     const prev = subWeeks(date, 1);
     onDateSelect(prev);
   };
 
-  const goToToday = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const goToToday = () => {
     onDateSelect(new Date());
   };
 
-  const handleCellClick = (e: React.MouseEvent, day: Date, hour: number) => {
-    e.stopPropagation();
+  const handleCellClick = (day: Date, hour: number) => {
     const eventDate = new Date(day);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
   };
 
   return (
-    <div className="w-full overflow-x-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="w-full overflow-x-auto">
       <CalendarHeader
         date={date}
         onPrevious={prevWeek}
@@ -95,7 +88,7 @@ export default function WeekView({
                   "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
                   isToday(day) && "bg-blue-50"
                 )}
-                onClick={(e) => handleCellClick(e, day, hour)}
+                onClick={() => handleCellClick(day, hour)}
               >
                 {events
                   .filter(

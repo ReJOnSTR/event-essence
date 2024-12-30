@@ -5,6 +5,7 @@ import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import CalendarHeader from "./CalendarHeader";
 
 interface DayViewProps {
   date: Date;
@@ -29,69 +30,37 @@ export default function DayView({
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextDay = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const nextDay = () => {
     const next = new Date(date);
     next.setDate(date.getDate() + 1);
     onDateSelect(next);
   };
 
-  const prevDay = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const prevDay = () => {
     const prev = new Date(date);
     prev.setDate(date.getDate() - 1);
     onDateSelect(prev);
   };
 
-  const goToToday = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const goToToday = () => {
     onDateSelect(new Date());
   };
 
-  const handleHourClick = (e: React.MouseEvent, hour: number) => {
-    e.stopPropagation();
+  const handleHourClick = (hour: number) => {
     const eventDate = new Date(date);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
   };
 
   return (
-    <div className="w-full" onClick={(e) => e.stopPropagation()}>
-      <div className="flex items-center justify-between mb-4">
-        <div className={cn(
-          "text-2xl font-semibold",
-          isToday(date) && "text-calendar-blue"
-        )}>
-          {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={prevDay}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={goToToday}
-            className="flex gap-2 items-center"
-          >
-            <CalendarDays className="h-4 w-4" />
-            Bugün
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={nextDay}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+    <div className="w-full">
+      <CalendarHeader
+        date={date}
+        onPrevious={prevDay}
+        onNext={nextDay}
+        onToday={goToToday}
+        title={format(date, "d MMMM yyyy, EEEE", { locale: tr })}
+      />
 
       <div className="space-y-2">
         {hours.map((hour) => (
@@ -101,7 +70,7 @@ export default function DayView({
             </div>
             <div 
               className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
-              onClick={(e) => handleHourClick(e, hour)}
+              onClick={() => handleHourClick(hour)}
             >
               {dayEvents
                 .filter(event => new Date(event.start).getHours() === hour)
