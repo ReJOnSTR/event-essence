@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { FileBarChart, Filter } from "lucide-react";
+import { FileBarChart, Filter, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -80,60 +81,65 @@ export default function Reports() {
           <div className="flex items-center gap-4 p-4 border-b bg-white">
             <SidebarTrigger />
             <h1 className="text-2xl font-semibold text-gray-900">Ders Raporları</h1>
+            <div className="ml-auto">
+              <Link to="/">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Takvime Dön
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <div className="p-4 border-b bg-white sticky top-0 z-10">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <div className="col-span-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Filtreler</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Öğrenci Seçin" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tüm Öğrenciler</SelectItem>
-                        {students.map((student) => (
-                          <SelectItem key={student.id} value={student.id}>
-                            {student.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Select value={selectedStudent} onValueChange={setSelectedStudent}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Öğrenci Seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tüm Öğrenciler</SelectItem>
+                    {students.map((student) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-                    <Select value={selectedPeriod} onValueChange={(value: "weekly" | "monthly" | "yearly") => setSelectedPeriod(value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Periyot Seçin" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weekly">Haftalık</SelectItem>
-                        <SelectItem value="monthly">Aylık</SelectItem>
-                        <SelectItem value="yearly">Yıllık</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => {
-                        toast({
-                          title: "Filtreler sıfırlandı",
-                          description: "Tüm filtreler varsayılan değerlere döndürüldü.",
-                        });
-                        setSelectedStudent("all");
-                        setSelectedPeriod("weekly");
-                      }}
-                    >
-                      <Filter className="h-4 w-4 mr-2" />
-                      Filtreleri Sıfırla
-                    </Button>
-                  </CardContent>
-                </Card>
+                <Select value={selectedPeriod} onValueChange={(value: "weekly" | "monthly" | "yearly") => setSelectedPeriod(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Periyot Seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weekly">Haftalık</SelectItem>
+                    <SelectItem value="monthly">Aylık</SelectItem>
+                    <SelectItem value="yearly">Yıllık</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
+              <Button 
+                variant="outline" 
+                className="w-full md:w-auto"
+                onClick={() => {
+                  toast({
+                    title: "Filtreler sıfırlandı",
+                    description: "Tüm filtreler varsayılan değerlere döndürüldü.",
+                  });
+                  setSelectedStudent("all");
+                  setSelectedPeriod("weekly");
+                }}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filtreleri Sıfırla
+              </Button>
+            </div>
+          </div>
+          
+          <div className="flex-1 overflow-auto p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Haftalık Ders Saati</CardTitle>
@@ -173,10 +179,6 @@ export default function Reports() {
                 </CardContent>
               </Card>
             </div>
-          </div>
-          
-          <div className="flex-1 overflow-auto p-4">
-            {/* Buraya ek raporlama grafikleri veya tablolar eklenebilir */}
           </div>
         </div>
       </div>
