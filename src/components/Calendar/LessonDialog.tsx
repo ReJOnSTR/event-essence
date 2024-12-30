@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, addMinutes } from "date-fns";
+import { format, isWithinInterval, addMinutes, isEqual } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
@@ -27,6 +27,8 @@ interface LessonDialogProps {
   students: Student[];
 }
 
+// Since this file is getting too long, we should consider splitting it into smaller components
+// For now, let's keep the functionality intact and focus on fixing the overlap logic
 export default function LessonDialog({ 
   isOpen, 
   onClose, 
@@ -74,6 +76,12 @@ export default function LessonDialog({
     return events.some(existingEvent => {
       if (event && existingEvent.id === event.id) return false;
       
+      // Allow back-to-back lessons (where one ends exactly when another begins)
+      if (isEqual(start, existingEvent.end) || isEqual(end, existingEvent.start)) {
+        return false;
+      }
+
+      // Check for any other type of overlap
       return (
         isWithinInterval(start, { start: existingEvent.start, end: existingEvent.end }) ||
         isWithinInterval(end, { start: existingEvent.start, end: existingEvent.end }) ||
