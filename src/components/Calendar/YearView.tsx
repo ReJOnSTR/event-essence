@@ -24,7 +24,7 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
               {format(month, "MMMM", { locale: tr })}
             </div>
             <MonthView
-              currentDate={month}
+              date={month}
               events={events}
               onDateSelect={onDateSelect}
               onEventClick={onEventClick}
