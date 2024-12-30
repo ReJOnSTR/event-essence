@@ -8,6 +8,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/comp
 import StudentList from "@/components/Students/StudentList";
 import { ReportFilters } from "@/components/Reports/ReportFilters";
 import { StatsCards } from "@/components/Reports/StatsCards";
+import { LessonList } from "@/components/Reports/LessonList";
 import { calculatePeriodHours } from "@/utils/reportCalculations";
 
 export default function Reports() {
@@ -72,6 +73,21 @@ export default function Reports() {
               </Card>
 
               <StatsCards hours={hours} selectedDate={selectedDate} />
+
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle>Ders Listesi</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <LessonList
+                    lessons={lessons}
+                    students={students}
+                    selectedStudent={selectedStudent}
+                    selectedPeriod={selectedPeriod}
+                    selectedDate={selectedDate}
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

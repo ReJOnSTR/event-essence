@@ -70,3 +70,36 @@ export const calculatePeriodHours = (
     yearly: Math.round(yearlyHours)
   };
 };
+
+export const getFilteredLessons = (
+  lessons: Lesson[],
+  selectedDate: Date,
+  selectedStudent: string,
+  selectedPeriod: "weekly" | "monthly" | "yearly"
+): Lesson[] => {
+  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
+  
+  return lessons
+    .filter((lesson) => {
+      const lessonStart = new Date(lesson.start);
+      
+      // Öğrenci filtresi
+      if (selectedStudent !== "all" && lesson.studentId !== selectedStudent) {
+        return false;
+      }
+
+      // Periyot filtresi
+      switch (selectedPeriod) {
+        case "weekly":
+          return isWithinInterval(lessonStart, { start: weekStart, end: weekEnd });
+        case "monthly":
+          return isSameMonth(lessonStart, selectedDate);
+        case "yearly":
+          return isSameYear(lessonStart, selectedDate);
+        default:
+          return false;
+      }
+    })
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+};
