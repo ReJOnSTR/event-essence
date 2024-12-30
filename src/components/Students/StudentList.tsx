@@ -10,7 +10,6 @@ import {
   SidebarGroupContent
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 
 interface StudentListProps {
   students?: Student[];
@@ -22,7 +21,9 @@ interface StudentListProps {
 export default function StudentList({ students = [], onEdit, onDelete, onAddStudent }: StudentListProps) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Öğrenciler</SidebarGroupLabel>
+      <Link to="/students" className="block hover:bg-accent rounded-md transition-colors">
+        <SidebarGroupLabel className="cursor-pointer">Öğrenciler</SidebarGroupLabel>
+      </Link>
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem>
