@@ -1,6 +1,6 @@
 import React from "react";
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours } from "date-fns";
+import { format, addDays, startOfWeek, addMonths, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
@@ -26,17 +26,17 @@ export default function WeekView({
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextWeek = (e: React.MouseEvent) => {
+  const nextMonth = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const next = addWeeks(date, 1);
+    const next = addMonths(date, 1);
     onDateSelect(next);
   };
 
-  const prevWeek = (e: React.MouseEvent) => {
+  const prevMonth = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const prev = subWeeks(date, 1);
+    const prev = addMonths(date, -1);
     onDateSelect(prev);
   };
 
@@ -62,7 +62,7 @@ export default function WeekView({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={prevWeek}
+            onClick={prevMonth}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -77,7 +77,7 @@ export default function WeekView({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={nextWeek}
+            onClick={nextMonth}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

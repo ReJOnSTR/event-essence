@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday } from "date-fns";
+import { format, isToday, addMonths, startOfMonth, endOfMonth } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
@@ -27,19 +27,17 @@ export default function DayView({
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextDay = (e: React.MouseEvent) => {
+  const nextMonth = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const next = new Date(date);
-    next.setDate(date.getDate() + 1);
+    const next = addMonths(date, 1);
     onDateSelect(next);
   };
 
-  const prevDay = (e: React.MouseEvent) => {
+  const prevMonth = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const prev = new Date(date);
-    prev.setDate(date.getDate() - 1);
+    const prev = addMonths(date, -1);
     onDateSelect(prev);
   };
 
@@ -68,7 +66,7 @@ export default function DayView({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={prevDay}
+            onClick={prevMonth}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -83,7 +81,7 @@ export default function DayView({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={nextDay}
+            onClick={nextMonth}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
