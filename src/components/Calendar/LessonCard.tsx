@@ -17,7 +17,10 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
 
   const {attributes, listeners, setNodeRef, transform} = useDraggable({
     id: event.id,
-    data: event
+    data: {
+      ...event,
+      type: 'lesson'
+    }
   });
 
   const style = {

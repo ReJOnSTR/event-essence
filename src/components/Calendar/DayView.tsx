@@ -55,16 +55,21 @@ export default function DayView({
     if (!draggedEvent) return;
 
     const hourElement = over.id.toString();
-    const newHour = parseInt(hourElement);
+    const [hourStr, minuteStr] = hourElement.split(':');
+    const newHour = parseInt(hourStr);
+    const newMinute = parseInt(minuteStr || '0');
     
     if (isNaN(newHour)) return;
 
-    const minutesDiff = draggedEvent.end.getTime() - draggedEvent.start.getTime();
-    const newStart = new Date(date);
-    newStart.setHours(newHour);
-    newStart.setMinutes(0);
+    // Calculate duration of the event
+    const duration = draggedEvent.end.getTime() - draggedEvent.start.getTime();
     
-    const newEnd = new Date(newStart.getTime() + minutesDiff);
+    // Create new start date with the dragged time
+    const newStart = new Date(date);
+    newStart.setHours(newHour, newMinute);
+    
+    // Create new end date by adding the duration
+    const newEnd = new Date(newStart.getTime() + duration);
 
     const updatedEvent = {
       ...draggedEvent,
@@ -92,21 +97,30 @@ export default function DayView({
               <div className="col-span-1 text-right text-sm text-gray-500">
                 {`${hour.toString().padStart(2, '0')}:00`}
               </div>
-              <div 
-                id={hour.toString()}
-                className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
-                onClick={() => handleHourClick(hour)}
-              >
-                {dayEvents
-                  .filter(event => new Date(event.start).getHours() === hour)
-                  .map(event => (
-                    <LessonCard 
-                      key={event.id} 
-                      event={event} 
-                      onClick={onEventClick}
-                      students={students}
-                    />
-                  ))}
+              <div className="col-span-11 grid grid-rows-4 min-h-[60px]">
+                {[0, 15, 30, 45].map((minute) => (
+                  <div
+                    key={`${hour}:${minute}`}
+                    id={`${hour}:${minute}`}
+                    className="border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative min-h-[15px]"
+                    onClick={() => {
+                      const newDate = new Date(date);
+                      newDate.setHours(hour, minute);
+                      onDateSelect(newDate);
+                    }}
+                  >
+                    {minute === 0 && dayEvents
+                      .filter(event => new Date(event.start).getHours() === hour)
+                      .map(event => (
+                        <LessonCard 
+                          key={event.id} 
+                          event={event} 
+                          onClick={onEventClick}
+                          students={students}
+                        />
+                      ))}
+                  </div>
+                ))}
               </div>
             </div>
           ))}
