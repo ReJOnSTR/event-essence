@@ -4,9 +4,9 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import ViewSelector from "@/components/Calendar/ViewSelector";
 import StudentList from "@/components/Students/StudentList";
 import StudentDialog from "@/components/Students/StudentDialog";
+import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -19,6 +19,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
 } from "@/components/ui/sidebar";
+import { addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
 
 type ViewType = "day" | "week" | "month" | "year";
 
@@ -48,14 +49,30 @@ export default function Index() {
     setIsDialogOpen(true);
   };
 
-  const handleLessonUpdate = (updatedLesson: Lesson) => {
-    setLessons(lessons.map(lesson => 
-      lesson.id === updatedLesson.id ? updatedLesson : lesson
-    ));
-    toast({
-      title: "Ders güncellendi",
-      description: "Ders başarıyla taşındı.",
-    });
+  const handleNavigationClick = (direction: 'prev' | 'next') => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    switch (currentView) {
+      case 'day':
+        setSelectedDate(prev => direction === 'next' ? addWeeks(prev, 1) : subWeeks(prev, 1));
+        break;
+      case 'week':
+        setSelectedDate(prev => direction === 'next' ? addWeeks(prev, 1) : subWeeks(prev, 1));
+        break;
+      case 'month':
+        setSelectedDate(prev => direction === 'next' ? addMonths(prev, 1) : subMonths(prev, 1));
+        break;
+      case 'year':
+        setSelectedDate(prev => direction === 'next' ? addYears(prev, 1) : subYears(prev, 1));
+        break;
+    }
+  };
+
+  const handleTodayClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedDate(new Date());
   };
 
   const handleSaveLesson = (lessonData: Omit<Lesson, "id">) => {
@@ -159,7 +176,6 @@ export default function Index() {
       events: lessons,
       onDateSelect: handleDateSelect,
       onEventClick: handleLessonClick,
-      onEventUpdate: handleLessonUpdate,
       students: students,
     };
 
@@ -202,12 +218,10 @@ export default function Index() {
         </Sidebar>
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          <div className="p-4 border-b bg-white">
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger />
-                <h1 className="text-2xl font-semibold text-gray-900">Özel Ders Takip</h1>
-              </div>
+          <div className="flex items-center gap-4 p-4 border-b bg-white">
+            <SidebarTrigger />
+            <h1 className="text-2xl font-semibold text-gray-900">Özel Ders Takip</h1>
+            <div className="ml-auto">
               <Button onClick={() => {
                 setSelectedLesson(undefined);
                 setIsDialogOpen(true);
@@ -216,12 +230,16 @@ export default function Index() {
                 Ders Ekle
               </Button>
             </div>
-
-            <ViewSelector
-              currentView={currentView}
-              onViewChange={(view) => setCurrentView(view as ViewType)}
-            />
           </div>
+
+          <CalendarPageHeader
+            date={selectedDate}
+            currentView={currentView}
+            onViewChange={(view) => setCurrentView(view as ViewType)}
+            onPrevious={handleNavigationClick('prev')}
+            onNext={handleNavigationClick('next')}
+            onToday={handleTodayClick}
+          />
           
           <div className="flex-1 overflow-auto">
             <div className="p-4">

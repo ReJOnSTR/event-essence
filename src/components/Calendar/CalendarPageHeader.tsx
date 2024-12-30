@@ -1,0 +1,64 @@
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { format } from "date-fns";
+import { tr } from 'date-fns/locale';
+import ViewSelector from "./ViewSelector";
+
+interface CalendarPageHeaderProps {
+  date: Date;
+  currentView: string;
+  onViewChange: (view: string) => void;
+  onPrevious: (e: React.MouseEvent) => void;
+  onNext: (e: React.MouseEvent) => void;
+  onToday: (e: React.MouseEvent) => void;
+}
+
+export default function CalendarPageHeader({
+  date,
+  currentView,
+  onViewChange,
+  onPrevious,
+  onNext,
+  onToday
+}: CalendarPageHeaderProps) {
+  return (
+    <div className="p-4 border-b bg-white sticky top-0 z-10">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            {format(date, "MMMM yyyy", { locale: tr })}
+          </h1>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={onPrevious}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={onToday}
+            className="flex gap-2 items-center"
+          >
+            <CalendarDays className="h-4 w-4" />
+            Bugün
+          </Button>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={onNext}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <ViewSelector
+        currentView={currentView}
+        onViewChange={onViewChange}
+      />
+    </div>
+  );
+}
