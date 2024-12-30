@@ -1,29 +1,43 @@
-import { Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Pin, Plus } from "lucide-react";
 import { Student } from "@/types/calendar";
 import { 
+  SidebarGroupContent, 
+  SidebarGroupLabel, 
   SidebarMenu, 
-  SidebarMenuItem, 
   SidebarMenuButton, 
-  SidebarGroup, 
-  SidebarGroupLabel,
-  SidebarGroupContent
+  SidebarMenuItem,
+  useSidebar
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 interface StudentListProps {
-  students?: Student[];
-  onEdit?: (student: Student) => void;
-  onDelete?: (studentId: string) => void;
-  onAddStudent?: () => void;
+  students: Student[];
+  onEdit: (student: Student) => void;
+  onDelete: (studentId: string) => void;
+  onAddStudent: () => void;
 }
 
-export default function StudentList({ students = [], onEdit, onDelete, onAddStudent }: StudentListProps) {
+export default function StudentList({ students, onEdit, onDelete, onAddStudent }: StudentListProps) {
+  const { setOpen } = useSidebar();
+
+  const handlePinClick = () => {
+    setOpen(true);
+  };
+
   return (
-    <SidebarGroup>
-      <Link to="/students" className="block hover:bg-accent rounded-md transition-colors">
+    <div>
+      <div className="flex items-center justify-between mb-2">
         <SidebarGroupLabel className="cursor-pointer">Öğrenciler</SidebarGroupLabel>
-      </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handlePinClick}
+          className="h-6 w-6"
+        >
+          <Pin className="h-4 w-4" />
+        </Button>
+      </div>
       <SidebarGroupContent className="border rounded-md p-2">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -63,6 +77,6 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
           </ScrollArea>
         </SidebarMenu>
       </SidebarGroupContent>
-    </SidebarGroup>
+    </div>
   );
 }
