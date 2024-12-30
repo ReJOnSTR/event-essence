@@ -170,12 +170,21 @@ export default function Index() {
     setStudentPhone("");
   };
 
+  const handleLessonUpdate = (updatedLesson: Lesson) => {
+    setLessons(prevLessons => 
+      prevLessons.map(lesson => 
+        lesson.id === updatedLesson.id ? updatedLesson : lesson
+      )
+    );
+  };
+
   const renderView = () => {
     const viewProps = {
       date: selectedDate,
       events: lessons,
       onDateSelect: handleDateSelect,
       onEventClick: handleLessonClick,
+      onEventUpdate: handleLessonUpdate,
       students: students,
     };
 
