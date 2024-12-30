@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { Button } from "@/components/ui/button";
@@ -21,38 +21,47 @@ export default function Students({ students, onAddStudent }: StudentsPageProps) 
   const { toast } = useToast();
 
   const handleSaveStudent = () => {
-    if (selectedStudent) {
-      const updatedStudents = students.map(student =>
-        student.id === selectedStudent.id
-          ? {
-              ...student,
-              name: studentName,
-              email: studentEmail,
-              phone: studentPhone,
-              color: studentColor,
-            }
-          : student
-      );
-      localStorage.setItem('students', JSON.stringify(updatedStudents));
+    if (!studentName.trim()) {
       toast({
-        title: "Öğrenci güncellendi",
-        description: "Öğrenci bilgileri başarıyla güncellendi.",
+        title: "Hata",
+        description: "Öğrenci adı boş olamaz.",
+        variant: "destructive",
       });
-    } else {
-      const newStudent: Student = {
-        id: crypto.randomUUID(),
-        name: studentName,
-        email: studentEmail,
-        phone: studentPhone,
-        color: studentColor,
-      };
-      const newStudents = [...students, newStudent];
-      localStorage.setItem('students', JSON.stringify(newStudents));
-      toast({
-        title: "Öğrenci eklendi",
-        description: "Yeni öğrenci başarıyla eklendi.",
-      });
+      return;
     }
+
+    const newStudents = selectedStudent
+      ? students.map(student =>
+          student.id === selectedStudent.id
+            ? {
+                ...student,
+                name: studentName,
+                email: studentEmail,
+                phone: studentPhone,
+                color: studentColor,
+              }
+            : student
+        )
+      : [
+          ...students,
+          {
+            id: crypto.randomUUID(),
+            name: studentName,
+            email: studentEmail,
+            phone: studentPhone,
+            color: studentColor,
+          },
+        ];
+
+    localStorage.setItem('students', JSON.stringify(newStudents));
+    
+    toast({
+      title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
+      description: selectedStudent
+        ? "Öğrenci bilgileri başarıyla güncellendi."
+        : "Yeni öğrenci başarıyla eklendi.",
+    });
+
     handleCloseStudentDialog();
   };
 
@@ -89,7 +98,7 @@ export default function Students({ students, onAddStudent }: StudentsPageProps) 
         <div className="flex items-center gap-4 p-4 border-b bg-white">
           <h1 className="text-2xl font-semibold text-gray-900">Öğrenciler</h1>
           <div className="ml-auto">
-            <Button onClick={onAddStudent}>
+            <Button onClick={() => setIsStudentDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Öğrenci Ekle
             </Button>
