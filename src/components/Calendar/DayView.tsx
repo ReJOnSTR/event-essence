@@ -1,10 +1,10 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday } from "date-fns";
+import { format, isToday, parse } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
+import { getWorkingHours } from "@/utils/workingHours";
 
 interface DayViewProps {
   date: Date;
@@ -24,16 +24,48 @@ export default function DayView({
   students 
 }: DayViewProps) {
   const { toast } = useToast();
+  const workingHours = getWorkingHours();
+  
+  const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
+  const daySettings = workingHours[dayOfWeek];
 
   const dayEvents = events.filter(event => 
     format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
   );
 
-  const hours = Array.from({ length: 24 }, (_, i) => i);
+  // Parse working hours
+  const startHour = daySettings?.enabled ? 
+    parseInt(daySettings.start.split(':')[0]) : 
+    9;
+  const endHour = daySettings?.enabled ? 
+    parseInt(daySettings.end.split(':')[0]) : 
+    17;
+
+  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
   const handleHourClick = (hour: number) => {
     const eventDate = new Date(date);
     eventDate.setHours(hour);
+    
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const currentTime = \`\${hour}:00\`;
+    if (hour < startHour || hour >= endHour) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     onDateSelect(eventDate);
   };
 
@@ -49,11 +81,15 @@ export default function DayView({
               {[0, 15, 30, 45].map((minute) => (
                 <div
                   key={`${hour}:${minute}`}
-                  className="border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative min-h-[15px]"
+                  className={cn(
+                    "border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative min-h-[15px]",
+                    (!daySettings?.enabled || hour < startHour || hour >= endHour) && 
+                    "bg-gray-100 cursor-not-allowed"
+                  )}
                   onClick={() => {
                     const newDate = new Date(date);
                     newDate.setHours(hour, minute);
-                    onDateSelect(newDate);
+                    handleHourClick(hour);
                   }}
                 >
                   {minute === 0 && dayEvents
