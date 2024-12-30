@@ -6,7 +6,9 @@ import {
   endOfMonth, 
   startOfYear, 
   endOfYear, 
-  isWithinInterval 
+  isWithinInterval,
+  isSameMonth,
+  isSameYear
 } from "date-fns";
 
 export interface PeriodHours {
@@ -50,12 +52,12 @@ export const calculatePeriodHours = (
       }
 
       // Aylık hesaplama - sadece seçili aydaki dersler
-      if (isWithinInterval(lessonStart, { start: monthStart, end: monthEnd })) {
+      if (isSameMonth(lessonStart, selectedDate)) {
         monthlyHours += duration;
       }
 
       // Yıllık hesaplama - sadece seçili yıldaki dersler
-      if (isWithinInterval(lessonStart, { start: yearStart, end: yearEnd })) {
+      if (isSameYear(lessonStart, selectedDate)) {
         yearlyHours += duration;
       }
     }
