@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
 import { getDefaultLessonDuration } from "@/utils/settings";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface DayViewProps {
   date: Date;
@@ -26,6 +27,7 @@ export default function DayView({
 }: DayViewProps) {
   const { toast } = useToast();
   const workingHours = getWorkingHours();
+  const holiday = isHoliday(date);
   
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
@@ -48,6 +50,15 @@ export default function DayView({
     const eventDate = new Date(date);
     eventDate.setHours(hour, minute);
     
+    if (holiday) {
+      toast({
+        title: "Resmi Tatil",
+        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!daySettings?.enabled) {
       toast({
         title: "Çalışma saatleri dışında",
@@ -72,6 +83,11 @@ export default function DayView({
 
   return (
     <div className="w-full">
+      {holiday && (
+        <div className="mb-4 p-2 bg-red-50 text-red-700 rounded-md border border-red-200">
+          {holiday.name} - Resmi Tatil
+        </div>
+      )}
       <div className="space-y-2">
         {hours.map((hour) => (
           <div key={hour} className="grid grid-cols-12 gap-2">
@@ -81,7 +97,7 @@ export default function DayView({
             <div 
               className={cn(
                 "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative",
-                (!daySettings?.enabled || hour < startHour || hour >= endHour) && 
+                (!daySettings?.enabled || hour < startHour || hour >= endHour || holiday) && 
                 "bg-gray-100 cursor-not-allowed"
               )}
               onClick={() => handleHourClick(hour, 0)}

@@ -4,6 +4,7 @@ import { CalendarEvent, DayCell, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -48,6 +49,11 @@ export default function MonthView({
   };
 
   const handleDateClick = (clickedDate: Date) => {
+    const holiday = isHoliday(clickedDate);
+    if (holiday) {
+      return;
+    }
+
     const dayOfWeek = clickedDate.getDay();
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
     const workingHours = getWorkingHours();
@@ -79,37 +85,47 @@ export default function MonthView({
           </div>
         ))}
         
-        {days.map((day, idx) => (
-          <div
-            key={idx}
-            onClick={() => handleDateClick(day.date)}
-            className={cn(
-              "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
-              !day.isCurrentMonth && "bg-gray-50 text-gray-400",
-              isToday(day.date) && "bg-blue-50",
-              isYearView && "min-h-[40px]"
-            )}
-          >
-            <div className={cn(
-              "text-sm font-medium",
-              isToday(day.date) && "text-calendar-blue"
-            )}>
-              {format(day.date, "d")}
-            </div>
-            {!isYearView && (
-              <div className="space-y-1">
-                {day.lessons.map((event) => (
-                  <div key={event.id} onClick={(e) => {
-                    e.stopPropagation();
-                    if (onEventClick) onEventClick(event);
-                  }}>
-                    <MonthEventCard event={event} students={students} />
+        {days.map((day, idx) => {
+          const holiday = isHoliday(day.date);
+          return (
+            <div
+              key={idx}
+              onClick={() => handleDateClick(day.date)}
+              className={cn(
+                "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
+                !day.isCurrentMonth && "bg-gray-50 text-gray-400",
+                isToday(day.date) && "bg-blue-50",
+                holiday && "bg-red-50",
+                isYearView && "min-h-[40px]"
+              )}
+            >
+              <div className={cn(
+                "text-sm font-medium",
+                isToday(day.date) && "text-calendar-blue",
+                holiday && "text-red-600"
+              )}>
+                {format(day.date, "d")}
+                {holiday && (
+                  <div className="text-xs text-red-600 truncate">
+                    {holiday.name}
                   </div>
-                ))}
+                )}
               </div>
-            )}
-          </div>
-        ))}
+              {!isYearView && (
+                <div className="space-y-1">
+                  {day.lessons.map((event) => (
+                    <div key={event.id} onClick={(e) => {
+                      e.stopPropagation();
+                      if (onEventClick) onEventClick(event);
+                    }}>
+                      <MonthEventCard event={event} students={students} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
