@@ -102,6 +102,10 @@ export default function Students() {
               students={students}
               onEdit={handleEditStudent}
               onDelete={handleDeleteStudent}
+              onAddStudent={() => {
+                setSelectedStudent(undefined);
+                setIsStudentDialogOpen(true);
+              }}
             />
           </SidebarContent>
         </Sidebar>
