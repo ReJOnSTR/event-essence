@@ -30,13 +30,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 type ViewType = "day" | "week" | "month" | "year";
 
@@ -243,7 +236,7 @@ export default function Index() {
           </SidebarContent>
         </Sidebar>
         
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <div className="p-4 border-b bg-white">
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-4">
@@ -277,11 +270,11 @@ export default function Index() {
             </Tabs>
           </div>
           
-          <ScrollArea className="flex-1">
-            <div className="p-4">
+          <div className="flex-1 overflow-hidden">
+            <div className="h-full overflow-auto">
               {renderView()}
             </div>
-          </ScrollArea>
+          </div>
           
           <LessonDialog
             isOpen={isDialogOpen}
