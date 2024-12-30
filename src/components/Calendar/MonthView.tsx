@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { CalendarEvent, DayCell, Student } from "@/types/calendar";
@@ -8,7 +7,7 @@ import MonthEventCard from "./MonthEventCard";
 interface MonthViewProps {
   events: CalendarEvent[];
   onDateSelect: (date: Date) => void;
-  currentDate?: Date;
+  date: Date;
   isYearView?: boolean;
   onEventClick?: (event: CalendarEvent) => void;
   students?: Student[];
@@ -17,16 +16,14 @@ interface MonthViewProps {
 export default function MonthView({ 
   events, 
   onDateSelect, 
-  currentDate: propCurrentDate, 
+  date,
   isYearView = false,
   onEventClick,
   students
 }: MonthViewProps) {
-  const [currentDate, setCurrentDate] = useState(propCurrentDate || new Date());
-  
-  const getDaysInMonth = (date: Date): DayCell[] => {
-    const start = startOfMonth(date);
-    const end = endOfMonth(date);
+  const getDaysInMonth = (currentDate: Date): DayCell[] => {
+    const start = startOfMonth(currentDate);
+    const end = endOfMonth(currentDate);
     const days = eachDayOfInterval({ start, end });
     
     // Adjust for Monday start
@@ -42,23 +39,17 @@ export default function MonthView({
       addDays(end, i + 1)
     );
     
-    return [...prefixDays, ...days, ...suffixDays].map(date => ({
-      date,
-      isCurrentMonth: isSameMonth(date, currentDate),
-      lessons: events.filter(event => isSameDay(event.start, date))
+    return [...prefixDays, ...days, ...suffixDays].map(dayDate => ({
+      date: dayDate,
+      isCurrentMonth: isSameMonth(dayDate, currentDate),
+      lessons: events.filter(event => isSameDay(event.start, dayDate))
     }));
   };
 
-  const days = getDaysInMonth(currentDate);
+  const days = getDaysInMonth(date);
 
   return (
     <div className={cn("w-full mx-auto", isYearView && "h-full")}>
-      {!isYearView && (
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-          {format(currentDate, "MMMM yyyy", { locale: tr })}
-        </h2>
-      )}
-
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
         {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
           <div
