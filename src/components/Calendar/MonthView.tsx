@@ -45,7 +45,7 @@ export default function MonthView({
     return [...prefixDays, ...days, ...suffixDays].map(date => ({
       date,
       isCurrentMonth: isSameMonth(date, currentDate),
-      events: events.filter(event => isSameDay(event.start, date))
+      lessons: events.filter(event => isSameDay(event.start, date))
     }));
   };
 
@@ -141,7 +141,7 @@ export default function MonthView({
             </div>
             {!isYearView && (
               <div className="space-y-1">
-                {day.events.map((event) => (
+                {day.lessons.map((event) => (
                   <div key={event.id} onClick={(e) => handleEventClick(e, event)}>
                     <MonthEventCard event={event} />
                   </div>

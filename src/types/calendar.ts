@@ -19,3 +19,6 @@ export interface DayCell {
   isCurrentMonth: boolean;
   lessons: Lesson[];
 }
+
+// Alias for backward compatibility during refactoring
+export type CalendarEvent = Lesson;

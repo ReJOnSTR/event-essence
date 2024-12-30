@@ -2,7 +2,7 @@ import React from "react";
 import { CalendarEvent } from "@/types/calendar";
 import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
-import EventCard from "./EventCard";
+import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -124,7 +124,7 @@ export default function WeekView({
                       new Date(event.start).getHours() === hour
                   )
                   .map(event => (
-                    <EventCard 
+                    <LessonCard 
                       key={event.id} 
                       event={event} 
                       onClick={onEventClick}

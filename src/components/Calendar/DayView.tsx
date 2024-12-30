@@ -1,7 +1,7 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday, setHours } from "date-fns";
+import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
-import EventCard from "./EventCard";
+import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -103,7 +103,7 @@ export default function DayView({
               {dayEvents
                 .filter(event => new Date(event.start).getHours() === hour)
                 .map(event => (
-                  <EventCard 
+                  <LessonCard 
                     key={event.id} 
                     event={event} 
                     onClick={onEventClick}
