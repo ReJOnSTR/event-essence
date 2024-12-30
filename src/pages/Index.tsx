@@ -223,6 +223,17 @@ export default function Index() {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
+        <Sidebar>
+          <SidebarContent className="p-4">
+            <StudentList
+              students={students}
+              onEdit={handleEditStudent}
+              onDelete={handleDeleteStudent}
+              onAddStudent={() => setIsStudentDialogOpen(true)}
+            />
+          </SidebarContent>
+        </Sidebar>
+        
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <div className="flex items-center gap-4 p-4 border-b bg-white">
             <SidebarTrigger />
@@ -252,47 +263,36 @@ export default function Index() {
               {renderView()}
             </div>
           </div>
+          
+          <LessonDialog
+            isOpen={isDialogOpen}
+            onClose={() => {
+              setIsDialogOpen(false);
+              setSelectedLesson(undefined);
+            }}
+            onSave={handleSaveLesson}
+            onDelete={handleDeleteLesson}
+            selectedDate={selectedDate}
+            event={selectedLesson}
+            events={lessons}
+            students={students}
+          />
+
+          <StudentDialog
+            isOpen={isStudentDialogOpen}
+            onClose={handleCloseStudentDialog}
+            onSave={handleSaveStudent}
+            student={selectedStudent}
+            studentName={studentName}
+            setStudentName={setStudentName}
+            studentEmail={studentEmail}
+            setStudentEmail={setStudentEmail}
+            studentPhone={studentPhone}
+            setStudentPhone={setStudentPhone}
+            studentColor={studentColor}
+            setStudentColor={setStudentColor}
+          />
         </div>
-
-        <Sidebar side="right">
-          <SidebarContent className="p-4">
-            <StudentList
-              students={students}
-              onEdit={handleEditStudent}
-              onDelete={handleDeleteStudent}
-              onAddStudent={() => setIsStudentDialogOpen(true)}
-            />
-          </SidebarContent>
-        </Sidebar>
-        
-        <LessonDialog
-          isOpen={isDialogOpen}
-          onClose={() => {
-            setIsDialogOpen(false);
-            setSelectedLesson(undefined);
-          }}
-          onSave={handleSaveLesson}
-          onDelete={handleDeleteLesson}
-          selectedDate={selectedDate}
-          event={selectedLesson}
-          events={lessons}
-          students={students}
-        />
-
-        <StudentDialog
-          isOpen={isStudentDialogOpen}
-          onClose={handleCloseStudentDialog}
-          onSave={handleSaveStudent}
-          student={selectedStudent}
-          studentName={studentName}
-          setStudentName={setStudentName}
-          studentEmail={studentEmail}
-          setStudentEmail={setStudentEmail}
-          studentPhone={studentPhone}
-          setStudentPhone={setStudentPhone}
-          studentColor={studentColor}
-          setStudentColor={setStudentColor}
-        />
       </div>
     </SidebarProvider>
   );
