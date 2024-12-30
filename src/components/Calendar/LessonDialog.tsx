@@ -27,8 +27,6 @@ interface LessonDialogProps {
   students: Student[];
 }
 
-// Since this file is getting too long, we should consider splitting it into smaller components
-// For now, let's keep the functionality intact and focus on fixing the overlap logic
 export default function LessonDialog({ 
   isOpen, 
   onClose, 
@@ -53,14 +51,18 @@ export default function LessonDialog({
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
       } else {
+        // Set start time based on selected date
         const hours = selectedDate.getHours();
+        const minutes = selectedDate.getMinutes();
         const formattedHours = hours.toString().padStart(2, '0');
-        const startTimeStr = `${formattedHours}:00`;
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        const startTimeStr = `${formattedHours}:${formattedMinutes}`;
         setStartTime(startTimeStr);
         
         // Calculate end time based on default duration
         const defaultDuration = getDefaultLessonDuration();
-        const endDate = addMinutes(selectedDate, defaultDuration);
+        const endDate = new Date(selectedDate);
+        endDate.setMinutes(endDate.getMinutes() + defaultDuration);
         const endHours = endDate.getHours();
         const endMinutes = endDate.getMinutes();
         const endTimeStr = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
@@ -224,3 +226,4 @@ export default function LessonDialog({
     </Dialog>
   );
 }
+
