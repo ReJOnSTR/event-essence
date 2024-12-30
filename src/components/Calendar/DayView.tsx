@@ -5,6 +5,7 @@ import LessonCard from "./LessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
+import { getDefaultLessonDuration } from "@/utils/settings";
 
 interface DayViewProps {
   date: Date;
@@ -43,9 +44,9 @@ export default function DayView({
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
-  const handleHourClick = (hour: number) => {
+  const handleHourClick = (hour: number, minute: number) => {
     const eventDate = new Date(date);
-    eventDate.setHours(hour);
+    eventDate.setHours(hour, minute);
     
     if (!daySettings?.enabled) {
       toast({
@@ -86,11 +87,7 @@ export default function DayView({
                     (!daySettings?.enabled || hour < startHour || hour >= endHour) && 
                     "bg-gray-100 cursor-not-allowed"
                   )}
-                  onClick={() => {
-                    const newDate = new Date(date);
-                    newDate.setHours(hour, minute);
-                    handleHourClick(hour);
-                  }}
+                  onClick={() => handleHourClick(hour, minute)}
                 >
                   {minute === 0 && dayEvents
                     .filter(event => new Date(event.start).getHours() === hour)
