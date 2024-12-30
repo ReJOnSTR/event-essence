@@ -1,6 +1,7 @@
 import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Users, Pencil, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 
 interface StudentListProps {
@@ -12,6 +13,14 @@ interface StudentListProps {
 export default function StudentList({ students, onEdit, onDelete }: StudentListProps) {
   return (
     <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild>
+          <Link to="/students" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span>Öğrenciler</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
       {students.map((student) => (
         <SidebarMenuItem key={student.id}>
           <SidebarMenuButton className="flex justify-between items-center">
