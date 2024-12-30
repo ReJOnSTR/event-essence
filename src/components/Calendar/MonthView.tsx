@@ -29,13 +29,16 @@ export default function MonthView({
     const end = endOfMonth(date);
     const days = eachDayOfInterval({ start, end });
     
-    const startDay = start.getDay();
+    // Adjust for Monday start
+    let startDay = start.getDay() - 1;
+    if (startDay === -1) startDay = 6; // Sunday becomes last day
+    
     const prefixDays = Array.from({ length: startDay }, (_, i) => 
       addDays(start, -(startDay - i))
     );
     
-    const endDay = end.getDay();
-    const suffixDays = Array.from({ length: 6 - endDay }, (_, i) =>
+    const endDay = end.getDay() - 1;
+    const suffixDays = Array.from({ length: endDay === -1 ? 0 : 6 - endDay }, (_, i) =>
       addDays(end, i + 1)
     );
     
@@ -78,7 +81,7 @@ export default function MonthView({
   return (
     <div className={cn("w-full mx-auto", isYearView && "h-full")}>
       {!isYearView && (
-        <div className="flex items-center justify-between mb-4 px-4">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-gray-900">
             {format(currentDate, "MMMM yyyy", { locale: tr })}
           </h2>
@@ -110,7 +113,7 @@ export default function MonthView({
       )}
 
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
-        {["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"].map((day) => (
+        {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
           <div
             key={day}
             className="bg-gray-50 p-2 text-sm font-medium text-calendar-gray text-center"

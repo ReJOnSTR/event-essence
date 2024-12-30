@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 
 type ViewType = "day" | "week" | "month" | "year";
 
@@ -99,51 +101,66 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="w-full px-4">
-        <div className="flex justify-between items-center py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Takvim</h1>
-          <Button onClick={() => {
-            setSelectedEvent(undefined);
-            setIsDialogOpen(true);
-          }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Etkinlik Ekle
-          </Button>
-        </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gray-50 font-sans">
+        <Sidebar>
+          <SidebarContent className="p-4">
+            {/* Sidebar content will be added later */}
+          </SidebarContent>
+        </Sidebar>
+        
+        <div className="flex-1 flex flex-col">
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <h1 className="text-3xl font-bold text-gray-900">Takvim</h1>
+              </div>
+              <Button onClick={() => {
+                setSelectedEvent(undefined);
+                setIsDialogOpen(true);
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Etkinlik Ekle
+              </Button>
+            </div>
 
-        <Tabs value={currentView} className="w-full mb-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="day" onClick={() => setCurrentView("day")}>
-              Günlük
-            </TabsTrigger>
-            <TabsTrigger value="week" onClick={() => setCurrentView("week")}>
-              Haftalık
-            </TabsTrigger>
-            <TabsTrigger value="month" onClick={() => setCurrentView("month")}>
-              Aylık
-            </TabsTrigger>
-            <TabsTrigger value="year" onClick={() => setCurrentView("year")}>
-              Yıllık
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-        
-        {renderView()}
-        
-        <EventDialog
-          isOpen={isDialogOpen}
-          onClose={() => {
-            setIsDialogOpen(false);
-            setSelectedEvent(undefined);
-          }}
-          onSave={handleSaveEvent}
-          onDelete={handleDeleteEvent}
-          selectedDate={selectedDate}
-          event={selectedEvent}
-          events={events}
-        />
+            <Tabs value={currentView} className="w-full mb-4">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="day" onClick={() => setCurrentView("day")}>
+                  Günlük
+                </TabsTrigger>
+                <TabsTrigger value="week" onClick={() => setCurrentView("week")}>
+                  Haftalık
+                </TabsTrigger>
+                <TabsTrigger value="month" onClick={() => setCurrentView("month")}>
+                  Aylık
+                </TabsTrigger>
+                <TabsTrigger value="year" onClick={() => setCurrentView("year")}>
+                  Yıllık
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+          
+          <ScrollArea className="flex-1 px-4 pb-4">
+            {renderView()}
+          </ScrollArea>
+          
+          <EventDialog
+            isOpen={isDialogOpen}
+            onClose={() => {
+              setIsDialogOpen(false);
+              setSelectedEvent(undefined);
+            }}
+            onSave={handleSaveEvent}
+            onDelete={handleDeleteEvent}
+            selectedDate={selectedDate}
+            event={selectedEvent}
+            events={events}
+          />
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
