@@ -9,11 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Plus, Users, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  SidebarProvider, 
-  Sidebar, 
-  SidebarContent, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
   SidebarTrigger,
   SidebarGroup,
   SidebarGroupLabel,
