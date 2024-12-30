@@ -100,8 +100,8 @@ export default function Students() {
           <SidebarContent className="p-4">
             <StudentList
               students={students}
-              onEditStudent={handleEditStudent}
-              onAddStudent={() => setIsStudentDialogOpen(true)}
+              onEdit={handleEditStudent}
+              onDelete={handleDeleteStudent}
             />
           </SidebarContent>
         </Sidebar>
