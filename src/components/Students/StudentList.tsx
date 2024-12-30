@@ -1,4 +1,4 @@
-import { Users, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -24,7 +24,7 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
       <Link to="/students" className="block hover:bg-accent rounded-md transition-colors">
         <SidebarGroupLabel className="cursor-pointer">Öğrenciler</SidebarGroupLabel>
       </Link>
-      <SidebarGroupContent>
+      <SidebarGroupContent className="border rounded-md p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={onAddStudent}>
@@ -32,18 +32,9 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
               <span>Öğrenci Ekle</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link to="/students" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                <span>Öğrenciler Sayfası</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
 
           <ScrollArea className="h-[200px]">
-            {students.map((student) => (
+            {students.slice(0, 5).map((student) => (
               <SidebarMenuItem key={student.id}>
                 <SidebarMenuButton className="w-full">
                   <div
@@ -54,6 +45,21 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+            {students.length > 5 && (
+              <div className="mt-2 border-t pt-2">
+                {students.slice(5).map((student) => (
+                  <SidebarMenuItem key={student.id}>
+                    <SidebarMenuButton className="w-full">
+                      <div
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: student.color }}
+                      />
+                      <span>{student.name}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </div>
+            )}
           </ScrollArea>
         </SidebarMenu>
       </SidebarGroupContent>
