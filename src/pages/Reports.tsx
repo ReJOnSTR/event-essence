@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { FileBarChart, Filter, Calendar, ArrowLeft } from "lucide-react";
-import { format } from "date-fns";
-import { tr } from "date-fns/locale";
-import { Student } from "@/types/calendar";
+import { format, startOfWeek, startOfMonth, startOfYear, isWithinInterval } from "date-fns";
+import { tr } from 'date-fns/locale';
+import { Student, Lesson } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import StudentList from "@/components/Students/StudentList";
@@ -25,31 +25,38 @@ export default function Reports() {
     const savedStudents = localStorage.getItem('students');
     return savedStudents ? JSON.parse(savedStudents) : [];
   });
+  const [lessons, setLessons] = useState<Lesson[]>(() => {
+    const savedLessons = localStorage.getItem('lessons');
+    return savedLessons ? JSON.parse(savedLessons) : [];
+  });
   const { toast } = useToast();
 
   const calculateTotalHours = () => {
-    const lessons = JSON.parse(localStorage.getItem('lessons') || '[]');
     const now = new Date();
-    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+    const monthStart = startOfMonth(now);
+    const yearStart = startOfYear(now);
 
     let weeklyHours = 0;
     let monthlyHours = 0;
     let yearlyHours = 0;
 
-    lessons.forEach((lesson: any) => {
-      const lessonDate = new Date(lesson.start);
-      const duration = (new Date(lesson.end).getTime() - new Date(lesson.start).getTime()) / (1000 * 60 * 60);
+    lessons.forEach((lesson) => {
+      const lessonStart = new Date(lesson.start);
+      const lessonEnd = new Date(lesson.end);
+      const duration = (lessonEnd.getTime() - lessonStart.getTime()) / (1000 * 60 * 60); // Hours
 
       if (selectedStudent === "all" || lesson.studentId === selectedStudent) {
-        if (lessonDate >= startOfWeek) {
+        // Weekly calculation
+        if (isWithinInterval(lessonStart, { start: weekStart, end: now })) {
           weeklyHours += duration;
         }
-        if (lessonDate >= startOfMonth) {
+        // Monthly calculation
+        if (isWithinInterval(lessonStart, { start: monthStart, end: now })) {
           monthlyHours += duration;
         }
-        if (lessonDate >= startOfYear) {
+        // Yearly calculation
+        if (isWithinInterval(lessonStart, { start: yearStart, end: now })) {
           yearlyHours += duration;
         }
       }
@@ -62,9 +69,10 @@ export default function Reports() {
     });
   };
 
+  // Hesaplamaları güncelle
   useEffect(() => {
     calculateTotalHours();
-  }, [selectedStudent]);
+  }, [selectedStudent, selectedPeriod, lessons]);
 
   return (
     <SidebarProvider defaultOpen={true}>
