@@ -13,13 +13,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
 
 export default function Reports() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
@@ -27,7 +20,6 @@ export default function Reports() {
   const [hours, setHours] = useState({ weekly: 0, monthly: 0, yearly: 0 });
   const { toast } = useToast();
 
-  // Bu fonksiyon mock veri döndürüyor, gerçek uygulamada veritabanından gelecek
   const getStudents = (): Student[] => {
     return JSON.parse(localStorage.getItem('students') || '[]');
   };
@@ -45,7 +37,7 @@ export default function Reports() {
 
     lessons.forEach((lesson: any) => {
       const lessonDate = new Date(lesson.start);
-      const duration = (new Date(lesson.end).getTime() - new Date(lesson.start).getTime()) / (1000 * 60 * 60); // saat cinsinden süre
+      const duration = (new Date(lesson.end).getTime() - new Date(lesson.start).getTime()) / (1000 * 60 * 60);
 
       if (selectedStudent === "all" || lesson.studentId === selectedStudent) {
         if (lessonDate >= startOfWeek) {
@@ -72,67 +64,61 @@ export default function Reports() {
   }, [selectedStudent]);
 
   return (
-    <SidebarProvider>
-      <div className="flex">
-        <Sidebar>
-          <SidebarHeader>
-            <div className="flex items-center justify-between px-4">
-              <div className="flex items-center gap-2">
-                <FileBarChart className="h-6 w-6" />
-                <h2 className="text-lg font-semibold">Ders Raporları</h2>
-              </div>
-              <SidebarTrigger />
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <div className="p-4 space-y-4">
-              <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Öğrenci Seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tüm Öğrenciler</SelectItem>
-                  {getStudents().map((student) => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+    <div className="flex h-screen bg-background">
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+        <div className="flex items-center justify-between space-y-2">
+          <h2 className="text-3xl font-bold tracking-tight">Ders Raporları</h2>
+        </div>
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="col-span-2">
+              <CardHeader>
+                <CardTitle>Filtreler</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Select value={selectedStudent} onValueChange={setSelectedStudent}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Öğrenci Seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tüm Öğrenciler</SelectItem>
+                    {getStudents().map((student) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-              <Select value={selectedPeriod} onValueChange={(value: "weekly" | "monthly" | "yearly") => setSelectedPeriod(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Periyot Seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="weekly">Haftalık</SelectItem>
-                  <SelectItem value="monthly">Aylık</SelectItem>
-                  <SelectItem value="yearly">Yıllık</SelectItem>
-                </SelectContent>
-              </Select>
+                <Select value={selectedPeriod} onValueChange={(value: "weekly" | "monthly" | "yearly") => setSelectedPeriod(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Periyot Seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weekly">Haftalık</SelectItem>
+                    <SelectItem value="monthly">Aylık</SelectItem>
+                    <SelectItem value="yearly">Yıllık</SelectItem>
+                  </SelectContent>
+                </Select>
 
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  toast({
-                    title: "Filtreler sıfırlandı",
-                    description: "Tüm filtreler varsayılan değerlere döndürüldü.",
-                  });
-                  setSelectedStudent("all");
-                  setSelectedPeriod("weekly");
-                }}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filtreleri Sıfırla
-              </Button>
-            </div>
-          </SidebarContent>
-        </Sidebar>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => {
+                    toast({
+                      title: "Filtreler sıfırlandı",
+                      description: "Tüm filtreler varsayılan değerlere döndürüldü.",
+                    });
+                    setSelectedStudent("all");
+                    setSelectedPeriod("weekly");
+                  }}
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filtreleri Sıfırla
+                </Button>
+              </CardContent>
+            </Card>
 
-        <div className="flex-1 p-6">
-          <div className="grid gap-4 md:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Haftalık Ders Saati</CardTitle>
@@ -144,6 +130,7 @@ export default function Reports() {
                 </p>
               </CardContent>
             </Card>
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Aylık Ders Saati</CardTitle>
@@ -155,6 +142,7 @@ export default function Reports() {
                 </p>
               </CardContent>
             </Card>
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Yıllık Ders Saati</CardTitle>
@@ -169,6 +157,6 @@ export default function Reports() {
           </div>
         </div>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
