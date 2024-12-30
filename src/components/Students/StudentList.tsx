@@ -10,6 +10,7 @@ import {
   SidebarGroupContent
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 
 interface StudentListProps {
   students?: Student[];
@@ -27,12 +28,18 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
         </Link>
         <SidebarGroupContent className="border rounded-md p-2">
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={onAddStudent}>
-                <Plus className="h-4 w-4" />
-                <span>Öğrenci Ekle</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {onAddStudent && (
+              <SidebarMenuItem>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start" 
+                  onClick={onAddStudent}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span>Öğrenci Ekle</span>
+                </Button>
+              </SidebarMenuItem>
+            )}
 
             <ScrollArea className="h-[200px]">
               {students.slice(0, 5).map((student) => (
