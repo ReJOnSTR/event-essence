@@ -5,7 +5,7 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import LeftMenu from "@/components/Menu/LeftMenu";
+import StudentList from "@/components/Students/StudentList";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
@@ -225,7 +225,7 @@ export default function Index() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <LeftMenu
+            <StudentList
               students={students}
               onEdit={handleEditStudent}
               onDelete={handleDeleteStudent}
