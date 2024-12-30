@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings as SettingsIcon, Bell, User, Shield, Palette, Languages, Clock } from "lucide-react";
+import { ArrowLeft, Settings as SettingsIcon, Bell, User, Shield, Palette, Languages } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -12,10 +11,8 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
-import { getDefaultLessonDuration, setDefaultLessonDuration } from "@/utils/settings";
+import GeneralSettings from "@/components/Settings/GeneralSettings";
+import WorkingHoursSettings from "@/components/Settings/WorkingHoursSettings";
 
 const menuItems = [
   {
@@ -52,104 +49,35 @@ const menuItems = [
 
 export default function Settings() {
   const [selectedSection, setSelectedSection] = useState("general");
-  const [defaultDuration, setDefaultDuration] = useState(() => getDefaultLessonDuration());
-  const { toast } = useToast();
-
-  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (value > 0) {
-      setDefaultDuration(value);
-      setDefaultLessonDuration(value);
-      toast({
-        title: "Ayarlar güncellendi",
-        description: "Varsayılan ders süresi başarıyla kaydedildi.",
-      });
-    }
-  };
 
   const renderContent = () => {
     switch (selectedSection) {
       case "general":
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Genel Ayarlar</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="defaultDuration" className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  Varsayılan Ders Süresi (dakika)
-                </Label>
-                <Input
-                  id="defaultDuration"
-                  type="number"
-                  value={defaultDuration}
-                  onChange={handleDurationChange}
-                  min="1"
-                  className="max-w-[200px]"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Yeni ders eklerken otomatik olarak ayarlanacak süre
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <GeneralSettings />
+            <WorkingHoursSettings />
+          </div>
         );
       case "notifications":
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Bildirim Ayarları</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Bildirim ayarları içeriği buraya eklenecek.</p>
-            </CardContent>
-          </Card>
+          <div className="text-gray-600">Bildirim ayarları içeriği buraya eklenecek.</div>
         );
       case "profile":
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Profil Ayarları</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Profil ayarları içeriği buraya eklenecek.</p>
-            </CardContent>
-          </Card>
+          <div className="text-gray-600">Profil ayarları içeriği buraya eklenecek.</div>
         );
       case "security":
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Güvenlik Ayarları</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Güvenlik ayarları içeriği buraya eklenecek.</p>
-            </CardContent>
-          </Card>
+          <div className="text-gray-600">Güvenlik ayarları içeriği buraya eklenecek.</div>
         );
       case "appearance":
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Görünüm Ayarları</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Görünüm ayarları içeriği buraya eklenecek.</p>
-            </CardContent>
-          </Card>
+          <div className="text-gray-600">Görünüm ayarları içeriği buraya eklenecek.</div>
         );
       case "language":
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Dil Ayarları</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Dil ayarları içeriği buraya eklenecek.</p>
-            </CardContent>
-          </Card>
+          <div className="text-gray-600">Dil ayarları içeriği buraya eklenecek.</div>
         );
       default:
         return null;
@@ -196,7 +124,7 @@ export default function Settings() {
           </div>
           
           <div className="flex-1 overflow-auto p-4">
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="max-w-4xl mx-auto">
               {renderContent()}
             </div>
           </div>
