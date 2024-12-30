@@ -7,6 +7,7 @@ import { useState } from "react";
 import Index from "./pages/Index";
 import Students from "./pages/Students";
 import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 import StudentDialog from "./components/Students/StudentDialog";
 import { Student } from "./types/calendar";
 import { useToast } from "./components/ui/use-toast";
@@ -114,6 +115,13 @@ const App = () => {
             } />
             <Route path="/reports" element={
               <Reports 
+                students={students}
+                onAddStudent={handleAddStudent}
+                onStudentClick={handleStudentClick}
+              />
+            } />
+            <Route path="/settings" element={
+              <Settings 
                 students={students}
                 onAddStudent={handleAddStudent}
                 onStudentClick={handleStudentClick}
