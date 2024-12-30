@@ -16,10 +16,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import StudentList from "@/components/Students/StudentList";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export default function Reports() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly">("weekly");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [hours, setHours] = useState({ weekly: 0, monthly: 0, yearly: 0 });
   const [students, setStudents] = useState<Student[]>(() => {
     const savedStudents = localStorage.getItem('students');
@@ -32,10 +34,9 @@ export default function Reports() {
   const { toast } = useToast();
 
   const calculateTotalHours = () => {
-    const now = new Date();
-    const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-    const monthStart = startOfMonth(now);
-    const yearStart = startOfYear(now);
+    const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
+    const monthStart = startOfMonth(selectedDate);
+    const yearStart = startOfYear(selectedDate);
 
     let weeklyHours = 0;
     let monthlyHours = 0;
@@ -44,19 +45,19 @@ export default function Reports() {
     lessons.forEach((lesson) => {
       const lessonStart = new Date(lesson.start);
       const lessonEnd = new Date(lesson.end);
-      const duration = (lessonEnd.getTime() - lessonStart.getTime()) / (1000 * 60 * 60); // Hours
+      const duration = (lessonEnd.getTime() - lessonStart.getTime()) / (1000 * 60 * 60);
 
       if (selectedStudent === "all" || lesson.studentId === selectedStudent) {
         // Weekly calculation
-        if (isWithinInterval(lessonStart, { start: weekStart, end: now })) {
+        if (isWithinInterval(lessonStart, { start: weekStart, end: selectedDate })) {
           weeklyHours += duration;
         }
         // Monthly calculation
-        if (isWithinInterval(lessonStart, { start: monthStart, end: now })) {
+        if (isWithinInterval(lessonStart, { start: monthStart, end: selectedDate })) {
           monthlyHours += duration;
         }
         // Yearly calculation
-        if (isWithinInterval(lessonStart, { start: yearStart, end: now })) {
+        if (isWithinInterval(lessonStart, { start: yearStart, end: selectedDate })) {
           yearlyHours += duration;
         }
       }
@@ -69,10 +70,9 @@ export default function Reports() {
     });
   };
 
-  // Hesaplamaları güncelle
   useEffect(() => {
     calculateTotalHours();
-  }, [selectedStudent, selectedPeriod, lessons]);
+  }, [selectedStudent, selectedPeriod, lessons, selectedDate]);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -108,7 +108,7 @@ export default function Reports() {
                   <CardTitle>Filtreler</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Select value={selectedStudent} onValueChange={setSelectedStudent}>
                       <SelectTrigger>
                         <SelectValue placeholder="Öğrenci Seçin" />
@@ -136,6 +136,11 @@ export default function Reports() {
                         <SelectItem value="yearly">Yıllık</SelectItem>
                       </SelectContent>
                     </Select>
+
+                    <DatePicker
+                      date={selectedDate}
+                      setDate={setSelectedDate}
+                    />
                   </div>
 
                   <Button 
@@ -148,6 +153,7 @@ export default function Reports() {
                       });
                       setSelectedStudent("all");
                       setSelectedPeriod("weekly");
+                      setSelectedDate(new Date());
                     }}
                   >
                     <Filter className="h-4 w-4 mr-2" />
@@ -165,7 +171,7 @@ export default function Reports() {
                   <CardContent>
                     <div className="text-2xl font-bold">{hours.weekly} Saat</div>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(), "'Hafta' w, MMMM yyyy", { locale: tr })}
+                      {format(selectedDate, "'Hafta' w, MMMM yyyy", { locale: tr })}
                     </p>
                   </CardContent>
                 </Card>
@@ -178,7 +184,7 @@ export default function Reports() {
                   <CardContent>
                     <div className="text-2xl font-bold">{hours.monthly} Saat</div>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(), "MMMM yyyy", { locale: tr })}
+                      {format(selectedDate, "MMMM yyyy", { locale: tr })}
                     </p>
                   </CardContent>
                 </Card>
@@ -191,7 +197,7 @@ export default function Reports() {
                   <CardContent>
                     <div className="text-2xl font-bold">{hours.yearly} Saat</div>
                     <p className="text-xs text-muted-foreground">
-                      {format(new Date(), "yyyy", { locale: tr })}
+                      {format(selectedDate, "yyyy", { locale: tr })}
                     </p>
                   </CardContent>
                 </Card>
