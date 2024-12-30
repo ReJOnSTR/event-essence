@@ -1,43 +1,42 @@
-export interface DaySettings {
-  enabled: boolean;
+export interface WorkingHours {
   start: string;
   end: string;
+  enabled: boolean;
 }
 
 export interface WeeklyWorkingHours {
-  monday: DaySettings;
-  tuesday: DaySettings;
-  wednesday: DaySettings;
-  thursday: DaySettings;
-  friday: DaySettings;
-  saturday: DaySettings;
-  sunday: DaySettings;
+  monday: WorkingHours;
+  tuesday: WorkingHours;
+  wednesday: WorkingHours;
+  thursday: WorkingHours;
+  friday: WorkingHours;
+  saturday: WorkingHours;
+  sunday: WorkingHours;
 }
 
 const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
-  monday: { enabled: true, start: "09:00", end: "17:00" },
-  tuesday: { enabled: true, start: "09:00", end: "17:00" },
-  wednesday: { enabled: true, start: "09:00", end: "17:00" },
-  thursday: { enabled: true, start: "09:00", end: "17:00" },
-  friday: { enabled: true, start: "09:00", end: "17:00" },
-  saturday: { enabled: false, start: "09:00", end: "17:00" },
-  sunday: { enabled: false, start: "09:00", end: "17:00" }
+  monday: { start: "09:00", end: "17:00", enabled: true },
+  tuesday: { start: "09:00", end: "17:00", enabled: true },
+  wednesday: { start: "09:00", end: "17:00", enabled: true },
+  thursday: { start: "09:00", end: "17:00", enabled: true },
+  friday: { start: "09:00", end: "17:00", enabled: true },
+  saturday: { start: "09:00", end: "17:00", enabled: false },
+  sunday: { start: "09:00", end: "17:00", enabled: false },
 };
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
   try {
-    const savedHours = localStorage.getItem('workingHours');
-    if (!savedHours) {
-      setWorkingHours(DEFAULT_WORKING_HOURS);
-      return DEFAULT_WORKING_HOURS;
-    }
-    const parsedHours = JSON.parse(savedHours) as WeeklyWorkingHours;
+    const stored = localStorage.getItem('workingHours');
+    if (!stored) return DEFAULT_WORKING_HOURS;
+    
+    const parsed = JSON.parse(stored);
+    // Ensure all days are present with default values
     return {
       ...DEFAULT_WORKING_HOURS,
-      ...parsedHours
+      ...parsed
     };
   } catch (error) {
-    console.error('Error reading working hours:', error);
+    console.error('Error reading working hours from localStorage:', error);
     return DEFAULT_WORKING_HOURS;
   }
 };
@@ -46,6 +45,6 @@ export const setWorkingHours = (hours: WeeklyWorkingHours): void => {
   try {
     localStorage.setItem('workingHours', JSON.stringify(hours));
   } catch (error) {
-    console.error('Error saving working hours:', error);
+    console.error('Error saving working hours to localStorage:', error);
   }
 };
