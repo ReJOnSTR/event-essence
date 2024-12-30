@@ -12,6 +12,7 @@ import { Lesson, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 import {
   SidebarProvider,
   Sidebar,
@@ -42,6 +43,7 @@ export default function Index() {
   const [studentPhone, setStudentPhone] = useState("");
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Dersleri localStorage'a kaydetme
   useEffect(() => {
@@ -198,6 +200,11 @@ export default function Index() {
     );
   };
 
+  const handleStudentClick = (student: Student) => {
+    navigate('/students');
+    handleEditStudent(student);
+  };
+
   const renderView = () => {
     const viewProps = {
       date: selectedDate,
@@ -230,6 +237,7 @@ export default function Index() {
               onEdit={handleEditStudent}
               onDelete={handleDeleteStudent}
               onAddStudent={() => setIsStudentDialogOpen(true)}
+              onStudentClick={handleStudentClick}
             />
           </SidebarContent>
         </Sidebar>
