@@ -1,6 +1,6 @@
 import React from "react";
 import { CalendarEvent } from "@/types/calendar";
-import { format, addDays, startOfWeek, addMonths, isToday, setHours } from "date-fns";
+import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
@@ -26,17 +26,17 @@ export default function WeekView({
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextMonth = (e: React.MouseEvent) => {
+  const nextWeek = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const next = addMonths(date, 1);
+    const next = addWeeks(date, 1);
     onDateSelect(next);
   };
 
-  const prevMonth = (e: React.MouseEvent) => {
+  const prevWeek = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const prev = addMonths(date, -1);
+    const prev = subWeeks(date, 1);
     onDateSelect(prev);
   };
 
@@ -46,8 +46,7 @@ export default function WeekView({
     onDateSelect(new Date());
   };
 
-  const handleCellClick = (e: React.MouseEvent, day: Date, hour: number) => {
-    e.stopPropagation();
+  const handleCellClick = (day: Date, hour: number) => {
     const eventDate = new Date(day);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
@@ -63,7 +62,7 @@ export default function WeekView({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={prevMonth}
+            onClick={prevWeek}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -78,7 +77,7 @@ export default function WeekView({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={nextMonth}
+            onClick={nextWeek}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -116,7 +115,7 @@ export default function WeekView({
                   "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
                   isToday(day) && "bg-blue-50"
                 )}
-                onClick={(e) => handleCellClick(e, day, hour)}
+                onClick={() => handleCellClick(day, hour)}
               >
                 {events
                   .filter(

@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday, addMonths } from "date-fns";
+import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
@@ -27,17 +27,19 @@ export default function DayView({
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextMonth = (e: React.MouseEvent) => {
+  const nextDay = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const next = addMonths(date, 1);
+    const next = new Date(date);
+    next.setDate(date.getDate() + 1);
     onDateSelect(next);
   };
 
-  const prevMonth = (e: React.MouseEvent) => {
+  const prevDay = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const prev = addMonths(date, -1);
+    const prev = new Date(date);
+    prev.setDate(date.getDate() - 1);
     onDateSelect(prev);
   };
 
@@ -47,8 +49,7 @@ export default function DayView({
     onDateSelect(new Date());
   };
 
-  const handleHourClick = (e: React.MouseEvent, hour: number) => {
-    e.stopPropagation();
+  const handleHourClick = (hour: number) => {
     const eventDate = new Date(date);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
@@ -67,7 +68,7 @@ export default function DayView({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={prevMonth}
+            onClick={prevDay}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -82,7 +83,7 @@ export default function DayView({
           <Button 
             variant="outline" 
             size="icon" 
-            onClick={nextMonth}
+            onClick={nextDay}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -97,7 +98,7 @@ export default function DayView({
             </div>
             <div 
               className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
-              onClick={(e) => handleHourClick(e, hour)}
+              onClick={() => handleHourClick(hour)}
             >
               {dayEvents
                 .filter(event => new Date(event.start).getHours() === hour)
