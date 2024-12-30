@@ -2,11 +2,11 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/comp
 import { useState, useEffect } from "react";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
+import StudentList from "@/components/Students/StudentList";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import StudentList from "@/components/Students/StudentList";
 import { Link } from "react-router-dom";
 
 export default function Students() {
