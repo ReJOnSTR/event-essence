@@ -72,7 +72,11 @@ export default function Index() {
     if (selectedLesson) {
       const updatedLessons = lessons.map(lesson => 
         lesson.id === selectedLesson.id 
-          ? { ...lessonData, id: lesson.id }
+          ? { 
+              ...lessonData, 
+              id: lesson.id,
+              studentId: lessonData.studentId // Ensure studentId is included
+            }
           : lesson
       );
       setLessons(updatedLessons);
@@ -84,6 +88,7 @@ export default function Index() {
       const newLesson: Lesson = {
         ...lessonData,
         id: crypto.randomUUID(),
+        studentId: lessonData.studentId // Ensure studentId is included
       };
       setLessons([...lessons, newLesson]);
       toast({
