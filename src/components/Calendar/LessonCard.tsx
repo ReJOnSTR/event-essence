@@ -1,4 +1,4 @@
-import { CalendarEvent } from "@/types/calendar";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { useDraggable } from "@dnd-kit/core";
@@ -7,11 +7,13 @@ import { CSS } from "@dnd-kit/utilities";
 interface EventCardProps {
   event: CalendarEvent;
   onClick?: (event: CalendarEvent) => void;
+  students?: Student[];
 }
 
-export default function EventCard({ event, onClick }: EventCardProps) {
+export default function LessonCard({ event, onClick, students }: EventCardProps) {
   const durationInMinutes = differenceInMinutes(event.end, event.start);
   const heightInPixels = (durationInMinutes / 60) * 60; // 60px per hour
+  const student = students?.find(s => s.id === event.studentId);
 
   const {attributes, listeners, setNodeRef, transform} = useDraggable({
     id: event.id,
@@ -41,7 +43,9 @@ export default function EventCard({ event, onClick }: EventCardProps) {
       {...attributes}
       {...listeners}
     >
-      <div className="font-medium truncate">{event.title}</div>
+      <div className="font-medium truncate">
+        {student ? `${student.name} - ${event.title}` : event.title}
+      </div>
       <div className="text-xs">
         {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
       </div>

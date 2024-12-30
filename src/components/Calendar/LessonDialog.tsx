@@ -1,36 +1,46 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { CalendarEvent } from "@/types/calendar";
+import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-interface EventDialogProps {
+interface LessonDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (event: Omit<CalendarEvent, "id">) => void;
-  onDelete?: (eventId: string) => void;
+  onSave: (lesson: Omit<Lesson, "id">) => void;
+  onDelete?: (lessonId: string) => void;
   selectedDate: Date;
-  event?: CalendarEvent;
-  events: CalendarEvent[];
+  event?: Lesson;
+  events: Lesson[];
+  students: Student[];
 }
 
-export default function EventDialog({ 
+export default function LessonDialog({ 
   isOpen, 
   onClose, 
   onSave, 
   onDelete,
   selectedDate,
   event,
-  events 
-}: EventDialogProps) {
+  events,
+  students
+}: LessonDialogProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -40,6 +50,7 @@ export default function EventDialog({
         setDescription(event.description || "");
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
+        setSelectedStudentId(event.studentId || "");
       } else {
         const hours = selectedDate.getHours();
         const formattedHours = hours.toString().padStart(2, '0');
@@ -47,11 +58,12 @@ export default function EventDialog({
         setEndTime(`${(hours + 1) % 24}:00`);
         setTitle("");
         setDescription("");
+        setSelectedStudentId("");
       }
     }
   }, [isOpen, selectedDate, event]);
 
-  const checkEventOverlap = (start: Date, end: Date) => {
+  const checkLessonOverlap = (start: Date, end: Date) => {
     return events.some(existingEvent => {
       if (event && existingEvent.id === event.id) return false;
       
@@ -76,10 +88,10 @@ export default function EventDialog({
     const end = new Date(selectedDate);
     end.setHours(endHours, endMinutes);
 
-    if (checkEventOverlap(start, end)) {
+    if (checkLessonOverlap(start, end)) {
       toast({
         title: "Zaman Çakışması",
-        description: "Bu zaman aralığında başka bir etkinlik bulunuyor.",
+        description: "Bu zaman aralığında başka bir ders bulunuyor.",
         variant: "destructive"
       });
       return;
@@ -90,6 +102,7 @@ export default function EventDialog({
       description,
       start,
       end,
+      studentId: selectedStudentId || undefined,
     });
     
     onClose();
@@ -106,18 +119,37 @@ export default function EventDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{event ? "Etkinliği Düzenle" : "Etkinlik Ekle"}</DialogTitle>
+          <DialogTitle>{event ? "Dersi Düzenle" : "Ders Ekle"}</DialogTitle>
           <DialogDescription>
-            Etkinlik detaylarını buradan düzenleyebilirsiniz.
+            Ders detaylarını buradan düzenleyebilirsiniz.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Öğrenci</label>
+            <Select
+              value={selectedStudentId}
+              onValueChange={setSelectedStudentId}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Öğrenci seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                {students.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div className="space-y-2">
             <label className="text-sm font-medium">Başlık</label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Etkinlik başlığı"
+              placeholder="Ders başlığı"
               required
             />
           </div>
@@ -127,7 +159,7 @@ export default function EventDialog({
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Etkinlik açıklaması"
+              placeholder="Ders açıklaması"
             />
           </div>
           

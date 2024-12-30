@@ -6,7 +6,7 @@ import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import { Lesson, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,6 +21,22 @@ import {
   SidebarMenuItem,
   SidebarMenuButton
 } from "@/components/ui/sidebar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ViewType = "day" | "week" | "month" | "year";
 
@@ -28,9 +44,14 @@ export default function Index() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<ViewType>("month");
   const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
+  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const [studentName, setStudentName] = useState("");
+  const [studentEmail, setStudentEmail] = useState("");
+  const [studentPhone, setStudentPhone] = useState("");
   const { toast } = useToast();
 
   const handleDateSelect = (date: Date) => {
@@ -88,6 +109,71 @@ export default function Index() {
     });
   };
 
+  const handleSaveStudent = () => {
+    if (selectedStudent) {
+      // Update existing student
+      const updatedStudents = students.map(student =>
+        student.id === selectedStudent.id
+          ? {
+              ...student,
+              name: studentName,
+              email: studentEmail,
+              phone: studentPhone,
+            }
+          : student
+      );
+      setStudents(updatedStudents);
+      toast({
+        title: "Öğrenci güncellendi",
+        description: "Öğrenci bilgileri başarıyla güncellendi.",
+      });
+    } else {
+      // Add new student
+      const newStudent: Student = {
+        id: crypto.randomUUID(),
+        name: studentName,
+        email: studentEmail,
+        phone: studentPhone,
+      };
+      setStudents([...students, newStudent]);
+      toast({
+        title: "Öğrenci eklendi",
+        description: "Yeni öğrenci başarıyla eklendi.",
+      });
+    }
+    handleCloseStudentDialog();
+  };
+
+  const handleEditStudent = (student: Student) => {
+    setSelectedStudent(student);
+    setStudentName(student.name);
+    setStudentEmail(student.email || "");
+    setStudentPhone(student.phone || "");
+    setIsStudentDialogOpen(true);
+  };
+
+  const handleDeleteStudent = (studentId: string) => {
+    setStudents(students.filter(student => student.id !== studentId));
+    // Also remove student from lessons
+    setLessons(lessons.map(lesson => 
+      lesson.studentId === studentId 
+        ? { ...lesson, studentId: undefined }
+        : lesson
+    ));
+    toast({
+      title: "Öğrenci silindi",
+      description: "Öğrenci başarıyla silindi.",
+    });
+  };
+
+  const handleCloseStudentDialog = () => {
+    setIsStudentDialogOpen(false);
+    setSelectedStudent(undefined);
+    setStudentName("");
+    setStudentEmail("");
+    setStudentPhone("");
+  };
+
   const renderView = () => {
     const viewProps = {
       date: selectedDate,
@@ -119,15 +205,39 @@ export default function Index() {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton onClick={() => {
-                    toast({
-                      title: "Yakında",
-                      description: "Öğrenci ekleme özelliği yakında eklenecek.",
-                    });
+                    setIsStudentDialogOpen(true);
+                    setSelectedStudent(undefined);
                   }}>
-                    <Users className="h-4 w-4" />
+                    <Plus className="h-4 w-4" />
                     <span>Öğrenci Ekle</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                {students.map((student) => (
+                  <SidebarMenuItem key={student.id}>
+                    <SidebarMenuButton className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        <span>{student.name}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditStudent(student)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteStudent(student.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroup>
           </SidebarContent>
@@ -184,7 +294,57 @@ export default function Index() {
             selectedDate={selectedDate}
             event={selectedLesson}
             events={lessons}
+            students={students}
           />
+
+          <Dialog open={isStudentDialogOpen} onOpenChange={handleCloseStudentDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {selectedStudent ? "Öğrenci Düzenle" : "Öğrenci Ekle"}
+                </DialogTitle>
+                <DialogDescription>
+                  Öğrenci bilgilerini buradan ekleyebilir veya düzenleyebilirsiniz.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">İsim</label>
+                  <Input
+                    value={studentName}
+                    onChange={(e) => setStudentName(e.target.value)}
+                    placeholder="Öğrenci adı"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">E-posta</label>
+                  <Input
+                    type="email"
+                    value={studentEmail}
+                    onChange={(e) => setStudentEmail(e.target.value)}
+                    placeholder="ornek@email.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Telefon</label>
+                  <Input
+                    value={studentPhone}
+                    onChange={(e) => setStudentPhone(e.target.value)}
+                    placeholder="05XX XXX XX XX"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={handleCloseStudentDialog}>
+                  İptal
+                </Button>
+                <Button onClick={handleSaveStudent}>
+                  {selectedStudent ? "Güncelle" : "Ekle"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </SidebarProvider>
