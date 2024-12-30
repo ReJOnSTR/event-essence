@@ -1,5 +1,5 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday, parse } from "date-fns";
+import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { cn } from "@/lib/utils";
@@ -77,12 +77,12 @@ export default function DayView({
             <div className="col-span-1 text-right text-sm text-gray-500">
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
-            <div className="col-span-11 grid grid-rows-4 min-h-[60px]">
+            <div className="col-span-11 grid grid-rows-4 min-h-[60px] border-t border-gray-200">
               {[0, 15, 30, 45].map((minute) => (
                 <div
                   key={`${hour}:${minute}`}
                   className={cn(
-                    "border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative min-h-[15px]",
+                    "cursor-pointer hover:bg-gray-50 relative min-h-[15px]",
                     (!daySettings?.enabled || hour < startHour || hour >= endHour) && 
                     "bg-gray-100 cursor-not-allowed"
                   )}
