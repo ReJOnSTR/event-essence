@@ -53,7 +53,7 @@ export default function WeekView({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-auto">
       <div className="flex items-center justify-between mb-4">
         <div className="text-2xl font-semibold">
           {format(weekStart, "MMMM yyyy", { locale: tr })}

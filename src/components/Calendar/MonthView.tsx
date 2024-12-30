@@ -76,9 +76,9 @@ export default function MonthView({
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className={cn("w-full", isYearView && "h-full")}>
+    <div className={cn("w-full mx-auto", isYearView && "h-full")}>
       {!isYearView && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 px-4">
           <h2 className="text-2xl font-semibold text-gray-900">
             {format(currentDate, "MMMM yyyy", { locale: tr })}
           </h2>
