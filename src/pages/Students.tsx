@@ -1,4 +1,4 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { useState } from "react";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import StudentList from "@/components/Students/StudentList";
 
 export default function Students() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -79,10 +80,17 @@ export default function Students() {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
+        <Sidebar>
+          <SidebarContent className="p-4">
+            <StudentList />
+          </SidebarContent>
+        </Sidebar>
+        
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <div className="flex items-center gap-4 p-4 border-b bg-white">
+            <SidebarTrigger />
             <h1 className="text-2xl font-semibold text-gray-900">Öğrenciler</h1>
             <div className="ml-auto">
               <Button onClick={() => {

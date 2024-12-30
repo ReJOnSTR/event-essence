@@ -1,5 +1,4 @@
 import { Student } from "@/types/calendar";
-import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
