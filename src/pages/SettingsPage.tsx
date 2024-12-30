@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings as SettingsIcon, Bell, User, Shield, Palette, Languages } from "lucide-react";
+import { ArrowLeft, Settings as SettingsIcon, Bell, User, Shield, Palette, Languages, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,6 +12,10 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
+import { getDefaultLessonDuration, setDefaultLessonDuration } from "@/utils/settings";
 
 const menuItems = [
   {
@@ -48,6 +52,20 @@ const menuItems = [
 
 export default function Settings() {
   const [selectedSection, setSelectedSection] = useState("general");
+  const [defaultDuration, setDefaultDuration] = useState(() => getDefaultLessonDuration());
+  const { toast } = useToast();
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (value > 0) {
+      setDefaultDuration(value);
+      setDefaultLessonDuration(value);
+      toast({
+        title: "Ayarlar güncellendi",
+        description: "Varsayılan ders süresi başarıyla kaydedildi.",
+      });
+    }
+  };
 
   const renderContent = () => {
     switch (selectedSection) {
@@ -57,8 +75,24 @@ export default function Settings() {
             <CardHeader>
               <CardTitle>Genel Ayarlar</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Genel ayarlar içeriği buraya eklenecek.</p>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="defaultDuration" className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Varsayılan Ders Süresi (dakika)
+                </Label>
+                <Input
+                  id="defaultDuration"
+                  type="number"
+                  value={defaultDuration}
+                  onChange={handleDurationChange}
+                  min="1"
+                  className="max-w-[200px]"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Yeni ders eklerken otomatik olarak ayarlanacak süre
+                </p>
+              </div>
             </CardContent>
           </Card>
         );

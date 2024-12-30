@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval } from "date-fns";
+import { format, isWithinInterval, addMinutes } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { getDefaultLessonDuration } from "@/utils/settings";
 import {
   Select,
   SelectContent,
@@ -52,8 +53,17 @@ export default function LessonDialog({
       } else {
         const hours = selectedDate.getHours();
         const formattedHours = hours.toString().padStart(2, '0');
-        setStartTime(`${formattedHours}:00`);
-        setEndTime(`${(hours + 1) % 24}:00`);
+        const startTimeStr = `${formattedHours}:00`;
+        setStartTime(startTimeStr);
+        
+        // Calculate end time based on default duration
+        const defaultDuration = getDefaultLessonDuration();
+        const endDate = addMinutes(selectedDate, defaultDuration);
+        const endHours = endDate.getHours();
+        const endMinutes = endDate.getMinutes();
+        const endTimeStr = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+        setEndTime(endTimeStr);
+        
         setDescription("");
         setSelectedStudentId("");
       }
