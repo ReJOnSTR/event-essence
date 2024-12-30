@@ -1,5 +1,6 @@
 import { Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Student } from "@/types/calendar";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel } from "@/components/ui/sidebar";
 
 interface StudentListProps {

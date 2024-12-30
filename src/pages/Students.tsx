@@ -1,5 +1,5 @@
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import StudentList from "@/components/Students/StudentList";
 import { Link } from "react-router-dom";
 
-// Create a shared state management solution (you might want to use React Context or a state management library later)
-const studentsData = JSON.parse(localStorage.getItem('students') || '[]');
-
 export default function Students() {
-  const [students, setStudents] = useState<Student[]>(studentsData);
+  const [students, setStudents] = useState<Student[]>([]);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
@@ -21,6 +18,14 @@ export default function Students() {
   const [studentPhone, setStudentPhone] = useState("");
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
+
+  // Load students from localStorage when component mounts
+  useEffect(() => {
+    const storedStudents = localStorage.getItem('students');
+    if (storedStudents) {
+      setStudents(JSON.parse(storedStudents));
+    }
+  }, []);
 
   const handleSaveStudent = () => {
     if (selectedStudent) {
