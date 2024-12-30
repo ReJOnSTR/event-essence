@@ -1,4 +1,4 @@
-import { Plus, FileBarChart } from "lucide-react";
+import { Plus, FileBarChart, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -14,16 +14,12 @@ import { Button } from "@/components/ui/button";
 
 interface StudentListProps {
   students?: Student[];
-  onEdit?: (student: Student) => void;
-  onDelete?: (studentId: string) => void;
   onAddStudent?: () => void;
   onStudentClick?: (student: Student) => void;
 }
 
 export default function StudentList({ 
   students = [], 
-  onEdit, 
-  onDelete, 
   onAddStudent,
   onStudentClick 
 }: StudentListProps) {
@@ -94,6 +90,16 @@ export default function StudentList({
           </SidebarMenuButton>
         </Link>
       </SidebarGroup>
+
+      <div className="mt-auto">
+        <SidebarGroup>
+          <Link to="/settings" className="block hover:bg-accent rounded-md transition-colors ml-auto">
+            <SidebarMenuButton className="w-full justify-end">
+              <Settings className="h-4 w-4" />
+            </SidebarMenuButton>
+          </Link>
+        </SidebarGroup>
+      </div>
     </>
   );
 }
