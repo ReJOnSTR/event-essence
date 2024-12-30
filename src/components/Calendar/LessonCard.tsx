@@ -12,10 +12,10 @@ interface EventCardProps {
 
 export default function LessonCard({ event, onClick, students }: EventCardProps) {
   const durationInMinutes = differenceInMinutes(event.end, event.start);
-  const heightInPixels = (durationInMinutes / 60) * 60; // 60px per hour
+  const heightInPixels = (durationInMinutes / 60) * 60;
   const student = students?.find(s => s.id === event.studentId);
 
-  const {attributes, listeners, setNodeRef, transform} = useDraggable({
+  const {attributes, listeners, setNodeRef, transform, isDragging} = useDraggable({
     id: event.id,
     data: event
   });
@@ -23,8 +23,9 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
   const style = {
     height: `${heightInPixels}px`,
     top: `${(new Date(event.start).getMinutes() / 60) * 60}px`,
-    zIndex: 10,
+    zIndex: isDragging ? 50 : 10,
     transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.8 : 1,
   };
 
   const handleClick = (e: React.MouseEvent) => {

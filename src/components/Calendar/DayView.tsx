@@ -61,26 +61,23 @@ export default function DayView({
     
     if (isNaN(newHour)) return;
 
-    // Etkinliğin süresini hesapla
     const duration = draggedEvent.end.getTime() - draggedEvent.start.getTime();
     
-    // Yeni başlangıç tarihini ayarla
     const newStart = new Date(date);
     newStart.setHours(newHour, newMinute);
     
-    // Yeni bitiş tarihini süreyi ekleyerek hesapla
     const newEnd = new Date(newStart.getTime() + duration);
 
-    // Güncellenen etkinliği oluştur
-    const updatedEvent = {
+    const updatedEvent: CalendarEvent = {
       ...draggedEvent,
       start: newStart,
       end: newEnd,
     };
 
-    // Etkinliği güncelle
+    // Önce state'i güncelle
     onEventUpdate(updatedEvent);
     
+    // Sonra kullanıcıya bildir
     toast({
       title: "Ders güncellendi",
       description: "Dersin saati başarıyla güncellendi.",
