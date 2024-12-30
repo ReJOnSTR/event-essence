@@ -5,10 +5,10 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import StudentList from "@/components/Students/StudentList";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -16,7 +16,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarTrigger,
-  SidebarGroup,
 } from "@/components/ui/sidebar";
 import { addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
 
