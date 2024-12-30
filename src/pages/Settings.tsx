@@ -1,9 +1,8 @@
+import { Student } from "@/types/calendar";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import StudentList from "@/components/Students/StudentList";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Student } from "@/types/calendar";
 
 interface SettingsProps {
   students: Student[];
@@ -37,13 +36,9 @@ export default function Settings({ students, onAddStudent, onStudentClick }: Set
             </Link>
             <h1 className="text-2xl font-semibold text-gray-900">Ayarlar</h1>
           </div>
-          
+
           <div className="flex-1 overflow-auto p-4">
-            <div className="grid gap-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <h2 className="text-xl font-semibold mb-4">Genel Ayarlar</h2>
-              </div>
-            </div>
+            {/* Settings content will go here */}
           </div>
         </div>
       </div>
