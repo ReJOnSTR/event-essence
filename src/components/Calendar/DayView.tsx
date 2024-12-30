@@ -51,14 +51,15 @@ export default function DayView({
     onDateSelect(new Date());
   };
 
-  const handleHourClick = (hour: number) => {
+  const handleHourClick = (e: React.MouseEvent, hour: number) => {
+    e.stopPropagation();
     const eventDate = new Date(date);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-between mb-4">
         <div className={cn(
           "text-2xl font-semibold",
@@ -100,7 +101,7 @@ export default function DayView({
             </div>
             <div 
               className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
-              onClick={() => handleHourClick(hour)}
+              onClick={(e) => handleHourClick(e, hour)}
             >
               {dayEvents
                 .filter(event => new Date(event.start).getHours() === hour)

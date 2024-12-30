@@ -47,14 +47,15 @@ export default function WeekView({
     onDateSelect(new Date());
   };
 
-  const handleCellClick = (day: Date, hour: number) => {
+  const handleCellClick = (e: React.MouseEvent, day: Date, hour: number) => {
+    e.stopPropagation();
     const eventDate = new Date(day);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
   };
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-x-auto" onClick={(e) => e.stopPropagation()}>
       <CalendarHeader
         date={date}
         onPrevious={prevWeek}
@@ -94,7 +95,7 @@ export default function WeekView({
                   "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
                   isToday(day) && "bg-blue-50"
                 )}
-                onClick={() => handleCellClick(day, hour)}
+                onClick={(e) => handleCellClick(e, day, hour)}
               >
                 {events
                   .filter(

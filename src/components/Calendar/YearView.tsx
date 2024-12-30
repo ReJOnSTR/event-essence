@@ -36,7 +36,7 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-between mb-8">
         <div className="text-3xl font-bold text-gray-900">
           {format(date, "yyyy", { locale: tr })}
