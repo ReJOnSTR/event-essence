@@ -3,7 +3,6 @@ import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DayViewProps {
@@ -29,28 +28,6 @@ export default function DayView({
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextDay = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const next = new Date(date);
-    next.setDate(date.getDate() + 1);
-    onDateSelect(next);
-  };
-
-  const prevDay = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const prev = new Date(date);
-    prev.setDate(date.getDate() - 1);
-    onDateSelect(prev);
-  };
-
-  const goToToday = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDateSelect(new Date());
-  };
-
   const handleHourClick = (hour: number) => {
     const eventDate = new Date(date);
     eventDate.setHours(hour);
@@ -59,39 +36,6 @@ export default function DayView({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
-        <div className={cn(
-          "text-2xl font-semibold",
-          isToday(date) && "text-calendar-blue"
-        )}>
-          {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={prevDay}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={goToToday}
-            className="flex gap-2 items-center"
-          >
-            <CalendarDays className="h-4 w-4" />
-            Bugün
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={nextDay}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
       <div className="space-y-2">
         {hours.map((hour) => (
           <div key={hour} className="grid grid-cols-12 gap-2">
