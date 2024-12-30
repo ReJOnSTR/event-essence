@@ -1,4 +1,4 @@
-import { Plus, FileBarChart } from "lucide-react";
+import { Plus, FileBarChart, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -7,20 +7,21 @@ import {
   SidebarMenuButton, 
   SidebarGroup, 
   SidebarGroupLabel,
-  SidebarGroupContent
+  SidebarGroupContent,
+  SidebarFooter
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 interface StudentListProps {
   students?: Student[];
-  onEdit?: (student: Student) => void;
-  onDelete?: (studentId: string) => void;
   onAddStudent?: () => void;
 }
 
-export default function StudentList({ students = [], onEdit, onDelete, onAddStudent }: StudentListProps) {
+export default function StudentList({ students = [], onAddStudent }: StudentListProps) {
   return (
-    <>
+    <div className="flex flex-col h-full">
       <SidebarGroup>
         <Link to="/students" className="block hover:bg-accent rounded-md transition-colors">
           <SidebarGroupLabel className="cursor-pointer">Öğrenciler</SidebarGroupLabel>
@@ -66,14 +67,33 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
         </SidebarGroupContent>
       </SidebarGroup>
 
-      <SidebarGroup>
-        <Link to="/reports" className="block hover:bg-accent rounded-md transition-colors">
+      <div className="mt-auto">
+        <Link to="/reports" className="block hover:bg-accent rounded-md transition-colors mb-4">
           <SidebarMenuButton className="w-full">
             <FileBarChart className="h-4 w-4" />
             <span>Raporlar</span>
           </SidebarMenuButton>
         </Link>
-      </SidebarGroup>
-    </>
+
+        <SidebarFooter>
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-2">
+                <Avatar>
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback>AD</AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">Admin</span>
+              </div>
+              <Link to="/settings">
+                <Button variant="ghost" size="icon">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </SidebarFooter>
+      </div>
+    </div>
   );
 }
