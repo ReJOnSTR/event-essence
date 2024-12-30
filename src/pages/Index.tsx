@@ -4,20 +4,13 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
+import ViewSelector from "@/components/Calendar/ViewSelector";
+import StudentList from "@/components/Students/StudentList";
+import StudentDialog from "@/components/Students/StudentDialog";
 import { Lesson, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Pencil, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
   SidebarProvider,
   Sidebar,
@@ -25,9 +18,6 @@ import {
   SidebarTrigger,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton
 } from "@/components/ui/sidebar";
 
 type ViewType = "day" | "week" | "month" | "year";
@@ -103,7 +93,6 @@ export default function Index() {
 
   const handleSaveStudent = () => {
     if (selectedStudent) {
-      // Update existing student
       const updatedStudents = students.map(student =>
         student.id === selectedStudent.id
           ? {
@@ -120,7 +109,6 @@ export default function Index() {
         description: "Öğrenci bilgileri başarıyla güncellendi.",
       });
     } else {
-      // Add new student
       const newStudent: Student = {
         id: crypto.randomUUID(),
         name: studentName,
@@ -146,7 +134,6 @@ export default function Index() {
 
   const handleDeleteStudent = (studentId: string) => {
     setStudents(students.filter(student => student.id !== studentId));
-    // Also remove student from lessons
     setLessons(lessons.map(lesson => 
       lesson.studentId === studentId 
         ? { ...lesson, studentId: undefined }
@@ -195,43 +182,21 @@ export default function Index() {
           <SidebarContent className="p-4">
             <SidebarGroup>
               <SidebarGroupLabel>Öğrenciler</SidebarGroupLabel>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton onClick={() => {
-                    setIsStudentDialogOpen(true);
-                    setSelectedStudent(undefined);
-                  }}>
-                    <Plus className="h-4 w-4" />
-                    <span>Öğrenci Ekle</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                {students.map((student) => (
-                  <SidebarMenuItem key={student.id}>
-                    <SidebarMenuButton className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        <span>{student.name}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditStudent(student)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteStudent(student.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
+              <Button 
+                onClick={() => {
+                  setIsStudentDialogOpen(true);
+                  setSelectedStudent(undefined);
+                }}
+                className="w-full mb-4"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Öğrenci Ekle
+              </Button>
+              <StudentList
+                students={students}
+                onEdit={handleEditStudent}
+                onDelete={handleDeleteStudent}
+              />
             </SidebarGroup>
           </SidebarContent>
         </Sidebar>
@@ -252,22 +217,10 @@ export default function Index() {
               </Button>
             </div>
 
-            <Tabs value={currentView} className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="day" onClick={() => setCurrentView("day")}>
-                  Günlük
-                </TabsTrigger>
-                <TabsTrigger value="week" onClick={() => setCurrentView("week")}>
-                  Haftalık
-                </TabsTrigger>
-                <TabsTrigger value="month" onClick={() => setCurrentView("month")}>
-                  Aylık
-                </TabsTrigger>
-                <TabsTrigger value="year" onClick={() => setCurrentView("year")}>
-                  Yıllık
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <ViewSelector
+              currentView={currentView}
+              onViewChange={(view) => setCurrentView(view as ViewType)}
+            />
           </div>
           
           <div className="flex-1 overflow-auto">
@@ -290,54 +243,18 @@ export default function Index() {
             students={students}
           />
 
-          <Dialog open={isStudentDialogOpen} onOpenChange={handleCloseStudentDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  {selectedStudent ? "Öğrenci Düzenle" : "Öğrenci Ekle"}
-                </DialogTitle>
-                <DialogDescription>
-                  Öğrenci bilgilerini buradan ekleyebilir veya düzenleyebilirsiniz.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">İsim</label>
-                  <Input
-                    value={studentName}
-                    onChange={(e) => setStudentName(e.target.value)}
-                    placeholder="Öğrenci adı"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">E-posta</label>
-                  <Input
-                    type="email"
-                    value={studentEmail}
-                    onChange={(e) => setStudentEmail(e.target.value)}
-                    placeholder="ornek@email.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Telefon</label>
-                  <Input
-                    value={studentPhone}
-                    onChange={(e) => setStudentPhone(e.target.value)}
-                    placeholder="05XX XXX XX XX"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={handleCloseStudentDialog}>
-                  İptal
-                </Button>
-                <Button onClick={handleSaveStudent}>
-                  {selectedStudent ? "Güncelle" : "Ekle"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <StudentDialog
+            isOpen={isStudentDialogOpen}
+            onClose={handleCloseStudentDialog}
+            onSave={handleSaveStudent}
+            student={selectedStudent}
+            studentName={studentName}
+            setStudentName={setStudentName}
+            studentEmail={studentEmail}
+            setStudentEmail={setStudentEmail}
+            studentPhone={studentPhone}
+            setStudentPhone={setStudentPhone}
+          />
         </div>
       </div>
     </SidebarProvider>

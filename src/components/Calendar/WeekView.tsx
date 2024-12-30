@@ -3,9 +3,8 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import CalendarHeader from "./CalendarHeader";
 
 interface WeekViewProps {
   date: Date;
@@ -56,35 +55,13 @@ export default function WeekView({
 
   return (
     <div className="w-full overflow-x-auto">
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-2xl font-semibold">
-          {format(weekStart, "MMMM yyyy", { locale: tr })}
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={prevWeek}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={goToToday}
-            className="flex gap-2 items-center"
-          >
-            <CalendarDays className="h-4 w-4" />
-            Bugün
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={nextWeek}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <CalendarHeader
+        date={date}
+        onPrevious={prevWeek}
+        onNext={nextWeek}
+        onToday={goToToday}
+        title={format(weekStart, "MMMM yyyy", { locale: tr })}
+      />
 
       <div className="grid grid-cols-8 gap-px bg-gray-200">
         <div className="bg-white w-16"></div>
