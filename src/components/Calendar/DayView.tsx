@@ -78,29 +78,24 @@ export default function DayView({
             <div className="col-span-1 text-right text-sm text-gray-500">
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
-            <div className="col-span-11 grid grid-rows-4 min-h-[60px] border-t border-gray-200">
-              {[0, 15, 30, 45].map((minute) => (
-                <div
-                  key={`${hour}:${minute}`}
-                  className={cn(
-                    "cursor-pointer hover:bg-gray-50 relative min-h-[15px]",
-                    (!daySettings?.enabled || hour < startHour || hour >= endHour) && 
-                    "bg-gray-100 cursor-not-allowed"
-                  )}
-                  onClick={() => handleHourClick(hour, minute)}
-                >
-                  {minute === 0 && dayEvents
-                    .filter(event => new Date(event.start).getHours() === hour)
-                    .map(event => (
-                      <LessonCard 
-                        key={event.id} 
-                        event={event} 
-                        onClick={onEventClick}
-                        students={students}
-                      />
-                    ))}
-                </div>
-              ))}
+            <div 
+              className={cn(
+                "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative",
+                (!daySettings?.enabled || hour < startHour || hour >= endHour) && 
+                "bg-gray-100 cursor-not-allowed"
+              )}
+              onClick={() => handleHourClick(hour, 0)}
+            >
+              {dayEvents
+                .filter(event => new Date(event.start).getHours() === hour)
+                .map(event => (
+                  <LessonCard 
+                    key={event.id} 
+                    event={event} 
+                    onClick={onEventClick}
+                    students={students}
+                  />
+                ))}
             </div>
           </div>
         ))}
