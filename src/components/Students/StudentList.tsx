@@ -1,4 +1,4 @@
-import { Users, Plus } from "lucide-react";
+import { UserPen, UserMinus, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -7,7 +7,8 @@ import {
   SidebarMenuButton, 
   SidebarGroup, 
   SidebarGroupLabel,
-  SidebarGroupContent
+  SidebarGroupContent,
+  SidebarMenuAction
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -32,15 +33,6 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
               <span>Öğrenci Ekle</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link to="/students" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                <span>Öğrenciler Sayfası</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
 
           <ScrollArea className="h-[200px]">
             {students.map((student) => (
@@ -52,6 +44,17 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
                   />
                   <span>{student.name}</span>
                 </SidebarMenuButton>
+                <SidebarMenuAction
+                  onClick={() => onEdit?.(student)}
+                  className="right-8"
+                >
+                  <UserPen className="h-4 w-4" />
+                </SidebarMenuAction>
+                <SidebarMenuAction
+                  onClick={() => onDelete?.(student.id)}
+                >
+                  <UserMinus className="h-4 w-4" />
+                </SidebarMenuAction>
               </SidebarMenuItem>
             ))}
           </ScrollArea>

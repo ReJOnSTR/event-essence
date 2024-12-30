@@ -2,10 +2,9 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/comp
 import { useState, useEffect } from "react";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
-import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import StudentList from "@/components/Students/StudentList";
 import { Link } from "react-router-dom";
 
@@ -102,6 +101,10 @@ export default function Students() {
               students={students}
               onEdit={handleEditStudent}
               onDelete={handleDeleteStudent}
+              onAddStudent={() => {
+                setSelectedStudent(undefined);
+                setIsStudentDialogOpen(true);
+              }}
             />
           </SidebarContent>
         </Sidebar>
@@ -116,16 +119,6 @@ export default function Students() {
               <ArrowLeft className="h-5 w-5" />
               <span>Takvime Dön</span>
             </Link>
-            <h1 className="text-2xl font-semibold text-gray-900">Öğrenciler</h1>
-            <div className="ml-auto">
-              <Button onClick={() => {
-                setSelectedStudent(undefined);
-                setIsStudentDialogOpen(true);
-              }}>
-                <Plus className="h-4 w-4 mr-2" />
-                Öğrenci Ekle
-              </Button>
-            </div>
           </div>
           
           <div className="flex-1 overflow-auto p-4">
@@ -151,26 +144,6 @@ export default function Students() {
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t p-4 bg-gray-50">
-                    <div className="flex justify-end gap-2 w-full">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditStudent(student)}
-                      >
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Düzenle
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteStudent(student.id)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Sil
-                      </Button>
-                    </div>
-                  </CardFooter>
                 </Card>
               ))}
             </div>
