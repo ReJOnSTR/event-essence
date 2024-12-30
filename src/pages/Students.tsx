@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import StudentList from "@/components/Students/StudentList";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import StudentList from "@/components/Students/StudentList";
+import { Link } from "react-router-dom";
 
 export default function Students() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -18,6 +19,7 @@ export default function Students() {
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
 
+  // Load students from localStorage when component mounts
   useEffect(() => {
     const storedStudents = localStorage.getItem('students');
     if (storedStudents) {
@@ -100,10 +102,6 @@ export default function Students() {
               students={students}
               onEdit={handleEditStudent}
               onDelete={handleDeleteStudent}
-              onAddClick={() => {
-                setSelectedStudent(undefined);
-                setIsStudentDialogOpen(true);
-              }}
             />
           </SidebarContent>
         </Sidebar>
@@ -111,7 +109,23 @@ export default function Students() {
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <div className="flex items-center gap-4 p-4 border-b bg-white">
             <SidebarTrigger />
+            <Link 
+              to="/" 
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span>Takvime Dön</span>
+            </Link>
             <h1 className="text-2xl font-semibold text-gray-900">Öğrenciler</h1>
+            <div className="ml-auto">
+              <Button onClick={() => {
+                setSelectedStudent(undefined);
+                setIsStudentDialogOpen(true);
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Öğrenci Ekle
+              </Button>
+            </div>
           </div>
           
           <div className="flex-1 overflow-auto p-4">
