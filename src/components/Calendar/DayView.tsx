@@ -1,5 +1,5 @@
 import { CalendarEvent } from "@/types/calendar";
-import { format, isToday, addMonths, startOfMonth, endOfMonth } from "date-fns";
+import { format, isToday, addMonths } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,8 @@ export default function DayView({
     onDateSelect(new Date());
   };
 
-  const handleHourClick = (hour: number) => {
+  const handleHourClick = (e: React.MouseEvent, hour: number) => {
+    e.stopPropagation();
     const eventDate = new Date(date);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
@@ -96,7 +97,7 @@ export default function DayView({
             </div>
             <div 
               className="col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative"
-              onClick={() => handleHourClick(hour)}
+              onClick={(e) => handleHourClick(e, hour)}
             >
               {dayEvents
                 .filter(event => new Date(event.start).getHours() === hour)
