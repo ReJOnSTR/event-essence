@@ -28,14 +28,14 @@ interface StudentDialogProps {
 }
 
 const STUDENT_COLORS = [
-  { value: "#F2FCE2", label: "Soft Green" },
-  { value: "#FEF7CD", label: "Soft Yellow" },
-  { value: "#FEC6A1", label: "Soft Orange" },
-  { value: "#E5DEFF", label: "Soft Purple" },
-  { value: "#FFDEE2", label: "Soft Pink" },
-  { value: "#D3E4FD", label: "Soft Blue" },
-  { value: "#FDE1D3", label: "Soft Peach" },
-  { value: "#F1F0FB", label: "Soft Gray" },
+  { value: "#1a73e8", label: "Calendar Blue" },
+  { value: "#039be5", label: "Event Blue" },
+  { value: "#1557b0", label: "Deep Blue" },
+  { value: "#70757a", label: "Calendar Gray" },
+  { value: "#3c4043", label: "Dark Gray" },
+  { value: "#185abc", label: "Royal Blue" },
+  { value: "#1967d2", label: "Bright Blue" },
+  { value: "#4285f4", label: "Google Blue" },
 ];
 
 export default function StudentDialog({

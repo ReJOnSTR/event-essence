@@ -15,4 +15,10 @@ export interface Lesson {
   studentId?: string;
 }
 
+export interface DayCell {
+  date: Date;
+  isCurrentMonth: boolean;
+  lessons: Lesson[];
+}
+
 export type CalendarEvent = Lesson;
