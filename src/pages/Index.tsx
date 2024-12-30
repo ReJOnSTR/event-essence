@@ -22,14 +22,10 @@ import { addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "da
 
 type ViewType = "day" | "week" | "month" | "year";
 
-export default function Index() {
+export default function Index({ students, onAddStudent, onStudentClick }) {
   const [lessons, setLessons] = useState<Lesson[]>(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
-  });
-  const [students, setStudents] = useState<Student[]>(() => {
-    const savedStudents = localStorage.getItem('students');
-    return savedStudents ? JSON.parse(savedStudents) : [];
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
@@ -229,7 +225,8 @@ export default function Index() {
               students={students}
               onEdit={handleEditStudent}
               onDelete={handleDeleteStudent}
-              onAddStudent={() => setIsStudentDialogOpen(true)}
+              onAddStudent={onAddStudent}
+              onStudentClick={onStudentClick}
             />
           </SidebarContent>
         </Sidebar>

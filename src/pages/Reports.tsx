@@ -14,9 +14,10 @@ import { calculatePeriodHours } from "@/utils/reportCalculations";
 interface ReportsProps {
   students: Student[];
   onAddStudent: () => void;
+  onStudentClick: (student: Student) => void;
 }
 
-export default function Reports({ students, onAddStudent }: ReportsProps) {
+export default function Reports({ students, onAddStudent, onStudentClick }: ReportsProps) {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly">("weekly");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -35,6 +36,7 @@ export default function Reports({ students, onAddStudent }: ReportsProps) {
             <StudentList
               students={students}
               onAddStudent={onAddStudent}
+              onStudentClick={onStudentClick}
             />
           </SidebarContent>
         </Sidebar>

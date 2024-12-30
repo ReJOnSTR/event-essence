@@ -106,6 +106,7 @@ export default function Students() {
                 setSelectedStudent(undefined);
                 setIsStudentDialogOpen(true);
               }}
+              onStudentClick={handleEditStudent}
             />
           </SidebarContent>
         </Sidebar>

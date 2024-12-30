@@ -82,6 +82,15 @@ const App = () => {
     setIsStudentDialogOpen(true);
   };
 
+  const handleStudentClick = (student: Student) => {
+    setSelectedStudent(student);
+    setStudentName(student.name);
+    setStudentEmail(student.email || "");
+    setStudentPhone(student.phone || "");
+    setStudentColor(student.color || "#1a73e8");
+    setIsStudentDialogOpen(true);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -93,18 +102,21 @@ const App = () => {
               <Index 
                 students={students}
                 onAddStudent={handleAddStudent}
+                onStudentClick={handleStudentClick}
               />
             } />
             <Route path="/students" element={
               <Students 
                 students={students}
                 onAddStudent={handleAddStudent}
+                onStudentClick={handleStudentClick}
               />
             } />
             <Route path="/reports" element={
               <Reports 
                 students={students}
                 onAddStudent={handleAddStudent}
+                onStudentClick={handleStudentClick}
               />
             } />
           </Routes>

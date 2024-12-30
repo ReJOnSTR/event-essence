@@ -17,9 +17,16 @@ interface StudentListProps {
   onEdit?: (student: Student) => void;
   onDelete?: (studentId: string) => void;
   onAddStudent?: () => void;
+  onStudentClick?: (student: Student) => void;
 }
 
-export default function StudentList({ students = [], onEdit, onDelete, onAddStudent }: StudentListProps) {
+export default function StudentList({ 
+  students = [], 
+  onEdit, 
+  onDelete, 
+  onAddStudent,
+  onStudentClick 
+}: StudentListProps) {
   return (
     <>
       <SidebarGroup>
@@ -44,7 +51,10 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
             <ScrollArea className="h-[200px]">
               {students.slice(0, 5).map((student) => (
                 <SidebarMenuItem key={student.id}>
-                  <SidebarMenuButton className="w-full">
+                  <SidebarMenuButton 
+                    className="w-full cursor-pointer hover:bg-accent"
+                    onClick={() => onStudentClick?.(student)}
+                  >
                     <div
                       className="h-2 w-2 rounded-full"
                       style={{ backgroundColor: student.color }}
@@ -57,7 +67,10 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
                 <div className="mt-2 border-t pt-2">
                   {students.slice(5).map((student) => (
                     <SidebarMenuItem key={student.id}>
-                      <SidebarMenuButton className="w-full">
+                      <SidebarMenuButton 
+                        className="w-full cursor-pointer hover:bg-accent"
+                        onClick={() => onStudentClick?.(student)}
+                      >
                         <div
                           className="h-2 w-2 rounded-full"
                           style={{ backgroundColor: student.color }}
