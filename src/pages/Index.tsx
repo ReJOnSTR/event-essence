@@ -25,7 +25,7 @@ type ViewType = "day" | "week" | "month" | "year";
 
 export default function Index() {
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<Student[]>(JSON.parse(localStorage.getItem('students') || '[]'));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -123,6 +123,7 @@ export default function Index() {
           : student
       );
       setStudents(updatedStudents);
+      localStorage.setItem('students', JSON.stringify(updatedStudents));
       toast({
         title: "Öğrenci güncellendi",
         description: "Öğrenci bilgileri başarıyla güncellendi.",
@@ -135,7 +136,9 @@ export default function Index() {
         phone: studentPhone,
         color: studentColor,
       };
-      setStudents([...students, newStudent]);
+      const newStudents = [...students, newStudent];
+      setStudents(newStudents);
+      localStorage.setItem('students', JSON.stringify(newStudents));
       toast({
         title: "Öğrenci eklendi",
         description: "Yeni öğrenci başarıyla eklendi.",
@@ -154,7 +157,9 @@ export default function Index() {
   };
 
   const handleDeleteStudent = (studentId: string) => {
-    setStudents(students.filter(student => student.id !== studentId));
+    const updatedStudents = students.filter(student => student.id !== studentId);
+    setStudents(updatedStudents);
+    localStorage.setItem('students', JSON.stringify(updatedStudents));
     setLessons(lessons.map(lesson => 
       lesson.studentId === studentId 
         ? { ...lesson, studentId: undefined }

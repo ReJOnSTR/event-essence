@@ -9,8 +9,11 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import StudentList from "@/components/Students/StudentList";
 import { Link } from "react-router-dom";
 
+// Create a shared state management solution (you might want to use React Context or a state management library later)
+const studentsData = JSON.parse(localStorage.getItem('students') || '[]');
+
 export default function Students() {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students, setStudents] = useState<Student[]>(studentsData);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
@@ -33,6 +36,7 @@ export default function Students() {
           : student
       );
       setStudents(updatedStudents);
+      localStorage.setItem('students', JSON.stringify(updatedStudents));
       toast({
         title: "Öğrenci güncellendi",
         description: "Öğrenci bilgileri başarıyla güncellendi.",
@@ -45,7 +49,9 @@ export default function Students() {
         phone: studentPhone,
         color: studentColor,
       };
-      setStudents([...students, newStudent]);
+      const newStudents = [...students, newStudent];
+      setStudents(newStudents);
+      localStorage.setItem('students', JSON.stringify(newStudents));
       toast({
         title: "Öğrenci eklendi",
         description: "Yeni öğrenci başarıyla eklendi.",
@@ -64,7 +70,9 @@ export default function Students() {
   };
 
   const handleDeleteStudent = (studentId: string) => {
-    setStudents(students.filter(student => student.id !== studentId));
+    const updatedStudents = students.filter(student => student.id !== studentId);
+    setStudents(updatedStudents);
+    localStorage.setItem('students', JSON.stringify(updatedStudents));
     toast({
       title: "Öğrenci silindi",
       description: "Öğrenci başarıyla silindi.",
@@ -85,7 +93,11 @@ export default function Students() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <StudentList />
+            <StudentList
+              students={students}
+              onEdit={handleEditStudent}
+              onDelete={handleDeleteStudent}
+            />
           </SidebarContent>
         </Sidebar>
         
