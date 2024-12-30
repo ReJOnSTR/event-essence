@@ -19,18 +19,22 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
     <div className="w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {months.map((month) => (
-          <div key={month.toString()} className="bg-white rounded-lg shadow-sm p-4">
-            <div className="text-lg font-semibold mb-2 text-center text-gray-700">
-              {format(month, "MMMM", { locale: tr })}
+          <div key={month.toString()} className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="bg-gray-50 py-3 px-4 border-b">
+              <h2 className="text-base font-semibold text-gray-900 text-center">
+                {format(month, "MMMM", { locale: tr })}
+              </h2>
             </div>
-            <MonthView
-              date={month}
-              events={events}
-              onDateSelect={onDateSelect}
-              onEventClick={onEventClick}
-              isYearView={true}
-              students={students}
-            />
+            <div className="p-2">
+              <MonthView
+                date={month}
+                events={events}
+                onDateSelect={onDateSelect}
+                onEventClick={onEventClick}
+                isYearView={true}
+                students={students}
+              />
+            </div>
           </div>
         ))}
       </div>
