@@ -17,9 +17,16 @@ import { Button } from "@/components/ui/button";
 interface StudentListProps {
   students?: Student[];
   onAddStudent?: () => void;
+  onEdit?: (student: Student) => void;
+  onDelete?: (studentId: string) => void;
 }
 
-export default function StudentList({ students = [], onAddStudent }: StudentListProps) {
+export default function StudentList({ 
+  students = [], 
+  onAddStudent,
+  onEdit,
+  onDelete 
+}: StudentListProps) {
   return (
     <div className="flex flex-col h-full">
       <SidebarGroup>
