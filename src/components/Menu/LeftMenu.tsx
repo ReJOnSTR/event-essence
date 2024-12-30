@@ -1,5 +1,5 @@
 import { Plus, FileBarChart, Settings } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
   SidebarMenu, 
@@ -27,17 +27,12 @@ export default function StudentList({
   onEdit,
   onDelete 
 }: StudentListProps) {
-  const navigate = useNavigate();
-
   return (
     <div className="flex flex-col h-full">
       <SidebarGroup>
-        <div 
-          onClick={() => navigate('/students')} 
-          className="block hover:bg-accent rounded-md transition-colors cursor-pointer"
-        >
+        <Link to="/students" className="block hover:bg-accent rounded-md transition-colors">
           <SidebarGroupLabel className="cursor-pointer">Öğrenciler</SidebarGroupLabel>
-        </div>
+        </Link>
         <SidebarGroupContent className="border rounded-md p-2">
           <SidebarMenu>
             <SidebarMenuItem>
@@ -80,15 +75,12 @@ export default function StudentList({
       </SidebarGroup>
 
       <div className="mt-auto">
-        <div 
-          onClick={() => navigate('/reports')}
-          className="block hover:bg-accent rounded-md transition-colors mb-4 cursor-pointer"
-        >
+        <Link to="/reports" className="block hover:bg-accent rounded-md transition-colors mb-4">
           <SidebarMenuButton className="w-full">
             <FileBarChart className="h-4 w-4" />
             <span>Raporlar</span>
           </SidebarMenuButton>
-        </div>
+        </Link>
 
         <SidebarFooter>
           <div className="border-t pt-4">
@@ -100,11 +92,11 @@ export default function StudentList({
                 </Avatar>
                 <span className="text-sm font-medium">Admin</span>
               </div>
-              <div onClick={() => navigate('/settings')} className="cursor-pointer">
+              <Link to="/settings">
                 <Button variant="ghost" size="icon">
                   <Settings className="h-4 w-4" />
                 </Button>
-              </div>
+              </Link>
             </div>
           </div>
         </SidebarFooter>
