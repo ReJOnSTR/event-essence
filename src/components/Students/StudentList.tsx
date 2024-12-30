@@ -1,4 +1,4 @@
-import { Plus, FileBarChart, Settings } from "lucide-react";
+import { Plus, FileBarChart, Settings, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -93,11 +93,18 @@ export default function StudentList({
 
       <div className="mt-auto">
         <SidebarGroup>
-          <Link to="/settings" className="block hover:bg-accent rounded-md transition-colors ml-auto">
-            <SidebarMenuButton className="w-full justify-end">
-              <Settings className="h-4 w-4" />
-            </SidebarMenuButton>
-          </Link>
+          <div className="flex items-center justify-end gap-2">
+            <Link to="/profile" className="block hover:bg-accent rounded-md transition-colors">
+              <SidebarMenuButton className="w-full">
+                <UserRound className="h-4 w-4" />
+              </SidebarMenuButton>
+            </Link>
+            <Link to="/settings" className="block hover:bg-accent rounded-md transition-colors">
+              <SidebarMenuButton className="w-full">
+                <Settings className="h-4 w-4" />
+              </SidebarMenuButton>
+            </Link>
+          </div>
         </SidebarGroup>
       </div>
     </>
