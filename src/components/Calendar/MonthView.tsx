@@ -31,8 +31,9 @@ export default function MonthView({
     const end = endOfMonth(date);
     const days = eachDayOfInterval({ start, end });
     
+    // Adjust for Monday start
     let startDay = start.getDay() - 1;
-    if (startDay === -1) startDay = 6;
+    if (startDay === -1) startDay = 6; // Sunday becomes last day
     
     const prefixDays = Array.from({ length: startDay }, (_, i) => 
       addDays(start, -(startDay - i))
@@ -70,11 +71,6 @@ export default function MonthView({
     onDateSelect(today);
   };
 
-  const handleDayClick = (e: React.MouseEvent, date: Date) => {
-    e.stopPropagation();
-    onDateSelect(date);
-  };
-
   const handleEventClick = (e: React.MouseEvent, event: CalendarEvent) => {
     e.stopPropagation();
     if (onEventClick) {
@@ -85,7 +81,7 @@ export default function MonthView({
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className={cn("w-full mx-auto", isYearView && "h-full")} onClick={(e) => e.stopPropagation()}>
+    <div className={cn("w-full mx-auto", isYearView && "h-full")}>
       {!isYearView && (
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-gray-900">
@@ -131,7 +127,7 @@ export default function MonthView({
         {days.map((day, idx) => (
           <div
             key={idx}
-            onClick={(e) => handleDayClick(e, day.date)}
+            onClick={() => onDateSelect(day.date)}
             className={cn(
               "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
               !day.isCurrentMonth && "bg-gray-50 text-gray-400",
