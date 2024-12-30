@@ -53,21 +53,13 @@ export default function MonthView({
   const nextMonth = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const next = addDays(endOfMonth(currentDate), 1);
-    setCurrentDate(next);
-    if (!isYearView) {
-      onDateSelect(next);
-    }
+    setCurrentDate(addDays(endOfMonth(currentDate), 1));
   };
 
   const prevMonth = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const prev = addDays(startOfMonth(currentDate), -1);
-    setCurrentDate(prev);
-    if (!isYearView) {
-      onDateSelect(prev);
-    }
+    setCurrentDate(addDays(startOfMonth(currentDate), -1));
   };
 
   const goToToday = (e: React.MouseEvent) => {
@@ -75,29 +67,25 @@ export default function MonthView({
     e.stopPropagation();
     const today = new Date();
     setCurrentDate(today);
-    if (!isYearView) {
-      onDateSelect(today);
-    }
+    onDateSelect(today);
   };
 
   const handleDayClick = (e: React.MouseEvent, date: Date) => {
-    e.preventDefault();
     e.stopPropagation();
-    if (!isYearView) {
-      onDateSelect(date);
+    onDateSelect(date);
+  };
+
+  const handleEventClick = (e: React.MouseEvent, event: CalendarEvent) => {
+    e.stopPropagation();
+    if (onEventClick) {
+      onEventClick(event);
     }
   };
 
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div 
-      className={cn("w-full mx-auto", isYearView && "h-full")} 
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    >
+    <div className={cn("w-full mx-auto", isYearView && "h-full")} onClick={(e) => e.stopPropagation()}>
       {!isYearView && (
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold text-gray-900">
@@ -160,12 +148,9 @@ export default function MonthView({
             {!isYearView && (
               <div className="space-y-1">
                 {day.lessons.map((event) => (
-                  <MonthEventCard 
-                    key={event.id} 
-                    event={event} 
-                    students={students}
-                    onClick={onEventClick}
-                  />
+                  <div key={event.id} onClick={(e) => handleEventClick(e, event)}>
+                    <MonthEventCard event={event} students={students} />
+                  </div>
                 ))}
               </div>
             )}
