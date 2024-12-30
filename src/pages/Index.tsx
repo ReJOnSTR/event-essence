@@ -22,15 +22,14 @@ import { addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "da
 
 type ViewType = "day" | "week" | "month" | "year";
 
-interface IndexProps {
-  students: Student[];
-  onAddStudent: () => void;
-}
-
-const Index = ({ students, onAddStudent }: IndexProps) => {
+export default function Index() {
   const [lessons, setLessons] = useState<Lesson[]>(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
+  });
+  const [students, setStudents] = useState<Student[]>(() => {
+    const savedStudents = localStorage.getItem('students');
+    return savedStudents ? JSON.parse(savedStudents) : [];
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
@@ -133,6 +132,7 @@ const Index = ({ students, onAddStudent }: IndexProps) => {
             }
           : student
       );
+      setStudents(updatedStudents);
       localStorage.setItem('students', JSON.stringify(updatedStudents));
       toast({
         title: "Öğrenci güncellendi",
@@ -147,6 +147,7 @@ const Index = ({ students, onAddStudent }: IndexProps) => {
         color: studentColor,
       };
       const newStudents = [...students, newStudent];
+      setStudents(newStudents);
       localStorage.setItem('students', JSON.stringify(newStudents));
       toast({
         title: "Öğrenci eklendi",
@@ -167,6 +168,7 @@ const Index = ({ students, onAddStudent }: IndexProps) => {
 
   const handleDeleteStudent = (studentId: string) => {
     const updatedStudents = students.filter(student => student.id !== studentId);
+    setStudents(updatedStudents);
     localStorage.setItem('students', JSON.stringify(updatedStudents));
     setLessons(lessons.map(lesson => 
       lesson.studentId === studentId 
@@ -227,7 +229,7 @@ const Index = ({ students, onAddStudent }: IndexProps) => {
               students={students}
               onEdit={handleEditStudent}
               onDelete={handleDeleteStudent}
-              onAddStudent={onAddStudent}
+              onAddStudent={() => setIsStudentDialogOpen(true)}
             />
           </SidebarContent>
         </Sidebar>
@@ -294,6 +296,4 @@ const Index = ({ students, onAddStudent }: IndexProps) => {
       </div>
     </SidebarProvider>
   );
-};
-
-export default Index;
+}
