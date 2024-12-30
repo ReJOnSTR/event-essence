@@ -1,8 +1,6 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
-import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -15,17 +13,10 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
   const heightInPixels = (durationInMinutes / 60) * 60;
   const student = students?.find(s => s.id === event.studentId);
 
-  const {attributes, listeners, setNodeRef, transform, isDragging} = useDraggable({
-    id: event.id,
-    data: event
-  });
-
   const style = {
     height: `${heightInPixels}px`,
     top: `${(new Date(event.start).getMinutes() / 60) * 60}px`,
-    zIndex: isDragging ? 50 : 10,
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.8 : 1,
+    zIndex: 10,
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -37,12 +28,9 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
 
   return (
     <div 
-      ref={setNodeRef}
-      className="bg-calendar-event text-white text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-move hover:brightness-90 transition-all"
+      className="bg-calendar-event text-white text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all"
       style={style}
       onClick={handleClick}
-      {...attributes}
-      {...listeners}
     >
       <div className="font-medium truncate">
         {student?.name || "İsimsiz Öğrenci"}
