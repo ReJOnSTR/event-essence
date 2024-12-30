@@ -10,32 +10,33 @@ import {
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/components/ui/use-toast";
+import { format } from "date-fns";
 
 interface ReportFiltersProps {
   selectedStudent: string;
   setSelectedStudent: (value: string) => void;
-  selectedPeriod: "weekly" | "monthly" | "yearly";
-  setSelectedPeriod: (value: "weekly" | "monthly" | "yearly") => void;
-  selectedDate: Date;
-  setSelectedDate: (date: Date) => void;
+  startDate: Date;
+  setStartDate: (date: Date) => void;
+  endDate: Date;
+  setEndDate: (date: Date) => void;
   students: Student[];
 }
 
 export function ReportFilters({
   selectedStudent,
   setSelectedStudent,
-  selectedPeriod,
-  setSelectedPeriod,
-  selectedDate,
-  setSelectedDate,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
   students
 }: ReportFiltersProps) {
   const { toast } = useToast();
 
   const resetFilters = () => {
     setSelectedStudent("all");
-    setSelectedPeriod("weekly");
-    setSelectedDate(new Date());
+    setStartDate(new Date());
+    setEndDate(new Date());
     toast({
       title: "Filtreler sıfırlandı",
       description: "Tüm filtreler varsayılan değerlere döndürüldü.",
@@ -59,24 +60,21 @@ export function ReportFilters({
           </SelectContent>
         </Select>
 
-        <Select 
-          value={selectedPeriod} 
-          onValueChange={(value: "weekly" | "monthly" | "yearly") => setSelectedPeriod(value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Periyot Seçin" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="weekly">Haftalık</SelectItem>
-            <SelectItem value="monthly">Aylık</SelectItem>
-            <SelectItem value="yearly">Yıllık</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Başlangıç Tarihi</label>
+          <DatePicker
+            date={startDate}
+            setDate={setStartDate}
+          />
+        </div>
 
-        <DatePicker
-          date={selectedDate}
-          setDate={setSelectedDate}
-        />
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Bitiş Tarihi</label>
+          <DatePicker
+            date={endDate}
+            setDate={setEndDate}
+          />
+        </div>
       </div>
 
       <Button 
