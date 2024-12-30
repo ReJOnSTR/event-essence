@@ -18,7 +18,7 @@ import {
   SidebarContent,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
+import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
 
 type ViewType = "day" | "week" | "month" | "year";
 
@@ -66,7 +66,7 @@ export default function Index() {
     
     switch (currentView) {
       case 'day':
-        setSelectedDate(prev => direction === 'next' ? addWeeks(prev, 1) : subWeeks(prev, 1));
+        setSelectedDate(prev => direction === 'next' ? addDays(prev, 1) : subDays(prev, 1));
         break;
       case 'week':
         setSelectedDate(prev => direction === 'next' ? addWeeks(prev, 1) : subWeeks(prev, 1));
