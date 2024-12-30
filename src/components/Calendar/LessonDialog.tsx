@@ -36,7 +36,6 @@ export default function LessonDialog({
   events,
   students
 }: LessonDialogProps) {
-  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
@@ -46,7 +45,6 @@ export default function LessonDialog({
   useEffect(() => {
     if (isOpen) {
       if (event) {
-        setTitle(event.title);
         setDescription(event.description || "");
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
@@ -56,7 +54,6 @@ export default function LessonDialog({
         const formattedHours = hours.toString().padStart(2, '0');
         setStartTime(`${formattedHours}:00`);
         setEndTime(`${(hours + 1) % 24}:00`);
-        setTitle("");
         setDescription("");
         setSelectedStudentId("");
       }
@@ -79,6 +76,15 @@ export default function LessonDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!selectedStudentId) {
+      toast({
+        title: "Öğrenci Seçilmedi",
+        description: "Lütfen bir öğrenci seçin.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const [startHours, startMinutes] = startTime.split(":").map(Number);
     const [endHours, endMinutes] = endTime.split(":").map(Number);
     
@@ -97,12 +103,14 @@ export default function LessonDialog({
       return;
     }
     
+    const student = students.find(s => s.id === selectedStudentId);
+    
     onSave({
-      title,
+      title: student ? `${student.name} Dersi` : "Ders",
       description,
       start,
       end,
-      studentId: selectedStudentId || undefined,
+      studentId: selectedStudentId,
     });
     
     onClose();
@@ -142,16 +150,6 @@ export default function LessonDialog({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Başlık</label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ders başlığı"
-              required
-            />
           </div>
           
           <div className="space-y-2">
