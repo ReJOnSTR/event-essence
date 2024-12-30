@@ -21,12 +21,32 @@ export default function CalendarPageHeader({
   onNext,
   onToday
 }: CalendarPageHeaderProps) {
+  const getDateFormat = () => {
+    switch (currentView) {
+      case 'day':
+        return "d MMMM yyyy, EEEE";
+      case 'week':
+        return "MMMM yyyy";
+      case 'month':
+        return "MMMM yyyy";
+      case 'year':
+        return "yyyy";
+      default:
+        return "MMMM yyyy";
+    }
+  };
+
   return (
     <div className="p-4 border-b bg-white sticky top-0 z-10">
-      <div className="flex justify-between items-center mb-6">
+      <ViewSelector
+        currentView={currentView}
+        onViewChange={onViewChange}
+      />
+      
+      <div className="flex justify-between items-center mt-4">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-semibold text-gray-900">
-            {format(date, "MMMM yyyy", { locale: tr })}
+            {format(date, getDateFormat(), { locale: tr })}
           </h1>
         </div>
         <div className="flex gap-2">
@@ -54,11 +74,6 @@ export default function CalendarPageHeader({
           </Button>
         </div>
       </div>
-
-      <ViewSelector
-        currentView={currentView}
-        onViewChange={onViewChange}
-      />
     </div>
   );
 }
