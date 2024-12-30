@@ -16,12 +16,16 @@ interface StudentListProps {
   students?: Student[];
   onAddStudent?: () => void;
   onStudentClick?: (student: Student) => void;
+  onEdit?: (student: Student) => void;
+  onDelete?: (studentId: string) => void;
 }
 
 export default function StudentList({ 
   students = [], 
   onAddStudent,
-  onStudentClick 
+  onStudentClick,
+  onEdit,
+  onDelete 
 }: StudentListProps) {
   return (
     <>

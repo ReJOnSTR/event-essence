@@ -39,11 +39,9 @@ export default function Settings({ students, onAddStudent, onStudentClick }: Set
           </div>
           
           <div className="flex-1 overflow-auto p-4">
-            {/* Settings content will go here */}
             <div className="grid gap-6">
               <div className="bg-white p-6 rounded-lg shadow-sm border">
                 <h2 className="text-xl font-semibold mb-4">Genel Ayarlar</h2>
-                {/* Add settings content here */}
               </div>
             </div>
           </div>
