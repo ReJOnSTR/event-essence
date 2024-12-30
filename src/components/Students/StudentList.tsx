@@ -1,5 +1,4 @@
-import { Plus, FileBarChart } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Plus } from "lucide-react";
 import { Student } from "@/types/calendar";
 import { 
   SidebarMenu, 
@@ -10,15 +9,19 @@ import {
   SidebarGroupContent
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Link } from "react-router-dom";
 
 interface StudentListProps {
   students?: Student[];
-  onEdit?: (student: Student) => void;
-  onDelete?: (studentId: string) => void;
+  onEditStudent?: (student: Student) => void;
   onAddStudent?: () => void;
 }
 
-export default function StudentList({ students = [], onEdit, onDelete, onAddStudent }: StudentListProps) {
+export default function StudentList({ 
+  students = [], 
+  onEditStudent, 
+  onAddStudent 
+}: StudentListProps) {
   return (
     <>
       <SidebarGroup>
@@ -37,7 +40,10 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
             <ScrollArea className="h-[200px]">
               {students.slice(0, 5).map((student) => (
                 <SidebarMenuItem key={student.id}>
-                  <SidebarMenuButton className="w-full">
+                  <SidebarMenuButton 
+                    className="w-full"
+                    onClick={() => onEditStudent?.(student)}
+                  >
                     <div
                       className="h-2 w-2 rounded-full"
                       style={{ backgroundColor: student.color }}
@@ -50,7 +56,10 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
                 <div className="mt-2 border-t pt-2">
                   {students.slice(5).map((student) => (
                     <SidebarMenuItem key={student.id}>
-                      <SidebarMenuButton className="w-full">
+                      <SidebarMenuButton 
+                        className="w-full"
+                        onClick={() => onEditStudent?.(student)}
+                      >
                         <div
                           className="h-2 w-2 rounded-full"
                           style={{ backgroundColor: student.color }}
@@ -64,15 +73,6 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
             </ScrollArea>
           </SidebarMenu>
         </SidebarGroupContent>
-      </SidebarGroup>
-
-      <SidebarGroup>
-        <Link to="/reports" className="block hover:bg-accent rounded-md transition-colors">
-          <SidebarMenuButton className="w-full">
-            <FileBarChart className="h-4 w-4" />
-            <span>Raporlar</span>
-          </SidebarMenuButton>
-        </Link>
       </SidebarGroup>
     </>
   );
