@@ -4,8 +4,6 @@ import { tr } from 'date-fns/locale';
 import { CalendarEvent, DayCell, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import MonthEventCard from "./MonthEventCard";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -51,67 +49,14 @@ export default function MonthView({
     }));
   };
 
-  const nextMonth = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentDate(addDays(endOfMonth(currentDate), 1));
-  };
-
-  const prevMonth = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentDate(addDays(startOfMonth(currentDate), -1));
-  };
-
-  const goToToday = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const today = new Date();
-    setCurrentDate(today);
-    onDateSelect(today);
-  };
-
-  const handleEventClick = (e: React.MouseEvent, event: CalendarEvent) => {
-    e.stopPropagation();
-    if (onEventClick) {
-      onEventClick(event);
-    }
-  };
-
   const days = getDaysInMonth(currentDate);
 
   return (
     <div className={cn("w-full mx-auto", isYearView && "h-full")}>
       {!isYearView && (
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold text-gray-900">
-            {format(currentDate, "MMMM yyyy", { locale: tr })}
-          </h2>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={prevMonth}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={goToToday}
-              className="flex gap-2 items-center"
-            >
-              <CalendarDays className="h-4 w-4" />
-              Bugün
-            </Button>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={nextMonth}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+          {format(currentDate, "MMMM yyyy", { locale: tr })}
+        </h2>
       )}
 
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
@@ -144,7 +89,10 @@ export default function MonthView({
             {!isYearView && (
               <div className="space-y-1">
                 {day.lessons.map((event) => (
-                  <div key={event.id} onClick={(e) => handleEventClick(e, event)}>
+                  <div key={event.id} onClick={(e) => {
+                    e.stopPropagation();
+                    if (onEventClick) onEventClick(event);
+                  }}>
                     <MonthEventCard event={event} students={students} />
                   </div>
                 ))}

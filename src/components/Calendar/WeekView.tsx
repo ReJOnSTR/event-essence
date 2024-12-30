@@ -1,10 +1,9 @@
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, addDays, startOfWeek, addWeeks, subWeeks, isToday, setHours } from "date-fns";
+import { format, addDays, startOfWeek, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { cn } from "@/lib/utils";
-import CalendarHeader from "./CalendarHeader";
 
 interface WeekViewProps {
   date: Date;
@@ -27,26 +26,6 @@ export default function WeekView({
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const nextWeek = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const next = addWeeks(date, 1);
-    onDateSelect(next);
-  };
-
-  const prevWeek = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const prev = subWeeks(date, 1);
-    onDateSelect(prev);
-  };
-
-  const goToToday = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDateSelect(new Date());
-  };
-
   const handleCellClick = (day: Date, hour: number) => {
     const eventDate = new Date(day);
     eventDate.setHours(hour);
@@ -55,14 +34,6 @@ export default function WeekView({
 
   return (
     <div className="w-full overflow-x-auto">
-      <CalendarHeader
-        date={date}
-        onPrevious={prevWeek}
-        onNext={nextWeek}
-        onToday={goToToday}
-        title={format(weekStart, "MMMM yyyy", { locale: tr })}
-      />
-
       <div className="grid grid-cols-8 gap-px bg-gray-200">
         <div className="bg-white w-16"></div>
         {weekDays.map((day) => (
