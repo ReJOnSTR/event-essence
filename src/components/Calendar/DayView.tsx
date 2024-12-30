@@ -56,7 +56,7 @@ export default function DayView({
       return;
     }
 
-    const currentTime = \`\${hour}:00\`;
+    const currentTime = `${hour}:00`;
     if (hour < startHour || hour >= endHour) {
       toast({
         title: "Çalışma saatleri dışında",
