@@ -28,12 +28,14 @@ interface StudentDialogProps {
 }
 
 const STUDENT_COLORS = [
-  { value: "#9b87f5", label: "Mor" },
-  { value: "#F97316", label: "Turuncu" },
-  { value: "#0EA5E9", label: "Mavi" },
-  { value: "#D946EF", label: "Pembe" },
-  { value: "#33C3F0", label: "Açık Mavi" },
-  { value: "#FEC6A1", label: "Şeftali" },
+  { value: "#F2FCE2", label: "Soft Green" },
+  { value: "#FEF7CD", label: "Soft Yellow" },
+  { value: "#FEC6A1", label: "Soft Orange" },
+  { value: "#E5DEFF", label: "Soft Purple" },
+  { value: "#FFDEE2", label: "Soft Pink" },
+  { value: "#D3E4FD", label: "Soft Blue" },
+  { value: "#FDE1D3", label: "Soft Peach" },
+  { value: "#F1F0FB", label: "Soft Gray" },
 ];
 
 export default function StudentDialog({
@@ -93,7 +95,7 @@ export default function StudentDialog({
             <RadioGroup
               value={studentColor}
               onValueChange={setStudentColor}
-              className="grid grid-cols-3 gap-2"
+              className="grid grid-cols-2 gap-2"
             >
               {STUDENT_COLORS.map((color) => (
                 <div key={color.value} className="flex items-center space-x-2">
@@ -104,10 +106,10 @@ export default function StudentDialog({
                   />
                   <Label
                     htmlFor={color.value}
-                    className="flex items-center gap-2 rounded-md border-2 border-muted p-2 hover:bg-muted peer-data-[state=checked]:border-primary cursor-pointer"
+                    className="flex items-center gap-2 rounded-md border-2 border-muted p-2 hover:bg-muted peer-data-[state=checked]:border-primary cursor-pointer w-full"
                   >
                     <div
-                      className="h-4 w-4 rounded-full"
+                      className="h-4 w-4 rounded-full border border-gray-200"
                       style={{ backgroundColor: color.value }}
                     />
                     <span className="text-sm">{color.label}</span>
