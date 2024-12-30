@@ -65,12 +65,12 @@ export default function StudentList({ students = [], onEdit, onDelete, onAddStud
       </SidebarGroup>
 
       <SidebarGroup>
-        <Link to="/reports" className="block hover:bg-accent rounded-md transition-colors">
-          <SidebarGroupLabel className="cursor-pointer flex items-center gap-2">
+        <SidebarMenuButton asChild className="w-full">
+          <Link to="/reports" className="flex items-center gap-2 px-2">
             <FileBarChart className="h-4 w-4" />
             <span>Raporlar</span>
-          </SidebarGroupLabel>
-        </Link>
+          </Link>
+        </SidebarMenuButton>
       </SidebarGroup>
     </>
   );
