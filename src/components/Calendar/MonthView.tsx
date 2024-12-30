@@ -3,7 +3,7 @@ import { tr } from 'date-fns/locale';
 import { CalendarEvent, DayCell, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import MonthEventCard from "./MonthEventCard";
-import { getDefaultStartHour } from "@/utils/settings";
+import { getWorkingHours } from "@/utils/workingHours";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -48,9 +48,21 @@ export default function MonthView({
   };
 
   const handleDateClick = (clickedDate: Date) => {
-    const startHour = getDefaultStartHour();
-    const dateWithStartHour = setHours(clickedDate, startHour);
-    onDateSelect(dateWithStartHour);
+    const dayOfWeek = clickedDate.getDay();
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const workingHours = getWorkingHours();
+    const daySettings = workingHours[days[dayOfWeek]];
+    
+    if (daySettings.enabled && daySettings.start) {
+      const [hours, minutes] = daySettings.start.split(':').map(Number);
+      const dateWithWorkingHours = new Date(clickedDate);
+      dateWithWorkingHours.setHours(hours, minutes, 0);
+      onDateSelect(dateWithWorkingHours);
+    } else {
+      // If the day is not enabled in working hours, use 9 AM as default
+      const dateWithDefaultHour = setHours(clickedDate, 9);
+      onDateSelect(dateWithDefaultHour);
+    }
   };
 
   const days = getDaysInMonth(date);
