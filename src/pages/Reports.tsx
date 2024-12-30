@@ -21,7 +21,10 @@ export default function Reports() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly">("weekly");
   const [hours, setHours] = useState({ weekly: 0, monthly: 0, yearly: 0 });
-  const [students, setStudents] = useState<Student[]>(JSON.parse(localStorage.getItem('students') || '[]'));
+  const [students, setStudents] = useState<Student[]>(() => {
+    const savedStudents = localStorage.getItem('students');
+    return savedStudents ? JSON.parse(savedStudents) : [];
+  });
   const { toast } = useToast();
 
   const calculateTotalHours = () => {

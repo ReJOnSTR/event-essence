@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MonthView from "@/components/Calendar/MonthView";
 import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
@@ -23,8 +23,14 @@ import { addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "da
 type ViewType = "day" | "week" | "month" | "year";
 
 export default function Index() {
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [students, setStudents] = useState<Student[]>(JSON.parse(localStorage.getItem('students') || '[]'));
+  const [lessons, setLessons] = useState<Lesson[]>(() => {
+    const savedLessons = localStorage.getItem('lessons');
+    return savedLessons ? JSON.parse(savedLessons) : [];
+  });
+  const [students, setStudents] = useState<Student[]>(() => {
+    const savedStudents = localStorage.getItem('students');
+    return savedStudents ? JSON.parse(savedStudents) : [];
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -36,6 +42,11 @@ export default function Index() {
   const [studentPhone, setStudentPhone] = useState("");
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
+
+  // Dersleri localStorage'a kaydetme
+  useEffect(() => {
+    localStorage.setItem('lessons', JSON.stringify(lessons));
+  }, [lessons]);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
