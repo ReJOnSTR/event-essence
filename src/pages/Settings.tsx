@@ -3,6 +3,12 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/comp
 import StudentList from "@/components/Students/StudentList";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SettingsProps {
   students: Student[];
@@ -11,6 +17,18 @@ interface SettingsProps {
 }
 
 const Settings = ({ students, onAddStudent, onStudentClick }: SettingsProps) => {
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("17:00");
+  const { toast } = useToast();
+
+  const handleSaveCalendarSettings = () => {
+    localStorage.setItem('workingHours', JSON.stringify({ start: startTime, end: endTime }));
+    toast({
+      title: "Ayarlar kaydedildi",
+      description: "Çalışma saatleri başarıyla güncellendi.",
+    });
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
@@ -38,7 +56,39 @@ const Settings = ({ students, onAddStudent, onStudentClick }: SettingsProps) => 
           </div>
 
           <div className="flex-1 overflow-auto p-4">
-            {/* Settings content will go here */}
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle>Takvim Ayarları</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Çalışma Saatleri</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="startTime">Başlangıç Saati</Label>
+                      <Input
+                        id="startTime"
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="endTime">Bitiş Saati</Label>
+                      <Input
+                        id="endTime"
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={handleSaveCalendarSettings}>
+                    Kaydet
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
