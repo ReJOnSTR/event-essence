@@ -5,6 +5,7 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
+import StudentList from "@/components/Students/StudentList";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
