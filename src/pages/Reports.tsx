@@ -11,14 +11,15 @@ import { StatsCards } from "@/components/Reports/StatsCards";
 import { LessonList } from "@/components/Reports/LessonList";
 import { calculatePeriodHours } from "@/utils/reportCalculations";
 
-export default function Reports() {
+interface ReportsProps {
+  students: Student[];
+  onAddStudent: () => void;
+}
+
+const Reports = ({ students, onAddStudent }: ReportsProps) => {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly">("weekly");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [students, setStudents] = useState<Student[]>(() => {
-    const savedStudents = localStorage.getItem('students');
-    return savedStudents ? JSON.parse(savedStudents) : [];
-  });
   const [lessons, setLessons] = useState<Lesson[]>(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
@@ -35,7 +36,7 @@ export default function Reports() {
               students={students}
               onEdit={() => {}}
               onDelete={() => {}}
-              onAddStudent={() => {}}
+              onAddStudent={onAddStudent}
             />
           </SidebarContent>
         </Sidebar>
@@ -94,4 +95,6 @@ export default function Reports() {
       </div>
     </SidebarProvider>
   );
-}
+};
+
+export default Reports;

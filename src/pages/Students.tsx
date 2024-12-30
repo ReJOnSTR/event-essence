@@ -9,8 +9,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
-export default function Students() {
-  const [students, setStudents] = useState<Student[]>([]);
+interface StudentsProps {
+  students: Student[];
+  onAddStudent: () => void;
+}
+
+export default function Students({ students, onAddStudent }: StudentsProps) {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
