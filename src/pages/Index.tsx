@@ -143,7 +143,7 @@ export default function Index({ students, onAddStudent, onEditStudent }: IndexPr
           <SidebarContent className="p-4">
             <StudentList
               students={students}
-              onEdit={onEditStudent}
+              onEditStudent={onEditStudent}
               onAddStudent={onAddStudent}
             />
           </SidebarContent>
