@@ -28,6 +28,7 @@ export default function DayView({
   const { toast } = useToast();
   const workingHours = getWorkingHours();
   const holiday = isHoliday(date);
+  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
@@ -50,7 +51,7 @@ export default function DayView({
     const eventDate = new Date(date);
     eventDate.setHours(hour, minute);
     
-    if (holiday) {
+    if (holiday && !allowWorkOnHolidays) {
       toast({
         title: "Resmi Tatil",
         description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
@@ -83,7 +84,7 @@ export default function DayView({
 
   return (
     <div className="w-full">
-      {holiday && (
+      {holiday && !allowWorkOnHolidays && (
         <div className="mb-4 p-2 bg-red-50 text-red-700 rounded-md border border-red-200">
           {holiday.name} - Resmi Tatil
         </div>
@@ -97,7 +98,7 @@ export default function DayView({
             <div 
               className={cn(
                 "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative",
-                (!daySettings?.enabled || hour < startHour || hour >= endHour || holiday) && 
+                (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
                 "bg-gray-100 cursor-not-allowed"
               )}
               onClick={() => handleHourClick(hour, 0)}

@@ -6,6 +6,7 @@ import LessonCard from "./LessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface WeekViewProps {
   date: Date;
@@ -28,6 +29,7 @@ export default function WeekView({
   const workingHours = getWorkingHours();
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
 
   const startHour = Math.min(...Object.values(workingHours)
     .filter(day => day.enabled)
@@ -38,23 +40,15 @@ export default function WeekView({
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
-  const isHoliday = (date: Date) => {
-    const holidays = JSON.parse(localStorage.getItem('holidays') || '[]');
-    return holidays.some((holiday: { date: string }) => 
-      new Date(holiday.date).toDateString() === date.toDateString()
-    );
-  };
-
   const handleCellClick = (day: Date, hour: number) => {
     const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
     const daySettings = workingHours[dayOfWeek];
-    const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
-    const isHolidayDay = isHoliday(day);
+    const holiday = isHoliday(day);
 
-    if (isHolidayDay && !allowWorkOnHolidays) {
+    if (holiday && !allowWorkOnHolidays) {
       toast({
         title: "Tatil günü",
-        description: "Bu gün tatil olarak işaretlenmiş ve tatil günlerinde çalışma kapalıdır.",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
         variant: "destructive"
       });
       return;
@@ -91,14 +85,14 @@ export default function WeekView({
       <div className="grid grid-cols-8 gap-px bg-gray-200">
         <div className="bg-white w-16"></div>
         {weekDays.map((day) => {
-          const isHolidayDay = isHoliday(day);
+          const holiday = isHoliday(day);
           return (
             <div
               key={day.toString()}
               className={cn(
                 "bg-white p-2 text-center",
                 isToday(day) && "text-calendar-blue",
-                isHolidayDay && "bg-red-50"
+                holiday && !allowWorkOnHolidays && "bg-red-50"
               )}
             >
               <div className="font-medium">
@@ -107,8 +101,8 @@ export default function WeekView({
               <div className="text-sm text-gray-500">
                 {format(day, "d MMM", { locale: tr })}
               </div>
-              {isHolidayDay && (
-                <div className="text-xs text-red-500">Tatil</div>
+              {holiday && !allowWorkOnHolidays && (
+                <div className="text-xs text-red-500">{holiday.name}</div>
               )}
             </div>
           );
@@ -123,9 +117,8 @@ export default function WeekView({
               const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
               const daySettings = workingHours[dayOfWeek];
               const isDayEnabled = daySettings?.enabled;
-              const isHolidayDay = isHoliday(day);
-              const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
-              const isWorkDisabled = (isHolidayDay && !allowWorkOnHolidays) || !isDayEnabled;
+              const holiday = isHoliday(day);
+              const isWorkDisabled = (holiday && !allowWorkOnHolidays) || !isDayEnabled;
               const isHourInRange = isDayEnabled && 
                 hour >= parseInt(daySettings.start.split(':')[0]) && 
                 hour < parseInt(daySettings.end.split(':')[0]);
@@ -136,7 +129,7 @@ export default function WeekView({
                   className={cn(
                     "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
                     isToday(day) && "bg-blue-50",
-                    isHolidayDay && "bg-red-50",
+                    holiday && !allowWorkOnHolidays && "bg-red-50",
                     (isWorkDisabled || !isHourInRange) && "bg-gray-100 cursor-not-allowed"
                   )}
                   onClick={() => handleCellClick(day, hour)}

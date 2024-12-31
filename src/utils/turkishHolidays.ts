@@ -3,7 +3,6 @@ import { isWithinInterval, getYear } from "date-fns";
 export interface Holiday {
   name: string;
   date: Date;
-  isHalfDay?: boolean;
 }
 
 export const getTurkishHolidays = (year: number): Holiday[] => {
@@ -19,6 +18,17 @@ export const getTurkishHolidays = (year: number): Holiday[] => {
 };
 
 export const isHoliday = (date: Date): Holiday | undefined => {
+  // Check custom holidays from settings
+  const customHolidays = JSON.parse(localStorage.getItem('holidays') || '[]');
+  const customHoliday = customHolidays.find((holiday: { date: string }) => 
+    new Date(holiday.date).toDateString() === date.toDateString()
+  );
+  
+  if (customHoliday) {
+    return { name: "Özel Tatil", date: new Date(customHoliday.date) };
+  }
+
+  // Check official holidays
   const holidays = getTurkishHolidays(getYear(date));
   return holidays.find(holiday => 
     date.getDate() === holiday.date.getDate() && 

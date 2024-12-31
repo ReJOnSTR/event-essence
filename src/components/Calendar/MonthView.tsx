@@ -23,6 +23,8 @@ export default function MonthView({
   onEventClick,
   students
 }: MonthViewProps) {
+  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+
   const getDaysInMonth = (currentDate: Date): DayCell[] => {
     const start = startOfMonth(currentDate);
     const end = endOfMonth(currentDate);
@@ -50,7 +52,7 @@ export default function MonthView({
 
   const handleDateClick = (clickedDate: Date) => {
     const holiday = isHoliday(clickedDate);
-    if (holiday) {
+    if (holiday && !allowWorkOnHolidays) {
       return;
     }
 
@@ -95,17 +97,17 @@ export default function MonthView({
                 "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
                 !day.isCurrentMonth && "bg-gray-50 text-gray-400",
                 isToday(day.date) && "bg-blue-50",
-                holiday && "bg-red-50",
+                holiday && !allowWorkOnHolidays && "bg-red-50",
                 isYearView && "min-h-[40px]"
               )}
             >
               <div className={cn(
                 "text-sm font-medium",
                 isToday(day.date) && "text-calendar-blue",
-                holiday && "text-red-600"
+                holiday && !allowWorkOnHolidays && "text-red-600"
               )}>
                 {format(day.date, "d")}
-                {holiday && (
+                {holiday && !allowWorkOnHolidays && (
                   <div className="text-xs text-red-600 truncate">
                     {holiday.name}
                   </div>
