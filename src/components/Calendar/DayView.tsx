@@ -84,9 +84,12 @@ export default function DayView({
 
   return (
     <div className="w-full">
-      {holiday && !allowWorkOnHolidays && (
-        <div className="mb-4 p-2 bg-red-50 text-red-700 rounded-md border border-red-200">
-          {holiday.name} - Resmi Tatil
+      {holiday && (
+        <div className={cn(
+          "mb-4 p-2 rounded-md border",
+          !allowWorkOnHolidays ? "bg-red-50 text-red-700 border-red-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"
+        )}>
+          {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
         </div>
       )}
       <div className="space-y-2">

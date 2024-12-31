@@ -98,18 +98,24 @@ export default function MonthView({
                 !day.isCurrentMonth && "bg-gray-50 text-gray-400",
                 isToday(day.date) && "bg-blue-50",
                 holiday && !allowWorkOnHolidays && "bg-red-50",
+                holiday && allowWorkOnHolidays && "bg-yellow-50",
                 isYearView && "min-h-[40px]"
               )}
             >
               <div className={cn(
                 "text-sm font-medium",
                 isToday(day.date) && "text-calendar-blue",
-                holiday && !allowWorkOnHolidays && "text-red-600"
+                holiday && !allowWorkOnHolidays && "text-red-600",
+                holiday && allowWorkOnHolidays && "text-yellow-700"
               )}>
                 {format(day.date, "d")}
-                {holiday && !allowWorkOnHolidays && (
-                  <div className="text-xs text-red-600 truncate">
+                {holiday && (
+                  <div className={cn(
+                    "text-xs truncate",
+                    !allowWorkOnHolidays ? "text-red-600" : "text-yellow-700"
+                  )}>
                     {holiday.name}
+                    {allowWorkOnHolidays && " (Çalışmaya Açık)"}
                   </div>
                 )}
               </div>
