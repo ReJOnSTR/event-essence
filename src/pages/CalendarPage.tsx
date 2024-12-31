@@ -38,8 +38,7 @@ export default function Index() {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
-  const [studentEmail, setStudentEmail] = useState("");
-  const [studentPhone, setStudentPhone] = useState("");
+  const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
 
@@ -126,8 +125,7 @@ export default function Index() {
           ? {
               ...student,
               name: studentName,
-              email: studentEmail,
-              phone: studentPhone,
+              price: studentPrice,
               color: studentColor,
             }
           : student
@@ -142,8 +140,7 @@ export default function Index() {
       const newStudent: Student = {
         id: crypto.randomUUID(),
         name: studentName,
-        email: studentEmail,
-        phone: studentPhone,
+        price: studentPrice,
         color: studentColor,
       };
       const newStudents = [...students, newStudent];
@@ -160,8 +157,7 @@ export default function Index() {
   const handleEditStudent = (student: Student) => {
     setSelectedStudent(student);
     setStudentName(student.name);
-    setStudentEmail(student.email || "");
-    setStudentPhone(student.phone || "");
+    setStudentPrice(student.price);
     setStudentColor(student.color || "#9b87f5");
     setIsStudentDialogOpen(true);
   };
@@ -185,8 +181,7 @@ export default function Index() {
     setIsStudentDialogOpen(false);
     setSelectedStudent(undefined);
     setStudentName("");
-    setStudentEmail("");
-    setStudentPhone("");
+    setStudentPrice(0);
     setStudentColor("#9b87f5");
   };
 
@@ -285,10 +280,8 @@ export default function Index() {
             student={selectedStudent}
             studentName={studentName}
             setStudentName={setStudentName}
-            studentEmail={studentEmail}
-            setStudentEmail={setStudentEmail}
-            studentPhone={studentPhone}
-            setStudentPhone={setStudentPhone}
+            studentPrice={studentPrice}
+            setStudentPrice={setStudentPrice}
             studentColor={studentColor}
             setStudentColor={setStudentColor}
           />
