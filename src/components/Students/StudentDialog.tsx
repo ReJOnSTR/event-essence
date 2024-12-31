@@ -19,10 +19,8 @@ interface StudentDialogProps {
   student?: Student;
   studentName: string;
   setStudentName: (name: string) => void;
-  studentEmail: string;
-  setStudentEmail: (email: string) => void;
-  studentPhone: string;
-  setStudentPhone: (phone: string) => void;
+  studentPrice: number;
+  setStudentPrice: (price: number) => void;
   studentColor: string;
   setStudentColor: (color: string) => void;
 }
@@ -45,10 +43,8 @@ export default function StudentDialog({
   student,
   studentName,
   setStudentName,
-  studentEmail,
-  setStudentEmail,
-  studentPhone,
-  setStudentPhone,
+  studentPrice,
+  setStudentPrice,
   studentColor,
   setStudentColor,
 }: StudentDialogProps) {
@@ -74,20 +70,15 @@ export default function StudentDialog({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">E-posta</label>
+            <label className="text-sm font-medium">Ders Ücreti (₺)</label>
             <Input
-              type="email"
-              value={studentEmail}
-              onChange={(e) => setStudentEmail(e.target.value)}
-              placeholder="ornek@email.com"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Telefon</label>
-            <Input
-              value={studentPhone}
-              onChange={(e) => setStudentPhone(e.target.value)}
-              placeholder="05XX XXX XX XX"
+              type="number"
+              value={studentPrice}
+              onChange={(e) => setStudentPrice(Number(e.target.value))}
+              placeholder="0"
+              min="0"
+              step="0.01"
+              required
             />
           </div>
           <div className="space-y-2">

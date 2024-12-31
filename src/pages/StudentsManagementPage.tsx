@@ -14,12 +14,10 @@ export default function Students() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
-  const [studentEmail, setStudentEmail] = useState("");
-  const [studentPhone, setStudentPhone] = useState("");
+  const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
 
-  // Load students from localStorage when component mounts
   useEffect(() => {
     const storedStudents = localStorage.getItem('students');
     if (storedStudents) {
@@ -34,8 +32,7 @@ export default function Students() {
           ? {
               ...student,
               name: studentName,
-              email: studentEmail,
-              phone: studentPhone,
+              price: studentPrice,
               color: studentColor,
             }
           : student
@@ -50,8 +47,7 @@ export default function Students() {
       const newStudent: Student = {
         id: crypto.randomUUID(),
         name: studentName,
-        email: studentEmail,
-        phone: studentPhone,
+        price: studentPrice,
         color: studentColor,
       };
       const newStudents = [...students, newStudent];
@@ -68,8 +64,7 @@ export default function Students() {
   const handleEditStudent = (student: Student) => {
     setSelectedStudent(student);
     setStudentName(student.name);
-    setStudentEmail(student.email || "");
-    setStudentPhone(student.phone || "");
+    setStudentPrice(student.price);
     setStudentColor(student.color || "#9b87f5");
     setIsStudentDialogOpen(true);
   };
@@ -88,8 +83,7 @@ export default function Students() {
     setIsStudentDialogOpen(false);
     setSelectedStudent(undefined);
     setStudentName("");
-    setStudentEmail("");
-    setStudentPhone("");
+    setStudentPrice(0);
     setStudentColor("#9b87f5");
   };
 
@@ -142,12 +136,9 @@ export default function Students() {
                       </div>
                       <div className="flex-1">
                         <h3 className="text-lg font-semibold">{student.name}</h3>
-                        {student.email && (
-                          <p className="text-sm text-gray-500">{student.email}</p>
-                        )}
-                        {student.phone && (
-                          <p className="text-sm text-gray-500">{student.phone}</p>
-                        )}
+                        <p className="text-sm text-gray-500">
+                          Ders Ücreti: {student.price} ₺
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -184,10 +175,8 @@ export default function Students() {
           student={selectedStudent}
           studentName={studentName}
           setStudentName={setStudentName}
-          studentEmail={studentEmail}
-          setStudentEmail={setStudentEmail}
-          studentPhone={studentPhone}
-          setStudentPhone={setStudentPhone}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
           studentColor={studentColor}
           setStudentColor={setStudentColor}
         />
