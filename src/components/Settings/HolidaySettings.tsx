@@ -4,6 +4,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { getTurkishHolidays } from "@/utils/turkishHolidays";
+import { format } from "date-fns";
+import { tr } from "date-fns/locale";
 
 interface Holiday {
   date: Date;
@@ -21,6 +24,8 @@ export default function HolidaySettings() {
   });
 
   const { toast } = useToast();
+
+  const officialHolidays = getTurkishHolidays(new Date().getFullYear());
 
   useEffect(() => {
     const holidays = selectedDates.map(date => ({
@@ -60,13 +65,30 @@ export default function HolidaySettings() {
         </div>
         
         <div className="border rounded-lg p-4">
-          <h3 className="text-sm font-medium mb-4">Tatil Günlerini Seçin</h3>
+          <h3 className="text-sm font-medium mb-4">Özel Tatil Günlerini Seçin</h3>
           <Calendar
             mode="multiple"
             selected={selectedDates}
             onSelect={setSelectedDates}
             className="rounded-md border"
           />
+        </div>
+
+        <div className="border rounded-lg p-4">
+          <h3 className="text-sm font-medium mb-4">Resmi Tatil Günleri</h3>
+          <div className="space-y-2">
+            {officialHolidays.map((holiday, index) => (
+              <div 
+                key={index}
+                className="flex justify-between items-center p-2 bg-gray-50 rounded-md"
+              >
+                <span className="font-medium">{holiday.name}</span>
+                <span className="text-sm text-gray-600">
+                  {format(holiday.date, "d MMMM yyyy", { locale: tr })}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
