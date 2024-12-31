@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings as SettingsIcon, Bell, User, Shield, Palette, Languages } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, Settings as SettingsIcon, Bell, User, Shield, Palette, Languages, Calendar } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -13,12 +13,18 @@ import {
 } from "@/components/ui/sidebar";
 import GeneralSettings from "@/components/Settings/GeneralSettings";
 import WorkingHoursSettings from "@/components/Settings/WorkingHoursSettings";
+import HolidaySettings from "@/components/Settings/HolidaySettings";
 
 const menuItems = [
   {
     title: "Genel",
     icon: SettingsIcon,
     id: "general"
+  },
+  {
+    title: "Çalışma Saatleri",
+    icon: Calendar,
+    id: "working-hours"
   },
   {
     title: "Bildirimler",
@@ -48,7 +54,14 @@ const menuItems = [
 ];
 
 export default function Settings() {
-  const [selectedSection, setSelectedSection] = useState("general");
+  const [selectedSection, setSelectedSection] = useState(() => {
+    return localStorage.getItem('settingsSection') || "general";
+  });
+  const location = useLocation();
+
+  useEffect(() => {
+    localStorage.setItem('settingsSection', selectedSection);
+  }, [selectedSection]);
 
   const renderContent = () => {
     switch (selectedSection) {
@@ -56,7 +69,13 @@ export default function Settings() {
         return (
           <div className="space-y-6">
             <GeneralSettings />
+          </div>
+        );
+      case "working-hours":
+        return (
+          <div className="space-y-6">
             <WorkingHoursSettings />
+            <HolidaySettings />
           </div>
         );
       case "notifications":
