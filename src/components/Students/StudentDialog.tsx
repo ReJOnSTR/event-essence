@@ -11,11 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Trash2 } from "lucide-react";
 
 interface StudentDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
+  onDelete?: () => void;
   student?: Student;
   studentName: string;
   setStudentName: (name: string) => void;
@@ -40,6 +42,7 @@ export default function StudentDialog({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   student,
   studentName,
   setStudentName,
@@ -110,13 +113,27 @@ export default function StudentDialog({
             </RadioGroup>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            İptal
-          </Button>
-          <Button onClick={onSave}>
-            {student ? "Güncelle" : "Ekle"}
-          </Button>
+        <DialogFooter className="flex justify-between">
+          <div>
+            {student && (
+              <Button
+                variant="ghost"
+                onClick={onDelete}
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Sil
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose}>
+              İptal
+            </Button>
+            <Button onClick={onSave}>
+              {student ? "Güncelle" : "Ekle"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
