@@ -13,6 +13,7 @@ export default function Students() {
   const [students, setStudents] = useState<Student[]>([]);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [studentName, setStudentName] = useState("");
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#9b87f5");
@@ -87,6 +88,10 @@ export default function Students() {
     setStudentColor("#9b87f5");
   };
 
+  const handleCardClick = (studentId: string) => {
+    setSelectedCardId(selectedCardId === studentId ? null : studentId);
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
@@ -125,7 +130,13 @@ export default function Students() {
           <div className="flex-1 overflow-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {students.map((student) => (
-                <Card key={student.id} className="flex flex-col">
+                <Card 
+                  key={student.id} 
+                  className={`flex flex-col cursor-pointer transition-all ${
+                    selectedCardId === student.id ? 'ring-2 ring-primary' : ''
+                  }`}
+                  onClick={() => handleCardClick(student.id)}
+                >
                   <CardContent className="flex-1 p-6">
                     <div className="flex items-center gap-4">
                       <div 
@@ -142,26 +153,34 @@ export default function Students() {
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t p-4 bg-gray-50">
-                    <div className="flex justify-end gap-2 w-full">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditStudent(student)}
-                      >
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Düzenle
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteStudent(student.id)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Sil
-                      </Button>
-                    </div>
-                  </CardFooter>
+                  {selectedCardId === student.id && (
+                    <CardFooter className="border-t p-4 bg-gray-50">
+                      <div className="flex justify-end gap-2 w-full">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditStudent(student);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Düzenle
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteStudent(student.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Sil
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  )}
                 </Card>
               ))}
             </div>
