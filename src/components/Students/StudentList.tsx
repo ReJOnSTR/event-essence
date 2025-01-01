@@ -1,4 +1,4 @@
-import { Plus, FileBarChart, Settings } from "lucide-react";
+import { Plus, FileBarChart, Settings, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -13,6 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface StudentListProps {
   students?: Student[];
@@ -27,6 +28,12 @@ export default function StudentList({
   onEdit,
   onDelete 
 }: StudentListProps) {
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+
+  const handleStudentClick = (studentId: string) => {
+    setSelectedStudentId(selectedStudentId === studentId ? null : studentId);
+  };
+
   return (
     <div className="flex flex-col h-full">
       <SidebarGroup>
@@ -44,28 +51,82 @@ export default function StudentList({
 
             <ScrollArea className="h-[200px]">
               {students.slice(0, 5).map((student) => (
-                <SidebarMenuItem key={student.id}>
-                  <SidebarMenuButton className="w-full">
-                    <div
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: student.color }}
-                    />
-                    <span>{student.name}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <div key={student.id}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      className="w-full"
+                      onClick={() => handleStudentClick(student.id)}
+                    >
+                      <div
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: student.color }}
+                      />
+                      <span>{student.name}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  {selectedStudentId === student.id && (
+                    <div className="ml-6 mt-1 flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEdit?.(student)}
+                        className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                      >
+                        <Pencil className="h-4 w-4 mr-1" />
+                        Düzenle
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDelete?.(student.id)}
+                        className="h-8 px-2 text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Sil
+                      </Button>
+                    </div>
+                  )}
+                </div>
               ))}
               {students.length > 5 && (
                 <div className="mt-2 border-t pt-2">
                   {students.slice(5).map((student) => (
-                    <SidebarMenuItem key={student.id}>
-                      <SidebarMenuButton className="w-full">
-                        <div
-                          className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: student.color }}
-                        />
-                        <span>{student.name}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                    <div key={student.id}>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton 
+                          className="w-full"
+                          onClick={() => handleStudentClick(student.id)}
+                        >
+                          <div
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: student.color }}
+                          />
+                          <span>{student.name}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      {selectedStudentId === student.id && (
+                        <div className="ml-6 mt-1 flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onEdit?.(student)}
+                            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                          >
+                            <Pencil className="h-4 w-4 mr-1" />
+                            Düzenle
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onDelete?.(student.id)}
+                            className="h-8 px-2 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Sil
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
