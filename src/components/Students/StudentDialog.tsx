@@ -113,19 +113,17 @@ export default function StudentDialog({
             </RadioGroup>
           </div>
         </div>
-        <DialogFooter className="flex justify-between">
-          <div>
-            {student && (
-              <Button
-                variant="ghost"
-                onClick={onDelete}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Sil
-              </Button>
-            )}
-          </div>
+        <DialogFooter className="flex items-center justify-between">
+          {student && (
+            <Button
+              variant="ghost"
+              onClick={onDelete}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Sil
+            </Button>
+          )}
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose}>
               İptal

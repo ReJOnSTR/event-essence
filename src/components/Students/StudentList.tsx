@@ -13,7 +13,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 interface StudentListProps {
   students?: Student[];
@@ -26,14 +25,7 @@ export default function StudentList({
   students = [], 
   onAddStudent,
   onEdit,
-  onDelete 
 }: StudentListProps) {
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-
-  const handleStudentClick = (studentId: string) => {
-    setSelectedStudentId(selectedStudentId === studentId ? null : studentId);
-  };
-
   return (
     <div className="flex flex-col h-full">
       <SidebarGroup>
@@ -50,78 +42,20 @@ export default function StudentList({
             </SidebarMenuItem>
 
             <ScrollArea className="h-[200px]">
-              {students.slice(0, 5).map((student) => (
-                <div key={student.id}>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton 
-                      className="w-full"
-                      onClick={() => handleStudentClick(student.id)}
-                    >
-                      <div
-                        className="h-2 w-2 rounded-full"
-                        style={{ backgroundColor: student.color }}
-                      />
-                      <span>{student.name}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  {selectedStudentId === student.id && (
-                    <div className="ml-8 mt-1 space-x-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => onEdit?.(student)}
-                      >
-                        Düzenle
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => onDelete?.(student.id)}
-                      >
-                        Sil
-                      </Button>
-                    </div>
-                  )}
-                </div>
+              {students.map((student) => (
+                <SidebarMenuItem key={student.id}>
+                  <SidebarMenuButton 
+                    className="w-full"
+                    onClick={() => onEdit?.(student)}
+                  >
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: student.color }}
+                    />
+                    <span>{student.name}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               ))}
-              {students.length > 5 && (
-                <div className="mt-2 border-t pt-2">
-                  {students.slice(5).map((student) => (
-                    <div key={student.id}>
-                      <SidebarMenuItem>
-                        <SidebarMenuButton 
-                          className="w-full"
-                          onClick={() => handleStudentClick(student.id)}
-                        >
-                          <div
-                            className="h-2 w-2 rounded-full"
-                            style={{ backgroundColor: student.color }}
-                          />
-                          <span>{student.name}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      {selectedStudentId === student.id && (
-                        <div className="ml-8 mt-1 space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => onEdit?.(student)}
-                          >
-                            Düzenle
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => onDelete?.(student.id)}
-                          >
-                            Sil
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
             </ScrollArea>
           </SidebarMenu>
         </SidebarGroupContent>
