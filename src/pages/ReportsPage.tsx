@@ -32,9 +32,7 @@ export default function Reports() {
         <Sidebar>
           <SidebarContent className="p-4">
             <StudentList
-              students={students}
               onEdit={() => {}}
-              onDelete={() => {}}
               onAddStudent={() => {}}
             />
           </SidebarContent>

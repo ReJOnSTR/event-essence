@@ -11,9 +11,9 @@ export function useStudents() {
   };
 
   // Save students to localStorage
-  const saveStudents = (students: Student[]) => {
+  const saveStudents = (students: Student[]): Promise<Student[]> => {
     localStorage.setItem('students', JSON.stringify(students));
-    return students;
+    return Promise.resolve(students);
   };
 
   // Query for fetching students
@@ -24,7 +24,7 @@ export function useStudents() {
 
   // Mutation for adding/updating a student
   const { mutate: saveStudent } = useMutation({
-    mutationFn: (student: Student) => {
+    mutationFn: async (student: Student): Promise<Student[]> => {
       const currentStudents = getStudents();
       const existingIndex = currentStudents.findIndex(s => s.id === student.id);
       
@@ -48,7 +48,7 @@ export function useStudents() {
 
   // Mutation for deleting a student
   const { mutate: deleteStudent } = useMutation({
-    mutationFn: (studentId: string) => {
+    mutationFn: async (studentId: string): Promise<Student[]> => {
       const currentStudents = getStudents();
       const updatedStudents = currentStudents.filter(s => s.id !== studentId);
       return saveStudents(updatedStudents);
