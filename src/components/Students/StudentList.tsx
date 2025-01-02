@@ -13,19 +13,19 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useStudents } from "@/hooks/useStudents";
 
 interface StudentListProps {
-  students?: Student[];
   onAddStudent?: () => void;
   onEdit?: (student: Student) => void;
-  onDelete?: (studentId: string) => void;
 }
 
 export default function StudentList({ 
-  students = [], 
   onAddStudent,
   onEdit,
 }: StudentListProps) {
+  const { students } = useStudents();
+
   return (
     <div className="flex flex-col h-full">
       <SidebarGroup>
