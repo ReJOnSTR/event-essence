@@ -1,11 +1,11 @@
 import { Toaster } from "@/components/ui/toaster";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MonthView from "@/components/Calendar/MonthView";
 import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import StudentList from "@/components/Students/StudentList";
+import SideMenu from "@/components/Layout/SideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
@@ -22,7 +22,7 @@ import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, s
 
 type ViewType = "day" | "week" | "month" | "year";
 
-export default function Index() {
+export default function CalendarPage() {
   const [lessons, setLessons] = useState<Lesson[]>(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
@@ -220,7 +220,7 @@ export default function Index() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <StudentList
+            <SideMenu
               onEdit={handleEditStudent}
               onAddStudent={() => setIsStudentDialogOpen(true)}
             />

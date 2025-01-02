@@ -9,8 +9,9 @@ import { Plus, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Link } from "react-router-dom";
 import { useStudents } from "@/hooks/useStudents";
+import SideMenu from "@/components/Layout/SideMenu";
 
-export default function Students() {
+export default function StudentsManagementPage() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
@@ -79,7 +80,7 @@ export default function Students() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <StudentList
+            <SideMenu
               onEdit={handleOpenDialog}
               onAddStudent={() => handleOpenDialog()}
             />

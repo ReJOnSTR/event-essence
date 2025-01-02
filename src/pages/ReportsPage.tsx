@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
-import StudentList from "@/components/Students/StudentList";
+import SideMenu from "@/components/Layout/SideMenu";
 import { ReportFilters } from "@/components/Reports/ReportFilters";
 import { StatsCards } from "@/components/Reports/StatsCards";
 import { LessonList } from "@/components/Reports/LessonList";
@@ -31,7 +31,7 @@ export default function Reports() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <StudentList
+            <SideMenu
               onEdit={() => {}}
               onAddStudent={() => {}}
             />

@@ -1,5 +1,5 @@
-import { Plus, FileBarChart, Settings } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Plus, FileBarChart, Settings, Calendar, Users } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
   SidebarMenu, 
@@ -15,19 +15,36 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useStudents } from "@/hooks/useStudents";
 
-interface StudentListProps {
+interface SideMenuProps {
   onAddStudent?: () => void;
   onEdit?: (student: Student) => void;
 }
 
-export default function StudentList({ 
+export default function SideMenu({ 
   onAddStudent,
   onEdit,
-}: StudentListProps) {
+}: SideMenuProps) {
   const { students } = useStudents();
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
 
   return (
     <div className="flex flex-col h-full">
+      <SidebarGroup>
+        <Link to="/" className="block hover:bg-accent rounded-md transition-colors">
+          <SidebarMenuButton 
+            className="w-full"
+            data-active={isActive("/")}
+          >
+            <Calendar className="h-4 w-4" />
+            <span>Takvim</span>
+          </SidebarMenuButton>
+        </Link>
+      </SidebarGroup>
+
       <SidebarGroup>
         <Link to="/students" className="block hover:bg-accent rounded-md transition-colors">
           <SidebarGroupLabel className="cursor-pointer">Öğrenciler</SidebarGroupLabel>
@@ -62,8 +79,14 @@ export default function StudentList({
       </SidebarGroup>
 
       <div className="mt-auto">
-        <Link to="/reports" className="block hover:bg-accent rounded-md transition-colors mb-4">
-          <SidebarMenuButton className="w-full">
+        <Link 
+          to="/reports" 
+          className="block hover:bg-accent rounded-md transition-colors mb-4"
+        >
+          <SidebarMenuButton 
+            className="w-full"
+            data-active={isActive("/reports")}
+          >
             <FileBarChart className="h-4 w-4" />
             <span>Raporlar</span>
           </SidebarMenuButton>
@@ -80,7 +103,11 @@ export default function StudentList({
                 <span className="text-sm font-medium">Admin</span>
               </div>
               <Link to="/settings">
-                <Button variant="ghost" size="icon">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  data-active={isActive("/settings")}
+                >
                   <Settings className="h-4 w-4" />
                 </Button>
               </Link>
