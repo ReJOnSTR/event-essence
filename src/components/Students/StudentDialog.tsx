@@ -53,7 +53,7 @@ export default function StudentDialog({
 }: StudentDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {student ? "Öğrenci Düzenle" : "Öğrenci Ekle"}
@@ -64,7 +64,7 @@ export default function StudentDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">İsim</label>
+            <Label>İsim</Label>
             <Input
               value={studentName}
               onChange={(e) => setStudentName(e.target.value)}
@@ -73,7 +73,7 @@ export default function StudentDialog({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Ders Ücreti (₺)</label>
+            <Label>Ders Ücreti (₺)</Label>
             <Input
               type="number"
               value={studentPrice}
@@ -85,7 +85,7 @@ export default function StudentDialog({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Renk</label>
+            <Label>Renk</Label>
             <RadioGroup
               value={studentColor}
               onValueChange={setStudentColor}
@@ -113,8 +113,8 @@ export default function StudentDialog({
             </RadioGroup>
           </div>
         </div>
-        <DialogFooter className="flex items-center justify-between">
-          {student && (
+        <DialogFooter className="flex items-center justify-between mt-6">
+          {student && onDelete && (
             <Button
               variant="ghost"
               onClick={onDelete}
@@ -124,7 +124,7 @@ export default function StudentDialog({
               Sil
             </Button>
           )}
-          <div className="flex gap-2">
+          <div className="flex gap-2 ml-auto">
             <Button variant="outline" onClick={onClose}>
               İptal
             </Button>
