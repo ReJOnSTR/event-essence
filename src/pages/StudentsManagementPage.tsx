@@ -9,7 +9,6 @@ import { Plus, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Link } from "react-router-dom";
 import { useStudents } from "@/hooks/useStudents";
-import SideMenu from "@/components/Layout/SideMenu";
 
 export default function StudentsManagementPage() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
