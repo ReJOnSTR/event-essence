@@ -221,9 +221,7 @@ export default function Index() {
         <Sidebar>
           <SidebarContent className="p-4">
             <StudentList
-              students={students}
               onEdit={handleEditStudent}
-              onDelete={handleDeleteStudent}
               onAddStudent={() => setIsStudentDialogOpen(true)}
             />
           </SidebarContent>
