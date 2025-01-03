@@ -31,39 +31,37 @@ export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
         const startMinutes = new Date(event.start).getMinutes();
         const endMinutes = new Date(event.end).getMinutes();
         
-        // If this is the start hour and has minutes
-        if (startHour === hour && startMinutes > 0) {
-          return (
-            <div 
-              key={`start-${event.id}`}
-              className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
-              style={{
-                top: `${(startMinutes / 60) * 60}px`
-              }}
-            >
-              <div className="w-0.5 h-full bg-blue-300 mr-1" />
-              {format(event.start, "HH:mm", { locale: tr })}
-            </div>
-          );
-        }
-        
-        // If this is the end hour and has minutes
-        if (endHour === hour && endMinutes > 0) {
-          return (
-            <div 
-              key={`end-${event.id}`}
-              className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
-              style={{
-                top: `${(endMinutes / 60) * 60}px`
-              }}
-            >
-              <div className="w-0.5 h-full bg-gray-300 mr-1" />
-              {format(event.end, "HH:mm", { locale: tr })}
-            </div>
-          );
-        }
-        
-        return null;
+        return (
+          <>
+            {/* Start time indicator */}
+            {startHour === hour && startMinutes > 0 && (
+              <div 
+                key={`start-${event.id}`}
+                className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
+                style={{
+                  top: `${(startMinutes / 60) * 60}px`
+                }}
+              >
+                <div className="w-0.5 h-full bg-blue-300 mr-1" />
+                {format(event.start, "HH:mm", { locale: tr })}
+              </div>
+            )}
+            
+            {/* End time indicator */}
+            {endHour === hour && endMinutes > 0 && (
+              <div 
+                key={`end-${event.id}`}
+                className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
+                style={{
+                  top: `${(endMinutes / 60) * 60}px`
+                }}
+              >
+                <div className="w-0.5 h-full bg-gray-300 mr-1" />
+                {format(event.end, "HH:mm", { locale: tr })}
+              </div>
+            )}
+          </>
+        );
       })}
     </>
   );
