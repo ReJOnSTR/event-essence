@@ -1,9 +1,11 @@
+import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import MonthView from "@/components/Calendar/MonthView";
 import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
+import SideMenu from "@/components/Layout/SideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
@@ -17,28 +19,30 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
-import { useStudents } from "@/hooks/useStudents";
-import { useCalendarStore } from "@/store/calendarStore";
-import { SharedSideMenu } from "@/components/Layout/SharedSideMenu";
+
+type ViewType = "day" | "week" | "month" | "year";
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState<Lesson[]>(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
   });
-  
+  const [students, setStudents] = useState<Student[]>(() => {
+    const savedStudents = localStorage.getItem('students');
+    return savedStudents ? JSON.parse(savedStudents) : [];
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const { currentView, setCurrentView } = useCalendarStore();
+  const [currentView, setCurrentView] = useState<ViewType>("month");
   const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
-  const { students, saveStudent, deleteStudent } = useStudents();
 
+  // Dersleri localStorage'a kaydetme
   useEffect(() => {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
@@ -55,7 +59,10 @@ export default function CalendarPage() {
     setIsDialogOpen(true);
   };
 
-  const handleNavigationClick = (direction: 'prev' | 'next') => () => {
+  const handleNavigationClick = (direction: 'prev' | 'next') => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     switch (currentView) {
       case 'day':
         setSelectedDate(prev => direction === 'next' ? addDays(prev, 1) : subDays(prev, 1));
@@ -72,7 +79,9 @@ export default function CalendarPage() {
     }
   };
 
-  const handleTodayClick = () => {
+  const handleTodayClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setSelectedDate(new Date());
   };
 
@@ -109,6 +118,42 @@ export default function CalendarPage() {
     });
   };
 
+  const handleSaveStudent = () => {
+    if (selectedStudent) {
+      const updatedStudents = students.map(student =>
+        student.id === selectedStudent.id
+          ? {
+              ...student,
+              name: studentName,
+              price: studentPrice,
+              color: studentColor,
+            }
+          : student
+      );
+      setStudents(updatedStudents);
+      localStorage.setItem('students', JSON.stringify(updatedStudents));
+      toast({
+        title: "Öğrenci güncellendi",
+        description: "Öğrenci bilgileri başarıyla güncellendi.",
+      });
+    } else {
+      const newStudent: Student = {
+        id: crypto.randomUUID(),
+        name: studentName,
+        price: studentPrice,
+        color: studentColor,
+      };
+      const newStudents = [...students, newStudent];
+      setStudents(newStudents);
+      localStorage.setItem('students', JSON.stringify(newStudents));
+      toast({
+        title: "Öğrenci eklendi",
+        description: "Yeni öğrenci başarıyla eklendi.",
+      });
+    }
+    handleCloseStudentDialog();
+  };
+
   const handleEditStudent = (student: Student) => {
     setSelectedStudent(student);
     setStudentName(student.name);
@@ -117,24 +162,19 @@ export default function CalendarPage() {
     setIsStudentDialogOpen(true);
   };
 
-  const handleSaveStudent = () => {
-    const studentData = {
-      id: selectedStudent?.id || crypto.randomUUID(),
-      name: studentName,
-      price: studentPrice,
-      color: studentColor,
-    };
-
-    saveStudent(studentData);
-    
+  const handleDeleteStudent = (studentId: string) => {
+    const updatedStudents = students.filter(student => student.id !== studentId);
+    setStudents(updatedStudents);
+    localStorage.setItem('students', JSON.stringify(updatedStudents));
+    setLessons(lessons.map(lesson => 
+      lesson.studentId === studentId 
+        ? { ...lesson, studentId: undefined }
+        : lesson
+    ));
     toast({
-      title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
-      description: selectedStudent 
-        ? "Öğrenci bilgileri başarıyla güncellendi."
-        : "Yeni öğrenci başarıyla eklendi.",
+      title: "Öğrenci silindi",
+      description: "Öğrenci başarıyla silindi.",
     });
-
-    handleCloseStudentDialog();
   };
 
   const handleCloseStudentDialog = () => {
@@ -145,12 +185,21 @@ export default function CalendarPage() {
     setStudentColor("#9b87f5");
   };
 
+  const handleLessonUpdate = (updatedLesson: Lesson) => {
+    setLessons(prevLessons => 
+      prevLessons.map(lesson => 
+        lesson.id === updatedLesson.id ? updatedLesson : lesson
+      )
+    );
+  };
+
   const renderView = () => {
     const viewProps = {
       date: selectedDate,
       events: lessons,
       onDateSelect: handleDateSelect,
       onEventClick: handleLessonClick,
+      onEventUpdate: handleLessonUpdate,
       students: students,
     };
 
@@ -171,7 +220,7 @@ export default function CalendarPage() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SharedSideMenu
+            <SideMenu
               onEdit={handleEditStudent}
               onAddStudent={() => setIsStudentDialogOpen(true)}
             />
@@ -196,7 +245,7 @@ export default function CalendarPage() {
           <CalendarPageHeader
             date={selectedDate}
             currentView={currentView}
-            onViewChange={setCurrentView}
+            onViewChange={(view) => setCurrentView(view as ViewType)}
             onPrevious={handleNavigationClick('prev')}
             onNext={handleNavigationClick('next')}
             onToday={handleTodayClick}
