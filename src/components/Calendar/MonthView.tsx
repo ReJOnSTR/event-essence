@@ -76,9 +76,54 @@ export default function MonthView({
 
   const days = getDaysInMonth(date);
 
+  // Yıllık görünümde animasyonları kaldıralım
+  if (isYearView) {
+    return (
+      <div className="w-full mx-auto">
+        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
+          {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
+            <div
+              key={day}
+              className="bg-gray-50 p-1 text-xs font-medium text-calendar-gray text-center"
+            >
+              {day}
+            </div>
+          ))}
+          
+          {days.map((day, idx) => {
+            const holiday = isHoliday(day.date);
+            return (
+              <div
+                key={idx}
+                onClick={() => handleDateClick(day.date)}
+                className={cn(
+                  "min-h-[40px] p-1 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
+                  !day.isCurrentMonth && "bg-gray-50 text-gray-400",
+                  isToday(day.date) && "bg-blue-50",
+                  holiday && !allowWorkOnHolidays && "bg-red-50",
+                  holiday && allowWorkOnHolidays && "bg-yellow-50"
+                )}
+              >
+                <div className={cn(
+                  "text-xs font-medium",
+                  isToday(day.date) && "text-calendar-blue",
+                  holiday && !allowWorkOnHolidays && "text-red-600",
+                  holiday && allowWorkOnHolidays && "text-yellow-700"
+                )}>
+                  {format(day.date, "d")}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // Aylık görünüm için mevcut animasyonlu versiyonu kullanalım
   return (
     <motion.div 
-      className={cn("w-full mx-auto", isYearView && "h-full")}
+      className="w-full mx-auto"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}

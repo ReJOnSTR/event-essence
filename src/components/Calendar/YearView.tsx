@@ -16,30 +16,48 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
 
+  // Performans için container animasyonunu basitleştirelim
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        ease: [0.23, 1, 0.32, 1],
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  // Ay kartları için daha hafif animasyonlar
+  const monthVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.2,
+        ease: [0.23, 1, 0.32, 1]
+      }
+    }
+  };
+
   return (
     <div className="w-full">
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-        initial={{ opacity: 0, y: 2 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ 
-          duration: 0.25,
-          ease: [0.23, 1, 0.32, 1]
-        }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
       >
         {months.map((month, index) => (
           <motion.div
             key={month.toString()}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ 
-              duration: 0.3,
-              delay: Math.floor(index / 4) * 0.04,
-              ease: [0.23, 1, 0.32, 1]
-            }}
+            variants={monthVariants}
             className="bg-white rounded-lg shadow-sm overflow-hidden"
+            layoutId={`month-${index}`}
           >
-            <div className="bg-gray-50 py-3 px-4 border-b">
+            <div className="bg-gray-50 py-2 px-3 border-b">
               <h2 className="text-base font-semibold text-gray-900 text-center">
                 {format(month, "MMMM", { locale: tr })}
               </h2>
