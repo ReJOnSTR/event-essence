@@ -6,7 +6,7 @@ import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useMemo, useState, useEffect } from "react";
 import debounce from "lodash/debounce";
-import { CirclePicker } from 'react-color';
+import { ChromePicker } from 'react-color';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface StudentDialogContentProps {
@@ -19,25 +19,6 @@ interface StudentDialogContentProps {
   setStudentColor: (color: string) => void;
   onDelete?: () => void;
 }
-
-const STUDENT_COLORS = [
-  "#1a73e8", // Calendar Blue
-  "#4F46E5", // İndigo
-  "#039be5", // Event Blue
-  "#0EA5E9", // Mavi
-  "#1557b0", // Deep Blue
-  "#10B981", // Yeşil
-  "#70757a", // Calendar Gray
-  "#F59E0B", // Turuncu
-  "#3c4043", // Dark Gray
-  "#EF4444", // Kırmızı
-  "#185abc", // Royal Blue
-  "#8B5CF6", // Mor
-  "#1967d2", // Bright Blue
-  "#EC4899", // Pembe
-  "#4285f4", // Google Blue
-  "#6B7280", // Gri
-];
 
 export default function StudentDialogContent({
   student,
@@ -94,7 +75,6 @@ export default function StudentDialogContent({
 
   const handleColorChange = (color: any) => {
     setStudentColor(color.hex);
-    setIsColorPickerOpen(false);
   };
 
   return (
@@ -144,12 +124,11 @@ export default function StudentDialogContent({
               </div>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-3">
-            <CirclePicker
-              colors={STUDENT_COLORS}
+          <PopoverContent className="w-auto p-3 border-none shadow-lg">
+            <ChromePicker
               color={studentColor}
               onChange={handleColorChange}
-              width="252px"
+              disableAlpha={true}
             />
           </PopoverContent>
         </Popover>
