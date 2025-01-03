@@ -19,6 +19,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
+import { useStudents } from "@/hooks/useStudents";
 
 type ViewType = "day" | "week" | "month" | "year";
 
@@ -27,10 +28,7 @@ export default function CalendarPage() {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
   });
-  const [students, setStudents] = useState<Student[]>(() => {
-    const savedStudents = localStorage.getItem('students');
-    return savedStudents ? JSON.parse(savedStudents) : [];
-  });
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -41,8 +39,8 @@ export default function CalendarPage() {
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
+  const { students, saveStudent, deleteStudent } = useStudents();
 
-  // Dersleri localStorage'a kaydetme
   useEffect(() => {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
@@ -118,42 +116,6 @@ export default function CalendarPage() {
     });
   };
 
-  const handleSaveStudent = () => {
-    if (selectedStudent) {
-      const updatedStudents = students.map(student =>
-        student.id === selectedStudent.id
-          ? {
-              ...student,
-              name: studentName,
-              price: studentPrice,
-              color: studentColor,
-            }
-          : student
-      );
-      setStudents(updatedStudents);
-      localStorage.setItem('students', JSON.stringify(updatedStudents));
-      toast({
-        title: "Öğrenci güncellendi",
-        description: "Öğrenci bilgileri başarıyla güncellendi.",
-      });
-    } else {
-      const newStudent: Student = {
-        id: crypto.randomUUID(),
-        name: studentName,
-        price: studentPrice,
-        color: studentColor,
-      };
-      const newStudents = [...students, newStudent];
-      setStudents(newStudents);
-      localStorage.setItem('students', JSON.stringify(newStudents));
-      toast({
-        title: "Öğrenci eklendi",
-        description: "Yeni öğrenci başarıyla eklendi.",
-      });
-    }
-    handleCloseStudentDialog();
-  };
-
   const handleEditStudent = (student: Student) => {
     setSelectedStudent(student);
     setStudentName(student.name);
@@ -162,19 +124,24 @@ export default function CalendarPage() {
     setIsStudentDialogOpen(true);
   };
 
-  const handleDeleteStudent = (studentId: string) => {
-    const updatedStudents = students.filter(student => student.id !== studentId);
-    setStudents(updatedStudents);
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
-    setLessons(lessons.map(lesson => 
-      lesson.studentId === studentId 
-        ? { ...lesson, studentId: undefined }
-        : lesson
-    ));
+  const handleSaveStudent = () => {
+    const studentData = {
+      id: selectedStudent?.id || crypto.randomUUID(),
+      name: studentName,
+      price: studentPrice,
+      color: studentColor,
+    };
+
+    saveStudent(studentData);
+    
     toast({
-      title: "Öğrenci silindi",
-      description: "Öğrenci başarıyla silindi.",
+      title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
+      description: selectedStudent 
+        ? "Öğrenci bilgileri başarıyla güncellendi."
+        : "Yeni öğrenci başarıyla eklendi.",
     });
+
+    handleCloseStudentDialog();
   };
 
   const handleCloseStudentDialog = () => {
