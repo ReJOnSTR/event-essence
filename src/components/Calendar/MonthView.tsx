@@ -61,17 +61,15 @@ export default function MonthView({
     const workingHours = getWorkingHours();
     const daySettings = workingHours[days[dayOfWeek]];
     
-    // Tıklanan tarihi olduğu gibi kullan, görünümü değiştirmeden
-    const newDate = new Date(clickedDate);
-    
     if (daySettings.enabled && daySettings.start) {
       const [hours, minutes] = daySettings.start.split(':').map(Number);
-      newDate.setHours(hours, minutes, 0);
-      onDateSelect(newDate);
+      const dateWithWorkingHours = new Date(clickedDate);
+      dateWithWorkingHours.setHours(hours, minutes, 0);
+      onDateSelect(dateWithWorkingHours);
     } else {
       // If the day is not enabled in working hours, use 9 AM as default
-      newDate.setHours(9, 0, 0);
-      onDateSelect(newDate);
+      const dateWithDefaultHour = setHours(clickedDate, 9);
+      onDateSelect(dateWithDefaultHour);
     }
   };
 
