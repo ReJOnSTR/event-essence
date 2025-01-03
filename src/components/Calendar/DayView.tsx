@@ -86,16 +86,17 @@ export default function DayView({
   return (
     <motion.div 
       className="w-full"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2 }}
+      initial={{ opacity: 0, y: 2 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
     >
       <AnimatePresence>
         {holiday && (
           <motion.div 
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             className={cn(
               "mb-4 p-2 rounded-md border",
               !allowWorkOnHolidays ? "bg-red-50 text-red-700 border-red-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"
@@ -110,9 +111,13 @@ export default function DayView({
         {hours.map((hour, index) => (
           <motion.div 
             key={hour}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.03 }}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 0.25,
+              delay: index * 0.02,
+              ease: [0.23, 1, 0.32, 1]
+            }}
             className="grid grid-cols-12 gap-2"
           >
             <div className="col-span-1 text-right text-sm text-gray-500">

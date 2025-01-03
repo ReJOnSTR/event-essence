@@ -37,7 +37,7 @@ export default function WeekView({
     .map(day => parseInt(day.start.split(':')[0])));
   const endHour = Math.max(...Object.values(workingHours)
     .filter(day => day.enabled)
-    .map(day => parseInt(day.end.split(':')[0])));
+    .map(day => parseInt(day.end.split(':')[0})));
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
@@ -86,7 +86,7 @@ export default function WeekView({
       className="w-full overflow-x-auto"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
     >
       <div className="grid grid-cols-8 gap-px bg-gray-200">
         <div className="bg-white w-16" />
