@@ -17,9 +17,10 @@ import {
 interface DatePickerProps {
   date?: Date
   setDate: (date: Date) => void
+  placeholder?: string
 }
 
-export function DatePicker({ date, setDate }: DatePickerProps) {
+export function DatePicker({ date, setDate, placeholder = "Tarih seçin" }: DatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -31,7 +32,7 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP", { locale: tr }) : <span>Tarih seçin</span>}
+          {date ? format(date, "PPP", { locale: tr }) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
