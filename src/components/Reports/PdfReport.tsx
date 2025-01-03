@@ -31,7 +31,6 @@ export function PdfReport({
   const { toast } = useToast();
 
   const generatePDF = () => {
-    // Initialize jsPDF
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -40,8 +39,11 @@ export function PdfReport({
     
     const pageWidth = doc.internal.pageSize.width;
 
-    // Header
+    // Add Arial Unicode MS font for Turkish characters
+    doc.setFont("helvetica");
     doc.setFontSize(20);
+
+    // Header
     doc.text("Ders Raporu", pageWidth / 2, 20, { align: "center" });
 
     // Period Info
@@ -50,7 +52,13 @@ export function PdfReport({
     if (startDate && endDate) {
       periodText = `${format(startDate, 'd MMMM yyyy', { locale: tr })} - ${format(endDate, 'd MMMM yyyy', { locale: tr })}`;
     } else {
-      periodText = `${selectedPeriod} Raporu`;
+      const periodMap: { [key: string]: string } = {
+        'weekly': 'Haftalık',
+        'monthly': 'Aylık',
+        'yearly': 'Yıllık',
+        'custom': 'Özel'
+      };
+      periodText = `${periodMap[selectedPeriod] || selectedPeriod} Raporu`;
     }
     doc.text(periodText, pageWidth / 2, 30, { align: "center" });
 
@@ -62,7 +70,12 @@ export function PdfReport({
 
     // Summary
     doc.text(`Toplam Ders Saati: ${totalHours}`, 20, 50);
-    doc.text(`Toplam Kazanç: ${totalEarnings.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}`, 20, 60);
+    doc.text(`Toplam Kazanç: ${totalEarnings.toLocaleString('tr-TR', { 
+      style: 'currency', 
+      currency: 'TRY',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`, 20, 60);
 
     // Table
     const tableData = lessons.map(lesson => {
@@ -71,7 +84,12 @@ export function PdfReport({
         format(new Date(lesson.start), 'd MMMM yyyy', { locale: tr }),
         `${format(new Date(lesson.start), 'HH:mm')} - ${format(new Date(lesson.end), 'HH:mm')}`,
         student?.name || "Bilinmeyen Öğrenci",
-        student?.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' }) || "0 ₺"
+        (student?.price || 0).toLocaleString('tr-TR', { 
+          style: 'currency', 
+          currency: 'TRY',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
       ];
     });
 
@@ -80,10 +98,9 @@ export function PdfReport({
       body: tableData,
       startY: 70,
       styles: {
+        font: "helvetica",
         fontSize: 10,
         cellPadding: 5,
-        valign: 'middle',
-        halign: 'center'
       },
       headStyles: {
         fillColor: [26, 115, 232],
@@ -95,21 +112,7 @@ export function PdfReport({
       }
     });
 
-    // Footer with page numbers
-    const pages = (doc.internal as any).pages;
-    const totalPages = Object.keys(pages).length - 1;
-    
-    for (let i = 1; i <= totalPages; i++) {
-      doc.setPage(i);
-      doc.text(
-        `Sayfa ${i} / ${totalPages}`,
-        pageWidth / 2,
-        doc.internal.pageSize.height - 10,
-        { align: "center" }
-      );
-    }
-
-    // Save
+    // Footer
     const fileName = `ders-raporu-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
     doc.save(fileName);
 

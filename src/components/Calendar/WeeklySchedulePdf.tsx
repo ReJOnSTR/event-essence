@@ -33,7 +33,7 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     if (!selectedStudentId) {
       toast({
         title: "Hata",
-        description: "Lutfen bir ogrenci secin",
+        description: "Lütfen bir öğrenci seçin",
         variant: "destructive",
       });
       return;
@@ -42,13 +42,13 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     const student = students.find(s => s.id === selectedStudentId);
     if (!student) return;
 
-    // Initialize jsPDF
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
 
+    doc.setFont("helvetica");
     const pageWidth = doc.internal.pageSize.width;
     const today = new Date();
     const weekStart = startOfWeek(today, { weekStartsOn: 1 });
@@ -57,11 +57,11 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
 
     // Header
     doc.setFontSize(20);
-    doc.text("Haftalik Ders Programi", pageWidth / 2, 20, { align: "center" });
+    doc.text("Haftalık Ders Programı", pageWidth / 2, 20, { align: "center" });
 
     // Student Info & Date Range
     doc.setFontSize(12);
-    doc.text(`Ogrenci: ${student.name}`, 20, 35);
+    doc.text(`Öğrenci: ${student.name}`, 20, 35);
     const dateRange = `${format(weekStart, 'd MMMM yyyy', { locale: tr })} - ${format(weekEnd, 'd MMMM yyyy', { locale: tr })}`;
     doc.text(dateRange, pageWidth / 2, 45, { align: "center" });
 
@@ -73,43 +73,15 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
              lessonDate <= weekEnd;
     });
 
-    // Prepare table data with ASCII characters
+    // Prepare table data
     const tableData = weekDays.map(day => {
       const dayLessons = weeklyLessons.filter(lesson => 
         format(new Date(lesson.start), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
       );
 
-      const turkishDays: { [key: string]: string } = {
-        'Monday': 'Pazartesi',
-        'Tuesday': 'Sali',
-        'Wednesday': 'Carsamba',
-        'Thursday': 'Persembe',
-        'Friday': 'Cuma',
-        'Saturday': 'Cumartesi',
-        'Sunday': 'Pazar'
-      };
-
-      const turkishMonths: { [key: string]: string } = {
-        'January': 'Ocak',
-        'February': 'Subat',
-        'March': 'Mart',
-        'April': 'Nisan',
-        'May': 'Mayis',
-        'June': 'Haziran',
-        'July': 'Temmuz',
-        'August': 'Agustos',
-        'September': 'Eylul',
-        'October': 'Ekim',
-        'November': 'Kasim',
-        'December': 'Aralik'
-      };
-
-      const englishDay = format(day, 'EEEE');
-      const englishMonth = format(day, 'MMMM');
-      
       return [
-        turkishDays[englishDay] || englishDay,
-        `${format(day, 'd')} ${turkishMonths[englishMonth] || englishMonth}`,
+        format(day, 'EEEE', { locale: tr }),
+        format(day, 'd MMMM', { locale: tr }),
         dayLessons.map(lesson => 
           `${format(new Date(lesson.start), 'HH:mm')} - ${format(new Date(lesson.end), 'HH:mm')}`
         ).join('\n') || 'Ders Yok'
@@ -118,18 +90,18 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
 
     // Generate table
     autoTable(doc, {
-      head: [['Gun', 'Tarih', 'Ders Saatleri']],
+      head: [['Gün', 'Tarih', 'Ders Saatleri']],
       body: tableData,
       startY: 55,
       styles: {
+        font: "helvetica",
         fontSize: 10,
         cellPadding: 5,
-        valign: 'middle'
       },
       headStyles: {
         fillColor: [26, 115, 232],
         textColor: 255,
-        fontStyle: 'normal'
+        fontStyle: 'bold'
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245]
@@ -144,7 +116,7 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     // Footer
     doc.setFontSize(10);
     doc.setTextColor(128);
-    const footerText = `${format(new Date(), 'd MMMM yyyy HH:mm')} tarihinde olusturuldu`;
+    const footerText = `${format(new Date(), 'd MMMM yyyy HH:mm', { locale: tr })} tarihinde oluşturuldu`;
     doc.text(footerText, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
 
     // Save
@@ -152,11 +124,10 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     doc.save(fileName);
 
     toast({
-      title: "PDF olusturuldu",
-      description: `${fileName} basariyla indirildi.`,
+      title: "PDF oluşturuldu",
+      description: `${fileName} başarıyla indirildi.`,
     });
 
-    // Reset selection after download
     setSelectedStudentId("");
   };
 
@@ -169,7 +140,7 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <div className="space-y-4">
-          <h4 className="font-medium leading-none mb-3">Haftalik Program Paylas</h4>
+          <h4 className="font-medium leading-none mb-3">Haftalık Program Paylaş</h4>
           <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
             <SelectTrigger>
               <SelectValue placeholder="Öğrenci seçin" />
@@ -188,7 +159,7 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
             disabled={!selectedStudentId}
           >
             <Download className="h-4 w-4 mr-2" />
-            PDF Indir
+            PDF İndir
           </Button>
         </div>
       </PopoverContent>
