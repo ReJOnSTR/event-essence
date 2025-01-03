@@ -26,28 +26,18 @@ interface StudentDialogProps {
 }
 
 const dialogVariants = {
-  hidden: {
-    opacity: 0,
-    scale: 0.98,
-    y: 5
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
+  hidden: { opacity: 0, scale: 0.95, y: 5 },
+  visible: { 
+    opacity: 1, 
+    scale: 1, 
     y: 0,
-    transition: {
-      duration: 0.15,
-      ease: "easeOut"
-    }
+    transition: { duration: 0.15, ease: "easeOut" }
   },
-  exit: {
-    opacity: 0,
-    scale: 0.98,
+  exit: { 
+    opacity: 0, 
+    scale: 0.95, 
     y: 5,
-    transition: {
-      duration: 0.1,
-      ease: "easeIn"
-    }
+    transition: { duration: 0.1, ease: "easeIn" }
   }
 };
 
@@ -101,7 +91,7 @@ export default function StudentDialog({
                   className="flex gap-2"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, duration: 0.15 }}
+                  transition={{ delay: 0.05, duration: 0.15 }}
                 >
                   <Button variant="outline" onClick={onClose}>
                     İptal
