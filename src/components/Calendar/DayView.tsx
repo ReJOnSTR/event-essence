@@ -96,8 +96,7 @@ export default function DayView({
         {hours.map((hour) => (
           <div key={hour} className="grid grid-cols-12 gap-2">
             <div className={cn(
-              "col-span-1 text-right text-sm",
-              isToday(date) ? "text-calendar-blue" : "text-gray-500"
+              "col-span-1 text-right text-sm text-calendar-blue"
             )}>
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
