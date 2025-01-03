@@ -8,6 +8,7 @@ import { isHoliday } from "@/utils/turkishHolidays";
 import { motion } from "framer-motion";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
+import MonthEventCard from "./MonthEventCard";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -37,7 +38,6 @@ export default function MonthView({
     const end = endOfMonth(currentDate);
     const days = eachDayOfInterval({ start, end });
     
-    // Adjust for Monday start
     let startDay = start.getDay() - 1;
     if (startDay === -1) startDay = 6; // Sunday becomes last day
     
@@ -74,7 +74,6 @@ export default function MonthView({
       dateWithWorkingHours.setHours(hours, minutes, 0);
       onDateSelect(dateWithWorkingHours);
     } else {
-      // If the day is not enabled in working hours, use 9 AM as default
       const dateWithDefaultHour = setHours(clickedDate, 9);
       onDateSelect(dateWithDefaultHour);
     }
@@ -112,7 +111,6 @@ export default function MonthView({
       return;
     }
 
-    // Ensure event.start and event.end are Date objects
     const eventStart = new Date(event.start);
     const eventEnd = new Date(event.end);
     
@@ -135,7 +133,6 @@ export default function MonthView({
 
   const days = getDaysInMonth(date);
 
-  // Yıllık görünümde animasyonları ve sürükle-bırak özelliğini kaldıralım
   if (isYearView) {
     return (
       <div className="w-full mx-auto">
@@ -179,7 +176,6 @@ export default function MonthView({
     );
   }
 
-  // Aylık görünüm için sürükle-bırak özellikli versiyonu kullanalım
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <motion.div 
@@ -231,7 +227,7 @@ export default function MonthView({
                     )}
                   >
                     <div className={cn(
-                      "text-sm font-medium",
+                      "text-sm font-medium mb-1",
                       isToday(day.date) && "text-calendar-blue",
                       holiday && !allowWorkOnHolidays && "text-red-600",
                       holiday && allowWorkOnHolidays && "text-yellow-700"
@@ -247,28 +243,18 @@ export default function MonthView({
                         </div>
                       )}
                     </div>
-                    {!isYearView && (
-                      <div className="space-y-1">
-                        {day.lessons.map((event, index) => (
-                          <div key={event.id} onClick={(e) => {
-                            e.stopPropagation();
-                            if (onEventClick) onEventClick(event);
-                          }}>
-                            <LessonCard 
-                              event={{
-                                ...event,
-                                start: new Date(event.start),
-                                end: new Date(event.end)
-                              }}
-                              onClick={onEventClick}
-                              students={students}
-                              index={index}
-                            />
-                          </div>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
+                    <div className="space-y-1">
+                      {day.lessons.map((event, index) => (
+                        <MonthEventCard
+                          key={event.id}
+                          event={event}
+                          students={students}
+                          index={index}
+                          onClick={onEventClick}
+                        />
+                      ))}
+                      {provided.placeholder}
+                    </div>
                   </motion.div>
                 )}
               </Droppable>
