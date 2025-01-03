@@ -20,11 +20,26 @@ export default {
     extend: {
       colors: {
         // Google Calendar renkleri
-        "calendar-blue": "#1a73e8",
-        "calendar-hover": "#1557b0",
-        "calendar-gray": "#70757a",
-        "calendar-border": "#dadce0",
-        "calendar-event": "#039be5",
+        "calendar-blue": {
+          DEFAULT: "#1a73e8",
+          dark: "#60a5fa"
+        },
+        "calendar-hover": {
+          DEFAULT: "#1557b0",
+          dark: "#3b82f6"
+        },
+        "calendar-gray": {
+          DEFAULT: "#70757a",
+          dark: "#9ca3af"
+        },
+        "calendar-border": {
+          DEFAULT: "#dadce0",
+          dark: "#374151"
+        },
+        "calendar-event": {
+          DEFAULT: "#039be5",
+          dark: "#38bdf8"
+        },
         // Diğer renkler
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
