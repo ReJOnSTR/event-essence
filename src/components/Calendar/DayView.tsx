@@ -2,11 +2,9 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
-import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
-import { getDefaultLessonDuration } from "@/utils/settings";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
@@ -168,12 +166,13 @@ export default function DayView({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer relative",
+                      "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer relative overflow-visible",
                       snapshot.isDraggingOver && "bg-blue-50",
                       (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
                       "bg-gray-100 cursor-not-allowed"
                     )}
                     onClick={() => handleHourClick(hour, 0)}
+                    style={{ position: 'relative' }}
                   >
                     {dayEvents
                       .filter(event => new Date(event.start).getHours() === hour)
