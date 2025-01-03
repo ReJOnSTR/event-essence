@@ -131,7 +131,8 @@ export default function WeekView({
                 events={events.filter(event => 
                   format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
                 )} 
-                hour={hour} 
+                hour={hour}
+                isWeekView={true}
               />
             </div>
             {weekDays.map((day) => {

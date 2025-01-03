@@ -5,27 +5,13 @@ import { tr } from 'date-fns/locale';
 interface TimeIndicatorProps {
   events: CalendarEvent[];
   hour: number;
+  isWeekView?: boolean;
 }
 
-export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
-  const hourEvents = events.filter(event => {
-    const eventStartHour = new Date(event.start).getHours();
-    const eventEndHour = new Date(event.end).getHours();
-    const eventStartMinutes = new Date(event.start).getMinutes();
-    const eventEndMinutes = new Date(event.end).getMinutes();
-    
-    // Show indicator if:
-    // 1. Event starts in this hour with non-zero minutes OR
-    // 2. Event ends in this hour with non-zero minutes
-    return (eventStartHour === hour && eventStartMinutes > 0) || 
-           (eventEndHour === hour && eventEndMinutes > 0);
-  });
-
-  if (hourEvents.length === 0) return null;
-
+export const TimeIndicator = ({ events, hour, isWeekView = false }: TimeIndicatorProps) => {
   return (
     <>
-      {hourEvents.map(event => {
+      {events.map(event => {
         const startHour = new Date(event.start).getHours();
         const endHour = new Date(event.end).getHours();
         const startMinutes = new Date(event.start).getMinutes();
@@ -34,7 +20,7 @@ export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
         return (
           <>
             {/* Start time indicator */}
-            {startHour === hour && startMinutes > 0 && (
+            {startHour === hour && startMinutes > 0 && !isWeekView && (
               <div 
                 key={`start-${event.id}`}
                 className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
@@ -48,7 +34,7 @@ export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
             )}
             
             {/* End time indicator */}
-            {endHour === hour && endMinutes > 0 && (
+            {endHour === hour && endMinutes > 0 && !isWeekView && (
               <div 
                 key={`end-${event.id}`}
                 className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
@@ -65,4 +51,4 @@ export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
       })}
     </>
   );
-}
+};
