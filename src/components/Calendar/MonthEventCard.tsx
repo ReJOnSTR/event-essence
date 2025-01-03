@@ -19,8 +19,10 @@ export default function MonthEventCard({ event, students }: EventCardProps) {
         <span className="font-medium truncate">
           {student?.name || "İsimsiz Öğrenci"}
         </span>
-        <span className="text-xs whitespace-nowrap">
-          {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
+        <span className="text-xs whitespace-nowrap flex items-center gap-1">
+          {format(event.start, "HH:mm", { locale: tr })}
+          <div className="h-px w-2 bg-white/60" />
+          {format(event.end, "HH:mm", { locale: tr })}
         </span>
       </div>
     </div>

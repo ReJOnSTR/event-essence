@@ -36,8 +36,10 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
       <div className="font-medium truncate">
         {student?.name || "İsimsiz Öğrenci"}
       </div>
-      <div className="text-xs">
-        {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
+      <div className="text-xs flex items-center gap-1">
+        {format(event.start, "HH:mm", { locale: tr })}
+        <div className="h-px w-2 bg-white/60" />
+        {format(event.end, "HH:mm", { locale: tr })}
       </div>
     </div>
   );
