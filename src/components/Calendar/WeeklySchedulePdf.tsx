@@ -4,8 +4,8 @@ import { format, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Student, Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 import {
   Select,
   SelectContent,
@@ -20,14 +20,15 @@ import {
 } from "@/components/ui/popover";
 import { useState } from "react";
 
-// PDF make fonts tanımlaması
-(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
-(pdfMake as any).fonts = {
+// Initialize pdfMake with fonts
+(window as any).pdfMake = pdfMake;
+pdfMake.vfs = pdfFonts.pdfMake ? pdfFonts.pdfMake.vfs : pdfFonts.vfs;
+pdfMake.fonts = {
   Roboto: {
-    normal: 'Roboto-Regular.ttf',
-    bold: 'Roboto-Medium.ttf',
-    italics: 'Roboto-Italic.ttf',
-    bolditalics: 'Roboto-MediumItalic.ttf'
+    normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/fonts/Roboto/Roboto-Regular.ttf',
+    bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/fonts/Roboto/Roboto-Medium.ttf',
+    italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/fonts/Roboto/Roboto-Italic.ttf',
+    bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/fonts/Roboto/Roboto-MediumItalic.ttf'
   }
 };
 
