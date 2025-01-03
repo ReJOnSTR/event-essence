@@ -1,6 +1,7 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -13,6 +14,7 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
   const durationInMinutes = differenceInMinutes(event.end, event.start);
   const heightInPixels = (durationInMinutes / 60) * 60;
   const student = students?.find(s => s.id === event.studentId);
+  const { t } = useLanguage();
 
   const style = {
     height: `${heightInPixels}px`,
@@ -35,7 +37,7 @@ export default function LessonCard({ event, onClick, students }: EventCardProps)
       onClick={handleClick}
     >
       <div className="font-medium truncate">
-        {student?.name || "İsimsiz Öğrenci"}
+        {student?.name || t.students.unnamed}
       </div>
       <div className="text-xs flex items-center gap-1">
         <span>{format(event.start, "HH:mm", { locale: tr })}</span>

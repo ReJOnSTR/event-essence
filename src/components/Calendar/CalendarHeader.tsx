@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CalendarHeaderProps {
   date: Date;
@@ -18,6 +19,8 @@ export default function CalendarHeader({
   onToday,
   title 
 }: CalendarHeaderProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="text-2xl font-semibold">
@@ -37,7 +40,7 @@ export default function CalendarHeader({
           className="flex gap-2 items-center"
         >
           <CalendarDays className="h-4 w-4" />
-          Bugün
+          {t.common.today}
         </Button>
         <Button 
           variant="outline" 
