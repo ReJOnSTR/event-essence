@@ -1,44 +1,27 @@
-import { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { languages, getDefaultLanguage } from "@/utils/i18n/languages";
-import { useToast } from "@/components/ui/use-toast";
+import { languages } from "@/utils/i18n/languages";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function LanguageSettings() {
-  const { toast } = useToast();
-  const storedLang = localStorage.getItem('app-language');
-  const defaultLang = getDefaultLanguage();
-
-  useEffect(() => {
-    if (!storedLang) {
-      localStorage.setItem('app-language', defaultLang);
-    }
-  }, [defaultLang, storedLang]);
-
-  const handleLanguageChange = (value: string) => {
-    localStorage.setItem('app-language', value);
-    toast({
-      title: "Dil değiştirildi",
-      description: "Değişikliklerin tam olarak uygulanması için sayfayı yenileyin.",
-    });
-  };
+  const { language, setLanguage, t } = useLanguage();
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Dil Ayarları</CardTitle>
+        <CardTitle>{t.settings.language.title}</CardTitle>
         <CardDescription>
-          Uygulama dilini değiştirin. Varsayılan olarak tarayıcı diliniz kullanılır.
+          {t.settings.language.description}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1">
           <Select
-            defaultValue={storedLang || defaultLang}
-            onValueChange={handleLanguageChange}
+            value={language}
+            onValueChange={setLanguage}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Dil seçin" />
+              <SelectValue placeholder="Select language" />
             </SelectTrigger>
             <SelectContent>
               {languages.map((lang) => (
