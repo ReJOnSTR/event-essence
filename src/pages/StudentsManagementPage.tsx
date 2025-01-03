@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
-import SharedSideMenu from "@/components/Layout/SharedSideMenu";
+import SideMenu from "@/components/Layout/SideMenu";
 import StudentCard from "@/components/Students/StudentCard";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft } from "lucide-react";
@@ -25,7 +25,7 @@ export default function StudentsManagementPage() {
       setSelectedStudent(student);
       setStudentName(student.name);
       setStudentPrice(student.price);
-      setStudentColor(student.color || "#1a73e8");
+      setStudentColor(student.color);
     } else {
       setSelectedStudent(undefined);
       setStudentName("");
@@ -63,12 +63,23 @@ export default function StudentsManagementPage() {
     handleCloseDialog();
   };
 
+  const handleDeleteStudent = () => {
+    if (selectedStudent) {
+      deleteStudent(selectedStudent.id);
+      toast({
+        title: "Öğrenci silindi",
+        description: "Öğrenci başarıyla silindi.",
+      });
+      handleCloseDialog();
+    }
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SharedSideMenu
+            <SideMenu
               onEdit={handleOpenDialog}
               onAddStudent={() => handleOpenDialog()}
             />
@@ -105,21 +116,21 @@ export default function StudentsManagementPage() {
               ))}
             </div>
           </div>
-
-          <StudentDialog
-            isOpen={isStudentDialogOpen}
-            onClose={handleCloseDialog}
-            onSave={handleSaveStudent}
-            onDelete={deleteStudent}
-            student={selectedStudent}
-            studentName={studentName}
-            setStudentName={setStudentName}
-            studentPrice={studentPrice}
-            setStudentPrice={setStudentPrice}
-            studentColor={studentColor}
-            setStudentColor={setStudentColor}
-          />
         </div>
+
+        <StudentDialog
+          isOpen={isStudentDialogOpen}
+          onClose={handleCloseDialog}
+          onSave={handleSaveStudent}
+          onDelete={handleDeleteStudent}
+          student={selectedStudent}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
+        />
       </div>
     </SidebarProvider>
   );
