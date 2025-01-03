@@ -50,7 +50,11 @@ export default function MonthView({
     }));
   };
 
-  const handleDateClick = (clickedDate: Date) => {
+  const handleDateClick = (clickedDate: Date, isCurrentMonth: boolean) => {
+    if (!isCurrentMonth) {
+      return; // Prevent month change when clicking on days from adjacent months
+    }
+
     const holiday = isHoliday(clickedDate);
     if (holiday && !allowWorkOnHolidays) {
       return;

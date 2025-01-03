@@ -5,7 +5,7 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import SideMenu from "@/components/Layout/SideMenu";
+import SharedSideMenu from "@/components/Layout/SharedSideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
@@ -32,14 +32,16 @@ export default function CalendarPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<ViewType>("month");
+  const [currentView, setCurrentView] = useState<ViewType>(() => {
+    return (localStorage.getItem('calendarView') as ViewType) || "month";
+  });
   const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#9b87f5");
   const { toast } = useToast();
-  const { students, saveStudent, deleteStudent } = useStudents();
+  const { students, saveStudent } = useStudents();
 
   useEffect(() => {
     localStorage.setItem('lessons', JSON.stringify(lessons));
@@ -187,7 +189,7 @@ export default function CalendarPage() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SideMenu
+            <SharedSideMenu
               onEdit={handleEditStudent}
               onAddStudent={() => setIsStudentDialogOpen(true)}
             />
