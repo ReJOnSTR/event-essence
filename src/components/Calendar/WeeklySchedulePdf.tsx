@@ -4,8 +4,8 @@ import { format, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Student, Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import * as pdfMake from "pdfmake/build/pdfmake";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import {
   Select,
   SelectContent,
@@ -21,7 +21,15 @@ import {
 import { useState } from "react";
 
 // PDF make fonts tanımlaması
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
+(pdfMake as any).fonts = {
+  Roboto: {
+    normal: 'Roboto-Regular.ttf',
+    bold: 'Roboto-Medium.ttf',
+    italics: 'Roboto-Italic.ttf',
+    bolditalics: 'Roboto-MediumItalic.ttf'
+  }
+};
 
 interface WeeklySchedulePdfProps {
   lessons: Lesson[];
