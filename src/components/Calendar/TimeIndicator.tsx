@@ -1,7 +1,6 @@
 import { CalendarEvent } from "@/types/calendar";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
-import { getShowTimeIndicators } from "@/utils/settings";
 
 interface TimeIndicatorProps {
   events: CalendarEvent[];
@@ -9,10 +8,6 @@ interface TimeIndicatorProps {
 }
 
 export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
-  const showTimeIndicators = getShowTimeIndicators();
-
-  if (!showTimeIndicators) return null;
-
   const hourEvents = events.filter(event => {
     const eventHour = new Date(event.start).getHours();
     const eventEndMinutes = new Date(event.end).getMinutes();
