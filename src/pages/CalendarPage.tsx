@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MonthView from "@/components/Calendar/MonthView";
 import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
@@ -12,8 +12,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
 import { useStudents } from "@/hooks/useStudents";
-import { useCalendarStore } from "@/store/calendarStore";
+import { useCalendarStore, type ViewType } from "@/store/calendarStore";
 import SideMenu from "@/components/Layout/SideMenu";
+import { Lesson, Student } from "@/types/calendar";
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState(() => {
