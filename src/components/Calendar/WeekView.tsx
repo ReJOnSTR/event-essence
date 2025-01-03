@@ -184,10 +184,10 @@ export default function WeekView({
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         className={cn(
-                          "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative transition-all duration-200 ease-in-out",
+                          "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
                           isToday(day) && "bg-blue-50",
                           isWorkDisabled && "bg-gray-100 cursor-not-allowed",
-                          snapshot.isDraggingOver && "bg-blue-50/80 scale-[1.01]"
+                          snapshot.isDraggingOver && "bg-blue-50"
                         )}
                         onClick={() => handleCellClick(day, hour)}
                       >

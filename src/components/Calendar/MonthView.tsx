@@ -1,4 +1,4 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours, setMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { CalendarEvent, DayCell, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
@@ -74,8 +74,7 @@ export default function MonthView({
       dateWithWorkingHours.setHours(hours, minutes, 0);
       onDateSelect(dateWithWorkingHours);
     } else {
-      const dateWithDefaultHour = new Date(clickedDate);
-      dateWithDefaultHour.setHours(9);
+      const dateWithDefaultHour = setHours(clickedDate, 9);
       onDateSelect(dateWithDefaultHour);
     }
   };
@@ -240,12 +239,12 @@ export default function MonthView({
                     }}
                     onClick={() => handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] p-2 bg-white cursor-pointer transition-all duration-200 ease-in-out",
+                      "min-h-[120px] p-2 bg-white cursor-pointer transition-colors duration-150",
                       !day.isCurrentMonth && "bg-gray-50 text-gray-400",
                       isToday(day.date) && "bg-blue-50",
                       holiday && !allowWorkOnHolidays && "bg-red-50",
                       holiday && allowWorkOnHolidays && "bg-yellow-50",
-                      snapshot.isDraggingOver && "bg-blue-50/80 scale-[1.01]"
+                      snapshot.isDraggingOver && "bg-blue-50"
                     )}
                   >
                     <div className={cn(

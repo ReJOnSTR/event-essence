@@ -162,20 +162,19 @@ export default function DayView({
                 {`${hour.toString().padStart(2, '0')}:00`}
                 <TimeIndicator events={dayEvents} hour={hour} />
               </div>
-
-<Droppable droppableId={`${hour}:0`}>
-  {(provided, snapshot) => (
-    <div 
-      ref={provided.innerRef}
-      {...provided.droppableProps}
-      className={cn(
-        "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer relative transition-colors duration-200 ease-in-out",
-        snapshot.isDraggingOver && "bg-blue-50/80 scale-[1.01]",
-        (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
-        "bg-gray-100 cursor-not-allowed"
-      )}
-      onClick={() => handleHourClick(hour, 0)}
-    >
+              <Droppable droppableId={`${hour}:0`}>
+                {(provided, snapshot) => (
+                  <div 
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={cn(
+                      "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer relative",
+                      snapshot.isDraggingOver && "bg-blue-50",
+                      (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
+                      "bg-gray-100 cursor-not-allowed"
+                    )}
+                    onClick={() => handleHourClick(hour, 0)}
+                  >
                     {dayEvents
                       .filter(event => new Date(event.start).getHours() === hour)
                       .map((event, index) => (
@@ -188,10 +187,9 @@ export default function DayView({
                         />
                       ))}
                     {provided.placeholder}
-    </div>
-  )}
-</Droppable>
-
+                  </div>
+                )}
+              </Droppable>
             </motion.div>
           ))}
         </div>
