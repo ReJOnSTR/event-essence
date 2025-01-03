@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import ViewSelector from "./ViewSelector";
+import { cn } from "@/lib/utils";
 
 interface CalendarPageHeaderProps {
   date: Date;
@@ -45,7 +46,10 @@ export default function CalendarPageHeader({
       
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className={cn(
+            "text-2xl font-semibold",
+            currentView === 'day' && isToday(date) ? "text-calendar-blue" : "text-gray-900"
+          )}>
             {format(date, getDateFormat(), { locale: tr })}
           </h1>
         </div>
