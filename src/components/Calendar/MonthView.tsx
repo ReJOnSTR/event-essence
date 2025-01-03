@@ -134,7 +134,7 @@ export default function MonthView({
     if (newStart < workStart || newEnd > workEnd) {
       toast({
         title: "Çalışma saatleri dışında",
-        description: "Seçilen saat çalışma saatleri dışındadır.",
+        description: `Ders saati (${format(newStart, 'HH:mm')} - ${format(newEnd, 'HH:mm')}) çalışma saatleri (${format(workStart, 'HH:mm')} - ${format(workEnd, 'HH:mm')}) dışındadır.`,
         variant: "destructive"
       });
       return;
@@ -146,9 +146,10 @@ export default function MonthView({
       end: newEnd
     });
 
+    const student = students?.find(s => s.id === event.studentId);
     toast({
-      title: "Ders taşındı",
-      description: "Ders başarıyla yeni güne taşındı.",
+      title: `${student?.name || 'Ders'} taşındı`,
+      description: `${format(targetDay, 'd MMMM', { locale: tr })} tarihine, ${format(newStart, 'HH:mm')} - ${format(newEnd, 'HH:mm')} saatlerine taşındı.`,
     });
   };
 

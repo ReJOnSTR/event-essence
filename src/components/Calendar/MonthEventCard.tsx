@@ -18,8 +18,8 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
-      className={`text-white text-sm p-1 rounded mb-1 cursor-pointer hover:brightness-90 transition-colors ${
-        snapshot?.isDragging ? "shadow-lg opacity-70" : ""
+      className={`text-white text-sm p-1.5 rounded mb-1 cursor-pointer hover:brightness-90 transition-all ${
+        snapshot?.isDragging ? "shadow-lg scale-105 z-50" : ""
       }`}
       style={{ 
         backgroundColor: student?.color || "#039be5",
@@ -27,13 +27,17 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       }}
       onClick={() => onClick?.(event)}
     >
-      <div className="flex items-center gap-1">
-        <span className="font-medium truncate">
+      <div className="flex flex-col gap-0.5">
+        <div className="font-medium truncate">
           {student?.name || "İsimsiz Öğrenci"}
-        </span>
-        <span className="text-xs whitespace-nowrap">
-          {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
-        </span>
+        </div>
+        <div className={`text-xs flex items-center gap-1 transition-all ${
+          snapshot?.isDragging ? "opacity-100" : "opacity-80"
+        }`}>
+          <span>{format(new Date(event.start), "HH:mm", { locale: tr })}</span>
+          <span>-</span>
+          <span>{format(new Date(event.end), "HH:mm", { locale: tr })}</span>
+        </div>
       </div>
     </div>
   );
