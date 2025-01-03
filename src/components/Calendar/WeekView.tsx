@@ -102,7 +102,7 @@ export default function WeekView({
               </div>
               {holiday && (
                 <div className="text-xs text-gray-500">
-                  {format(day, "d")}
+                  {holiday.name}
                 </div>
               )}
             </div>

@@ -2,9 +2,9 @@ import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface StudentDialogContentProps {
   student?: Student;
@@ -17,15 +17,15 @@ interface StudentDialogContentProps {
   onDelete?: () => void;
 }
 
-const STUDENT_COLORS = [
-  { value: "#4F46E5", label: "İndigo" },
-  { value: "#0EA5E9", label: "Mavi" },
-  { value: "#10B981", label: "Yeşil" },
-  { value: "#F59E0B", label: "Turuncu" },
-  { value: "#EF4444", label: "Kırmızı" },
-  { value: "#8B5CF6", label: "Mor" },
-  { value: "#EC4899", label: "Pembe" },
-  { value: "#6B7280", label: "Gri" },
+const THEME_COLORS = [
+  "#4F46E5", // Indigo
+  "#0EA5E9", // Sky
+  "#10B981", // Emerald
+  "#F59E0B", // Amber
+  "#EF4444", // Red
+  "#8B5CF6", // Purple
+  "#EC4899", // Pink
+  "#6B7280", // Gray
 ];
 
 export default function StudentDialogContent({
@@ -63,48 +63,37 @@ export default function StudentDialogContent({
       </div>
       <div className="space-y-2">
         <Label>Renk</Label>
-        <div className="grid grid-cols-2 gap-2">
-          <RadioGroup
-            value={studentColor}
-            onValueChange={setStudentColor}
-            className="grid grid-cols-2 gap-2"
-          >
-            {STUDENT_COLORS.map((color) => (
-              <div key={color.value} className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={color.value}
-                  id={color.value}
-                  className="peer sr-only"
-                />
-                <Label
-                  htmlFor={color.value}
-                  className="flex items-center gap-2 rounded-md border-2 border-muted p-2 hover:bg-muted peer-data-[state=checked]:border-primary cursor-pointer w-full"
-                >
-                  <div
-                    className="h-4 w-4 rounded-full border border-gray-200"
-                    style={{ backgroundColor: color.value }}
-                  />
-                  <span className="text-sm">{color.label}</span>
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
+        <div className="grid grid-cols-5 gap-2">
+          {THEME_COLORS.map((color) => (
+            <button
+              key={color}
+              className={cn(
+                "w-full h-8 rounded-md border-2 transition-all",
+                studentColor === color ? "border-primary ring-2 ring-primary ring-offset-2" : "border-muted"
+              )}
+              style={{ backgroundColor: color }}
+              onClick={() => setStudentColor(color)}
+              type="button"
+            />
+          ))}
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start text-left font-normal"
+                className={cn(
+                  "w-full h-8",
+                  !THEME_COLORS.includes(studentColor) && "ring-2 ring-primary ring-offset-2"
+                )}
+                style={{ 
+                  backgroundColor: !THEME_COLORS.includes(studentColor) ? studentColor : undefined 
+                }}
               >
-                <div
-                  className="h-4 w-4 rounded-full border border-gray-200 mr-2"
-                  style={{ backgroundColor: studentColor }}
-                />
-                <span>Özel Renk</span>
+                <div className="w-full h-1 rounded-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-64">
               <div className="space-y-2">
-                <Label>Renk Seçici</Label>
+                <Label>Özel Renk Seç</Label>
                 <Input
                   type="color"
                   value={studentColor}
