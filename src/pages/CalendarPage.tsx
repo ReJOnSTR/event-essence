@@ -14,7 +14,7 @@ import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, s
 import { useStudents } from "@/hooks/useStudents";
 import { useCalendarStore, type ViewType } from "@/store/calendarStore";
 import SideMenu from "@/components/Layout/SideMenu";
-import { Lesson, Student } from "@/types/calendar";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 
 export default function CalendarPage() {
