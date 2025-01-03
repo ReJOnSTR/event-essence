@@ -9,13 +9,14 @@ interface EventCardProps {
 }
 
 export default function LessonCard({ event, onClick, students }: EventCardProps) {
+  const startMinutes = new Date(event.start).getMinutes();
   const durationInMinutes = differenceInMinutes(event.end, event.start);
   const heightInPixels = (durationInMinutes / 60) * 60;
   const student = students?.find(s => s.id === event.studentId);
 
   const style = {
     height: `${heightInPixels}px`,
-    top: `${(new Date(event.start).getMinutes() / 60) * 60}px`,
+    top: `${(startMinutes / 60) * 60}px`,
     zIndex: 10,
     backgroundColor: student?.color || "#039be5",
   };
