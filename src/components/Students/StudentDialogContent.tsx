@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { HexColorPicker } from "react-colorful";
 
 interface StudentDialogContentProps {
   student?: Student;
@@ -92,14 +93,31 @@ export default function StudentDialogContent({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-64">
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <Label>Özel Renk Seç</Label>
-                <Input
-                  type="color"
-                  value={studentColor}
-                  onChange={(e) => setStudentColor(e.target.value)}
-                  className="h-32 w-full"
+                <HexColorPicker 
+                  color={studentColor} 
+                  onChange={setStudentColor}
+                  style={{ width: '100%', height: '160px' }}
                 />
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={studentColor.toUpperCase()}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                        setStudentColor(value);
+                      }
+                    }}
+                    className="font-mono uppercase"
+                    maxLength={7}
+                  />
+                  <div 
+                    className="w-10 h-10 rounded-md border-2 border-muted"
+                    style={{ backgroundColor: studentColor }}
+                  />
+                </div>
               </div>
             </PopoverContent>
           </Popover>
