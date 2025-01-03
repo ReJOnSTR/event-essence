@@ -8,7 +8,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion } from "framer-motion";
-import { TimeIndicator } from "./TimeIndicator";
 
 interface WeekViewProps {
   date: Date;
@@ -123,17 +122,10 @@ export default function WeekView({
           );
         })}
 
-        {hours.map((hour, hourIndex) => (
+        {hours.map((hour) => (
           <React.Fragment key={`hour-${hour}`}>
-            <div className="bg-white p-2 text-right text-sm text-gray-500 relative">
+            <div className="bg-white p-2 text-right text-sm text-gray-500">
               {`${hour.toString().padStart(2, '0')}:00`}
-              <TimeIndicator 
-                events={events.filter(event => 
-                  format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-                )} 
-                hour={hour}
-                isWeekView={true}
-              />
             </div>
             {weekDays.map((day) => {
               const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;

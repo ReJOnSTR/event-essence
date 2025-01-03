@@ -5,10 +5,9 @@ import { tr } from 'date-fns/locale';
 interface TimeIndicatorProps {
   events: CalendarEvent[];
   hour: number;
-  isWeekView?: boolean;
 }
 
-export const TimeIndicator = ({ events, hour, isWeekView = false }: TimeIndicatorProps) => {
+export const TimeIndicator = ({ events, hour }: TimeIndicatorProps) => {
   return (
     <>
       {events.map(event => {
@@ -20,7 +19,7 @@ export const TimeIndicator = ({ events, hour, isWeekView = false }: TimeIndicato
         return (
           <>
             {/* Start time indicator */}
-            {startHour === hour && startMinutes > 0 && !isWeekView && (
+            {startHour === hour && startMinutes > 0 && (
               <div 
                 key={`start-${event.id}`}
                 className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
@@ -34,7 +33,7 @@ export const TimeIndicator = ({ events, hour, isWeekView = false }: TimeIndicato
             )}
             
             {/* End time indicator */}
-            {endHour === hour && endMinutes > 0 && !isWeekView && (
+            {endHour === hour && endMinutes > 0 && (
               <div 
                 key={`end-${event.id}`}
                 className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
