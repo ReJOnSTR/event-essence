@@ -32,7 +32,7 @@ const pageVariants = {
 const pageTransition = {
   type: "tween",
   ease: "easeOut",
-  duration: 0.2
+  duration: 0.15
 };
 
 const AnimatedRoutes = () => {
@@ -47,7 +47,7 @@ const AnimatedRoutes = () => {
         exit="exit"
         variants={pageVariants}
         transition={pageTransition}
-        className="w-full"
+        className="w-full h-screen overflow-hidden"
       >
         <Routes location={location}>
           <Route path="/" element={<CalendarPage />} />
@@ -63,11 +63,13 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AnimatedRoutes />
-      </BrowserRouter>
+      <div className="overflow-hidden">
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </div>
     </TooltipProvider>
   </QueryClientProvider>
 );

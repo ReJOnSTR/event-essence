@@ -25,6 +25,32 @@ interface StudentDialogProps {
   setStudentColor: (color: string) => void;
 }
 
+const dialogVariants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.98,
+    y: 5
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      duration: 0.15,
+      ease: "easeOut"
+    }
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.98,
+    y: 5,
+    transition: {
+      duration: 0.1,
+      ease: "easeIn"
+    }
+  }
+};
+
 export default function StudentDialog({
   isOpen,
   onClose,
@@ -40,49 +66,54 @@ export default function StudentDialog({
 }: StudentDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-        >
-          <DialogHeader>
-            <DialogTitle>
-              {student ? "Öğrenci Düzenle" : "Öğrenci Ekle"}
-            </DialogTitle>
-            <DialogDescription>
-              Öğrenci bilgilerini buradan ekleyebilir veya düzenleyebilirsiniz.
-            </DialogDescription>
-          </DialogHeader>
-
-          <StudentDialogContent
-            student={student}
-            studentName={studentName}
-            setStudentName={setStudentName}
-            studentPrice={studentPrice}
-            setStudentPrice={setStudentPrice}
-            studentColor={studentColor}
-            setStudentColor={setStudentColor}
-            onDelete={onDelete}
-          />
-
-          <DialogFooter className="flex items-center justify-end mt-6">
-            <motion.div 
-              className="flex gap-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+      <DialogContent className="sm:max-w-[425px] overflow-hidden p-0">
+        <AnimatePresence mode="wait">
+          {isOpen && (
+            <motion.div
+              variants={dialogVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="p-6"
             >
-              <Button variant="outline" onClick={onClose}>
-                İptal
-              </Button>
-              <Button onClick={onSave}>
-                {student ? "Güncelle" : "Ekle"}
-              </Button>
+              <DialogHeader>
+                <DialogTitle>
+                  {student ? "Öğrenci Düzenle" : "Öğrenci Ekle"}
+                </DialogTitle>
+                <DialogDescription>
+                  Öğrenci bilgilerini buradan ekleyebilir veya düzenleyebilirsiniz.
+                </DialogDescription>
+              </DialogHeader>
+
+              <StudentDialogContent
+                student={student}
+                studentName={studentName}
+                setStudentName={setStudentName}
+                studentPrice={studentPrice}
+                setStudentPrice={setStudentPrice}
+                studentColor={studentColor}
+                setStudentColor={setStudentColor}
+                onDelete={onDelete}
+              />
+
+              <DialogFooter className="flex items-center justify-end mt-6">
+                <motion.div 
+                  className="flex gap-2"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.15 }}
+                >
+                  <Button variant="outline" onClick={onClose}>
+                    İptal
+                  </Button>
+                  <Button onClick={onSave}>
+                    {student ? "Güncelle" : "Ekle"}
+                  </Button>
+                </motion.div>
+              </DialogFooter>
             </motion.div>
-          </DialogFooter>
-        </motion.div>
+          )}
+        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );
