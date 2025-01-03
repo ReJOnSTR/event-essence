@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,13 +44,13 @@ export default function LessonDialogForm({
   const formAnimation = {
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
+    transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
   };
 
   const itemAnimation = {
     initial: { opacity: 0, x: -10 },
     animate: { opacity: 1, x: 0 },
-    transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
+    transition: { duration: 0.15, ease: [0.4, 0, 0.2, 1] }
   };
 
   return (
@@ -72,8 +71,8 @@ export default function LessonDialogForm({
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ 
-                  duration: 0.25,
-                  delay: index * 0.03,
+                  duration: 0.15,
+                  delay: index * 0.02,
                   ease: [0.4, 0, 0.2, 1]
                 }}
               >
