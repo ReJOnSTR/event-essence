@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Trash2 } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 
 interface StudentDialogContentProps {
@@ -16,14 +17,22 @@ interface StudentDialogContentProps {
   onDelete?: () => void;
 }
 
-const THEME_COLORS = [
+const STUDENT_COLORS = [
+  { value: "#1a73e8", label: "Calendar Blue" },
   { value: "#4F46E5", label: "İndigo" },
+  { value: "#039be5", label: "Event Blue" },
   { value: "#0EA5E9", label: "Mavi" },
+  { value: "#1557b0", label: "Deep Blue" },
   { value: "#10B981", label: "Yeşil" },
+  { value: "#70757a", label: "Calendar Gray" },
   { value: "#F59E0B", label: "Turuncu" },
+  { value: "#3c4043", label: "Dark Gray" },
   { value: "#EF4444", label: "Kırmızı" },
+  { value: "#185abc", label: "Royal Blue" },
   { value: "#8B5CF6", label: "Mor" },
+  { value: "#1967d2", label: "Bright Blue" },
   { value: "#EC4899", label: "Pembe" },
+  { value: "#4285f4", label: "Google Blue" },
   { value: "#6B7280", label: "Gri" },
 ];
 
@@ -62,23 +71,31 @@ export default function StudentDialogContent({
       </div>
       <div className="space-y-2">
         <Label>Renk</Label>
-        <div className="grid grid-cols-4 gap-2">
-          {THEME_COLORS.map((color) => (
-            <button
-              key={color.value}
-              className={cn(
-                "w-full h-8 rounded-md border-2 transition-all",
-                studentColor === color.value 
-                  ? "border-primary ring-2 ring-primary ring-offset-2" 
-                  : "border-muted hover:border-primary/50"
-              )}
-              style={{ backgroundColor: color.value }}
-              onClick={() => setStudentColor(color.value)}
-              type="button"
-              title={color.label}
-            />
+        <RadioGroup
+          value={studentColor}
+          onValueChange={setStudentColor}
+          className="grid grid-cols-2 gap-2"
+        >
+          {STUDENT_COLORS.map((color) => (
+            <div key={color.value} className="flex items-center space-x-2">
+              <RadioGroupItem
+                value={color.value}
+                id={color.value}
+                className="peer sr-only"
+              />
+              <Label
+                htmlFor={color.value}
+                className="flex items-center gap-2 rounded-md border-2 border-muted p-2 hover:bg-muted peer-data-[state=checked]:border-primary cursor-pointer w-full"
+              >
+                <div 
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: color.value }}
+                />
+                {color.label}
+              </Label>
+            </div>
           ))}
-        </div>
+        </RadioGroup>
       </div>
       {student && onDelete && (
         <div className="absolute bottom-6 left-6">
