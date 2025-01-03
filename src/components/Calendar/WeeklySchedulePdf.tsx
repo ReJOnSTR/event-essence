@@ -26,12 +26,16 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     const student = students.find(s => s.id === studentId);
     if (!student) return;
 
-    // Initialize jsPDF
+    // Initialize jsPDF with UTF-8 support
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
+
+    // Add Turkish font support
+    doc.addFont("https://raw.githubusercontent.com/wiki/nicolasdao/google-cloud-bigquery/fonts/arial-unicode-ms.ttf", "Arial Unicode MS", "normal");
+    doc.setFont("Arial Unicode MS");
 
     const pageWidth = doc.internal.pageSize.width;
     const today = new Date();
@@ -40,7 +44,6 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
     // Header
-    doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.text("Haftalık Ders Programı", pageWidth / 2, 20, { align: "center" });
 
@@ -73,13 +76,13 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
       ];
     });
 
-    // Generate table
+    // Generate table with UTF-8 support
     autoTable(doc, {
       head: [['Gün', 'Tarih', 'Ders Saatleri']],
       body: tableData,
       startY: 55,
       styles: {
-        font: 'helvetica',
+        font: 'Arial Unicode MS',
         fontSize: 10,
         cellPadding: 5,
         valign: 'middle'
@@ -87,7 +90,7 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
       headStyles: {
         fillColor: [26, 115, 232],
         textColor: 255,
-        fontStyle: 'bold'
+        fontStyle: 'normal'
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245]
