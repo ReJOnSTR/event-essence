@@ -34,6 +34,12 @@ export function LessonList({
     return student ? student.name : "Öğrenci Bulunamadı";
   };
 
+  const getLessonFee = (studentId: string | undefined) => {
+    if (!studentId) return 0;
+    const student = students.find((s) => s.id === studentId);
+    return student ? student.price : 0;
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -42,12 +48,13 @@ export function LessonList({
             <TableHead>Tarih</TableHead>
             <TableHead>Saat</TableHead>
             <TableHead>Öğrenci</TableHead>
+            <TableHead className="text-right">Ücret</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredLessons.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={3} className="text-center">
+              <TableCell colSpan={4} className="text-center">
                 Bu dönemde ders bulunamadı
               </TableCell>
             </TableRow>
@@ -55,6 +62,7 @@ export function LessonList({
             filteredLessons.map((lesson) => {
               const start = new Date(lesson.start);
               const end = new Date(lesson.end);
+              const fee = getLessonFee(lesson.studentId);
 
               return (
                 <TableRow key={lesson.id}>
@@ -65,6 +73,9 @@ export function LessonList({
                     {format(start, "HH:mm")} - {format(end, "HH:mm")}
                   </TableCell>
                   <TableCell>{getStudentName(lesson.studentId)}</TableCell>
+                  <TableCell className="text-right">
+                    {fee.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
+                  </TableCell>
                 </TableRow>
               );
             })
