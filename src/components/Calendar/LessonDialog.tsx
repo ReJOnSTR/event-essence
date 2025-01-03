@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual } from "date-fns";
+import { format, isWithinInterval, addMinutes, isEqual } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -27,23 +26,6 @@ interface LessonDialogProps {
   events: Lesson[];
   students: Student[];
 }
-
-const DialogAnimation = ({ children }: { children: React.ReactNode }) => (
-  <AnimatePresence>
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 30,
-      }}
-    >
-      {children}
-    </motion.div>
-  </AnimatePresence>
-);
 
 export default function LessonDialog({ 
   isOpen, 
@@ -163,106 +145,85 @@ export default function LessonDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] overflow-hidden">
-        <DialogAnimation>
-          <DialogHeader>
-            <DialogTitle>{event ? "Dersi Düzenle" : "Ders Ekle"}</DialogTitle>
-            <DialogDescription>
-              Ders detaylarını buradan düzenleyebilirsiniz.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="space-y-2"
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>{event ? "Dersi Düzenle" : "Ders Ekle"}</DialogTitle>
+          <DialogDescription>
+            Ders detaylarını buradan düzenleyebilirsiniz.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Öğrenci</label>
+            <Select
+              value={selectedStudentId}
+              onValueChange={setSelectedStudentId}
             >
-              <label className="text-sm font-medium">Öğrenci</label>
-              <Select
-                value={selectedStudentId}
-                onValueChange={setSelectedStudentId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Öğrenci seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  {students.map((student) => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </motion.div>
-            
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-2"
-            >
-              <label className="text-sm font-medium">Açıklama</label>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Ders açıklaması"
+              <SelectTrigger>
+                <SelectValue placeholder="Öğrenci seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                {students.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Açıklama</label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Ders açıklaması"
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Başlangıç Saati</label>
+              <Input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                required
               />
-            </motion.div>
-            
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Başlangıç Saati</label>
-                <Input
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Bitiş Saati</label>
-                <Input
-                  type="time"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  required
-                />
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="flex justify-between"
-            >
-              {event && onDelete && (
-                <Button 
-                  type="button" 
-                  variant="destructive" 
-                  onClick={handleDelete}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Sil
-                </Button>
-              )}
-              <div className="flex gap-2 ml-auto">
-                <Button type="button" variant="outline" onClick={onClose}>
-                  İptal
-                </Button>
-                <Button type="submit">Kaydet</Button>
-              </div>
-            </motion.div>
-          </form>
-        </DialogAnimation>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Bitiş Saati</label>
+              <Input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+          
+          <div className="flex justify-between">
+            {event && onDelete && (
+              <Button 
+                type="button" 
+                variant="destructive" 
+                onClick={handleDelete}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Sil
+              </Button>
+            )}
+            <div className="flex gap-2 ml-auto">
+              <Button type="button" variant="outline" onClick={onClose}>
+                İptal
+              </Button>
+              <Button type="submit">Kaydet</Button>
+            </div>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
 }
+
