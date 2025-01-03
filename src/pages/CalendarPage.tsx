@@ -5,7 +5,7 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import SideMenu from "@/components/Layout/SideMenu";
+import SharedSideMenu from "@/components/Layout/SharedSideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
@@ -187,7 +187,7 @@ export default function CalendarPage() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SideMenu
+            <SharedSideMenu
               onEdit={handleEditStudent}
               onAddStudent={() => setIsStudentDialogOpen(true)}
             />
@@ -242,6 +242,7 @@ export default function CalendarPage() {
             isOpen={isStudentDialogOpen}
             onClose={handleCloseStudentDialog}
             onSave={handleSaveStudent}
+            onDelete={deleteStudent}
             student={selectedStudent}
             studentName={studentName}
             setStudentName={setStudentName}
