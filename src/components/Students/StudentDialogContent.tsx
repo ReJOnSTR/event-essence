@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Trash2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import { useMemo } from "react";
+import debounce from "lodash/debounce";
 
 interface StudentDialogContentProps {
   student?: Student;
@@ -48,17 +50,26 @@ export default function StudentDialogContent({
 }: StudentDialogContentProps) {
   const { toast } = useToast();
 
+  const debouncedNameChange = useMemo(
+    () =>
+      debounce((value: string) => {
+        if (value.length <= 50) {
+          setStudentName(value);
+        } else {
+          toast({
+            title: "Karakter Sınırı",
+            description: "İsim en fazla 50 karakter olabilir.",
+            variant: "destructive",
+          });
+        }
+      }, 100),
+    [setStudentName, toast]
+  );
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (value.length <= 50) {
-      setStudentName(value);
-    } else {
-      toast({
-        title: "Karakter Sınırı",
-        description: "İsim en fazla 50 karakter olabilir.",
-        variant: "destructive",
-      });
-    }
+    e.target.value = value.slice(0, 50); // Immediately update input value
+    debouncedNameChange(value);
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
