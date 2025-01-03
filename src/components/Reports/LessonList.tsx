@@ -16,7 +16,7 @@ interface LessonListProps {
   students: Student[];
   selectedStudent: string;
   selectedPeriod: "weekly" | "monthly" | "yearly" | "custom";
-  selectedDate: Date | undefined;
+  selectedDate: Date;
   startDate?: Date;
   endDate?: Date;
 }
@@ -30,30 +30,6 @@ export function LessonList({
   startDate,
   endDate,
 }: LessonListProps) {
-  if (!selectedDate || !selectedStudent) {
-    return (
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Tarih</TableHead>
-              <TableHead>Saat</TableHead>
-              <TableHead>Öğrenci</TableHead>
-              <TableHead className="text-right">Ücret</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={4} className="text-center">
-                Lütfen öğrenci ve tarih seçin
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
-    );
-  }
-
   const filteredLessons = getFilteredLessons(
     lessons, 
     selectedDate, 
