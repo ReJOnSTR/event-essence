@@ -90,6 +90,59 @@ export default function DayView({
     const duration = differenceInMinutes(item.event.end, item.event.start);
     const newEnd = addMinutes(newStart, duration);
 
+    // Check if the new time is within working hours
+    if (hour < startHour || hour >= endHour) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if the day is enabled for work
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check for holiday
+    if (holiday && !allowWorkOnHolidays) {
+      toast({
+        title: "Resmi Tatil",
+        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check for overlapping lessons
+    const hasOverlap = dayEvents.some(event => {
+      if (event.id === item.event.id) return false;
+      
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      
+      return (
+        (newStart >= eventStart && newStart < eventEnd) ||
+        (newEnd > eventStart && newEnd <= eventEnd) ||
+        (newStart <= eventStart && newEnd >= eventEnd)
+      );
+    });
+
+    if (hasOverlap) {
+      toast({
+        title: "Çakışma",
+        description: "Bu zaman diliminde başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     onEventUpdate({
       ...item.event,
       start: newStart,
@@ -150,13 +203,13 @@ export default function DayView({
       )}
       <div className="space-y-2">
         {hours.map((hour) => {
-          const [{ isOver }, drop] = useDrop(() => ({
+          const [{ isOver }, drop] = useDrop({
             accept: 'LESSON',
             drop: (item: { event: CalendarEvent }) => handleDrop(hour, 0, item),
             collect: (monitor) => ({
               isOver: monitor.isOver(),
             }),
-          }));
+          });
 
           return (
             <div key={hour} className="grid grid-cols-12 gap-2">
