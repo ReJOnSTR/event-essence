@@ -24,10 +24,14 @@ export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
         const endMinutes = new Date(event.end).getMinutes();
         
         return (
-          <div key={event.id} className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500">
-            <div className="w-0.5 h-full bg-gray-300 mr-1" style={{
-              height: `${(endMinutes / 60) * 100}%`
-            }} />
+          <div 
+            key={event.id} 
+            className="absolute left-0 h-3 flex items-center text-[10px] text-gray-500"
+            style={{
+              top: `${(endMinutes / 60) * 60}px`
+            }}
+          >
+            <div className="w-0.5 h-full bg-gray-300 mr-1" />
             {format(event.end, "HH:mm", { locale: tr })}
           </div>
         );
