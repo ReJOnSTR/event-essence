@@ -97,7 +97,7 @@ export default function MonthView({
                 key={idx}
                 onClick={() => handleDateClick(day.date)}
                 className={cn(
-                  "min-h-[40px] p-1 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
+                  "min-h-[40px] p-1 bg-white cursor-pointer transition-all duration-150 ease-in-out hover:bg-gray-50",
                   !day.isCurrentMonth && "bg-gray-50 text-gray-400",
                   isToday(day.date) && "bg-blue-50",
                   holiday && !allowWorkOnHolidays && "bg-red-50",
@@ -120,7 +120,7 @@ export default function MonthView({
     );
   }
 
-  // Aylık görünüm için mevcut animasyonlu versiyonu kullanalım
+  // Aylık görünüm için animasyonlu versiyonu kullanalım
   return (
     <motion.div 
       className="w-full mx-auto"
@@ -135,7 +135,7 @@ export default function MonthView({
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ 
-              duration: 0.25,
+              duration: 0.15,
               delay: index * 0.02,
               ease: [0.23, 1, 0.32, 1]
             }}
@@ -152,23 +152,26 @@ export default function MonthView({
               key={idx}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ 
+                scale: 1.02,
+                backgroundColor: "rgb(249, 250, 251)",
+                transition: { 
+                  duration: 0.2,
+                  ease: "easeOut"
+                }
+              }}
               transition={{ 
-                duration: 0.25,
+                duration: 0.15,
                 delay: idx * 0.01,
                 ease: [0.23, 1, 0.32, 1]
               }}
-              whileHover={{ 
-                scale: 1.02,
-                transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] }
-              }}
               onClick={() => handleDateClick(day.date)}
               className={cn(
-                "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
+                "min-h-[120px] p-2 bg-white cursor-pointer transition-colors",
                 !day.isCurrentMonth && "bg-gray-50 text-gray-400",
                 isToday(day.date) && "bg-blue-50",
                 holiday && !allowWorkOnHolidays && "bg-red-50",
-                holiday && allowWorkOnHolidays && "bg-yellow-50",
-                isYearView && "min-h-[40px]"
+                holiday && allowWorkOnHolidays && "bg-yellow-50"
               )}
             >
               <div className={cn(
