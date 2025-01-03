@@ -8,6 +8,7 @@ import { getWorkingHours } from "@/utils/workingHours";
 import { getDefaultLessonDuration } from "@/utils/settings";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
+import { TimeIndicator } from "./TimeIndicator";
 
 interface DayViewProps {
   date: Date;
@@ -83,45 +84,6 @@ export default function DayView({
     onDateSelect(eventDate);
   };
 
-  const getTimeIndicator = (hour: number, events: CalendarEvent[]) => {
-    const hourEvents = events.filter(event => {
-      const eventHour = new Date(event.start).getHours();
-      const eventEndHour = new Date(event.end).getHours();
-      const eventEndMinutes = new Date(event.end).getMinutes();
-      return eventHour === hour && (eventEndHour > hour || (eventEndHour === hour && eventEndMinutes > 0));
-    });
-
-    if (hourEvents.length === 0) return null;
-
-    return hourEvents.map(event => {
-      const startMinutes = new Date(event.start).getMinutes();
-      const endHour = new Date(event.end).getHours();
-      const endMinutes = new Date(event.end).getMinutes();
-      
-      // Eğer ders aynı saat dilimi içinde bitiyorsa
-      if (endHour === hour) {
-        return (
-          <div key={event.id} className="absolute left-0 h-4 flex items-center text-xs text-gray-500">
-            <div className="w-1 h-full bg-gray-300 mr-1" style={{
-              height: `${(endMinutes / 60) * 100}%`
-            }} />
-            {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
-          </div>
-        );
-      }
-      
-      // Eğer ders sonraki saate taşıyorsa
-      return (
-        <div key={event.id} className="absolute left-0 h-4 flex items-center text-xs text-gray-500">
-          <div className="w-1 h-full bg-gray-300 mr-1" style={{
-            height: "100%"
-          }} />
-          {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
-        </div>
-      );
-    });
-  };
-
   return (
     <motion.div 
       className="w-full"
@@ -161,7 +123,7 @@ export default function DayView({
           >
             <div className="col-span-1 text-right text-sm text-gray-500 relative">
               {`${hour.toString().padStart(2, '0')}:00`}
-              {getTimeIndicator(hour, dayEvents)}
+              <TimeIndicator events={dayEvents} hour={hour} />
             </div>
             <div 
               className={cn(

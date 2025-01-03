@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion } from "framer-motion";
+import { TimeIndicator } from "./TimeIndicator";
 
 interface WeekViewProps {
   date: Date;
@@ -37,7 +38,7 @@ export default function WeekView({
     .map(day => parseInt(day.start.split(':')[0])));
   const endHour = Math.max(...Object.values(workingHours)
     .filter(day => day.enabled)
-    .map(day => parseInt(day.end.split(':')[0])));
+    .map(day => parseInt(day.end.split(':')[0})));
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
@@ -79,45 +80,6 @@ export default function WeekView({
     const eventDate = new Date(day);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
-  };
-
-  const getTimeIndicator = (hour: number, dayEvents: CalendarEvent[]) => {
-    const hourEvents = dayEvents.filter(event => {
-      const eventHour = new Date(event.start).getHours();
-      const eventEndHour = new Date(event.end).getHours();
-      const eventEndMinutes = new Date(event.end).getMinutes();
-      return eventHour === hour && (eventEndHour > hour || (eventEndHour === hour && eventEndMinutes > 0));
-    });
-
-    if (hourEvents.length === 0) return null;
-
-    return hourEvents.map(event => {
-      const startMinutes = new Date(event.start).getMinutes();
-      const endHour = new Date(event.end).getHours();
-      const endMinutes = new Date(event.end).getMinutes();
-      
-      // Eğer ders aynı saat dilimi içinde bitiyorsa
-      if (endHour === hour) {
-        return (
-          <div key={event.id} className="absolute left-0 h-4 flex items-center text-xs text-gray-500">
-            <div className="w-1 h-full bg-gray-300 mr-1" style={{
-              height: `${(endMinutes / 60) * 100}%`
-            }} />
-            {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
-          </div>
-        );
-      }
-      
-      // Eğer ders sonraki saate taşıyorsa
-      return (
-        <div key={event.id} className="absolute left-0 h-4 flex items-center text-xs text-gray-500">
-          <div className="w-1 h-full bg-gray-300 mr-1" style={{
-            height: "100%"
-          }} />
-          {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
-        </div>
-      );
-    });
   };
 
   return (
@@ -165,9 +127,12 @@ export default function WeekView({
           <React.Fragment key={`hour-${hour}`}>
             <div className="bg-white p-2 text-right text-sm text-gray-500 relative">
               {`${hour.toString().padStart(2, '0')}:00`}
-              {getTimeIndicator(hour, events.filter(event => 
-                format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-              ))}
+              <TimeIndicator 
+                events={events.filter(event => 
+                  format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+                )} 
+                hour={hour} 
+              />
             </div>
             {weekDays.map((day) => {
               const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -175,9 +140,6 @@ export default function WeekView({
               const isDayEnabled = daySettings?.enabled;
               const holiday = isHoliday(day);
               const isWorkDisabled = (holiday && !allowWorkOnHolidays) || !isDayEnabled;
-              const isHourInRange = isDayEnabled && 
-                hour >= parseInt(daySettings.start.split(':')[0]) && 
-                hour < parseInt(daySettings.end.split(':')[0]);
 
               return (
                 <div
@@ -185,7 +147,7 @@ export default function WeekView({
                   className={cn(
                     "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
                     isToday(day) && "bg-blue-50",
-                    (isWorkDisabled || !isHourInRange) && "bg-gray-100 cursor-not-allowed"
+                    (isWorkDisabled) && "bg-gray-100 cursor-not-allowed"
                   )}
                   onClick={() => handleCellClick(day, hour)}
                 >
