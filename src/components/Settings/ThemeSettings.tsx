@@ -22,6 +22,13 @@ const themes: Theme[] = [
     description: "Klasik açık tema"
   },
   {
+    id: "dark",
+    name: "Koyu Tema",
+    class: "dark",
+    preview: "bg-[#1a1b1e]",
+    description: "Google Takvim benzeri koyu tema"
+  },
+  {
     id: "sunset",
     name: "Gün Batımı",
     class: "sunset",
