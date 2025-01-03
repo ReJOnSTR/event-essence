@@ -135,7 +135,7 @@ export default function MonthView({
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ 
-              duration: 0.15,
+              duration: 0.25,
               delay: index * 0.02,
               ease: [0.23, 1, 0.32, 1]
             }}
@@ -150,18 +150,11 @@ export default function MonthView({
           return (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ 
-                scale: 1.005,
-                transition: { 
-                  duration: 0.15,
-                  ease: "easeOut"
-                }
-              }}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ 
-                duration: 0.15,
-                delay: idx * 0.01,
+                duration: 0.25,
+                delay: idx * 0.02,
                 ease: [0.23, 1, 0.32, 1]
               }}
               onClick={() => handleDateClick(day.date)}
