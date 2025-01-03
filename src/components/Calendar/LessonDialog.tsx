@@ -75,12 +75,12 @@ export default function LessonDialog({
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    if (value.length <= 500) {
+    if (value.length <= 100) {
       setDescription(value);
     } else {
       toast({
         title: "Karakter Sınırı",
-        description: "Açıklama en fazla 500 karakter olabilir.",
+        description: "Açıklama en fazla 100 karakter olabilir.",
         variant: "destructive",
       });
     }
@@ -216,7 +216,7 @@ export default function LessonDialog({
                 maxLength={500}
               />
               <div className="text-xs text-muted-foreground">
-                {description.length}/500 karakter
+                {description.length}/100 karakter
               </div>
             </motion.div>
             

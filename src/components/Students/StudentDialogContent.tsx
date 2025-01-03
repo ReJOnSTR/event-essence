@@ -58,12 +58,12 @@ export default function StudentDialogContent({
   const debouncedNameChange = useMemo(
     () =>
       debounce((value: string) => {
-        if (value.length <= 50) {
+        if (value.length <= 25) {
           setStudentName(value);
         } else {
           toast({
             title: "Karakter Sınırı",
-            description: "İsim en fazla 50 karakter olabilir.",
+            description: "İsim en fazla 25 karakter olabilir.",
             variant: "destructive",
           });
         }
@@ -72,7 +72,7 @@ export default function StudentDialogContent({
   );
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.slice(0, 50);
+    const value = e.target.value.slice(0, 25);
     setLocalName(value);
     debouncedNameChange(value);
   };
@@ -98,11 +98,11 @@ export default function StudentDialogContent({
           value={localName}
           onChange={handleNameChange}
           placeholder="Öğrenci adı"
-          maxLength={50}
+          maxLength={25}
           required
         />
         <div className="text-xs text-muted-foreground">
-          {localName.length}/50 karakter
+          {localName.length}/25 karakter
         </div>
       </div>
       <div className="space-y-2">
