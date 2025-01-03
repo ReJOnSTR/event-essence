@@ -2,6 +2,7 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
+import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -14,11 +15,11 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
   const student = students?.find(s => s.id === event.studentId);
 
   const content = (provided?: any, snapshot?: any) => (
-    <div
+    <motion.div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
-      className={`text-white text-sm p-1.5 rounded mb-1 cursor-pointer hover:brightness-90 transition-all ${
+      className={`text-white text-sm p-1.5 rounded mb-1 cursor-pointer transition-all duration-200 ease-out hover:brightness-90 ${
         snapshot?.isDragging ? "shadow-lg scale-105 z-50" : ""
       }`}
       style={{ 
@@ -26,6 +27,15 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
         ...(provided?.draggableProps?.style || {})
       }}
       onClick={() => onClick?.(event)}
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -5 }}
+      whileHover={{ scale: 1.02 }}
+      whileDrag={{ 
+        scale: 1.05,
+        transition: { duration: 0.1 }
+      }}
+      layout
     >
       <div className="flex flex-col gap-0.5">
         <div className="font-medium truncate">
@@ -39,7 +49,7 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
           <span>{format(new Date(event.end), "HH:mm", { locale: tr })}</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 
   return (
