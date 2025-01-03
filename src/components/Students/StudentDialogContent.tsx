@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Trash2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import debounce from "lodash/debounce";
 
 interface StudentDialogContentProps {
@@ -49,6 +49,11 @@ export default function StudentDialogContent({
   onDelete,
 }: StudentDialogContentProps) {
   const { toast } = useToast();
+  const [localName, setLocalName] = useState(studentName);
+
+  useEffect(() => {
+    setLocalName(studentName);
+  }, [studentName]);
 
   const debouncedNameChange = useMemo(
     () =>
@@ -62,13 +67,13 @@ export default function StudentDialogContent({
             variant: "destructive",
           });
         }
-      }, 100),
+      }, 300),
     [setStudentName, toast]
   );
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    e.target.value = value.slice(0, 50); // Immediately update input value
+    const value = e.target.value.slice(0, 50);
+    setLocalName(value);
     debouncedNameChange(value);
   };
 
@@ -90,14 +95,14 @@ export default function StudentDialogContent({
       <div className="space-y-2">
         <Label>İsim</Label>
         <Input
-          value={studentName}
+          value={localName}
           onChange={handleNameChange}
           placeholder="Öğrenci adı"
           maxLength={50}
           required
         />
         <div className="text-xs text-muted-foreground">
-          {studentName.length}/50 karakter
+          {localName.length}/50 karakter
         </div>
       </div>
       <div className="space-y-2">
