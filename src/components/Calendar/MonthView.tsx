@@ -134,7 +134,7 @@ export default function MonthView({
     if (newStart < workStart || newEnd > workEnd) {
       toast({
         title: "Çalışma saatleri dışında",
-        description: `Ders saati (${format(newStart, 'HH:mm')} - ${format(newEnd, 'HH:mm')}) çalışma saatleri (${format(workStart, 'HH:mm')} - ${format(workEnd, 'HH:mm')}) dışındadır.`,
+        description: "Seçilen saat çalışma saatleri dışındadır.",
         variant: "destructive"
       });
       return;
@@ -146,10 +146,9 @@ export default function MonthView({
       end: newEnd
     });
 
-    const student = students?.find(s => s.id === event.studentId);
     toast({
-      title: `${student?.name || 'Ders'} taşındı`,
-      description: `${format(targetDay, 'd MMMM', { locale: tr })} tarihine, ${format(newStart, 'HH:mm')} - ${format(newEnd, 'HH:mm')} saatlerine taşındı.`,
+      title: "Ders taşındı",
+      description: "Ders başarıyla yeni güne taşındı.",
     });
   };
 
@@ -205,9 +204,8 @@ export default function MonthView({
         initial={{ opacity: 0, y: 2 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
-        style={{ position: 'relative' }}
       >
-        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-visible">
+        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
           {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, index) => (
             <motion.div
               key={day}
@@ -241,14 +239,13 @@ export default function MonthView({
                     }}
                     onClick={() => handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] p-2 bg-white cursor-pointer transition-colors duration-150 overflow-visible",
+                      "min-h-[120px] p-2 bg-white cursor-pointer transition-colors duration-150",
                       !day.isCurrentMonth && "bg-gray-50 text-gray-400",
                       isToday(day.date) && "bg-blue-50",
                       holiday && !allowWorkOnHolidays && "bg-red-50",
                       holiday && allowWorkOnHolidays && "bg-yellow-50",
                       snapshot.isDraggingOver && "bg-blue-50"
                     )}
-                    style={{ position: 'relative' }}
                   >
                     <div className={cn(
                       "text-sm font-medium mb-1",
