@@ -73,6 +73,19 @@ export default function LessonDialog({
     }
   }, [isOpen, selectedDate, event]);
 
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= 500) {
+      setDescription(value);
+    } else {
+      toast({
+        title: "Karakter Sınırı",
+        description: "Açıklama en fazla 500 karakter olabilir.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const checkLessonOverlap = (start: Date, end: Date) => {
     return events.some(existingEvent => {
       if (event && existingEvent.id === event.id) return false;
@@ -198,9 +211,13 @@ export default function LessonDialog({
               <label className="text-sm font-medium">Açıklama</label>
               <Textarea
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={handleDescriptionChange}
                 placeholder="Ders açıklaması"
+                maxLength={500}
               />
+              <div className="text-xs text-muted-foreground">
+                {description.length}/500 karakter
+              </div>
             </motion.div>
             
             <motion.div

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Trash2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/use-toast";
 
 interface StudentDialogContentProps {
   student?: Student;
@@ -46,25 +46,58 @@ export default function StudentDialogContent({
   setStudentColor,
   onDelete,
 }: StudentDialogContentProps) {
+  const { toast } = useToast();
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length <= 50) {
+      setStudentName(value);
+    } else {
+      toast({
+        title: "Karakter Sınırı",
+        description: "İsim en fazla 50 karakter olabilir.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    if (value >= 0 && value <= 999999.99) {
+      setStudentPrice(value);
+    } else {
+      toast({
+        title: "Geçersiz Ücret",
+        description: "Ücret 0 ile 999,999.99₺ arasında olmalıdır.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>İsim</Label>
         <Input
           value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
+          onChange={handleNameChange}
           placeholder="Öğrenci adı"
+          maxLength={50}
           required
         />
+        <div className="text-xs text-muted-foreground">
+          {studentName.length}/50 karakter
+        </div>
       </div>
       <div className="space-y-2">
         <Label>Ders Ücreti (₺)</Label>
         <Input
           type="number"
           value={studentPrice}
-          onChange={(e) => setStudentPrice(Number(e.target.value))}
+          onChange={handlePriceChange}
           placeholder="0"
           min="0"
+          max="999999.99"
           step="0.01"
           required
         />
