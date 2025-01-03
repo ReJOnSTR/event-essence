@@ -9,7 +9,7 @@ import SideMenu from "@/components/Layout/SideMenu";
 import { ReportFilters } from "@/components/Reports/ReportFilters";
 import { StatsCards } from "@/components/Reports/StatsCards";
 import { LessonList } from "@/components/Reports/LessonList";
-import { calculatePeriodHours } from "@/utils/reportCalculations";
+import { calculatePeriodHours, calculatePeriodEarnings } from "@/utils/reportCalculations";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
