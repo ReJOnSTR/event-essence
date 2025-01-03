@@ -4,23 +4,32 @@ import SharedSideMenu from "@/components/Layout/SharedSideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { Student } from "@/types/calendar";
 import { useStudents } from "@/hooks/useStudents";
-import StatsCards from "@/components/Reports/StatsCards";
-import ReportFilters from "@/components/Reports/ReportFilters";
-import LessonList from "@/components/Reports/LessonList";
+import { StatsCards } from "@/components/Reports/StatsCards";
+import { ReportFilters } from "@/components/Reports/ReportFilters";
+import { LessonList } from "@/components/Reports/LessonList";
 
 export default function ReportsPage() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const [studentName, setStudentName] = useState("");
+  const [studentPrice, setStudentPrice] = useState(0);
+  const [studentColor, setStudentColor] = useState("#000000");
   const { students } = useStudents();
 
   const handleEditStudent = (student: Student) => {
     setSelectedStudent(student);
+    setStudentName(student.name);
+    setStudentPrice(student.price);
+    setStudentColor(student.color || "#000000");
     setIsStudentDialogOpen(true);
   };
 
   const handleCloseStudentDialog = () => {
     setIsStudentDialogOpen(false);
     setSelectedStudent(undefined);
+    setStudentName("");
+    setStudentPrice(0);
+    setStudentColor("#000000");
   };
 
   return (
@@ -53,6 +62,12 @@ export default function ReportsPage() {
           onClose={handleCloseStudentDialog}
           student={selectedStudent}
           onSave={() => {}}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
         />
       </div>
     </SidebarProvider>
