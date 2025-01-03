@@ -31,8 +31,12 @@ export function PdfReport({
   const { toast } = useToast();
 
   const generatePDF = () => {
+    // Initialize jsPDF with Turkish font support
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
+    doc.addFont("https://fonts.cdnfonts.com/css/dejavu-sans", "DejaVu Sans", "normal");
+    doc.setFont("DejaVu Sans");
+    
+    const pageWidth = doc.internal.pageSize.width;
 
     // Header
     doc.setFontSize(20);
@@ -74,6 +78,7 @@ export function PdfReport({
       body: tableData,
       startY: 70,
       styles: {
+        font: "DejaVu Sans",
         fontSize: 10,
         cellPadding: 5,
         valign: 'middle',
@@ -89,15 +94,14 @@ export function PdfReport({
       }
     });
 
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    doc.setFontSize(10);
-    for (let i = 1; i <= pageCount; i++) {
+    // Footer with page numbers
+    const totalPages = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       doc.text(
-        `Sayfa ${i} / ${pageCount}`,
+        `Sayfa ${i} / ${totalPages}`,
         pageWidth / 2,
-        doc.internal.pageSize.getHeight() - 10,
+        doc.internal.pageSize.height - 10,
         { align: "center" }
       );
     }
@@ -115,10 +119,10 @@ export function PdfReport({
   return (
     <Button
       onClick={generatePDF}
-      className="w-full sm:w-auto"
-      variant="outline"
+      className="fixed bottom-4 right-4 z-50 shadow-lg"
+      size="lg"
     >
-      <FileDown className="w-4 h-4 mr-2" />
+      <FileDown className="w-5 h-5 mr-2" />
       PDF İndir
     </Button>
   );
