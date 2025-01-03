@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { HexColorPicker } from "react-colorful";
 
 interface StudentDialogContentProps {
   student?: Student;
@@ -64,12 +63,12 @@ export default function StudentDialogContent({
       </div>
       <div className="space-y-2">
         <Label>Renk</Label>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-5 gap-2">
           {THEME_COLORS.map((color) => (
             <button
               key={color}
               className={cn(
-                "w-full aspect-square rounded-md border-2 transition-all hover:scale-105",
+                "w-full h-8 rounded-md border-2 transition-all",
                 studentColor === color ? "border-primary ring-2 ring-primary ring-offset-2" : "border-muted"
               )}
               style={{ backgroundColor: color }}
@@ -77,54 +76,34 @@ export default function StudentDialogContent({
               type="button"
             />
           ))}
-        </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full mt-2 h-10",
-                !THEME_COLORS.includes(studentColor) && "ring-2 ring-primary ring-offset-2"
-              )}
-            >
-              <div className="flex items-center gap-2 w-full">
-                <div 
-                  className="w-6 h-6 rounded-md border border-muted"
-                  style={{ backgroundColor: studentColor }}
-                />
-                <span>Özel Renk Seç</span>
-              </div>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-64">
-            <div className="space-y-4">
-              <Label>Özel Renk Seç</Label>
-              <HexColorPicker 
-                color={studentColor} 
-                onChange={setStudentColor}
-                style={{ width: '100%', height: '160px' }}
-              />
-              <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full h-8",
+                  !THEME_COLORS.includes(studentColor) && "ring-2 ring-primary ring-offset-2"
+                )}
+                style={{ 
+                  backgroundColor: !THEME_COLORS.includes(studentColor) ? studentColor : undefined 
+                }}
+              >
+                <div className="w-full h-1 rounded-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64">
+              <div className="space-y-2">
+                <Label>Özel Renk Seç</Label>
                 <Input
-                  type="text"
-                  value={studentColor.toUpperCase()}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                      setStudentColor(value);
-                    }
-                  }}
-                  className="font-mono uppercase"
-                  maxLength={7}
-                />
-                <div 
-                  className="w-10 h-10 rounded-md border-2 border-muted"
-                  style={{ backgroundColor: studentColor }}
+                  type="color"
+                  value={studentColor}
+                  onChange={(e) => setStudentColor(e.target.value)}
+                  className="h-32 w-full"
                 />
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
       {student && onDelete && (
         <div className="absolute bottom-6 left-6">
