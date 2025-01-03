@@ -39,7 +39,7 @@ export default function CalendarPage() {
   }, [lessons]);
 
   const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
+    setSelectedDate(date); // Sadece seçilen tarihi güncelle, görünüm tarihini değiştirme
     setSelectedLesson(undefined);
     setIsDialogOpen(true);
   };

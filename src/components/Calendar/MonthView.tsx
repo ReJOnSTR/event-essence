@@ -61,7 +61,7 @@ export default function MonthView({
     const workingHours = getWorkingHours();
     const daySettings = workingHours[days[dayOfWeek]];
     
-    // Tıklanan tarihi olduğu gibi kullan, ay değiştirme
+    // Tıklanan tarihi olduğu gibi kullan, görünümü değiştirmeden
     const newDate = new Date(clickedDate);
     
     if (daySettings.enabled && daySettings.start) {
