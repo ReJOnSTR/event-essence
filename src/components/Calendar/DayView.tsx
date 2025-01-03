@@ -1,5 +1,5 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday } from "date-fns";
+import { format, isToday, setHours, setMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { getDefaultLessonDuration } from "@/utils/settings";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 
 interface DayViewProps {
   date: Date;
@@ -39,7 +40,6 @@ export default function DayView({
     format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
   );
 
-  // Parse working hours
   const startHour = daySettings?.enabled ? 
     parseInt(daySettings.start.split(':')[0]) : 
     9;
@@ -84,69 +84,115 @@ export default function DayView({
     onDateSelect(eventDate);
   };
 
-  return (
-    <motion.div 
-      className="w-full"
-      initial={{ opacity: 0, y: 2 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-    >
-      <AnimatePresence>
-        {holiday && (
-          <motion.div 
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-            className={cn(
-              "mb-4 p-2 rounded-md border",
-              !allowWorkOnHolidays ? "bg-red-50 text-red-700 border-red-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"
-            )}
-          >
-            {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
-          </motion.div>
-        )}
-      </AnimatePresence>
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination || !onEventUpdate) return;
 
-      <div className="space-y-2">
-        {hours.map((hour, index) => (
-          <motion.div 
-            key={hour}
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ 
-              duration: 0.25,
-              delay: index * 0.02,
-              ease: [0.23, 1, 0.32, 1]
-            }}
-            className="grid grid-cols-12 gap-2"
-          >
-            <div className="col-span-1 text-right text-sm text-gray-500 relative">
-              {`${hour.toString().padStart(2, '0')}:00`}
-              <TimeIndicator events={dayEvents} hour={hour} />
-            </div>
-            <div 
+    const event = events.find(e => e.id === result.draggableId);
+    if (!event) return;
+
+    const [hourStr, minuteStr] = result.destination.droppableId.split(':');
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
+
+    if (hour < startHour || hour >= endHour) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const duration = differenceInMinutes(event.end, event.start);
+    const newStart = setMinutes(setHours(date, hour), minute);
+    const newEnd = new Date(newStart.getTime() + duration * 60000);
+
+    onEventUpdate({
+      ...event,
+      start: newStart,
+      end: newEnd
+    });
+
+    toast({
+      title: "Ders taşındı",
+      description: "Ders başarıyla yeni saate taşındı.",
+    });
+  };
+
+  return (
+    <DragDropContext onDragEnd={onDragEnd}>
+      <motion.div 
+        className="w-full"
+        initial={{ opacity: 0, y: 2 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+      >
+        <AnimatePresence>
+          {holiday && (
+            <motion.div 
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
               className={cn(
-                "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer hover:bg-gray-50 relative",
-                (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
-                "bg-gray-100 cursor-not-allowed"
+                "mb-4 p-2 rounded-md border",
+                !allowWorkOnHolidays ? "bg-red-50 text-red-700 border-red-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"
               )}
-              onClick={() => handleHourClick(hour, 0)}
             >
-              {dayEvents
-                .filter(event => new Date(event.start).getHours() === hour)
-                .map(event => (
-                  <LessonCard 
-                    key={event.id} 
-                    event={event} 
-                    onClick={onEventClick}
-                    students={students}
-                  />
-                ))}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
+              {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="space-y-2">
+          {hours.map((hour, index) => (
+            <motion.div 
+              key={hour}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.25,
+                delay: index * 0.02,
+                ease: [0.23, 1, 0.32, 1]
+              }}
+              className="grid grid-cols-12 gap-2"
+            >
+              <div className="col-span-1 text-right text-sm text-gray-500 relative">
+                {`${hour.toString().padStart(2, '0')}:00`}
+                <TimeIndicator events={dayEvents} hour={hour} />
+              </div>
+              <Droppable droppableId={`${hour}:0`}>
+                {(provided, snapshot) => (
+                  <div 
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={cn(
+                      "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer relative",
+                      snapshot.isDraggingOver && "bg-blue-50",
+                      (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
+                      "bg-gray-100 cursor-not-allowed"
+                    )}
+                    onClick={() => handleHourClick(hour, 0)}
+                  >
+                    {dayEvents
+                      .filter(event => new Date(event.start).getHours() === hour)
+                      .map((event, index) => (
+                        <LessonCard 
+                          key={event.id} 
+                          event={event} 
+                          onClick={onEventClick}
+                          students={students}
+                          index={index}
+                        />
+                      ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </DragDropContext>
   );
 }

@@ -168,12 +168,20 @@ export default function CalendarPage() {
     setStudentColor("#1a73e8");
   };
 
+  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+    const updatedLessons = lessons.map(lesson =>
+      lesson.id === updatedEvent.id ? updatedEvent : lesson
+    );
+    setLessons(updatedLessons);
+  };
+
   const renderView = () => {
     const viewProps = {
       date: selectedDate,
       events: lessons,
       onDateSelect: handleDateSelect,
       onEventClick: handleLessonClick,
+      onEventUpdate: handleEventUpdate,
       students: students,
     };
 
