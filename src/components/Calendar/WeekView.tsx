@@ -38,7 +38,7 @@ export default function WeekView({
     .map(day => parseInt(day.start.split(':')[0])));
   const endHour = Math.max(...Object.values(workingHours)
     .filter(day => day.enabled)
-    .map(day => parseInt(day.end.split(':')[0})));
+    .map(day => parseInt(day.end.split(':')[0])));
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
