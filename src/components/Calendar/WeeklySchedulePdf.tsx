@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Share } from "lucide-react";
+import { Share, Download } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
@@ -13,6 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useState } from "react";
 
 interface WeeklySchedulePdfProps {
   lessons: Lesson[];
@@ -21,9 +27,19 @@ interface WeeklySchedulePdfProps {
 
 export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps) {
   const { toast } = useToast();
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
 
-  const generatePDF = (studentId: string) => {
-    const student = students.find(s => s.id === studentId);
+  const generatePDF = () => {
+    if (!selectedStudentId) {
+      toast({
+        title: "Hata",
+        description: "Lutfen bir ogrenci secin",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const student = students.find(s => s.id === selectedStudentId);
     if (!student) return;
 
     // Initialize jsPDF
@@ -52,7 +68,7 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     // Filter lessons for the current week and student
     const weeklyLessons = lessons.filter(lesson => {
       const lessonDate = new Date(lesson.start);
-      return lesson.studentId === studentId &&
+      return lesson.studentId === selectedStudentId &&
              lessonDate >= weekStart &&
              lessonDate <= weekEnd;
     });
@@ -139,25 +155,43 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
       title: "PDF olusturuldu",
       description: `${fileName} basariyla indirildi.`,
     });
+
+    // Reset selection after download
+    setSelectedStudentId("");
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Select onValueChange={generatePDF}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Öğrenci seçin" />
-        </SelectTrigger>
-        <SelectContent>
-          {students.map((student) => (
-            <SelectItem key={student.id} value={student.id}>
-              {student.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Button variant="outline" size="icon">
-        <Share className="h-4 w-4" />
-      </Button>
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Share className="h-4 w-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80">
+        <div className="space-y-4">
+          <h4 className="font-medium leading-none mb-3">Haftalik Program Paylas</h4>
+          <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Öğrenci seçin" />
+            </SelectTrigger>
+            <SelectContent>
+              {students.map((student) => (
+                <SelectItem key={student.id} value={student.id}>
+                  {student.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button 
+            className="w-full" 
+            onClick={generatePDF}
+            disabled={!selectedStudentId}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            PDF Indir
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
