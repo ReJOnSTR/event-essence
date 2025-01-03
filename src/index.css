@@ -27,15 +27,15 @@
   }
 
   .dark {
-    --background: 224 71% 2%;
+    --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 224 71% 4%;
+    --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-    --popover: 224 71% 4%;
+    --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 12%;
+    --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
@@ -45,7 +45,51 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9;
+    --ring: 212.7 26.8% 83.9%;
+  }
+
+  .nature {
+    --background: 84 56% 94%;
+    --foreground: 142 76% 10%;
+    --card: 84 56% 96%;
+    --card-foreground: 142 76% 10%;
+    --popover: 84 56% 96%;
+    --popover-foreground: 142 76% 10%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 84 56% 90%;
+    --secondary-foreground: 142 76% 10%;
+    --muted: 84 56% 90%;
+    --muted-foreground: 142 76% 25%;
+    --accent: 84 56% 90%;
+    --accent-foreground: 142 76% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 84 56% 85%;
+    --input: 84 56% 85%;
+    --ring: 142 76% 36%;
+  }
+
+  .ocean {
+    --background: 201 96% 96%;
+    --foreground: 201 96% 12%;
+    --card: 201 96% 98%;
+    --card-foreground: 201 96% 12%;
+    --popover: 201 96% 98%;
+    --popover-foreground: 201 96% 12%;
+    --primary: 201 96% 32%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 201 96% 90%;
+    --secondary-foreground: 201 96% 12%;
+    --muted: 201 96% 90%;
+    --muted-foreground: 201 96% 25%;
+    --accent: 201 96% 90%;
+    --accent-foreground: 201 96% 12%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 201 96% 85%;
+    --input: 201 96% 85%;
+    --ring: 201 96% 32%;
   }
 
   .sunset {
