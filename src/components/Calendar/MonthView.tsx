@@ -61,17 +61,19 @@ export default function MonthView({
     const workingHours = getWorkingHours();
     const daySettings = workingHours[days[dayOfWeek]];
     
-    // Create a new date that keeps the clicked date but uses the current month's year and month
-    const dateWithCurrentMonth = new Date(clickedDate);
+    // Create a new date with the clicked day but keep the current month's year and month
+    const newDate = new Date(clickedDate);
+    newDate.setFullYear(date.getFullYear());
+    newDate.setMonth(date.getMonth());
     
     if (daySettings.enabled && daySettings.start) {
       const [hours, minutes] = daySettings.start.split(':').map(Number);
-      dateWithCurrentMonth.setHours(hours, minutes, 0);
-      onDateSelect(dateWithCurrentMonth);
+      newDate.setHours(hours, minutes, 0);
+      onDateSelect(newDate);
     } else {
       // If the day is not enabled in working hours, use 9 AM as default
-      dateWithCurrentMonth.setHours(9, 0, 0);
-      onDateSelect(dateWithCurrentMonth);
+      newDate.setHours(9, 0, 0);
+      onDateSelect(newDate);
     }
   };
 
