@@ -50,11 +50,7 @@ export default function MonthView({
     }));
   };
 
-  const handleDateClick = (clickedDate: Date, isCurrentMonth: boolean) => {
-    if (!isCurrentMonth) {
-      return; // Prevent month change when clicking on days from adjacent months
-    }
-
+  const handleDateClick = (clickedDate: Date) => {
     const holiday = isHoliday(clickedDate);
     if (holiday && !allowWorkOnHolidays) {
       return;
@@ -96,7 +92,7 @@ export default function MonthView({
           return (
             <div
               key={idx}
-              onClick={() => handleDateClick(day.date, day.isCurrentMonth)}
+              onClick={() => handleDateClick(day.date)}
               className={cn(
                 "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
                 !day.isCurrentMonth && "bg-gray-50 text-gray-400",

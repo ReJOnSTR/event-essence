@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Student } from "@/types/calendar";
+import { Student, Lesson } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
-import SharedSideMenu from "@/components/Layout/SharedSideMenu";
+import SideMenu from "@/components/Layout/SideMenu";
 import { ReportFilters } from "@/components/Reports/ReportFilters";
 import { StatsCards } from "@/components/Reports/StatsCards";
 import { LessonList } from "@/components/Reports/LessonList";
@@ -93,7 +93,7 @@ export default function Reports() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SharedSideMenu
+            <SideMenu
               onEdit={handleOpenDialog}
               onAddStudent={() => handleOpenDialog()}
             />

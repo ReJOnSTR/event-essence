@@ -1,4 +1,4 @@
-import { Plus, Settings, Calendar, Users, FileBarChart } from "lucide-react";
+import { Plus, FileBarChart, Settings, Calendar, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -8,31 +8,23 @@ import {
   SidebarGroup, 
   SidebarGroupLabel,
   SidebarGroupContent,
-  SidebarFooter,
-  SidebarMenuAction
+  SidebarFooter
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useStudents } from "@/hooks/useStudents";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
 
-interface SharedSideMenuProps {
+interface SideMenuProps {
   onAddStudent?: () => void;
   onEdit?: (student: Student) => void;
 }
 
-export default function SharedSideMenu({ 
+export default function SideMenu({ 
   onAddStudent,
   onEdit,
-}: SharedSideMenuProps) {
-  const { students, deleteStudent } = useStudents();
+}: SideMenuProps) {
+  const { students } = useStudents();
   const location = useLocation();
 
   const isActive = (path: string) => {
@@ -83,6 +75,7 @@ export default function SharedSideMenu({
               {students.map((student) => (
                 <SidebarMenuItem key={student.id}>
                   <SidebarMenuButton 
+                    onClick={() => onEdit?.(student)}
                     className="w-full hover:bg-accent rounded-md transition-colors group"
                   >
                     <div
@@ -92,28 +85,6 @@ export default function SharedSideMenu({
                     <span className="truncate group-hover:text-accent-foreground">
                       {student.name}
                     </span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="h-8 w-8 p-0 ml-auto"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onEdit?.(student)}>
-                          Düzenle
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-red-600"
-                          onClick={() => deleteStudent(student.id)}
-                        >
-                          Sil
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

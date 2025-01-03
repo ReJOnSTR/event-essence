@@ -37,16 +37,11 @@ export default function CalendarPageHeader({
     }
   };
 
-  const handleViewChange = (view: string) => {
-    localStorage.setItem('calendarView', view);
-    onViewChange(view);
-  };
-
   return (
     <div className="p-4 border-b bg-white sticky top-0 z-10">
       <ViewSelector
         currentView={currentView}
-        onViewChange={handleViewChange}
+        onViewChange={onViewChange}
       />
       
       <div className="flex justify-between items-center mt-4">

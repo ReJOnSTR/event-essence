@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
-import SharedSideMenu from "@/components/Layout/SharedSideMenu";
+import SideMenu from "@/components/Layout/SideMenu";
 import StudentCard from "@/components/Students/StudentCard";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft } from "lucide-react";
@@ -79,7 +79,7 @@ export default function StudentsManagementPage() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SharedSideMenu
+            <SideMenu
               onEdit={handleOpenDialog}
               onAddStudent={() => handleOpenDialog()}
             />
