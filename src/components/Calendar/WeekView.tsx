@@ -84,25 +84,24 @@ export default function WeekView({
   return (
     <motion.div 
       className="w-full overflow-x-auto"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.15 }}
+      initial={{ opacity: 0, y: 2 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
     >
       <div className="grid grid-cols-8 gap-px bg-gray-200">
-        <motion.div 
-          className="bg-white w-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.1 }}
-        />
+        <div className="bg-white w-16" />
         {weekDays.map((day, index) => {
           const holiday = isHoliday(day);
           return (
             <motion.div
               key={day.toString()}
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.15, delay: index * 0.03 }}
+              transition={{ 
+                duration: 0.25,
+                delay: index * 0.02,
+                ease: [0.23, 1, 0.32, 1]
+              }}
               className={cn(
                 "bg-white p-2 text-center",
                 isToday(day) && "text-calendar-blue"

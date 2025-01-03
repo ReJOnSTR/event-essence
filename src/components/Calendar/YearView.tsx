@@ -20,18 +20,22 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
     <div className="w-full">
       <motion.div 
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.15 }}
+        initial={{ opacity: 0, y: 2 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ 
+          duration: 0.25,
+          ease: [0.23, 1, 0.32, 1]
+        }}
       >
         {months.map((month, index) => (
           <motion.div
             key={month.toString()}
-            initial={{ opacity: 0, y: 5 }}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ 
-              duration: 0.15,
-              delay: Math.floor(index / 4) * 0.05 // Stagger by rows instead of individual months
+              duration: 0.3,
+              delay: Math.floor(index / 4) * 0.04,
+              ease: [0.23, 1, 0.32, 1]
             }}
             className="bg-white rounded-lg shadow-sm overflow-hidden"
           >

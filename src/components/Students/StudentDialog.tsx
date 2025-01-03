@@ -26,18 +26,28 @@ interface StudentDialogProps {
 }
 
 const dialogVariants = {
-  hidden: { opacity: 0, scale: 0.95, y: 5 },
+  hidden: { 
+    opacity: 0,
+    scale: 0.98,
+    y: 4
+  },
   visible: { 
     opacity: 1, 
     scale: 1, 
     y: 0,
-    transition: { duration: 0.15, ease: "easeOut" }
+    transition: { 
+      duration: 0.25,
+      ease: [0.23, 1, 0.32, 1]
+    }
   },
   exit: { 
     opacity: 0, 
-    scale: 0.95, 
-    y: 5,
-    transition: { duration: 0.1, ease: "easeIn" }
+    scale: 0.98,
+    y: 4,
+    transition: { 
+      duration: 0.2,
+      ease: [0.23, 1, 0.32, 1]
+    }
   }
 };
 

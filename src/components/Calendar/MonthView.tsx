@@ -79,17 +79,21 @@ export default function MonthView({
   return (
     <motion.div 
       className={cn("w-full mx-auto", isYearView && "h-full")}
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2 }}
+      initial={{ opacity: 0, y: 2 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
     >
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
         {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, index) => (
           <motion.div
             key={day}
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: index * 0.03 }}
+            transition={{ 
+              duration: 0.25,
+              delay: index * 0.02,
+              ease: [0.23, 1, 0.32, 1]
+            }}
             className="bg-gray-50 p-2 text-sm font-medium text-calendar-gray text-center"
           >
             {day}
@@ -101,10 +105,17 @@ export default function MonthView({
           return (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.15, delay: idx * 0.01 }}
-              whileHover={{ scale: 1.01, transition: { duration: 0.1 } }}
+              transition={{ 
+                duration: 0.25,
+                delay: idx * 0.01,
+                ease: [0.23, 1, 0.32, 1]
+              }}
+              whileHover={{ 
+                scale: 1.02,
+                transition: { duration: 0.2, ease: [0.23, 1, 0.32, 1] }
+              }}
               onClick={() => handleDateClick(day.date)}
               className={cn(
                 "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
