@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type ViewType = 'day' | 'week' | 'month' | 'year';
+export type ViewType = 'day' | 'week' | 'month' | 'year';
 
 interface CalendarState {
   currentView: ViewType;
@@ -11,5 +11,3 @@ export const useCalendarStore = create<CalendarState>((set) => ({
   currentView: 'month',
   setCurrentView: (view) => set({ currentView: view }),
 }));
-
-export type { ViewType };

@@ -17,7 +17,7 @@ import SideMenu from "@/components/Layout/SideMenu";
 import { Lesson, Student } from "@/types/calendar";
 
 export default function CalendarPage() {
-  const [lessons, setLessons] = useState(() => {
+  const [lessons, setLessons] = useState<Lesson[]>(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
   });
@@ -25,8 +25,8 @@ export default function CalendarPage() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const { currentView, setCurrentView } = useCalendarStore();
-  const [selectedLesson, setSelectedLesson] = useState();
-  const [selectedStudent, setSelectedStudent] = useState();
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
+  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#1a73e8");
@@ -109,7 +109,7 @@ export default function CalendarPage() {
     });
   };
 
-  const handleEditStudent = (student) => {
+  const handleEditStudent = (student: Student) => {
     setSelectedStudent(student);
     setStudentName(student.name);
     setStudentPrice(student.price);
@@ -118,7 +118,7 @@ export default function CalendarPage() {
   };
 
   const handleSaveStudent = () => {
-    const studentData = {
+    const studentData: Student = {
       id: selectedStudent?.id || crypto.randomUUID(),
       name: studentName,
       price: studentPrice,
@@ -173,7 +173,6 @@ export default function CalendarPage() {
       events: lessons,
       onDateSelect: handleDateSelect,
       onEventClick: handleLessonClick,
-      onEventUpdate: handleLessonUpdate,
       students: students,
     };
 
