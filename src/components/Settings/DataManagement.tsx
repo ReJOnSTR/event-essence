@@ -1,8 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Download, Upload } from "lucide-react";
+import { Download, Upload, Trash2 } from "lucide-react";
 import { downloadProjectData, uploadProjectData } from "@/utils/dataManagement";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function DataManagement() {
   const { toast } = useToast();
@@ -37,6 +48,19 @@ export default function DataManagement() {
     });
   };
 
+  const handleDelete = () => {
+    // Clear local storage
+    localStorage.clear();
+    
+    toast({
+      title: "Veriler silindi",
+      description: "Tüm veriler başarıyla silindi.",
+    });
+
+    // Reload the page to reset the app state
+    window.location.reload();
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -58,6 +82,28 @@ export default function DataManagement() {
             <Upload className="h-4 w-4 mr-2" />
             Tüm Verileri Yükle
           </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Tüm Verileri Sil
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Tüm verileri silmek istediğinizden emin misiniz?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>
+                  Evet, Sil
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <input
             type="file"
             id="import-project-file"
