@@ -1,5 +1,5 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday, setHours, setMinutes } from "date-fns";
+import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import { cn } from "@/lib/utils";

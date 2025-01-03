@@ -150,12 +150,13 @@ export default function WeekView({
                         format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
                         new Date(event.start).getHours() === hour
                     )
-                    .map(event => (
+                    .map((event, index) => (
                       <LessonCard 
                         key={event.id} 
                         event={event} 
                         onClick={onEventClick}
                         students={students}
+                        index={index}
                       />
                     ))}
                 </div>
