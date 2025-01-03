@@ -22,23 +22,23 @@ export default {
         // Google Calendar renkleri
         "calendar-blue": {
           DEFAULT: "#1a73e8",
-          dark: "#60a5fa"
+          dark: "#8ab4f8"
         },
         "calendar-hover": {
           DEFAULT: "#1557b0",
-          dark: "#3b82f6"
+          dark: "#6b9cf6"
         },
         "calendar-gray": {
           DEFAULT: "#70757a",
-          dark: "#9ca3af"
+          dark: "#e8eaed"
         },
         "calendar-border": {
           DEFAULT: "#dadce0",
-          dark: "#374151"
+          dark: "#3c4043"
         },
         "calendar-event": {
           DEFAULT: "#039be5",
-          dark: "#38bdf8"
+          dark: "#8ab4f8"
         },
         // Diğer renkler
         border: "hsl(var(--border))",
