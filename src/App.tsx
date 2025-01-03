@@ -14,8 +14,8 @@ const queryClient = new QueryClient();
 const pageVariants = {
   initial: {
     opacity: 0,
-    x: -20,
-    scale: 0.98
+    x: -10,
+    scale: 0.99
   },
   animate: {
     opacity: 1,
@@ -24,15 +24,15 @@ const pageVariants = {
   },
   exit: {
     opacity: 0,
-    x: 20,
-    scale: 0.98
+    x: 10,
+    scale: 0.99
   }
 };
 
 const pageTransition = {
   type: "tween",
-  ease: "anticipate",
-  duration: 0.3
+  ease: "easeOut",
+  duration: 0.2
 };
 
 const AnimatedRoutes = () => {

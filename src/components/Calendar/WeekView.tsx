@@ -84,9 +84,9 @@ export default function WeekView({
   return (
     <motion.div 
       className="w-full overflow-x-auto"
-      initial={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2 }}
     >
       <div className="grid grid-cols-8 gap-px bg-gray-200">
         <motion.div 
