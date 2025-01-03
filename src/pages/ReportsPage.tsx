@@ -10,14 +10,25 @@ import { LessonList } from "@/components/Reports/LessonList";
 
 export default function ReportsPage() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const [selectedStudent, setSelectedStudent] = useState<string>("all");
+  const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly">("weekly");
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [studentName, setStudentName] = useState("");
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#000000");
+  const [editingStudent, setEditingStudent] = useState<Student | undefined>();
   const { students } = useStudents();
 
+  // Mock lessons data - replace with actual data source
+  const lessons = [];
+  const hours = {
+    weekly: 0,
+    monthly: 0,
+    yearly: 0
+  };
+
   const handleEditStudent = (student: Student) => {
-    setSelectedStudent(student);
+    setEditingStudent(student);
     setStudentName(student.name);
     setStudentPrice(student.price);
     setStudentColor(student.color || "#000000");
@@ -26,7 +37,7 @@ export default function ReportsPage() {
 
   const handleCloseStudentDialog = () => {
     setIsStudentDialogOpen(false);
-    setSelectedStudent(undefined);
+    setEditingStudent(undefined);
     setStudentName("");
     setStudentPrice(0);
     setStudentColor("#000000");
@@ -50,18 +61,35 @@ export default function ReportsPage() {
             <h1 className="text-2xl font-semibold text-gray-900">Raporlar</h1>
           </div>
 
-          <div className="flex-1 overflow-auto p-4">
-            <ReportFilters />
-            <StatsCards />
-            <LessonList />
+          <div className="flex-1 overflow-auto p-4 space-y-6">
+            <ReportFilters
+              selectedStudent={selectedStudent}
+              setSelectedStudent={setSelectedStudent}
+              selectedPeriod={selectedPeriod}
+              setSelectedPeriod={setSelectedPeriod}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              students={students}
+            />
+            <StatsCards
+              hours={hours}
+              selectedDate={selectedDate}
+            />
+            <LessonList
+              lessons={lessons}
+              students={students}
+              selectedStudent={selectedStudent}
+              selectedPeriod={selectedPeriod}
+              selectedDate={selectedDate}
+            />
           </div>
         </div>
 
         <StudentDialog
           isOpen={isStudentDialogOpen}
           onClose={handleCloseStudentDialog}
-          student={selectedStudent}
           onSave={() => {}}
+          student={editingStudent}
           studentName={studentName}
           setStudentName={setStudentName}
           studentPrice={studentPrice}

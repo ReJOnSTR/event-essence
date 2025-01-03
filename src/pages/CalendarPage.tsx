@@ -7,7 +7,7 @@ import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import SharedSideMenu from "@/components/Layout/SharedSideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
-import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
+import { CalendarPageHeader } from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -211,8 +211,7 @@ export default function CalendarPage() {
           </div>
 
           <CalendarPageHeader
-            date={selectedDate}
-            currentView={currentView}
+            currentDate={selectedDate}
             onViewChange={(view) => setCurrentView(view as ViewType)}
             onPrevious={handleNavigationClick('prev')}
             onNext={handleNavigationClick('next')}
