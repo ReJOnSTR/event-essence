@@ -22,27 +22,6 @@ const themes: Theme[] = [
     description: "Klasik açık tema"
   },
   {
-    id: "dark",
-    name: "Koyu Tema",
-    class: "dark",
-    preview: "bg-[#1A1F2C]",
-    description: "Göz yormayan koyu tema"
-  },
-  {
-    id: "nature",
-    name: "Doğa",
-    class: "nature",
-    preview: "bg-gradient-to-r from-[#F2FCE2] to-[#E5DEFF]",
-    description: "Doğal ve huzur verici yeşil tonları"
-  },
-  {
-    id: "ocean",
-    name: "Okyanus",
-    class: "ocean",
-    preview: "bg-gradient-to-r from-[#accbee] to-[#e7f0fd]",
-    description: "Ferahlatıcı mavi tonları"
-  },
-  {
     id: "sunset",
     name: "Gün Batımı",
     class: "sunset",
