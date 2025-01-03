@@ -1,157 +1,67 @@
-import { useState, useEffect } from "react";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings as SettingsIcon, Bell, User, Shield, Palette, Languages, Calendar } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-} from "@/components/ui/sidebar";
+import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Settings as SettingsIcon, Clock, Palette, Calendar, Upload } from "lucide-react";
 import GeneralSettings from "@/components/Settings/GeneralSettings";
 import WorkingHoursSettings from "@/components/Settings/WorkingHoursSettings";
-import HolidaySettings from "@/components/Settings/HolidaySettings";
 import ThemeSettings from "@/components/Settings/ThemeSettings";
+import DataManagement from "@/components/Settings/DataManagement";
+import { Link } from "react-router-dom";
 
-const menuItems = [
-  {
-    title: "Genel",
-    icon: SettingsIcon,
-    id: "general"
-  },
-  {
-    title: "Çalışma Saatleri",
-    icon: Calendar,
-    id: "working-hours"
-  },
-  {
-    title: "Bildirimler",
-    icon: Bell,
-    id: "notifications"
-  },
-  {
-    title: "Profil",
-    icon: User,
-    id: "profile"
-  },
-  {
-    title: "Güvenlik",
-    icon: Shield,
-    id: "security"
-  },
-  {
-    title: "Görünüm",
-    icon: Palette,
-    id: "appearance"
-  },
-  {
-    title: "Dil",
-    icon: Languages,
-    id: "language"
-  }
-];
-
-export default function Settings() {
-  const [selectedSection, setSelectedSection] = useState(() => {
-    return localStorage.getItem('settingsSection') || "general";
-  });
-  const location = useLocation();
-
-  useEffect(() => {
-    localStorage.setItem('settingsSection', selectedSection);
-  }, [selectedSection]);
-
-  const renderContent = () => {
-    switch (selectedSection) {
-      case "general":
-        return (
-          <div className="space-y-6">
-            <GeneralSettings />
-          </div>
-        );
-      case "working-hours":
-        return (
-          <div className="space-y-6">
-            <WorkingHoursSettings />
-            <HolidaySettings />
-          </div>
-        );
-      case "appearance":
-        return (
-          <div className="space-y-6">
-            <ThemeSettings />
-          </div>
-        );
-      case "notifications":
-        return (
-          <div className="text-gray-600">Bildirim ayarları içeriği buraya eklenecek.</div>
-        );
-      case "profile":
-        return (
-          <div className="text-gray-600">Profil ayarları içeriği buraya eklenecek.</div>
-        );
-      case "security":
-        return (
-          <div className="text-gray-600">Güvenlik ayarları içeriği buraya eklenecek.</div>
-        );
-      case "language":
-        return (
-          <div className="text-gray-600">Dil ayarları içeriği buraya eklenecek.</div>
-        );
-      default:
-        return null;
-    }
-  };
+export default function SettingsPage() {
+  const [activeTab, setActiveTab] = useState("general");
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full bg-gray-50 font-sans">
-        <Sidebar>
-          <SidebarContent className="p-4">
-            <SidebarGroup>
-              <SidebarGroupLabel>Ayarlar</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {menuItems.map((item) => (
-                    <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton
-                        onClick={() => setSelectedSection(item.id)}
-                        isActive={selectedSection === item.id}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
-        
-        <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          <div className="flex items-center gap-4 p-4 border-b bg-white">
-            <SidebarTrigger />
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Takvime Dön</span>
-            </Link>
-            <h1 className="text-2xl font-semibold text-gray-900">Ayarlar</h1>
-          </div>
-          
-          <div className="flex-1 overflow-auto p-4">
-            <div className="max-w-4xl mx-auto">
-              {renderContent()}
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="flex items-center gap-4 p-4 border-b bg-white">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <SettingsIcon className="h-5 w-5" />
+          <span className="font-semibold">Ayarlar</span>
+        </Link>
       </div>
-    </SidebarProvider>
+
+      <div className="container py-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-white border h-12 w-full justify-start gap-2 p-1">
+            <TabsTrigger value="general" className="gap-2 data-[state=active]:bg-gray-100">
+              <SettingsIcon className="h-4 w-4" />
+              <span>Genel</span>
+            </TabsTrigger>
+            <TabsTrigger value="working-hours" className="gap-2 data-[state=active]:bg-gray-100">
+              <Clock className="h-4 w-4" />
+              <span>Çalışma Saatleri</span>
+            </TabsTrigger>
+            <TabsTrigger value="appearance" className="gap-2 data-[state=active]:bg-gray-100">
+              <Palette className="h-4 w-4" />
+              <span>Görünüm</span>
+            </TabsTrigger>
+            <TabsTrigger value="data" className="gap-2 data-[state=active]:bg-gray-100">
+              <Upload className="h-4 w-4" />
+              <span>Veri Yönetimi</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="space-y-6">
+            <TabsContent value="general">
+              <GeneralSettings />
+            </TabsContent>
+            
+            <TabsContent value="working-hours">
+              <WorkingHoursSettings />
+            </TabsContent>
+            
+            <TabsContent value="appearance">
+              <ThemeSettings />
+            </TabsContent>
+
+            <TabsContent value="data">
+              <DataManagement />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
+    </div>
   );
 }
