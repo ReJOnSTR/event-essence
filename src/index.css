@@ -56,29 +56,11 @@
   * {
     @apply border-border;
   }
-  
-  *:focus {
-    @apply outline-none ring-2 ring-primary/20 ring-offset-2 ring-offset-background transition-shadow;
-  }
-  
-  *:focus:not(:focus-visible) {
-    @apply ring-0 ring-offset-0;
-  }
-  
-  *:focus-visible {
-    @apply ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
-  }
-  
-  *:active {
-    @apply transform scale-[0.98] transition-transform;
-  }
-  
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-family);
     font-size: var(--base-font-size);
   }
-  
   h1, h2, h3, h4, h5, h6 {
     font-size: var(--heading-font-size);
   }

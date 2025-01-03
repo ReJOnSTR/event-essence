@@ -1,15 +1,26 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Student } from "@/types/calendar";
+import { Student, Lesson } from "@/types/calendar";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import SideMenu from "@/components/Layout/SideMenu";
-import { ReportContent } from "@/components/Reports/ReportContent";
+import { ReportFilters } from "@/components/Reports/ReportFilters";
+import { StatsCards } from "@/components/Reports/StatsCards";
+import { LessonList } from "@/components/Reports/LessonList";
+import { calculatePeriodHours, calculatePeriodEarnings } from "@/utils/reportCalculations";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
+import { PdfReport } from "@/components/Reports/PdfReport";
 
 export default function Reports() {
+  const [selectedStudent, setSelectedStudent] = useState<string>("all");
+  const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly" | "custom">("weekly");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
@@ -73,6 +84,14 @@ export default function Reports() {
     }
   };
 
+  const lessons = (() => {
+    const savedLessons = localStorage.getItem('lessons');
+    return savedLessons ? JSON.parse(savedLessons) : [];
+  })();
+
+  const hours = calculatePeriodHours(lessons, selectedDate, selectedStudent, startDate, endDate);
+  const earnings = calculatePeriodEarnings(lessons, selectedDate, selectedStudent, students, startDate, endDate);
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
@@ -90,7 +109,7 @@ export default function Reports() {
             <SidebarTrigger />
             <Link 
               to="/" 
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
               <span>Takvime Dön</span>
@@ -98,7 +117,68 @@ export default function Reports() {
             <h1 className="text-2xl font-semibold text-gray-900">Raporlar</h1>
           </div>
 
-          <ReportContent />
+          <div className="flex-1 overflow-auto p-4">
+            <div className="space-y-4">
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle>Filtreler</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ReportFilters
+                    selectedStudent={selectedStudent}
+                    setSelectedStudent={setSelectedStudent}
+                    selectedPeriod={selectedPeriod}
+                    setSelectedPeriod={setSelectedPeriod}
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                    students={students}
+                  />
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-between items-center gap-4 flex-wrap">
+                <StatsCards 
+                  hours={hours} 
+                  earnings={earnings}
+                  selectedDate={selectedDate}
+                  startDate={startDate}
+                  endDate={endDate}
+                  selectedPeriod={selectedPeriod}
+                />
+                <PdfReport
+                  lessons={lessons}
+                  students={students}
+                  selectedStudent={selectedStudent}
+                  selectedPeriod={selectedPeriod}
+                  totalHours={hours[selectedPeriod as keyof typeof hours] || 0}
+                  totalEarnings={earnings[selectedPeriod as keyof typeof earnings] || 0}
+                  startDate={startDate}
+                  endDate={endDate}
+                />
+              </div>
+
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle>Ders Listesi</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <LessonList
+                    lessons={lessons}
+                    students={students}
+                    selectedStudent={selectedStudent}
+                    selectedPeriod={selectedPeriod}
+                    selectedDate={selectedDate}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
 
         <StudentDialog
