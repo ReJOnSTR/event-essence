@@ -17,34 +17,21 @@ export const getTurkishHolidays = (year: number): Holiday[] => {
   ];
 };
 
-export const isHoliday = (inputDate: Date | string): Holiday | undefined => {
-  // Ensure we're working with a Date object
-  const date = inputDate instanceof Date ? inputDate : new Date(inputDate);
-  
-  // Validate the date
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
-    console.error('Invalid date provided to isHoliday:', inputDate);
-    return undefined;
-  }
-
+export const isHoliday = (date: Date): Holiday | undefined => {
   // Check custom holidays from settings
-  try {
-    const customHolidays = JSON.parse(localStorage.getItem('holidays') || '[]');
-    const customHoliday = customHolidays.find((holiday: { date: string }) => 
-      new Date(holiday.date).toDateString() === date.toDateString()
-    );
-    
-    if (customHoliday) {
-      return { name: "Özel Tatil", date: new Date(customHoliday.date) };
-    }
-  } catch (error) {
-    console.error('Error parsing custom holidays:', error);
+  const customHolidays = JSON.parse(localStorage.getItem('holidays') || '[]');
+  const customHoliday = customHolidays.find((holiday: { date: string }) => 
+    new Date(holiday.date).toDateString() === date.toDateString()
+  );
+  
+  if (customHoliday) {
+    return { name: "Özel Tatil", date: new Date(customHoliday.date) };
   }
 
   // Check official holidays
   const holidays = getTurkishHolidays(getYear(date));
   return holidays.find(holiday => 
-    holiday.date.getDate() === date.getDate() && 
-    holiday.date.getMonth() === date.getMonth()
+    date.getDate() === holiday.date.getDate() && 
+    date.getMonth() === holiday.date.getMonth()
   );
 };
