@@ -95,25 +95,22 @@ export const calculatePeriodEarnings = (
 
   lessons.forEach((lesson) => {
     const lessonStart = new Date(lesson.start);
-    const lessonEnd = new Date(lesson.end);
-    const duration = (lessonEnd.getTime() - lessonStart.getTime()) / (1000 * 60 * 60);
-
+    
     if (selectedStudent === "all" || lesson.studentId === selectedStudent) {
       const student = students.find(s => s.id === lesson.studentId);
       const price = student?.price || 0;
-      const earnings = duration * price;
 
       if (isWithinInterval(lessonStart, { start: weekStart, end: weekEnd })) {
-        weeklyEarnings += earnings;
+        weeklyEarnings += price;
       }
       if (isWithinInterval(lessonStart, { start: monthStart, end: monthEnd })) {
-        monthlyEarnings += earnings;
+        monthlyEarnings += price;
       }
       if (isWithinInterval(lessonStart, { start: yearStart, end: yearEnd })) {
-        yearlyEarnings += earnings;
+        yearlyEarnings += price;
       }
       if (startDate && endDate && isWithinInterval(lessonStart, { start: startDate, end: endDate })) {
-        customEarnings += earnings;
+        customEarnings += price;
       }
     }
   });
