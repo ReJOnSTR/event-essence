@@ -3,7 +3,6 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, addDays, startOfWeek, isToday, setHours, setMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
-import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
@@ -104,8 +103,12 @@ export default function WeekView({
       return;
     }
 
+    // Ensure event.start and event.end are Date objects
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+    
     const newStart = setMinutes(setHours(targetDay, hour), 0);
-    const duration = (event.end.getTime() - event.start.getTime()) / (1000 * 60);
+    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
 
     onEventUpdate({
@@ -191,13 +194,17 @@ export default function WeekView({
                         {events
                           .filter(
                             event =>
-                              format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
+                              format(new Date(event.start), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
                               new Date(event.start).getHours() === hour
                           )
                           .map((event, index) => (
                             <LessonCard 
                               key={event.id} 
-                              event={event} 
+                              event={{
+                                ...event,
+                                start: new Date(event.start),
+                                end: new Date(event.end)
+                              }}
                               onClick={onEventClick}
                               students={students}
                               index={index}
