@@ -18,7 +18,7 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 
 export default function CalendarPage() {
-  const [lessons, setLessons] = useState<Lesson[]>(() => {
+  const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
   });
@@ -26,7 +26,7 @@ export default function CalendarPage() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const { currentView, setCurrentView } = useCalendarStore();
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
+  const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
   const [studentPrice, setStudentPrice] = useState(0);
@@ -45,7 +45,7 @@ export default function CalendarPage() {
     setIsDialogOpen(true);
   };
 
-  const handleLessonClick = (lesson: Lesson) => {
+  const handleLessonClick = (lesson: CalendarEvent) => {
     setSelectedLesson(lesson);
     setSelectedDate(lesson.start);
     setIsDialogOpen(true);
@@ -77,7 +77,7 @@ export default function CalendarPage() {
     setSelectedDate(new Date());
   };
 
-  const handleSaveLesson = (lessonData: Omit<Lesson, "id">) => {
+  const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
     if (selectedLesson) {
       const updatedLessons = lessons.map(lesson => 
         lesson.id === selectedLesson.id 
@@ -90,7 +90,7 @@ export default function CalendarPage() {
         description: "Dersiniz başarıyla güncellendi.",
       });
     } else {
-      const newLesson: Lesson = {
+      const newLesson: CalendarEvent = {
         ...lessonData,
         id: crypto.randomUUID(),
       };
