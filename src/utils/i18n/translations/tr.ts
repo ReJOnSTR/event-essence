@@ -19,6 +19,12 @@ export const tr = {
     workingHours: "Çalışma Saatleri",
     holiday: "Resmi Tatil",
     workingOnHoliday: "Çalışmaya Açık Tatil",
+    views: {
+      day: "Günlük",
+      week: "Haftalık",
+      month: "Aylık",
+      year: "Yıllık"
+    }
   },
   students: {
     title: "Öğrenciler",

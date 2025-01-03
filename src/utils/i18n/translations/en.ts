@@ -19,6 +19,12 @@ export const en = {
     workingHours: "Working Hours",
     holiday: "Holiday",
     workingOnHoliday: "Working on Holiday",
+    views: {
+      day: "Daily",
+      week: "Weekly",
+      month: "Monthly",
+      year: "Yearly"
+    }
   },
   students: {
     title: "Students",

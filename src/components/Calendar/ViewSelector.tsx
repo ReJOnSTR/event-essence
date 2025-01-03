@@ -1,5 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ViewSelectorProps {
   currentView: string;
@@ -14,6 +15,15 @@ const tabVariants = {
 };
 
 export default function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
+  const { t } = useLanguage();
+
+  const views = [
+    { value: "day", label: t.calendar.views.day },
+    { value: "week", label: t.calendar.views.week },
+    { value: "month", label: t.calendar.views.month },
+    { value: "year", label: t.calendar.views.year }
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -23,9 +33,9 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
     >
       <Tabs value={currentView} className="w-full">
         <TabsList className="grid w-full grid-cols-4 gap-2 p-1">
-          {["day", "week", "month", "year"].map((view, index) => (
+          {views.map((view, index) => (
             <motion.div
-              key={view}
+              key={view.value}
               variants={tabVariants}
               initial="initial"
               animate="animate"
@@ -35,15 +45,12 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
               className="w-full"
             >
               <TabsTrigger 
-                value={view} 
-                onClick={() => onViewChange(view)}
+                value={view.value} 
+                onClick={() => onViewChange(view.value)}
                 className="w-full relative data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                {view === "day" && "Günlük"}
-                {view === "week" && "Haftalık"}
-                {view === "month" && "Aylık"}
-                {view === "year" && "Yıllık"}
-                {currentView === view && (
+                {view.label}
+                {currentView === view.value && (
                   <motion.div
                     layoutId="activeTab"
                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"

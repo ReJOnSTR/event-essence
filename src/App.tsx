@@ -8,7 +8,7 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
-import { LanguageProvider } from "./contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +38,7 @@ const pageTransition = {
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   
   return (
     <AnimatePresence mode="wait">
