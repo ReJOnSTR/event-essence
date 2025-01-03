@@ -147,7 +147,7 @@ export default function LessonDialog({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }} // Reduced from 0.3
         >
           <DialogHeader>
             <DialogTitle>{event ? "Dersi Düzenle" : "Ders Ekle"}</DialogTitle>
@@ -159,7 +159,7 @@ export default function LessonDialog({
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ duration: 0.15 }} // Reduced from 0.2
               className="space-y-2"
             >
               <label className="text-sm font-medium">Öğrenci</label>
@@ -177,7 +177,7 @@ export default function LessonDialog({
                         key={student.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
+                        transition={{ delay: index * 0.03 }} // Reduced from 0.05
                       >
                         <SelectItem value={student.id}>
                           {student.name}
@@ -192,7 +192,7 @@ export default function LessonDialog({
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ duration: 0.15 }} // Reduced from 0.2
               className="space-y-2"
             >
               <label className="text-sm font-medium">Açıklama</label>
@@ -206,7 +206,7 @@ export default function LessonDialog({
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ duration: 0.15 }} // Reduced from 0.2
               className="grid grid-cols-2 gap-4"
             >
               <div className="space-y-2">
@@ -232,7 +232,7 @@ export default function LessonDialog({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ duration: 0.15 }} // Reduced from 0.2
               className="flex justify-between"
             >
               {event && onDelete && (
