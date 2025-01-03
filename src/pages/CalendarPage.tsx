@@ -15,6 +15,8 @@ import { useStudents } from "@/hooks/useStudents";
 import { useCalendarStore, type ViewType } from "@/store/calendarStore";
 import SideMenu from "@/components/Layout/SideMenu";
 import { Lesson, Student } from "@/types/calendar";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState<Lesson[]>(() => {
@@ -189,76 +191,78 @@ export default function CalendarPage() {
   };
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full bg-gray-50 font-sans">
-        <Sidebar>
-          <SidebarContent className="p-4">
-            <SideMenu
-              onEdit={handleEditStudent}
-              onAddStudent={() => setIsStudentDialogOpen(true)}
+    <DndProvider backend={HTML5Backend}>
+      <SidebarProvider defaultOpen={true}>
+        <div className="min-h-screen flex w-full bg-gray-50 font-sans">
+          <Sidebar>
+            <SidebarContent className="p-4">
+              <SideMenu
+                onEdit={handleEditStudent}
+                onAddStudent={() => setIsStudentDialogOpen(true)}
+              />
+            </SidebarContent>
+          </Sidebar>
+          
+          <div className="flex-1 flex flex-col h-screen overflow-hidden">
+            <div className="flex items-center gap-4 p-4 border-b bg-white">
+              <SidebarTrigger />
+              <h1 className="text-2xl font-semibold text-gray-900">Özel Ders Takip</h1>
+              <div className="ml-auto">
+                <Button onClick={() => {
+                  setSelectedLesson(undefined);
+                  setIsDialogOpen(true);
+                }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ders Ekle
+                </Button>
+              </div>
+            </div>
+
+            <CalendarPageHeader
+              date={selectedDate}
+              currentView={currentView}
+              onViewChange={(view) => setCurrentView(view as ViewType)}
+              onPrevious={handleNavigationClick('prev')}
+              onNext={handleNavigationClick('next')}
+              onToday={handleTodayClick}
             />
-          </SidebarContent>
-        </Sidebar>
-        
-        <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          <div className="flex items-center gap-4 p-4 border-b bg-white">
-            <SidebarTrigger />
-            <h1 className="text-2xl font-semibold text-gray-900">Özel Ders Takip</h1>
-            <div className="ml-auto">
-              <Button onClick={() => {
+            
+            <div className="flex-1 overflow-auto">
+              <div className="p-4">
+                {renderView()}
+              </div>
+            </div>
+            
+            <LessonDialog
+              isOpen={isDialogOpen}
+              onClose={() => {
+                setIsDialogOpen(false);
                 setSelectedLesson(undefined);
-                setIsDialogOpen(true);
-              }}>
-                <Plus className="h-4 w-4 mr-2" />
-                Ders Ekle
-              </Button>
-            </div>
-          </div>
+              }}
+              onSave={handleSaveLesson}
+              onDelete={handleDeleteLesson}
+              selectedDate={selectedDate}
+              event={selectedLesson}
+              events={lessons}
+              students={students}
+            />
 
-          <CalendarPageHeader
-            date={selectedDate}
-            currentView={currentView}
-            onViewChange={(view) => setCurrentView(view as ViewType)}
-            onPrevious={handleNavigationClick('prev')}
-            onNext={handleNavigationClick('next')}
-            onToday={handleTodayClick}
-          />
-          
-          <div className="flex-1 overflow-auto">
-            <div className="p-4">
-              {renderView()}
-            </div>
+            <StudentDialog
+              isOpen={isStudentDialogOpen}
+              onClose={handleCloseStudentDialog}
+              onSave={handleSaveStudent}
+              onDelete={handleDeleteStudent}
+              student={selectedStudent}
+              studentName={studentName}
+              setStudentName={setStudentName}
+              studentPrice={studentPrice}
+              setStudentPrice={setStudentPrice}
+              studentColor={studentColor}
+              setStudentColor={setStudentColor}
+            />
           </div>
-          
-          <LessonDialog
-            isOpen={isDialogOpen}
-            onClose={() => {
-              setIsDialogOpen(false);
-              setSelectedLesson(undefined);
-            }}
-            onSave={handleSaveLesson}
-            onDelete={handleDeleteLesson}
-            selectedDate={selectedDate}
-            event={selectedLesson}
-            events={lessons}
-            students={students}
-          />
-
-          <StudentDialog
-            isOpen={isStudentDialogOpen}
-            onClose={handleCloseStudentDialog}
-            onSave={handleSaveStudent}
-            onDelete={handleDeleteStudent}
-            student={selectedStudent}
-            studentName={studentName}
-            setStudentName={setStudentName}
-            studentPrice={studentPrice}
-            setStudentPrice={setStudentPrice}
-            studentColor={studentColor}
-            setStudentColor={setStudentColor}
-          />
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </DndProvider>
   );
 }
