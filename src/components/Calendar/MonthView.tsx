@@ -61,10 +61,8 @@ export default function MonthView({
     const workingHours = getWorkingHours();
     const daySettings = workingHours[days[dayOfWeek]];
     
-    // Create a new date with the clicked day but keep the current month's year and month
+    // Tıklanan tarihi olduğu gibi kullan, ay değiştirme
     const newDate = new Date(clickedDate);
-    newDate.setFullYear(date.getFullYear());
-    newDate.setMonth(date.getMonth());
     
     if (daySettings.enabled && daySettings.start) {
       const [hours, minutes] = daySettings.start.split(':').map(Number);
