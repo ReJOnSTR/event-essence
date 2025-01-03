@@ -87,6 +87,7 @@ export default function Reports() {
   })();
 
   const hours = calculatePeriodHours(lessons, selectedDate, selectedStudent);
+  const earnings = calculatePeriodEarnings(lessons, selectedDate, selectedStudent, students);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -132,7 +133,11 @@ export default function Reports() {
                 </CardContent>
               </Card>
 
-              <StatsCards hours={hours} selectedDate={selectedDate} />
+              <StatsCards 
+                hours={hours} 
+                earnings={earnings}
+                selectedDate={selectedDate} 
+              />
 
               <Card className="bg-white">
                 <CardHeader>

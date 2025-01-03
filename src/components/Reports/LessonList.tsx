@@ -42,14 +42,12 @@ export function LessonList({
             <TableHead>Tarih</TableHead>
             <TableHead>Saat</TableHead>
             <TableHead>Öğrenci</TableHead>
-            <TableHead>Ders</TableHead>
-            <TableHead>Süre</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredLessons.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center">
+              <TableCell colSpan={3} className="text-center">
                 Bu dönemde ders bulunamadı
               </TableCell>
             </TableRow>
@@ -57,7 +55,6 @@ export function LessonList({
             filteredLessons.map((lesson) => {
               const start = new Date(lesson.start);
               const end = new Date(lesson.end);
-              const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
 
               return (
                 <TableRow key={lesson.id}>
@@ -68,8 +65,6 @@ export function LessonList({
                     {format(start, "HH:mm")} - {format(end, "HH:mm")}
                   </TableCell>
                   <TableCell>{getStudentName(lesson.studentId)}</TableCell>
-                  <TableCell>{lesson.title}</TableCell>
-                  <TableCell>{duration} saat</TableCell>
                 </TableRow>
               );
             })
