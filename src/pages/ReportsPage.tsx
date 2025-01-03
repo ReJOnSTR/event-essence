@@ -16,8 +16,10 @@ import { useToast } from "@/components/ui/use-toast";
 
 export default function Reports() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
-  const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly">("weekly");
+  const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly" | "custom">("weekly");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
@@ -86,8 +88,8 @@ export default function Reports() {
     return savedLessons ? JSON.parse(savedLessons) : [];
   })();
 
-  const hours = calculatePeriodHours(lessons, selectedDate, selectedStudent);
-  const earnings = calculatePeriodEarnings(lessons, selectedDate, selectedStudent, students);
+  const hours = calculatePeriodHours(lessons, selectedDate, selectedStudent, startDate, endDate);
+  const earnings = calculatePeriodEarnings(lessons, selectedDate, selectedStudent, students, startDate, endDate);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -128,6 +130,10 @@ export default function Reports() {
                     setSelectedPeriod={setSelectedPeriod}
                     selectedDate={selectedDate}
                     setSelectedDate={setSelectedDate}
+                    startDate={startDate}
+                    setStartDate={setStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
                     students={students}
                   />
                 </CardContent>
@@ -136,7 +142,10 @@ export default function Reports() {
               <StatsCards 
                 hours={hours} 
                 earnings={earnings}
-                selectedDate={selectedDate} 
+                selectedDate={selectedDate}
+                startDate={startDate}
+                endDate={endDate}
+                selectedPeriod={selectedPeriod}
               />
 
               <Card className="bg-white">
@@ -150,6 +159,8 @@ export default function Reports() {
                     selectedStudent={selectedStudent}
                     selectedPeriod={selectedPeriod}
                     selectedDate={selectedDate}
+                    startDate={startDate}
+                    endDate={endDate}
                   />
                 </CardContent>
               </Card>

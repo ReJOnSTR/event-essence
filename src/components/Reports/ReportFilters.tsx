@@ -14,10 +14,14 @@ import { useToast } from "@/components/ui/use-toast";
 interface ReportFiltersProps {
   selectedStudent: string;
   setSelectedStudent: (value: string) => void;
-  selectedPeriod: "weekly" | "monthly" | "yearly";
-  setSelectedPeriod: (value: "weekly" | "monthly" | "yearly") => void;
+  selectedPeriod: "weekly" | "monthly" | "yearly" | "custom";
+  setSelectedPeriod: (value: "weekly" | "monthly" | "yearly" | "custom") => void;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
+  startDate: Date | undefined;
+  setStartDate: (date: Date | undefined) => void;
+  endDate: Date | undefined;
+  setEndDate: (date: Date | undefined) => void;
   students: Student[];
 }
 
@@ -28,6 +32,10 @@ export function ReportFilters({
   setSelectedPeriod,
   selectedDate,
   setSelectedDate,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
   students
 }: ReportFiltersProps) {
   const { toast } = useToast();
@@ -36,6 +44,8 @@ export function ReportFilters({
     setSelectedStudent("all");
     setSelectedPeriod("weekly");
     setSelectedDate(new Date());
+    setStartDate(undefined);
+    setEndDate(undefined);
     toast({
       title: "Filtreler sıfırlandı",
       description: "Tüm filtreler varsayılan değerlere döndürüldü.",
@@ -44,7 +54,7 @@ export function ReportFilters({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Select value={selectedStudent} onValueChange={setSelectedStudent}>
           <SelectTrigger>
             <SelectValue placeholder="Öğrenci Seçin" />
@@ -61,7 +71,13 @@ export function ReportFilters({
 
         <Select 
           value={selectedPeriod} 
-          onValueChange={(value: "weekly" | "monthly" | "yearly") => setSelectedPeriod(value)}
+          onValueChange={(value: "weekly" | "monthly" | "yearly" | "custom") => {
+            setSelectedPeriod(value);
+            if (value !== "custom") {
+              setStartDate(undefined);
+              setEndDate(undefined);
+            }
+          }}
         >
           <SelectTrigger>
             <SelectValue placeholder="Periyot Seçin" />
@@ -70,13 +86,35 @@ export function ReportFilters({
             <SelectItem value="weekly">Haftalık</SelectItem>
             <SelectItem value="monthly">Aylık</SelectItem>
             <SelectItem value="yearly">Yıllık</SelectItem>
+            <SelectItem value="custom">Özel Tarih Aralığı</SelectItem>
           </SelectContent>
         </Select>
 
-        <DatePicker
-          date={selectedDate}
-          setDate={setSelectedDate}
-        />
+        {selectedPeriod === "custom" ? (
+          <>
+            <div>
+              <DatePicker
+                date={startDate}
+                setDate={setStartDate}
+                placeholder="Başlangıç Tarihi"
+              />
+            </div>
+            <div>
+              <DatePicker
+                date={endDate}
+                setDate={setEndDate}
+                placeholder="Bitiş Tarihi"
+              />
+            </div>
+          </>
+        ) : (
+          <div className="md:col-span-2">
+            <DatePicker
+              date={selectedDate}
+              setDate={setSelectedDate}
+            />
+          </div>
+        )}
       </div>
 
       <Button 

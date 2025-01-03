@@ -13,18 +13,22 @@ export interface PeriodHours {
   weekly: number;
   monthly: number;
   yearly: number;
+  custom?: number;
 }
 
 export interface PeriodEarnings {
   weekly: number;
   monthly: number;
   yearly: number;
+  custom?: number;
 }
 
 export const calculatePeriodHours = (
   lessons: Lesson[],
   selectedDate: Date,
-  selectedStudent: string
+  selectedStudent: string,
+  startDate?: Date,
+  endDate?: Date
 ): PeriodHours => {
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
@@ -38,6 +42,7 @@ export const calculatePeriodHours = (
   let weeklyHours = 0;
   let monthlyHours = 0;
   let yearlyHours = 0;
+  let customHours = 0;
 
   lessons.forEach((lesson) => {
     const lessonStart = new Date(lesson.start);
@@ -54,13 +59,17 @@ export const calculatePeriodHours = (
       if (isWithinInterval(lessonStart, { start: yearStart, end: yearEnd })) {
         yearlyHours += duration;
       }
+      if (startDate && endDate && isWithinInterval(lessonStart, { start: startDate, end: endDate })) {
+        customHours += duration;
+      }
     }
   });
 
   return {
     weekly: Math.round(weeklyHours),
     monthly: Math.round(monthlyHours),
-    yearly: Math.round(yearlyHours)
+    yearly: Math.round(yearlyHours),
+    ...(startDate && endDate ? { custom: Math.round(customHours) } : {})
   };
 };
 
@@ -68,7 +77,9 @@ export const calculatePeriodEarnings = (
   lessons: Lesson[],
   selectedDate: Date,
   selectedStudent: string,
-  students: { id: string; price: number; }[]
+  students: { id: string; price: number; }[],
+  startDate?: Date,
+  endDate?: Date
 ): PeriodEarnings => {
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
@@ -82,6 +93,7 @@ export const calculatePeriodEarnings = (
   let weeklyEarnings = 0;
   let monthlyEarnings = 0;
   let yearlyEarnings = 0;
+  let customEarnings = 0;
 
   lessons.forEach((lesson) => {
     const lessonStart = new Date(lesson.start);
@@ -102,13 +114,17 @@ export const calculatePeriodEarnings = (
       if (isWithinInterval(lessonStart, { start: yearStart, end: yearEnd })) {
         yearlyEarnings += earnings;
       }
+      if (startDate && endDate && isWithinInterval(lessonStart, { start: startDate, end: endDate })) {
+        customEarnings += earnings;
+      }
     }
   });
 
   return {
     weekly: Math.round(weeklyEarnings),
     monthly: Math.round(monthlyEarnings),
-    yearly: Math.round(yearlyEarnings)
+    yearly: Math.round(yearlyEarnings),
+    ...(startDate && endDate ? { custom: Math.round(customEarnings) } : {})
   };
 };
 
@@ -116,7 +132,9 @@ export const getFilteredLessons = (
   lessons: Lesson[],
   selectedDate: Date,
   selectedStudent: string,
-  selectedPeriod: "weekly" | "monthly" | "yearly"
+  selectedPeriod: "weekly" | "monthly" | "yearly" | "custom",
+  startDate?: Date,
+  endDate?: Date
 ): Lesson[] => {
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
@@ -142,6 +160,8 @@ export const getFilteredLessons = (
           return isWithinInterval(lessonStart, { start: monthStart, end: monthEnd });
         case "yearly":
           return isWithinInterval(lessonStart, { start: yearStart, end: yearEnd });
+        case "custom":
+          return startDate && endDate ? isWithinInterval(lessonStart, { start: startDate, end: endDate }) : false;
         default:
           return false;
       }
