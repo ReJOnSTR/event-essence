@@ -2,6 +2,7 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
+import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
@@ -87,9 +88,6 @@ export default function DayView({
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
-    const event = events.find(e => e.id === result.draggableId);
-    if (!event) return;
-
     const [hourStr, minuteStr] = result.destination.droppableId.split(':');
     const hour = parseInt(hourStr);
     const minute = parseInt(minuteStr);
@@ -102,6 +100,9 @@ export default function DayView({
       });
       return;
     }
+
+    const event = events.find(e => e.id === result.draggableId);
+    if (!event) return;
 
     const duration = differenceInMinutes(event.end, event.start);
     const newStart = setMinutes(setHours(date, hour), minute);

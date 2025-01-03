@@ -1,14 +1,15 @@
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, addDays, startOfWeek, isToday } from "date-fns";
+import { format, addDays, startOfWeek, isToday, setHours, setMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
+import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion } from "framer-motion";
-import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 
 interface WeekViewProps {
   date: Date;
@@ -103,10 +104,7 @@ export default function WeekView({
       return;
     }
 
-    const newStart = new Date(targetDay);
-    newStart.setHours(hour);
-    newStart.setMinutes(0);
-    
+    const newStart = setMinutes(setHours(targetDay, hour), 0);
     const duration = (event.end.getTime() - event.start.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
 
@@ -177,31 +175,38 @@ export default function WeekView({
                 const isWorkDisabled = (holiday && !allowWorkOnHolidays) || !isDayEnabled;
 
                 return (
-                  <div
-                    key={`${day}-${hour}`}
-                    className={cn(
-                      "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
-                      isToday(day) && "bg-blue-50",
-                      (isWorkDisabled) && "bg-gray-100 cursor-not-allowed"
+                  <Droppable droppableId={`${dayIndex}-${hour}`} key={`${day}-${hour}`}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={cn(
+                          "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
+                          isToday(day) && "bg-blue-50",
+                          isWorkDisabled && "bg-gray-100 cursor-not-allowed",
+                          snapshot.isDraggingOver && "bg-blue-50"
+                        )}
+                        onClick={() => handleCellClick(day, hour)}
+                      >
+                        {events
+                          .filter(
+                            event =>
+                              format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
+                              new Date(event.start).getHours() === hour
+                          )
+                          .map((event, index) => (
+                            <LessonCard 
+                              key={event.id} 
+                              event={event} 
+                              onClick={onEventClick}
+                              students={students}
+                              index={index}
+                            />
+                          ))}
+                        {provided.placeholder}
+                      </div>
                     )}
-                    onClick={() => handleCellClick(day, hour)}
-                  >
-                    {events
-                      .filter(
-                        event =>
-                          format(event.start, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
-                          new Date(event.start).getHours() === hour
-                      )
-                      .map((event, index) => (
-                        <LessonCard 
-                          key={event.id} 
-                          event={event} 
-                          onClick={onEventClick}
-                          students={students}
-                          index={index}
-                        />
-                      ))}
-                  </div>
+                  </Droppable>
                 );
               })}
             </React.Fragment>
