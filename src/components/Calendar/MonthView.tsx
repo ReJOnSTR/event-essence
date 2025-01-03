@@ -126,7 +126,7 @@ export default function MonthView({
       className="w-full mx-auto"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
     >
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
         {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, index) => (
@@ -135,8 +135,8 @@ export default function MonthView({
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ 
-              duration: 0.25,
-              delay: index * 0.02,
+              duration: 0.15,
+              delay: index * 0.01,
               ease: [0.23, 1, 0.32, 1]
             }}
             className="bg-gray-50 p-2 text-sm font-medium text-calendar-gray text-center"
@@ -153,8 +153,8 @@ export default function MonthView({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ 
-                duration: 0.25,
-                delay: idx * 0.02,
+                duration: 0.15,
+                delay: idx * 0.01,
                 ease: [0.23, 1, 0.32, 1]
               }}
               onClick={() => handleDateClick(day.date)}
