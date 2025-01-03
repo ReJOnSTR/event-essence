@@ -96,7 +96,7 @@ export default function MonthView({
           return (
             <div
               key={idx}
-              onClick={() => handleDateClick(day.date)}
+              onClick={() => handleDateClick(day.date, day.isCurrentMonth)}
               className={cn(
                 "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
                 !day.isCurrentMonth && "bg-gray-50 text-gray-400",
