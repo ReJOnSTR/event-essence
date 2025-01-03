@@ -26,16 +26,12 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     const student = students.find(s => s.id === studentId);
     if (!student) return;
 
-    // Initialize jsPDF with UTF-8 support
+    // Initialize jsPDF
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
       format: "a4",
     });
-
-    // Add Turkish font support
-    doc.addFont("https://raw.githubusercontent.com/wiki/nicolasdao/google-cloud-bigquery/fonts/arial-unicode-ms.ttf", "Arial Unicode MS", "normal");
-    doc.setFont("Arial Unicode MS");
 
     const pageWidth = doc.internal.pageSize.width;
     const today = new Date();
@@ -45,11 +41,11 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
 
     // Header
     doc.setFontSize(20);
-    doc.text("Haftalık Ders Programı", pageWidth / 2, 20, { align: "center" });
+    doc.text("Haftalik Ders Programi", pageWidth / 2, 20, { align: "center" });
 
     // Student Info & Date Range
     doc.setFontSize(12);
-    doc.text(`Öğrenci: ${student.name}`, 20, 35);
+    doc.text(`Ogrenci: ${student.name}`, 20, 35);
     const dateRange = `${format(weekStart, 'd MMMM yyyy', { locale: tr })} - ${format(weekEnd, 'd MMMM yyyy', { locale: tr })}`;
     doc.text(dateRange, pageWidth / 2, 45, { align: "center" });
 
@@ -61,28 +57,55 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
              lessonDate <= weekEnd;
     });
 
-    // Prepare table data
+    // Prepare table data with ASCII characters
     const tableData = weekDays.map(day => {
       const dayLessons = weeklyLessons.filter(lesson => 
         format(new Date(lesson.start), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
       );
 
+      const turkishDays: { [key: string]: string } = {
+        'Monday': 'Pazartesi',
+        'Tuesday': 'Sali',
+        'Wednesday': 'Carsamba',
+        'Thursday': 'Persembe',
+        'Friday': 'Cuma',
+        'Saturday': 'Cumartesi',
+        'Sunday': 'Pazar'
+      };
+
+      const turkishMonths: { [key: string]: string } = {
+        'January': 'Ocak',
+        'February': 'Subat',
+        'March': 'Mart',
+        'April': 'Nisan',
+        'May': 'Mayis',
+        'June': 'Haziran',
+        'July': 'Temmuz',
+        'August': 'Agustos',
+        'September': 'Eylul',
+        'October': 'Ekim',
+        'November': 'Kasim',
+        'December': 'Aralik'
+      };
+
+      const englishDay = format(day, 'EEEE');
+      const englishMonth = format(day, 'MMMM');
+      
       return [
-        format(day, 'EEEE', { locale: tr }),
-        format(day, 'd MMMM', { locale: tr }),
+        turkishDays[englishDay] || englishDay,
+        `${format(day, 'd')} ${turkishMonths[englishMonth] || englishMonth}`,
         dayLessons.map(lesson => 
           `${format(new Date(lesson.start), 'HH:mm')} - ${format(new Date(lesson.end), 'HH:mm')}`
         ).join('\n') || 'Ders Yok'
       ];
     });
 
-    // Generate table with UTF-8 support
+    // Generate table
     autoTable(doc, {
-      head: [['Gün', 'Tarih', 'Ders Saatleri']],
+      head: [['Gun', 'Tarih', 'Ders Saatleri']],
       body: tableData,
       startY: 55,
       styles: {
-        font: 'Arial Unicode MS',
         fontSize: 10,
         cellPadding: 5,
         valign: 'middle'
@@ -105,7 +128,7 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     // Footer
     doc.setFontSize(10);
     doc.setTextColor(128);
-    const footerText = `${format(new Date(), 'd MMMM yyyy HH:mm', { locale: tr })} tarihinde oluşturuldu`;
+    const footerText = `${format(new Date(), 'd MMMM yyyy HH:mm')} tarihinde olusturuldu`;
     doc.text(footerText, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
 
     // Save
@@ -113,8 +136,8 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     doc.save(fileName);
 
     toast({
-      title: "PDF oluşturuldu",
-      description: `${fileName} başarıyla indirildi.`,
+      title: "PDF olusturuldu",
+      description: `${fileName} basariyla indirildi.`,
     });
   };
 
