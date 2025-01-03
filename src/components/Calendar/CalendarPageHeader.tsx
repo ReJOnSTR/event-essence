@@ -4,7 +4,6 @@ import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import ViewSelector from "./ViewSelector";
 import { cn } from "@/lib/utils";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CalendarPageHeaderProps {
   date: Date;
@@ -23,8 +22,6 @@ export default function CalendarPageHeader({
   onNext,
   onToday
 }: CalendarPageHeaderProps) {
-  const { t } = useLanguage();
-
   const getDateFormat = () => {
     switch (currentView) {
       case 'day':
@@ -70,7 +67,7 @@ export default function CalendarPageHeader({
             className="flex gap-2 items-center"
           >
             <CalendarDays className="h-4 w-4" />
-            {t.common.today}
+            Bugün
           </Button>
           <Button 
             variant="outline" 

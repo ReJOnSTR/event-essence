@@ -1,6 +1,5 @@
 import { Student } from "@/types/calendar";
 import { Card, CardContent } from "@/components/ui/card";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StudentCardProps {
   student: Student;
@@ -8,8 +7,6 @@ interface StudentCardProps {
 }
 
 export default function StudentCard({ student, onClick }: StudentCardProps) {
-  const { t } = useLanguage();
-
   return (
     <Card 
       className="flex flex-col cursor-pointer transition-all hover:ring-2 hover:ring-primary"
@@ -26,7 +23,7 @@ export default function StudentCard({ student, onClick }: StudentCardProps) {
           <div className="flex-1">
             <h3 className="text-lg font-semibold">{student.name}</h3>
             <p className="text-sm text-gray-500">
-              {t.students.price}: {student.price} ₺
+              Ders Ücreti: {student.price} ₺
             </p>
           </div>
         </div>

@@ -1,7 +1,6 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -10,7 +9,6 @@ interface EventCardProps {
 
 export default function MonthEventCard({ event, students }: EventCardProps) {
   const student = students?.find(s => s.id === event.studentId);
-  const { t } = useLanguage();
 
   return (
     <div 
@@ -19,7 +17,7 @@ export default function MonthEventCard({ event, students }: EventCardProps) {
     >
       <div className="flex items-center gap-1">
         <span className="font-medium truncate">
-          {student?.name || t.students.unnamed}
+          {student?.name || "İsimsiz Öğrenci"}
         </span>
         <span className="text-xs whitespace-nowrap">
           {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
