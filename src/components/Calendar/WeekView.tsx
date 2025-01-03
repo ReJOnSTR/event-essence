@@ -92,7 +92,8 @@ export default function WeekView({
               className={cn(
                 "bg-white p-2 text-center",
                 isToday(day) && "text-calendar-blue",
-                holiday && !allowWorkOnHolidays && "bg-red-50"
+                holiday && !allowWorkOnHolidays && "bg-red-50",
+                holiday && allowWorkOnHolidays && "bg-yellow-50"
               )}
             >
               <div className="font-medium">
@@ -101,8 +102,13 @@ export default function WeekView({
               <div className="text-sm text-gray-500">
                 {format(day, "d MMM", { locale: tr })}
               </div>
-              {holiday && !allowWorkOnHolidays && (
-                <div className="text-xs text-red-500">{holiday.name}</div>
+              {holiday && (
+                <div className={cn(
+                  "text-xs",
+                  !allowWorkOnHolidays ? "text-red-600" : "text-yellow-700"
+                )}>
+                  {holiday.name}
+                </div>
               )}
             </div>
           );
@@ -130,6 +136,7 @@ export default function WeekView({
                     "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
                     isToday(day) && "bg-blue-50",
                     holiday && !allowWorkOnHolidays && "bg-red-50",
+                    holiday && allowWorkOnHolidays && "bg-yellow-50",
                     (isWorkDisabled || !isHourInRange) && "bg-gray-100 cursor-not-allowed"
                   )}
                   onClick={() => handleCellClick(day, hour)}
