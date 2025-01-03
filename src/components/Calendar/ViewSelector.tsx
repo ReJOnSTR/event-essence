@@ -1,38 +1,27 @@
-import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ViewSelectorProps {
-  view: string;
+  currentView: string;
   onViewChange: (view: string) => void;
 }
 
-export function ViewSelector({ view, onViewChange }: ViewSelectorProps) {
-  const [currentView, setCurrentView] = useState(view);
-
-  const handleViewChange = (newView: string) => {
-    setCurrentView(newView);
-    onViewChange(newView);
-  };
-
+export default function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
   return (
-    <div className="flex space-x-4">
-      <button
-        className={`p-2 ${currentView === "month" ? "font-bold" : ""}`}
-        onClick={() => handleViewChange("month")}
-      >
-        Month
-      </button>
-      <button
-        className={`p-2 ${currentView === "week" ? "font-bold" : ""}`}
-        onClick={() => handleViewChange("week")}
-      >
-        Week
-      </button>
-      <button
-        className={`p-2 ${currentView === "day" ? "font-bold" : ""}`}
-        onClick={() => handleViewChange("day")}
-      >
-        Day
-      </button>
-    </div>
+    <Tabs value={currentView} className="w-full">
+      <TabsList className="grid w-full grid-cols-4">
+        <TabsTrigger value="day" onClick={() => onViewChange("day")}>
+          Günlük
+        </TabsTrigger>
+        <TabsTrigger value="week" onClick={() => onViewChange("week")}>
+          Haftalık
+        </TabsTrigger>
+        <TabsTrigger value="month" onClick={() => onViewChange("month")}>
+          Aylık
+        </TabsTrigger>
+        <TabsTrigger value="year" onClick={() => onViewChange("year")}>
+          Yıllık
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 }

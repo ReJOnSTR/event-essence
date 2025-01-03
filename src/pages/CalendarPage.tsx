@@ -5,9 +5,9 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import SharedSideMenu from "@/components/Layout/SharedSideMenu";
+import SideMenu from "@/components/Layout/SideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
-import { CalendarPageHeader } from "@/components/Calendar/CalendarPageHeader";
+import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Lesson, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/sidebar";
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
 import { useStudents } from "@/hooks/useStudents";
-import { useCalendarViewStore } from "@/stores/calendarViewStore";
 
 type ViewType = "day" | "week" | "month" | "year";
 
@@ -33,7 +32,7 @@ export default function CalendarPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const { currentView, setCurrentView } = useCalendarViewStore();
+  const [currentView, setCurrentView] = useState<ViewType>("month");
   const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
@@ -188,7 +187,7 @@ export default function CalendarPage() {
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SharedSideMenu
+            <SideMenu
               onEdit={handleEditStudent}
               onAddStudent={() => setIsStudentDialogOpen(true)}
             />
@@ -211,7 +210,8 @@ export default function CalendarPage() {
           </div>
 
           <CalendarPageHeader
-            currentDate={selectedDate}
+            date={selectedDate}
+            currentView={currentView}
             onViewChange={(view) => setCurrentView(view as ViewType)}
             onPrevious={handleNavigationClick('prev')}
             onNext={handleNavigationClick('next')}
