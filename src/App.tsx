@@ -11,6 +11,30 @@ import SettingsPage from "./pages/SettingsPage";
 
 const queryClient = new QueryClient();
 
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    x: -20,
+    scale: 0.98
+  },
+  animate: {
+    opacity: 1,
+    x: 0,
+    scale: 1
+  },
+  exit: {
+    opacity: 0,
+    x: 20,
+    scale: 0.98
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.3
+};
+
 const AnimatedRoutes = () => {
   const location = useLocation();
   
@@ -18,10 +42,12 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.2 }}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={pageVariants}
+        transition={pageTransition}
+        className="w-full"
       >
         <Routes location={location}>
           <Route path="/" element={<CalendarPage />} />

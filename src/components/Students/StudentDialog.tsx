@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
 import StudentDialogContent from "./StudentDialogContent";
 
 interface StudentDialogProps {
@@ -39,37 +40,49 @@ export default function StudentDialog({
 }: StudentDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            {student ? "Öğrenci Düzenle" : "Öğrenci Ekle"}
-          </DialogTitle>
-          <DialogDescription>
-            Öğrenci bilgilerini buradan ekleyebilir veya düzenleyebilirsiniz.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <StudentDialogContent
-          student={student}
-          studentName={studentName}
-          setStudentName={setStudentName}
-          studentPrice={studentPrice}
-          setStudentPrice={setStudentPrice}
-          studentColor={studentColor}
-          setStudentColor={setStudentColor}
-          onDelete={onDelete}
-        />
+      <DialogContent className="sm:max-w-[425px] overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+        >
+          <DialogHeader>
+            <DialogTitle>
+              {student ? "Öğrenci Düzenle" : "Öğrenci Ekle"}
+            </DialogTitle>
+            <DialogDescription>
+              Öğrenci bilgilerini buradan ekleyebilir veya düzenleyebilirsiniz.
+            </DialogDescription>
+          </DialogHeader>
 
-        <DialogFooter className="flex items-center justify-end mt-6">
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>
-              İptal
-            </Button>
-            <Button onClick={onSave}>
-              {student ? "Güncelle" : "Ekle"}
-            </Button>
-          </div>
-        </DialogFooter>
+          <StudentDialogContent
+            student={student}
+            studentName={studentName}
+            setStudentName={setStudentName}
+            studentPrice={studentPrice}
+            setStudentPrice={setStudentPrice}
+            studentColor={studentColor}
+            setStudentColor={setStudentColor}
+            onDelete={onDelete}
+          />
+
+          <DialogFooter className="flex items-center justify-end mt-6">
+            <motion.div 
+              className="flex gap-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Button variant="outline" onClick={onClose}>
+                İptal
+              </Button>
+              <Button onClick={onSave}>
+                {student ? "Güncelle" : "Ekle"}
+              </Button>
+            </motion.div>
+          </DialogFooter>
+        </motion.div>
       </DialogContent>
     </Dialog>
   );

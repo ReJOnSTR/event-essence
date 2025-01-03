@@ -6,25 +6,38 @@ interface ViewSelectorProps {
   onViewChange: (view: string) => void;
 }
 
+const tabVariants = {
+  initial: { y: -10, opacity: 0 },
+  animate: { y: 0, opacity: 1 },
+  hover: { scale: 1.05 },
+  tap: { scale: 0.95 }
+};
+
 export default function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      className="w-full bg-white rounded-lg shadow-sm p-2"
     >
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          {["day", "week", "month", "year"].map((view) => (
+        <TabsList className="grid w-full grid-cols-4 gap-2 p-1">
+          {["day", "week", "month", "year"].map((view, index) => (
             <motion.div
               key={view}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              variants={tabVariants}
+              initial="initial"
+              animate="animate"
+              whileHover="hover"
+              whileTap="tap"
+              transition={{ delay: index * 0.1 }}
+              className="w-full"
             >
               <TabsTrigger 
                 value={view} 
                 onClick={() => onViewChange(view)}
-                className="relative"
+                className="w-full relative data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 {view === "day" && "Günlük"}
                 {view === "week" && "Haftalık"}
