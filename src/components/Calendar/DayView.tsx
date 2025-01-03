@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
 import { getDefaultLessonDuration } from "@/utils/settings";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface DayViewProps {
   date: Date;
@@ -83,18 +84,37 @@ export default function DayView({
   };
 
   return (
-    <div className="w-full">
-      {holiday && (
-        <div className={cn(
-          "mb-4 p-2 rounded-md border",
-          !allowWorkOnHolidays ? "bg-red-50 text-red-700 border-red-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"
-        )}>
-          {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
-        </div>
-      )}
+    <motion.div 
+      className="w-full"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <AnimatePresence>
+        {holiday && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={cn(
+              "mb-4 p-2 rounded-md border",
+              !allowWorkOnHolidays ? "bg-red-50 text-red-700 border-red-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"
+            )}
+          >
+            {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="space-y-2">
-        {hours.map((hour) => (
-          <div key={hour} className="grid grid-cols-12 gap-2">
+        {hours.map((hour, index) => (
+          <motion.div 
+            key={hour}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.03 }}
+            className="grid grid-cols-12 gap-2"
+          >
             <div className="col-span-1 text-right text-sm text-gray-500">
               {`${hour.toString().padStart(2, '0')}:00`}
             </div>
@@ -117,9 +137,9 @@ export default function DayView({
                   />
                 ))}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }

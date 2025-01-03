@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { motion } from "framer-motion";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -76,22 +77,34 @@ export default function MonthView({
   const days = getDaysInMonth(date);
 
   return (
-    <div className={cn("w-full mx-auto", isYearView && "h-full")}>
+    <motion.div 
+      className={cn("w-full mx-auto", isYearView && "h-full")}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
-        {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
-          <div
+        {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, index) => (
+          <motion.div
             key={day}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
             className="bg-gray-50 p-2 text-sm font-medium text-calendar-gray text-center"
           >
             {day}
-          </div>
+          </motion.div>
         ))}
         
         {days.map((day, idx) => {
           const holiday = isHoliday(day.date);
           return (
-            <div
+            <motion.div
               key={idx}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: idx * 0.01 }}
+              whileHover={{ scale: 1.02 }}
               onClick={() => handleDateClick(day.date)}
               className={cn(
                 "min-h-[120px] p-2 bg-white cursor-pointer hover:bg-gray-50 transition-colors",
@@ -131,10 +144,10 @@ export default function MonthView({
                   ))}
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { motion } from "framer-motion";
 
 interface WeekViewProps {
   date: Date;
@@ -36,7 +37,7 @@ export default function WeekView({
     .map(day => parseInt(day.start.split(':')[0])));
   const endHour = Math.max(...Object.values(workingHours)
     .filter(day => day.enabled)
-    .map(day => parseInt(day.end.split(':')[0])));
+    .map(day => parseInt(day.end.split(':')[0})));
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
@@ -81,14 +82,27 @@ export default function WeekView({
   };
 
   return (
-    <div className="w-full overflow-x-auto">
+    <motion.div 
+      className="w-full overflow-x-auto"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="grid grid-cols-8 gap-px bg-gray-200">
-        <div className="bg-white w-16"></div>
-        {weekDays.map((day) => {
+        <motion.div 
+          className="bg-white w-16"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        />
+        {weekDays.map((day, index) => {
           const holiday = isHoliday(day);
           return (
-            <div
+            <motion.div
               key={day.toString()}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
               className={cn(
                 "bg-white p-2 text-center",
                 isToday(day) && "text-calendar-blue"
@@ -105,11 +119,11 @@ export default function WeekView({
                   {holiday.name}
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
 
-        {hours.map((hour) => (
+        {hours.map((hour, hourIndex) => (
           <React.Fragment key={`hour-${hour}`}>
             <div className="bg-white p-2 text-right text-sm text-gray-500">
               {`${hour.toString().padStart(2, '0')}:00`}
@@ -154,6 +168,6 @@ export default function WeekView({
           </React.Fragment>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
