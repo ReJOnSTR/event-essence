@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Trash2 } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
 import { useMemo, useState, useEffect } from "react";
 import debounce from "lodash/debounce";
+import { CirclePicker } from 'react-color';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface StudentDialogContentProps {
   student?: Student;
@@ -20,22 +21,22 @@ interface StudentDialogContentProps {
 }
 
 const STUDENT_COLORS = [
-  { value: "#1a73e8", label: "Calendar Blue" },
-  { value: "#4F46E5", label: "İndigo" },
-  { value: "#039be5", label: "Event Blue" },
-  { value: "#0EA5E9", label: "Mavi" },
-  { value: "#1557b0", label: "Deep Blue" },
-  { value: "#10B981", label: "Yeşil" },
-  { value: "#70757a", label: "Calendar Gray" },
-  { value: "#F59E0B", label: "Turuncu" },
-  { value: "#3c4043", label: "Dark Gray" },
-  { value: "#EF4444", label: "Kırmızı" },
-  { value: "#185abc", label: "Royal Blue" },
-  { value: "#8B5CF6", label: "Mor" },
-  { value: "#1967d2", label: "Bright Blue" },
-  { value: "#EC4899", label: "Pembe" },
-  { value: "#4285f4", label: "Google Blue" },
-  { value: "#6B7280", label: "Gri" },
+  "#1a73e8", // Calendar Blue
+  "#4F46E5", // İndigo
+  "#039be5", // Event Blue
+  "#0EA5E9", // Mavi
+  "#1557b0", // Deep Blue
+  "#10B981", // Yeşil
+  "#70757a", // Calendar Gray
+  "#F59E0B", // Turuncu
+  "#3c4043", // Dark Gray
+  "#EF4444", // Kırmızı
+  "#185abc", // Royal Blue
+  "#8B5CF6", // Mor
+  "#1967d2", // Bright Blue
+  "#EC4899", // Pembe
+  "#4285f4", // Google Blue
+  "#6B7280", // Gri
 ];
 
 export default function StudentDialogContent({
@@ -50,6 +51,7 @@ export default function StudentDialogContent({
 }: StudentDialogContentProps) {
   const { toast } = useToast();
   const [localName, setLocalName] = useState(studentName);
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
 
   useEffect(() => {
     setLocalName(studentName);
@@ -90,6 +92,11 @@ export default function StudentDialogContent({
     }
   };
 
+  const handleColorChange = (color: any) => {
+    setStudentColor(color.hex);
+    setIsColorPickerOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -105,6 +112,7 @@ export default function StudentDialogContent({
           {localName.length}/25 karakter
         </div>
       </div>
+      
       <div className="space-y-2">
         <Label>Ders Ücreti (₺)</Label>
         <Input
@@ -118,34 +126,35 @@ export default function StudentDialogContent({
           required
         />
       </div>
+
       <div className="space-y-2">
         <Label>Renk</Label>
-        <RadioGroup
-          value={studentColor}
-          onValueChange={setStudentColor}
-          className="grid grid-cols-2 gap-2"
-        >
-          {STUDENT_COLORS.map((color) => (
-            <div key={color.value} className="flex items-center space-x-2">
-              <RadioGroupItem
-                value={color.value}
-                id={color.value}
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor={color.value}
-                className="flex items-center gap-2 rounded-md border-2 border-muted p-2 hover:bg-muted peer-data-[state=checked]:border-primary cursor-pointer w-full"
-              >
-                <div 
+        <Popover open={isColorPickerOpen} onOpenChange={setIsColorPickerOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <div
                   className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: color.value }}
+                  style={{ backgroundColor: studentColor }}
                 />
-                {color.label}
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
+                <span>Renk Seç</span>
+              </div>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-3">
+            <CirclePicker
+              colors={STUDENT_COLORS}
+              color={studentColor}
+              onChange={handleColorChange}
+              width="252px"
+            />
+          </PopoverContent>
+        </Popover>
       </div>
+
       {student && onDelete && (
         <div className="absolute bottom-6 left-6">
           <Button
