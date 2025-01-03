@@ -114,6 +114,10 @@ export default function StudentDialogContent({
             <Button
               variant="outline"
               className="w-full flex items-center justify-between"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsColorPickerOpen(true);
+              }}
             >
               <div className="flex items-center gap-2">
                 <div
@@ -124,7 +128,14 @@ export default function StudentDialogContent({
               </div>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-3 border-none shadow-lg">
+          <PopoverContent 
+            className="w-auto p-3 border-none shadow-lg" 
+            onInteractOutside={(e) => {
+              e.preventDefault();
+              setIsColorPickerOpen(false);
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <ChromePicker
               color={studentColor}
               onChange={handleColorChange}
