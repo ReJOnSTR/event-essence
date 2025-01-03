@@ -31,10 +31,12 @@ export function PdfReport({
   const { toast } = useToast();
 
   const generatePDF = () => {
-    // Initialize jsPDF with Turkish font support
-    const doc = new jsPDF();
-    doc.addFont("https://fonts.cdnfonts.com/css/dejavu-sans", "DejaVu Sans", "normal");
-    doc.setFont("DejaVu Sans");
+    // Initialize jsPDF
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
     
     const pageWidth = doc.internal.pageSize.width;
 
@@ -78,7 +80,6 @@ export function PdfReport({
       body: tableData,
       startY: 70,
       styles: {
-        font: "DejaVu Sans",
         fontSize: 10,
         cellPadding: 5,
         valign: 'middle',
@@ -95,7 +96,7 @@ export function PdfReport({
     });
 
     // Footer with page numbers
-    const totalPages = (doc as any).internal.getNumberOfPages();
+    const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       doc.text(
