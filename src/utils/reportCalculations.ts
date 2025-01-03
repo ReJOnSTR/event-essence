@@ -39,37 +39,35 @@ export const calculatePeriodHours = (
   const yearStart = startOfYear(selectedDate);
   const yearEnd = endOfYear(selectedDate);
 
-  let weeklyHours = 0;
-  let monthlyHours = 0;
-  let yearlyHours = 0;
-  let customHours = 0;
+  let weeklyCount = 0;
+  let monthlyCount = 0;
+  let yearlyCount = 0;
+  let customCount = 0;
 
   lessons.forEach((lesson) => {
     const lessonStart = new Date(lesson.start);
-    const lessonEnd = new Date(lesson.end);
-    const duration = (lessonEnd.getTime() - lessonStart.getTime()) / (1000 * 60 * 60);
 
     if (selectedStudent === "all" || lesson.studentId === selectedStudent) {
       if (isWithinInterval(lessonStart, { start: weekStart, end: weekEnd })) {
-        weeklyHours += duration;
+        weeklyCount++;
       }
       if (isWithinInterval(lessonStart, { start: monthStart, end: monthEnd })) {
-        monthlyHours += duration;
+        monthlyCount++;
       }
       if (isWithinInterval(lessonStart, { start: yearStart, end: yearEnd })) {
-        yearlyHours += duration;
+        yearlyCount++;
       }
       if (startDate && endDate && isWithinInterval(lessonStart, { start: startDate, end: endDate })) {
-        customHours += duration;
+        customCount++;
       }
     }
   });
 
   return {
-    weekly: Math.round(weeklyHours),
-    monthly: Math.round(monthlyHours),
-    yearly: Math.round(yearlyHours),
-    ...(startDate && endDate ? { custom: Math.round(customHours) } : {})
+    weekly: weeklyCount,
+    monthly: monthlyCount,
+    yearly: yearlyCount,
+    ...(startDate && endDate ? { custom: customCount } : {})
   };
 };
 
