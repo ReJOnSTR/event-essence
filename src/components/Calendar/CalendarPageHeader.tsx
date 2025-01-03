@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { format, isToday } from "date-fns";
-import { tr } from 'date-fns/locale';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import ViewSelector from "./ViewSelector";
-import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { tr } from "date-fns/locale";
+import { motion } from "framer-motion";
 
 interface CalendarPageHeaderProps {
   date: Date;
@@ -14,70 +14,106 @@ interface CalendarPageHeaderProps {
   onToday: (e: React.MouseEvent) => void;
 }
 
+const headerVariants = {
+  initial: { opacity: 0, y: -20 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut"
+    }
+  }
+};
+
+const buttonVariants = {
+  hover: { scale: 1.05 },
+  tap: { scale: 0.95 }
+};
+
 export default function CalendarPageHeader({
   date,
   currentView,
   onViewChange,
   onPrevious,
   onNext,
-  onToday
+  onToday,
 }: CalendarPageHeaderProps) {
-  const getDateFormat = () => {
+  const getHeaderText = () => {
     switch (currentView) {
-      case 'day':
-        return "d MMMM yyyy, EEEE";
-      case 'week':
-        return "MMMM yyyy";
-      case 'month':
-        return "MMMM yyyy";
-      case 'year':
-        return "yyyy";
+      case "day":
+        return format(date, "d MMMM yyyy, EEEE", { locale: tr });
+      case "week":
+        return format(date, "MMMM yyyy", { locale: tr });
+      case "month":
+        return format(date, "MMMM yyyy", { locale: tr });
+      case "year":
+        return format(date, "yyyy", { locale: tr });
       default:
-        return "MMMM yyyy";
+        return "";
     }
   };
 
   return (
-    <div className="p-4 border-b bg-white sticky top-0 z-10">
-      <ViewSelector
-        currentView={currentView}
-        onViewChange={onViewChange}
-      />
-      
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center gap-4">
-          <h1 className={cn(
-            "text-2xl font-semibold",
-            currentView === 'day' && isToday(date) ? "text-calendar-blue" : "text-gray-900"
-          )}>
-            {format(date, getDateFormat(), { locale: tr })}
-          </h1>
+    <motion.div 
+      className="flex flex-col gap-4 p-4 border-b bg-white"
+      variants={headerVariants}
+      initial="initial"
+      animate="animate"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <motion.div
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+          >
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onPrevious}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </motion.div>
+          <motion.div
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+          >
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onNext}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </motion.div>
+          <motion.div
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+          >
+            <Button
+              variant="outline"
+              onClick={onToday}
+            >
+              Bugün
+            </Button>
+          </motion.div>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={onPrevious}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={onToday}
-            className="flex gap-2 items-center"
-          >
-            <CalendarDays className="h-4 w-4" />
-            Bugün
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={onNext}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        <motion.h2 
+          className="text-lg font-semibold"
+          key={getHeaderText()}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {getHeaderText()}
+        </motion.h2>
       </div>
-    </div>
+      <ViewSelector currentView={currentView} onViewChange={onViewChange} />
+    </motion.div>
   );
 }
