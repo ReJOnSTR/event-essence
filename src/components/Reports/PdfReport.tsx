@@ -96,7 +96,9 @@ export function PdfReport({
     });
 
     // Footer with page numbers
-    const totalPages = doc.internal.getNumberOfPages();
+    const pages = (doc.internal as any).pages;
+    const totalPages = Object.keys(pages).length - 1;
+    
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       doc.text(
