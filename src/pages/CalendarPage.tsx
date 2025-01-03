@@ -15,6 +15,7 @@ import { useStudents } from "@/hooks/useStudents";
 import { useCalendarStore, type ViewType } from "@/store/calendarStore";
 import SideMenu from "@/components/Layout/SideMenu";
 import { Lesson, Student } from "@/types/calendar";
+import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState<Lesson[]>(() => {
@@ -204,7 +205,8 @@ export default function CalendarPage() {
           <div className="flex items-center gap-4 p-4 border-b bg-white">
             <SidebarTrigger />
             <h1 className="text-2xl font-semibold text-gray-900">Özel Ders Takip</h1>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              <WeeklySchedulePdf lessons={lessons} students={students} />
               <Button onClick={() => {
                 setSelectedLesson(undefined);
                 setIsDialogOpen(true);
