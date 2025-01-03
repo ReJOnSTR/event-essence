@@ -19,7 +19,7 @@ import {
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
 import { useStudents } from "@/hooks/useStudents";
 import { useCalendarStore } from "@/store/calendarStore";
-import SharedSideMenu from "@/components/Layout/SharedSideMenu";
+import { SharedSideMenu } from "@/components/Layout/SharedSideMenu";
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState<Lesson[]>(() => {
