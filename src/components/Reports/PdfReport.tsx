@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { tr } from 'date-fns/locale';
 import { Student, Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+
+// PDF make fonts tanımlaması
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 interface PdfReportProps {
   lessons: Lesson[];
@@ -31,23 +34,7 @@ export function PdfReport({
   const { toast } = useToast();
 
   const generatePDF = () => {
-    const doc = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-    
-    const pageWidth = doc.internal.pageSize.width;
-
-    // Add Arial Unicode MS font for Turkish characters
-    doc.setFont("helvetica");
-    doc.setFontSize(20);
-
-    // Header
-    doc.text("Ders Raporu", pageWidth / 2, 20, { align: "center" });
-
     // Period Info
-    doc.setFontSize(12);
     let periodText = "";
     if (startDate && endDate) {
       periodText = `${format(startDate, 'd MMMM yyyy', { locale: tr })} - ${format(endDate, 'd MMMM yyyy', { locale: tr })}`;
@@ -60,61 +47,95 @@ export function PdfReport({
       };
       periodText = `${periodMap[selectedPeriod] || selectedPeriod} Raporu`;
     }
-    doc.text(periodText, pageWidth / 2, 30, { align: "center" });
 
     // Student Info
     const studentName = selectedStudent === "all" 
       ? "Tüm Öğrenciler" 
       : students.find(s => s.id === selectedStudent)?.name || "Bilinmeyen Öğrenci";
-    doc.text(`Öğrenci: ${studentName}`, 20, 40);
 
-    // Summary
-    doc.text(`Toplam Ders Saati: ${totalHours}`, 20, 50);
-    doc.text(`Toplam Kazanç: ${totalEarnings.toLocaleString('tr-TR', { 
-      style: 'currency', 
-      currency: 'TRY',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`, 20, 60);
-
-    // Table
-    const tableData = lessons.map(lesson => {
+    const tableBody = lessons.map(lesson => {
       const student = students.find(s => s.id === lesson.studentId);
       return [
-        format(new Date(lesson.start), 'd MMMM yyyy', { locale: tr }),
-        `${format(new Date(lesson.start), 'HH:mm')} - ${format(new Date(lesson.end), 'HH:mm')}`,
-        student?.name || "Bilinmeyen Öğrenci",
-        (student?.price || 0).toLocaleString('tr-TR', { 
-          style: 'currency', 
-          currency: 'TRY',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })
+        { text: format(new Date(lesson.start), 'd MMMM yyyy', { locale: tr }), style: 'tableCell' },
+        { text: `${format(new Date(lesson.start), 'HH:mm')} - ${format(new Date(lesson.end), 'HH:mm')}`, style: 'tableCell' },
+        { text: student?.name || "Bilinmeyen Öğrenci", style: 'tableCell' },
+        { 
+          text: (student?.price || 0).toLocaleString('tr-TR', { 
+            style: 'currency', 
+            currency: 'TRY',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }), 
+          style: 'tableCell' 
+        }
       ];
     });
 
-    autoTable(doc, {
-      head: [['Tarih', 'Saat', 'Öğrenci', 'Ücret']],
-      body: tableData,
-      startY: 70,
+    const docDefinition = {
+      content: [
+        { text: 'Ders Raporu', style: 'header' },
+        { text: periodText, style: 'subheader', margin: [0, 10, 0, 5] },
+        { text: `Öğrenci: ${studentName}`, style: 'subheader', margin: [0, 0, 0, 5] },
+        { text: `Toplam Ders Saati: ${totalHours}`, style: 'info', margin: [0, 0, 0, 5] },
+        { 
+          text: `Toplam Kazanç: ${totalEarnings.toLocaleString('tr-TR', { 
+            style: 'currency', 
+            currency: 'TRY',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })}`, 
+          style: 'info',
+          margin: [0, 0, 0, 20]
+        },
+        {
+          table: {
+            headerRows: 1,
+            widths: ['auto', 'auto', '*', 'auto'],
+            body: [
+              [
+                { text: 'Tarih', style: 'tableHeader' },
+                { text: 'Saat', style: 'tableHeader' },
+                { text: 'Öğrenci', style: 'tableHeader' },
+                { text: 'Ücret', style: 'tableHeader' }
+              ],
+              ...tableBody
+            ]
+          }
+        }
+      ],
       styles: {
-        font: "helvetica",
-        fontSize: 10,
-        cellPadding: 5,
+        header: {
+          fontSize: 20,
+          bold: true,
+          alignment: 'center'
+        },
+        subheader: {
+          fontSize: 14,
+          bold: true
+        },
+        info: {
+          fontSize: 12
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 12,
+          fillColor: '#1a73e8',
+          color: '#ffffff',
+          alignment: 'center'
+        },
+        tableCell: {
+          fontSize: 11,
+          alignment: 'center'
+        }
       },
-      headStyles: {
-        fillColor: [26, 115, 232],
-        textColor: 255,
-        fontStyle: 'bold'
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245]
+      defaultStyle: {
+        font: 'Roboto'
       }
-    });
+    };
 
-    // Footer
     const fileName = `ders-raporu-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
-    doc.save(fileName);
+    
+    pdfMake.createPdf(docDefinition).download(fileName);
 
     toast({
       title: "PDF raporu oluşturuldu",
