@@ -16,8 +16,8 @@ interface ReportFiltersProps {
   setSelectedStudent: (value: string) => void;
   selectedPeriod: "weekly" | "monthly" | "yearly" | "custom";
   setSelectedPeriod: (value: "weekly" | "monthly" | "yearly" | "custom") => void;
-  selectedDate: Date | undefined;
-  setSelectedDate: (date: Date | undefined) => void;
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
   startDate: Date | undefined;
   setStartDate: (date: Date | undefined) => void;
   endDate: Date | undefined;
@@ -41,9 +41,9 @@ export function ReportFilters({
   const { toast } = useToast();
 
   const resetFilters = () => {
-    setSelectedStudent("");
+    setSelectedStudent("all");
     setSelectedPeriod("weekly");
-    setSelectedDate(undefined);
+    setSelectedDate(new Date());
     setStartDate(undefined);
     setEndDate(undefined);
     toast({
@@ -112,7 +112,6 @@ export function ReportFilters({
             <DatePicker
               date={selectedDate}
               setDate={setSelectedDate}
-              placeholder="Tarih Seçin"
             />
           </div>
         )}

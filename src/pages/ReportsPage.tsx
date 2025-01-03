@@ -15,11 +15,11 @@ import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Reports() {
-  const [selectedStudent, setSelectedStudent] = useState<string>("");
+  const [selectedStudent, setSelectedStudent] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly" | "custom">("weekly");
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [startDate, setStartDate] = useState<Date | undefined>();
-  const [endDate, setEndDate] = useState<Date | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | undefined>();
   const [studentName, setStudentName] = useState("");
@@ -88,9 +88,8 @@ export default function Reports() {
     return savedLessons ? JSON.parse(savedLessons) : [];
   })();
 
-  const showData = selectedDate !== undefined && selectedStudent !== "";
-  const hours = showData ? calculatePeriodHours(lessons, selectedDate, selectedStudent, startDate, endDate) : { weekly: 0, monthly: 0, yearly: 0 };
-  const earnings = showData ? calculatePeriodEarnings(lessons, selectedDate, selectedStudent, students, startDate, endDate) : { weekly: 0, monthly: 0, yearly: 0 };
+  const hours = calculatePeriodHours(lessons, selectedDate, selectedStudent, startDate, endDate);
+  const earnings = calculatePeriodEarnings(lessons, selectedDate, selectedStudent, students, startDate, endDate);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -140,35 +139,31 @@ export default function Reports() {
                 </CardContent>
               </Card>
 
-              {showData && (
-                <>
-                  <StatsCards 
-                    hours={hours} 
-                    earnings={earnings}
+              <StatsCards 
+                hours={hours} 
+                earnings={earnings}
+                selectedDate={selectedDate}
+                startDate={startDate}
+                endDate={endDate}
+                selectedPeriod={selectedPeriod}
+              />
+
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle>Ders Listesi</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <LessonList
+                    lessons={lessons}
+                    students={students}
+                    selectedStudent={selectedStudent}
+                    selectedPeriod={selectedPeriod}
                     selectedDate={selectedDate}
                     startDate={startDate}
                     endDate={endDate}
-                    selectedPeriod={selectedPeriod}
                   />
-
-                  <Card className="bg-white">
-                    <CardHeader>
-                      <CardTitle>Ders Listesi</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <LessonList
-                        lessons={lessons}
-                        students={students}
-                        selectedStudent={selectedStudent}
-                        selectedPeriod={selectedPeriod}
-                        selectedDate={selectedDate}
-                        startDate={startDate}
-                        endDate={endDate}
-                      />
-                    </CardContent>
-                  </Card>
-                </>
-              )}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
