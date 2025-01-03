@@ -111,13 +111,34 @@ export default function MonthView({
       return;
     }
 
-    const eventStart = new Date(event.start);
-    const eventEnd = new Date(event.end);
+    // Keep the original hours and minutes
+    const originalHours = event.start.getHours();
+    const originalMinutes = event.start.getMinutes();
     
-    const [startHour] = daySettings.start.split(':').map(Number);
-    const newStart = setMinutes(setHours(targetDay, startHour), 0);
-    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
+    // Create new date with original time
+    const newStart = new Date(targetDay);
+    newStart.setHours(originalHours, originalMinutes, 0);
+    
+    // Calculate duration and set end time
+    const duration = (event.end.getTime() - event.start.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
+
+    // Check if the new time is within working hours
+    const [startHour, startMinute] = daySettings.start.split(':').map(Number);
+    const [endHour, endMinute] = daySettings.end.split(':').map(Number);
+    const workStart = new Date(targetDay);
+    workStart.setHours(startHour, startMinute, 0);
+    const workEnd = new Date(targetDay);
+    workEnd.setHours(endHour, endMinute, 0);
+
+    if (newStart < workStart || newEnd > workEnd) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     onEventUpdate({
       ...event,
