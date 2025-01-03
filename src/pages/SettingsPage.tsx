@@ -14,6 +14,7 @@ import {
 import GeneralSettings from "@/components/Settings/GeneralSettings";
 import WorkingHoursSettings from "@/components/Settings/WorkingHoursSettings";
 import HolidaySettings from "@/components/Settings/HolidaySettings";
+import ThemeSettings from "@/components/Settings/ThemeSettings";
 
 const menuItems = [
   {
@@ -78,6 +79,12 @@ export default function Settings() {
             <HolidaySettings />
           </div>
         );
+      case "appearance":
+        return (
+          <div className="space-y-6">
+            <ThemeSettings />
+          </div>
+        );
       case "notifications":
         return (
           <div className="text-gray-600">Bildirim ayarları içeriği buraya eklenecek.</div>
@@ -89,10 +96,6 @@ export default function Settings() {
       case "security":
         return (
           <div className="text-gray-600">Güvenlik ayarları içeriği buraya eklenecek.</div>
-        );
-      case "appearance":
-        return (
-          <div className="text-gray-600">Görünüm ayarları içeriği buraya eklenecek.</div>
         );
       case "language":
         return (
