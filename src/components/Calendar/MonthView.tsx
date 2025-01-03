@@ -126,7 +126,7 @@ export default function MonthView({
       className="w-full mx-auto"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
     >
       <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
         {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, index) => (

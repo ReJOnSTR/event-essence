@@ -21,7 +21,7 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
       className="w-full"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {months.map((month, index) => (
