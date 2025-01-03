@@ -37,7 +37,7 @@ export default function WeekView({
     .map(day => parseInt(day.start.split(':')[0])));
   const endHour = Math.max(...Object.values(workingHours)
     .filter(day => day.enabled)
-    .map(day => parseInt(day.end.split(':')[0])));
+    .map(day => parseInt(day.end.split(':')[0})));
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
@@ -79,6 +79,45 @@ export default function WeekView({
     const eventDate = new Date(day);
     eventDate.setHours(hour);
     onDateSelect(eventDate);
+  };
+
+  const getTimeIndicator = (hour: number, dayEvents: CalendarEvent[]) => {
+    const hourEvents = dayEvents.filter(event => {
+      const eventHour = new Date(event.start).getHours();
+      const eventEndHour = new Date(event.end).getHours();
+      const eventEndMinutes = new Date(event.end).getMinutes();
+      return eventHour === hour && (eventEndHour > hour || (eventEndHour === hour && eventEndMinutes > 0));
+    });
+
+    if (hourEvents.length === 0) return null;
+
+    return hourEvents.map(event => {
+      const startMinutes = new Date(event.start).getMinutes();
+      const endHour = new Date(event.end).getHours();
+      const endMinutes = new Date(event.end).getMinutes();
+      
+      // Eğer ders aynı saat dilimi içinde bitiyorsa
+      if (endHour === hour) {
+        return (
+          <div key={event.id} className="absolute left-0 h-4 flex items-center text-xs text-gray-500">
+            <div className="w-1 h-full bg-gray-300 mr-1" style={{
+              height: `${(endMinutes / 60) * 100}%`
+            }} />
+            {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
+          </div>
+        );
+      }
+      
+      // Eğer ders sonraki saate taşıyorsa
+      return (
+        <div key={event.id} className="absolute left-0 h-4 flex items-center text-xs text-gray-500">
+          <div className="w-1 h-full bg-gray-300 mr-1" style={{
+            height: "100%"
+          }} />
+          {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
+        </div>
+      );
+    });
   };
 
   return (
@@ -124,8 +163,11 @@ export default function WeekView({
 
         {hours.map((hour, hourIndex) => (
           <React.Fragment key={`hour-${hour}`}>
-            <div className="bg-white p-2 text-right text-sm text-gray-500">
+            <div className="bg-white p-2 text-right text-sm text-gray-500 relative">
               {`${hour.toString().padStart(2, '0')}:00`}
+              {getTimeIndicator(hour, events.filter(event => 
+                format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+              ))}
             </div>
             {weekDays.map((day) => {
               const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
