@@ -17,15 +17,23 @@ interface StudentDialogContentProps {
   onDelete?: () => void;
 }
 
-const THEME_COLORS = [
-  "#4F46E5", // Indigo
-  "#0EA5E9", // Sky
-  "#10B981", // Emerald
-  "#F59E0B", // Amber
-  "#EF4444", // Red
-  "#8B5CF6", // Purple
-  "#EC4899", // Pink
-  "#6B7280", // Gray
+const STUDENT_COLORS = [
+  { value: "#1a73e8", label: "Calendar Blue" },
+  { value: "#4F46E5", label: "İndigo" },
+  { value: "#039be5", label: "Event Blue" },
+  { value: "#0EA5E9", label: "Mavi" },
+  { value: "#1557b0", label: "Deep Blue" },
+  { value: "#10B981", label: "Yeşil" },
+  { value: "#70757a", label: "Calendar Gray" },
+  { value: "#F59E0B", label: "Turuncu" },
+  { value: "#3c4043", label: "Dark Gray" },
+  { value: "#EF4444", label: "Kırmızı" },
+  { value: "#185abc", label: "Royal Blue" },
+  { value: "#8B5CF6", label: "Mor" },
+  { value: "#1967d2", label: "Bright Blue" },
+  { value: "#EC4899", label: "Pembe" },
+  { value: "#4285f4", label: "Google Blue" },
+  { value: "#6B7280", label: "Gri" },
 ];
 
 export default function StudentDialogContent({
@@ -63,17 +71,18 @@ export default function StudentDialogContent({
       </div>
       <div className="space-y-2">
         <Label>Renk</Label>
-        <div className="grid grid-cols-5 gap-2">
-          {THEME_COLORS.map((color) => (
+        <div className="grid grid-cols-4 gap-2">
+          {STUDENT_COLORS.map((color) => (
             <button
-              key={color}
+              key={color.value}
               className={cn(
                 "w-full h-8 rounded-md border-2 transition-all",
-                studentColor === color ? "border-primary ring-2 ring-primary ring-offset-2" : "border-muted"
+                studentColor === color.value ? "border-primary ring-2 ring-primary ring-offset-2" : "border-muted"
               )}
-              style={{ backgroundColor: color }}
-              onClick={() => setStudentColor(color)}
+              style={{ backgroundColor: color.value }}
+              onClick={() => setStudentColor(color.value)}
               type="button"
+              title={color.label}
             />
           ))}
           <Popover>
@@ -82,10 +91,10 @@ export default function StudentDialogContent({
                 variant="outline"
                 className={cn(
                   "w-full h-8",
-                  !THEME_COLORS.includes(studentColor) && "ring-2 ring-primary ring-offset-2"
+                  !STUDENT_COLORS.some(c => c.value === studentColor) && "ring-2 ring-primary ring-offset-2"
                 )}
                 style={{ 
-                  backgroundColor: !THEME_COLORS.includes(studentColor) ? studentColor : undefined 
+                  backgroundColor: !STUDENT_COLORS.some(c => c.value === studentColor) ? studentColor : undefined 
                 }}
               >
                 <div className="w-full h-1 rounded-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500" />
