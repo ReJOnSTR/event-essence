@@ -38,7 +38,7 @@ export default function WeekView({
     .map(day => parseInt(day.start.split(':')[0])));
   const endHour = Math.max(...Object.values(workingHours)
     .filter(day => day.enabled)
-    .map(day => parseInt(day.end.split(':')[0])));
+    .map(day => parseInt(day.end.split(':')[0})));
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
@@ -184,10 +184,10 @@ export default function WeekView({
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         className={cn(
-                          "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
+                          "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative transition-all duration-200 ease-in-out",
                           isToday(day) && "bg-blue-50",
                           isWorkDisabled && "bg-gray-100 cursor-not-allowed",
-                          snapshot.isDraggingOver && "bg-blue-50"
+                          snapshot.isDraggingOver && "bg-blue-50/80 scale-[1.01]"
                         )}
                         onClick={() => handleCellClick(day, hour)}
                       >
