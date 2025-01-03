@@ -1,26 +1,41 @@
 import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "./workingHours";
+import { Student, Lesson } from "@/types/calendar";
 
 interface ProjectData {
   workingHours: WeeklyWorkingHours;
-  // Add other data types here as needed
+  students: Student[];
+  lessons: Lesson[];
 }
 
 export const exportProjectData = (): ProjectData => {
   // Get all data from localStorage
   const data: ProjectData = {
     workingHours: getWorkingHours(),
+    students: JSON.parse(localStorage.getItem('students') || '[]'),
+    lessons: JSON.parse(localStorage.getItem('lessons') || '[]')
   };
 
-  // Add any other data you want to export
   return data;
 };
 
 export const importProjectData = (data: ProjectData) => {
+  // Clear existing data before import
+  localStorage.clear();
+  
+  // Import working hours
   if (data.workingHours) {
     setWorkingHours(data.workingHours);
   }
   
-  // Add any other data import logic here
+  // Import students
+  if (data.students) {
+    localStorage.setItem('students', JSON.stringify(data.students));
+  }
+  
+  // Import lessons
+  if (data.lessons) {
+    localStorage.setItem('lessons', JSON.stringify(data.lessons));
+  }
 };
 
 export const downloadProjectData = () => {
@@ -44,9 +59,6 @@ export const uploadProjectData = async (file: File): Promise<boolean> => {
       try {
         const content = e.target?.result as string;
         const data = JSON.parse(content) as ProjectData;
-        
-        // Clear existing data before import
-        localStorage.clear();
         
         // Import the new data
         importProjectData(data);
