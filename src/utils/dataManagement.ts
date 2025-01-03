@@ -6,15 +6,21 @@ interface ProjectData {
 }
 
 export const exportProjectData = (): ProjectData => {
-  return {
+  // Get all data from localStorage
+  const data: ProjectData = {
     workingHours: getWorkingHours(),
   };
+
+  // Add any other data you want to export
+  return data;
 };
 
 export const importProjectData = (data: ProjectData) => {
   if (data.workingHours) {
     setWorkingHours(data.workingHours);
   }
+  
+  // Add any other data import logic here
 };
 
 export const downloadProjectData = () => {
@@ -37,8 +43,17 @@ export const uploadProjectData = async (file: File): Promise<boolean> => {
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string;
-        const imported = JSON.parse(content) as ProjectData;
-        importProjectData(imported);
+        const data = JSON.parse(content) as ProjectData;
+        
+        // Clear existing data before import
+        localStorage.clear();
+        
+        // Import the new data
+        importProjectData(data);
+        
+        // Reload the page to reflect changes
+        window.location.reload();
+        
         resolve(true);
       } catch (error) {
         console.error('Error importing data:', error);
