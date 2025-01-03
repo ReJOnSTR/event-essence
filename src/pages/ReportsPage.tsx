@@ -13,6 +13,7 @@ import { calculatePeriodHours, calculatePeriodEarnings } from "@/utils/reportCal
 import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
+import { PdfReport } from "@/components/Reports/PdfReport";
 
 export default function Reports() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
@@ -139,14 +140,26 @@ export default function Reports() {
                 </CardContent>
               </Card>
 
-              <StatsCards 
-                hours={hours} 
-                earnings={earnings}
-                selectedDate={selectedDate}
-                startDate={startDate}
-                endDate={endDate}
-                selectedPeriod={selectedPeriod}
-              />
+              <div className="flex justify-between items-center gap-4 flex-wrap">
+                <StatsCards 
+                  hours={hours} 
+                  earnings={earnings}
+                  selectedDate={selectedDate}
+                  startDate={startDate}
+                  endDate={endDate}
+                  selectedPeriod={selectedPeriod}
+                />
+                <PdfReport
+                  lessons={lessons}
+                  students={students}
+                  selectedStudent={selectedStudent}
+                  selectedPeriod={selectedPeriod}
+                  totalHours={hours[selectedPeriod as keyof typeof hours] || 0}
+                  totalEarnings={earnings[selectedPeriod as keyof typeof earnings] || 0}
+                  startDate={startDate}
+                  endDate={endDate}
+                />
+              </div>
 
               <Card className="bg-white">
                 <CardHeader>
