@@ -10,10 +10,9 @@ interface TimeIndicatorProps {
 export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
   const hourEvents = events.filter(event => {
     const eventHour = new Date(event.start).getHours();
-    const eventEndHour = new Date(event.end).getHours();
     const eventEndMinutes = new Date(event.end).getMinutes();
     
-    // Only show indicator if the event starts in this hour and doesn't end on an exact hour
+    // Only show indicator if the event starts in this hour AND ends at a non-exact hour
     return eventHour === hour && eventEndMinutes > 0;
   });
 
@@ -29,7 +28,7 @@ export function TimeIndicator({ events, hour }: TimeIndicatorProps) {
             <div className="w-0.5 h-full bg-gray-300 mr-1" style={{
               height: `${(endMinutes / 60) * 100}%`
             }} />
-            {format(event.start, "HH:mm", { locale: tr })} - {format(event.end, "HH:mm", { locale: tr })}
+            {format(event.end, "HH:mm", { locale: tr })}
           </div>
         );
       })}
