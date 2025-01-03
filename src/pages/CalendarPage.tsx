@@ -1,46 +1,36 @@
-import { Toaster } from "@/components/ui/toaster";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MonthView from "@/components/Calendar/MonthView";
 import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import SideMenu from "@/components/Layout/SideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
-import { Lesson, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarContent,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
-
-type ViewType = "day" | "week" | "month" | "year";
+import { useStudents } from "@/hooks/useStudents";
+import { useCalendarStore } from "@/store/calendarStore";
+import SideMenu from "@/components/Layout/SideMenu";
 
 export default function CalendarPage() {
-  const [lessons, setLessons] = useState<Lesson[]>(() => {
+  const [lessons, setLessons] = useState(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
-  });
-  const [students, setStudents] = useState<Student[]>(() => {
-    const savedStudents = localStorage.getItem('students');
-    return savedStudents ? JSON.parse(savedStudents) : [];
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<ViewType>("month");
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>();
-  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const { currentView, setCurrentView } = useCalendarStore();
+  const [selectedLesson, setSelectedLesson] = useState();
+  const [selectedStudent, setSelectedStudent] = useState();
   const [studentName, setStudentName] = useState("");
   const [studentPrice, setStudentPrice] = useState(0);
-  const [studentColor, setStudentColor] = useState("#9b87f5");
+  const [studentColor, setStudentColor] = useState("#1a73e8");
   const { toast } = useToast();
+  const { students, saveStudent, deleteStudent } = useStudents();
 
   // Dersleri localStorage'a kaydetme
   useEffect(() => {
@@ -118,63 +108,54 @@ export default function CalendarPage() {
     });
   };
 
-  const handleSaveStudent = () => {
-    if (selectedStudent) {
-      const updatedStudents = students.map(student =>
-        student.id === selectedStudent.id
-          ? {
-              ...student,
-              name: studentName,
-              price: studentPrice,
-              color: studentColor,
-            }
-          : student
-      );
-      setStudents(updatedStudents);
-      localStorage.setItem('students', JSON.stringify(updatedStudents));
-      toast({
-        title: "Öğrenci güncellendi",
-        description: "Öğrenci bilgileri başarıyla güncellendi.",
-      });
-    } else {
-      const newStudent: Student = {
-        id: crypto.randomUUID(),
-        name: studentName,
-        price: studentPrice,
-        color: studentColor,
-      };
-      const newStudents = [...students, newStudent];
-      setStudents(newStudents);
-      localStorage.setItem('students', JSON.stringify(newStudents));
-      toast({
-        title: "Öğrenci eklendi",
-        description: "Yeni öğrenci başarıyla eklendi.",
-      });
-    }
-    handleCloseStudentDialog();
-  };
-
-  const handleEditStudent = (student: Student) => {
+  const handleEditStudent = (student) => {
     setSelectedStudent(student);
     setStudentName(student.name);
     setStudentPrice(student.price);
-    setStudentColor(student.color || "#9b87f5");
+    setStudentColor(student.color || "#1a73e8");
     setIsStudentDialogOpen(true);
   };
 
-  const handleDeleteStudent = (studentId: string) => {
-    const updatedStudents = students.filter(student => student.id !== studentId);
-    setStudents(updatedStudents);
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
-    setLessons(lessons.map(lesson => 
-      lesson.studentId === studentId 
-        ? { ...lesson, studentId: undefined }
-        : lesson
-    ));
+  const handleSaveStudent = () => {
+    const studentData = {
+      id: selectedStudent?.id || crypto.randomUUID(),
+      name: studentName,
+      price: studentPrice,
+      color: studentColor,
+    };
+    
+    saveStudent(studentData);
+    
     toast({
-      title: "Öğrenci silindi",
-      description: "Öğrenci başarıyla silindi.",
+      title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
+      description: selectedStudent 
+        ? "Öğrenci bilgileri başarıyla güncellendi."
+        : "Yeni öğrenci başarıyla eklendi.",
     });
+    
+    handleCloseStudentDialog();
+  };
+
+  const handleDeleteStudent = () => {
+    if (selectedStudent) {
+      deleteStudent(selectedStudent.id);
+      
+      // Update lessons to remove references to deleted student
+      const updatedLessons = lessons.map(lesson => 
+        lesson.studentId === selectedStudent.id 
+          ? { ...lesson, studentId: undefined }
+          : lesson
+      );
+      setLessons(updatedLessons);
+      localStorage.setItem('lessons', JSON.stringify(updatedLessons));
+      
+      toast({
+        title: "Öğrenci silindi",
+        description: "Öğrenci başarıyla silindi.",
+      });
+      
+      handleCloseStudentDialog();
+    }
   };
 
   const handleCloseStudentDialog = () => {
@@ -182,15 +163,7 @@ export default function CalendarPage() {
     setSelectedStudent(undefined);
     setStudentName("");
     setStudentPrice(0);
-    setStudentColor("#9b87f5");
-  };
-
-  const handleLessonUpdate = (updatedLesson: Lesson) => {
-    setLessons(prevLessons => 
-      prevLessons.map(lesson => 
-        lesson.id === updatedLesson.id ? updatedLesson : lesson
-      )
-    );
+    setStudentColor("#1a73e8");
   };
 
   const renderView = () => {
@@ -275,6 +248,7 @@ export default function CalendarPage() {
             isOpen={isStudentDialogOpen}
             onClose={handleCloseStudentDialog}
             onSave={handleSaveStudent}
+            onDelete={handleDeleteStudent}
             student={selectedStudent}
             studentName={studentName}
             setStudentName={setStudentName}

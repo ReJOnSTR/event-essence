@@ -20,6 +20,8 @@ export function useStudents() {
   const { data: students = [] } = useQuery({
     queryKey: ['students'],
     queryFn: getStudents,
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the data
   });
 
   // Mutation for adding/updating a student
