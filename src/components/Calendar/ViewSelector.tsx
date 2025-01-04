@@ -10,41 +10,30 @@ interface ViewSelectorProps {
 const tabVariants = {
   initial: { 
     opacity: 0,
-    y: -10,
-    scale: 0.95
+    y: 0,
+    scale: 0.98
   },
   animate: { 
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
-      type: "spring",
-      stiffness: 300,
-      damping: 25
+      type: "tween",
+      duration: 0.2,
+      ease: "easeOut"
     }
   },
   exit: {
     opacity: 0,
-    y: 10,
-    scale: 0.95
-  },
-  hover: {
-    scale: 1.05,
+    scale: 0.98,
     transition: {
-      duration: 0.2
+      duration: 0.15
     }
   },
-  tap: {
-    scale: 0.95
-  }
-};
-
-const containerVariants = {
-  initial: { opacity: 0 },
-  animate: { 
-    opacity: 1,
+  hover: {
+    backgroundColor: "rgba(var(--primary) / 0.1)",
     transition: {
-      staggerChildren: 0.1
+      duration: 0.2
     }
   }
 };
@@ -60,37 +49,34 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
   ];
 
   return (
-    <motion.div
-      initial="initial"
-      animate="animate"
-      variants={containerVariants}
-      className="w-full bg-background/80 backdrop-blur-sm rounded-lg shadow-sm sticky top-0 z-10"
-    >
+    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2 p-1">
+        <TabsList className="grid w-full grid-cols-4 p-1 bg-transparent">
           <AnimatePresence mode="wait">
             {views.map((view) => (
               <motion.div
                 key={view.id}
                 variants={tabVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
                 whileHover="hover"
-                whileTap="tap"
                 className="w-full"
               >
                 <TabsTrigger 
                   value={view.id} 
                   onClick={() => onViewChange(view.id)}
-                  className="w-full relative text-xs md:text-sm py-1.5 md:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200"
+                  className="w-full relative text-xs md:text-sm py-2 transition-all duration-200 rounded-md data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
                 >
                   {view.label}
                   {currentView === view.id && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full"
                       initial={false}
                       transition={{
                         type: "spring",
-                        stiffness: 400,
+                        stiffness: 380,
                         damping: 30
                       }}
                     />
@@ -101,6 +87,6 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
           </AnimatePresence>
         </TabsList>
       </Tabs>
-    </motion.div>
+    </div>
   );
 }
