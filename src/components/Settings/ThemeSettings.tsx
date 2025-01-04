@@ -4,18 +4,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { useTheme, type Theme } from "@/components/theme-provider";
+import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type ThemeOption = {
-  id: Theme;
+type Theme = {
+  id: string;
   name: string;
   class: string;
   preview: string;
   description: string;
 };
 
-const themes: ThemeOption[] = [
+const themes: Theme[] = [
   {
     id: "light",
     name: "Açık Tema",
@@ -24,32 +24,11 @@ const themes: ThemeOption[] = [
     description: "Klasik açık tema"
   },
   {
-    id: "dark",
-    name: "Koyu Tema",
-    class: "dark",
-    preview: "bg-[#020817]",
-    description: "Klasik koyu tema"
-  },
-  {
     id: "sunset",
     name: "Gün Batımı",
     class: "sunset",
     preview: "bg-gradient-to-r from-[#ee9ca7] to-[#ffdde1]",
     description: "Sıcak ve romantik pembe tonları"
-  },
-  {
-    id: "sunset-dark",
-    name: "Gün Batımı (Karanlık)",
-    class: "sunset-dark",
-    preview: "bg-gradient-to-r from-[#614155] to-[#614155]",
-    description: "Gün batımının karanlık versiyonu"
-  },
-  {
-    id: "system",
-    name: "Sistem Teması",
-    class: "system",
-    preview: "bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900",
-    description: "Sistem ayarlarınıza göre otomatik değişir"
   }
 ];
 
@@ -75,7 +54,10 @@ const fontFamilies = [
 ];
 
 export default function ThemeSettings() {
-  const { theme, setTheme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    return localStorage.getItem("theme") || "light";
+  });
+  
   const [fontSize, setFontSize] = useState(() => {
     return localStorage.getItem("fontSize") || "medium";
   });
@@ -87,6 +69,13 @@ export default function ThemeSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Remove all theme classes
+    document.documentElement.classList.remove(...themes.map(t => t.class));
+    // Add selected theme class
+    document.documentElement.classList.add(currentTheme);
+    // Save to localStorage
+    localStorage.setItem("theme", currentTheme);
+    
     // Apply font size
     document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
     document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
@@ -103,7 +92,7 @@ export default function ThemeSettings() {
       title: "Görünüm ayarları güncellendi",
       description: "Yeni ayarlarınız kaydedildi.",
     });
-  }, [fontSize, fontFamily, toast]);
+  }, [currentTheme, fontSize, fontFamily, toast]);
 
   return (
     <Card className="border shadow-sm">
@@ -114,33 +103,33 @@ export default function ThemeSettings() {
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Tema</h3>
           <RadioGroup
-            value={theme}
-            onValueChange={setTheme}
+            value={currentTheme}
+            onValueChange={setCurrentTheme}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
-            {themes.map((themeOption) => (
+            {themes.map((theme) => (
               <div 
-                key={themeOption.id} 
+                key={theme.id} 
                 className={cn(
                   "relative flex items-center space-x-2 rounded-lg border-2 p-4 cursor-pointer transition-all",
-                  themeOption.id === theme ? "border-primary" : "border-transparent hover:border-muted"
+                  currentTheme === theme.id ? "border-primary" : "border-transparent hover:border-muted"
                 )}
               >
-                <RadioGroupItem value={themeOption.id} id={themeOption.id} className="sr-only" />
+                <RadioGroupItem value={theme.id} id={theme.id} className="sr-only" />
                 <Label
-                  htmlFor={themeOption.id}
+                  htmlFor={theme.id}
                   className="flex flex-col gap-2 cursor-pointer w-full"
                 >
                   <div className="flex items-center gap-2">
                     <div
                       className={cn(
                         "w-10 h-10 rounded-md shadow-sm",
-                        themeOption.preview
+                        theme.preview
                       )}
                     />
                     <div>
-                      <div className="font-medium">{themeOption.name}</div>
-                      <div className="text-sm text-muted-foreground">{themeOption.description}</div>
+                      <div className="font-medium">{theme.name}</div>
+                      <div className="text-sm text-muted-foreground">{theme.description}</div>
                     </div>
                   </div>
                 </Label>
