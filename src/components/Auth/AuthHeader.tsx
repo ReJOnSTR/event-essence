@@ -1,7 +1,22 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, LogIn, ChevronUp } from "lucide-react";
+import { 
+  Search, 
+  Bell, 
+  User,
+  LogIn,
+  UserPlus,
+  Settings,
+  HelpCircle
+} from "lucide-react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -9,123 +24,93 @@ interface AuthHeaderProps {
 
 export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [isPartiallyOpen, setIsPartiallyOpen] = useState(false);
+  const [notifications, setNotifications] = useState(2); // Örnek bildirim sayısı
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Show header after 2 seconds
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 2000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    // Report height changes to parent component
-    onHeightChange?.(isVisible ? 128 : (isPartiallyOpen ? 32 : 0));
-  }, [isVisible, isPartiallyOpen, onHeightChange]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
-        if (isVisible) {
-          setIsVisible(false);
-          setIsPartiallyOpen(true);
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isVisible]);
-
-  const handleToggle = () => {
-    if (isVisible) {
-      setIsVisible(false);
-      setIsPartiallyOpen(true);
-    } else {
-      setIsVisible(true);
-    }
-  };
+    onHeightChange?.(isVisible ? 64 : 0);
+  }, [isVisible, onHeightChange]);
 
   return (
     <AnimatePresence>
-      {(isVisible || isPartiallyOpen) && (
+      {isVisible && (
         <motion.div
           ref={headerRef}
           initial={{ y: -100, opacity: 0 }}
-          animate={{ 
-            y: 0, 
-            opacity: 1,
-            height: isVisible ? "8rem" : "2rem",
-            transition: {
-              height: {
-                duration: 0.3,
-                ease: [0.25, 0.1, 0.25, 1]
-              }
-            }
-          }}
+          animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
-          transition={{ 
-            duration: 0.3,
-            ease: [0.25, 0.1, 0.25, 1]
-          }}
-          className="w-full bg-background border-b fixed top-0 z-50"
+          transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+          className="w-full bg-background border-b fixed top-0 z-50 shadow-sm"
         >
-          <div className="container mx-auto px-4">
-            <AnimatePresence mode="wait">
-              {isVisible && (
-                <motion.div 
-                  className="py-4 flex flex-col items-center gap-4"
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{
-                    duration: 0.3,
-                    ease: [0.25, 0.1, 0.25, 1]
-                  }}
-                >
-                  <div className="flex gap-4">
-                    <Button className="w-32">
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Kayıt Ol
-                    </Button>
-                    <Button variant="outline" className="w-32">
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Giriş Yap
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <div className="container mx-auto px-4 h-16">
+            <div className="flex items-center justify-between h-full">
+              {/* Sol taraf - Logo veya başlık */}
+              <div className="flex items-center space-x-4">
+                <h1 className="text-xl font-semibold">EventEssence</h1>
+              </div>
 
-          <motion.div 
-            className="absolute left-1/2 -bottom-6 -translate-x-1/2 z-50"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ 
-              duration: 0.3,
-              ease: [0.25, 0.1, 0.25, 1]
-            }}
-          >
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12 rounded-full border-2 shadow-md bg-background"
-              onClick={handleToggle}
-            >
-              <ChevronUp 
-                className="h-6 w-6" 
-                style={{ 
-                  transform: isVisible ? 'rotate(0deg)' : 'rotate(180deg)',
-                  transition: 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
-                }}
-              />
-            </Button>
-          </motion.div>
+              {/* Orta kısım - Arama */}
+              <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    type="search"
+                    placeholder="Ara..."
+                    className="w-full pl-10 bg-muted/30 border-none"
+                  />
+                </div>
+              </div>
+
+              {/* Sağ taraf - Bildirimler ve Profil */}
+              <div className="flex items-center space-x-4">
+                {/* Bildirim ikonu */}
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  {notifications > 0 && (
+                    <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">
+                      {notifications}
+                    </span>
+                  )}
+                </Button>
+
+                {/* Profil Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                      <User className="h-4 w-4" />
+                      <span className="hidden sm:inline">Hesap</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem className="gap-2">
+                      <LogIn className="h-4 w-4" />
+                      <span>Giriş Yap</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2">
+                      <UserPlus className="h-4 w-4" />
+                      <span>Kayıt Ol</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2">
+                      <Settings className="h-4 w-4" />
+                      <span>Ayarlar</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="gap-2">
+                      <HelpCircle className="h-4 w-4" />
+                      <span>Yardım</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
