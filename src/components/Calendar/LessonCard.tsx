@@ -3,7 +3,6 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { useCallback } from "react";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -33,14 +32,14 @@ export default function LessonCard({
     backgroundColor: student?.color || "#039be5",
   };
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onClick) {
       onClick(event);
     }
-  }, [event, onClick]);
+  };
 
-  const content = useCallback((provided?: any, snapshot?: any) => (
+  const content = (provided?: any, snapshot?: any) => (
     <div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
@@ -80,7 +79,7 @@ export default function LessonCard({
         </>
       )}
     </div>
-  ), [event.end, event.start, handleClick, isCompact, student?.name, style]);
+  );
 
   if (!isDraggable) {
     return content();

@@ -5,11 +5,9 @@ import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { useDayView } from "@/hooks/useDayView";
-import { checkLessonConflict } from "@/utils/lessonConflicts";
 import DayHeader from "./DayHeader";
 import DayTimeSlot from "./DayTimeSlot";
 import { TimeIndicator } from "./TimeIndicator";
-import { useCallback } from "react";
 
 interface DayViewProps {
   date: Date;
@@ -40,7 +38,7 @@ export default function DayView({
     handleHourClick
   } = useDayView(date, events);
 
-  const onDragEnd = useCallback((result: DropResult) => {
+  const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
     const [hourStr, minuteStr] = result.destination.droppableId.split(':');
@@ -64,29 +62,17 @@ export default function DayView({
     newStart.setHours(hour, minute);
     const newEnd = new Date(newStart.getTime() + duration);
 
-    const updatedEvent = {
+    onEventUpdate({
       ...event,
       start: newStart,
       end: newEnd
-    };
-
-    // Check for conflicts
-    if (checkLessonConflict(updatedEvent, events, event.id)) {
-      toast({
-        title: "Çakışma tespit edildi",
-        description: "Bu zaman diliminde başka bir ders bulunuyor.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onEventUpdate(updatedEvent);
+    });
 
     toast({
       title: "Ders taşındı",
       description: "Ders başarıyla yeni saate taşındı.",
     });
-  }, [date, endHour, events, onEventUpdate, startHour, toast]);
+  };
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -127,26 +113,20 @@ export default function DayView({
               className="grid grid-cols-12 gap-2"
             >
               <DayHeader hour={hour} />
-              <Droppable droppableId={`${hour}:0`} type="lesson">
+              <Droppable droppableId={`${hour}:0`}>
                 {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                  >
-                    <DayTimeSlot
-                      hour={hour}
-                      dayEvents={dayEvents}
-                      isDraggingOver={snapshot.isDraggingOver}
-                      isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
-                      onClick={() => {
-                        const newDate = handleHourClick(hour, 0);
-                        if (newDate) onDateSelect(newDate);
-                      }}
-                      students={students}
-                      onEventClick={onEventClick}
-                    />
-                    {provided.placeholder}
-                  </div>
+                  <DayTimeSlot
+                    hour={hour}
+                    dayEvents={dayEvents}
+                    isDraggingOver={snapshot.isDraggingOver}
+                    isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
+                    onClick={() => {
+                      const newDate = handleHourClick(hour, 0);
+                      if (newDate) onDateSelect(newDate);
+                    }}
+                    students={students}
+                    onEventClick={onEventClick}
+                  />
                 )}
               </Droppable>
               <TimeIndicator events={dayEvents} hour={hour} />

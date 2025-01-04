@@ -7,7 +7,6 @@ import { isHoliday } from "@/utils/turkishHolidays";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
-import { checkLessonConflict } from "@/utils/lessonConflicts";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -33,6 +32,44 @@ export default function WeekViewTimeGrid({
   students
 }: WeekViewTimeGridProps) {
   const { toast } = useToast();
+
+  const handleCellClick = (day: Date, hour: number) => {
+    const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours[dayOfWeek];
+    
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const holiday = isHoliday(day);
+    if (holiday && !allowWorkOnHolidays) {
+      toast({
+        title: "Resmi Tatil",
+        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const [startHour] = daySettings.start.split(':').map(Number);
+    const [endHour] = daySettings.end.split(':').map(Number);
+
+    if (hour < startHour || hour >= endHour) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onCellClick(day, hour);
+  };
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
@@ -73,23 +110,11 @@ export default function WeekViewTimeGrid({
     const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
 
-    const updatedEvent = {
+    onEventUpdate({
       ...event,
       start: newStart,
       end: newEnd
-    };
-
-    // Check for conflicts
-    if (checkLessonConflict(updatedEvent, events, event.id)) {
-      toast({
-        title: "Çakışma tespit edildi",
-        description: "Bu zaman diliminde başka bir ders bulunuyor.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onEventUpdate(updatedEvent);
+    });
 
     toast({
       title: "Ders taşındı",
@@ -127,7 +152,7 @@ export default function WeekViewTimeGrid({
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
                       snapshot.isDraggingOver && "bg-accent"
                     )}
-                    onClick={() => onCellClick(day, hour)}
+                    onClick={() => handleCellClick(day, hour)}
                   >
                     {events
                       .filter(

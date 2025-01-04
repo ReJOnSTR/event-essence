@@ -1,5 +1,6 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
+import { Droppable } from "@hello-pangea/dnd";
 import LessonCard from "./LessonCard";
 
 interface DayTimeSlotProps {
