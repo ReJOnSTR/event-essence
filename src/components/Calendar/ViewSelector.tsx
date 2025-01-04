@@ -59,7 +59,7 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
                   className={`
                     relative w-full rounded-md px-3 py-1.5 text-sm font-medium transition-all
                     hover:bg-[#222222]/80 hover:text-white
-                    data-[state=active]:bg-[#333333] data-[state=active]:text-white data-[state=active]:shadow-sm
+                    data-[state=active]:bg-white data-[state=active]:text-[#1A1F2C] data-[state=active]:shadow-sm
                   `}
                 >
                   {view.label}
