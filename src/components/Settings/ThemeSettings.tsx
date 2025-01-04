@@ -8,7 +8,7 @@ import { ThemeOptions } from "./ThemeOptions";
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
-    return savedTheme || "light"; // Varsayılan değer "light" olarak değiştirildi
+    return savedTheme || "light";
   });
   
   const [fontSize, setFontSize] = useState(() => {
@@ -32,6 +32,10 @@ export default function ThemeSettings() {
     if (localStorage.getItem("theme") !== currentTheme) {
       applyTheme(currentTheme);
       localStorage.setItem("theme", currentTheme);
+      toast({
+        title: "Görünüm ayarları güncellendi",
+        description: "Yeni ayarlarınız kaydedildi.",
+      });
     }
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -40,23 +44,37 @@ export default function ThemeSettings() {
     return () => {
       mediaQuery.removeEventListener("change", handleSystemThemeChange);
     };
-  }, [currentTheme, applyTheme]);
+  }, [currentTheme, applyTheme, toast]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
-    document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
-    localStorage.setItem("fontSize", fontSize);
+    const currentBaseFontSize = document.documentElement.style.getPropertyValue('--base-font-size');
+    const currentHeadingFontSize = document.documentElement.style.getPropertyValue('--heading-font-size');
+    const currentFontFamily = document.documentElement.style.getPropertyValue('--font-family');
 
-    const selectedFont = fontFamilies.find(f => f.id === fontFamily);
-    if (selectedFont) {
-      document.documentElement.style.setProperty('--font-family', selectedFont.value);
+    const newBaseFontSize = fontSizes[fontSize as keyof typeof fontSizes].base;
+    const newHeadingFontSize = fontSizes[fontSize as keyof typeof fontSizes].heading;
+    const newFontFamily = fontFamilies.find(f => f.id === fontFamily)?.value;
+
+    if (
+      currentBaseFontSize !== newBaseFontSize ||
+      currentHeadingFontSize !== newHeadingFontSize ||
+      currentFontFamily !== newFontFamily
+    ) {
+      document.documentElement.style.setProperty('--base-font-size', newBaseFontSize);
+      document.documentElement.style.setProperty('--heading-font-size', newHeadingFontSize);
+      
+      if (newFontFamily) {
+        document.documentElement.style.setProperty('--font-family', newFontFamily);
+      }
+      
+      localStorage.setItem("fontSize", fontSize);
       localStorage.setItem("fontFamily", fontFamily);
-    }
 
-    toast({
-      title: "Görünüm ayarları güncellendi",
-      description: "Yeni ayarlarınız kaydedildi.",
-    });
+      toast({
+        title: "Görünüm ayarları güncellendi",
+        description: "Yeni ayarlarınız kaydedildi.",
+      });
+    }
   }, [fontSize, fontFamily, toast]);
 
   return (
