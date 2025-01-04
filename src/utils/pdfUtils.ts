@@ -34,8 +34,8 @@ export const createTableBody = (
   students: Student[]
 ) => {
   return lessons.map(lesson => {
-    const start = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
-    const end = lesson.end instanceof Date ? lesson.end : new Date(lesson.end);
+    const start = new Date(lesson.start);
+    const end = new Date(lesson.end);
     const student = students.find(s => s.id === lesson.studentId);
     
     return [

@@ -7,7 +7,9 @@ import {
   startOfYear, 
   endOfYear, 
   isWithinInterval,
-  parseISO
+  parseISO,
+  endOfDay,
+  startOfDay
 } from "date-fns";
 import { useMemo } from "react";
 
@@ -29,27 +31,30 @@ const getPeriodRange = (period: Period, selectedDate: Date, customRange?: DateRa
   switch (period) {
     case 'weekly':
       return {
-        start: startOfWeek(selectedDate, { weekStartsOn: 1 }),
-        end: endOfWeek(selectedDate, { weekStartsOn: 1 })
+        start: startOfDay(startOfWeek(selectedDate, { weekStartsOn: 1 })),
+        end: endOfDay(endOfWeek(selectedDate, { weekStartsOn: 1 }))
       };
     case 'monthly':
       return {
-        start: startOfMonth(selectedDate),
-        end: endOfMonth(selectedDate)
+        start: startOfDay(startOfMonth(selectedDate)),
+        end: endOfDay(endOfMonth(selectedDate))
       };
     case 'yearly':
       return {
-        start: startOfYear(selectedDate),
-        end: endOfYear(selectedDate)
+        start: startOfDay(startOfYear(selectedDate)),
+        end: endOfDay(endOfYear(selectedDate))
       };
     case 'custom':
       if (!customRange?.start || !customRange?.end) {
         return {
-          start: selectedDate,
-          end: selectedDate
+          start: startOfDay(selectedDate),
+          end: endOfDay(selectedDate)
         };
       }
-      return customRange;
+      return {
+        start: startOfDay(customRange.start),
+        end: endOfDay(customRange.end)
+      };
   }
 };
 
@@ -65,11 +70,14 @@ export const filterLessons = (
   return lessons
     .filter(lesson => {
       const lessonStart = lesson.start instanceof Date ? lesson.start : parseISO(lesson.start as unknown as string);
-      return (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
-             isWithinInterval(lessonStart, { 
-               start: range.start, 
-               end: range.end 
-             });
+      
+      return (
+        (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
+        isWithinInterval(lessonStart, { 
+          start: range.start, 
+          end: range.end 
+        })
+      );
     })
     .sort((a, b) => {
       const dateA = a.start instanceof Date ? a.start : parseISO(a.start as unknown as string);
