@@ -11,6 +11,7 @@ import StudentsManagementPage from "./StudentsManagementPage";
 import ReportsPage from "./ReportsPage";
 import SettingsPage from "./SettingsPage";
 import SideMenu from "@/components/Layout/SideMenu";
+import { Student } from "@/types/calendar";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,13 @@ const pageTransition = {
   ease: "easeOut",
   duration: 0.15
 };
+
+interface StudentDialogState {
+  selectedStudent: Student | null;
+  studentName: string;
+  studentPrice: number;
+  studentColor: string;
+}
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -70,14 +78,6 @@ const AnimatedRoutes = () => {
 };
 
 const CalendarPageContent = () => {
-  const [studentDialogState, setStudentDialogState] = useState({
-    selectedStudent: null,
-    studentName: "",
-    studentPrice: 0,
-    studentColor: "#1a73e8"
-  });
-  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
-
   return (
     <div className="flex-1 overflow-hidden">
       {/* Calendar content will go here */}
@@ -86,6 +86,14 @@ const CalendarPageContent = () => {
 };
 
 const CalendarPage = () => {
+  const [studentDialogState, setStudentDialogState] = useState<StudentDialogState>({
+    selectedStudent: null,
+    studentName: "",
+    studentPrice: 0,
+    studentColor: "#1a73e8"
+  });
+  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
