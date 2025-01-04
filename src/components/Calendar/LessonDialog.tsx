@@ -8,6 +8,7 @@ import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
 import { motion, AnimatePresence } from "framer-motion";
+import { getWorkingHours } from "@/utils/workingHours";
 import {
   Select,
   SelectContent,
@@ -52,12 +53,29 @@ export default function LessonDialog({
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
       } else {
-        const hours = selectedDate.getHours();
-        const minutes = selectedDate.getMinutes();
-        const formattedHours = hours.toString().padStart(2, '0');
-        const formattedMinutes = minutes.toString().padStart(2, '0');
-        const startTimeStr = `${formattedHours}:${formattedMinutes}`;
-        setStartTime(startTimeStr);
+        const workingHours = getWorkingHours();
+        const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
+        const daySettings = workingHours[dayOfWeek];
+
+        let initialStartTime;
+        if (daySettings?.enabled) {
+          const [startHour] = daySettings.start.split(':');
+          const currentHours = selectedDate.getHours();
+          const currentMinutes = selectedDate.getMinutes();
+
+          // If current time is before working hours, use working hours start time
+          if (currentHours < parseInt(startHour)) {
+            initialStartTime = daySettings.start;
+          } else {
+            // Use current time
+            initialStartTime = `${currentHours.toString().padStart(2, '0')}:${currentMinutes.toString().padStart(2, '0')}`;
+          }
+        } else {
+          // Default to 09:00 if no working hours set
+          initialStartTime = "09:00";
+        }
+
+        setStartTime(initialStartTime);
         
         const defaultDuration = getDefaultLessonDuration();
         const endDate = new Date(selectedDate);
