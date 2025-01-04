@@ -1,9 +1,8 @@
-import { format, isToday, addDays, startOfWeek } from "date-fns";
+import { format, isToday, isHoliday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-import { isHoliday } from "@/utils/turkishHolidays";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface WeekViewHeaderProps {
   date: Date;
@@ -30,24 +29,25 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
               ease: [0.23, 1, 0.32, 1]
             }}
             className={cn(
-              "bg-white p-2 text-center relative min-h-[80px] flex flex-col justify-between",
+              "bg-white p-2 text-center relative min-h-[60px] md:min-h-[80px] flex flex-col justify-between",
               isToday(day) && "text-calendar-blue"
             )}
           >
             <div>
-              <div className="font-medium">
+              <div className="font-medium text-sm md:text-base">
                 {format(day, isMobile ? "EEE" : "EEEE", { locale: tr })}
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-xs md:text-sm text-gray-500">
                 {format(day, "d MMM", { locale: tr })}
               </div>
             </div>
             {holiday && (
               <div 
                 className={cn(
-                  "text-xs px-2 py-1 rounded-md mt-1",
-                  "bg-red-50 text-red-700 border border-red-100"
+                  "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded-md",
+                  "bg-red-50 text-red-700 border border-red-100 truncate"
                 )}
+                title={holiday.name}
               >
                 {holiday.name}
               </div>
