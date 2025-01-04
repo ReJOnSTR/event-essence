@@ -41,8 +41,8 @@ export default function SideMenu({
     <div 
       className="flex flex-col h-full bg-background w-full"
       style={{
-        transition: 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), margin 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
-        willChange: 'transform, margin'
+        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        willChange: 'transform, margin, height'
       }}
     >
       <SidebarGroup className="space-y-2">
