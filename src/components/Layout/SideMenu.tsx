@@ -1,5 +1,5 @@
 import { Plus, FileBarChart, Settings, Calendar, Users } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
   SidebarMenu, 
@@ -26,9 +26,15 @@ export default function SideMenu({
 }: SideMenuProps) {
   const { students } = useStudents();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleNavigation = (path: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(path);
   };
 
   const menuItems = [
@@ -45,6 +51,7 @@ export default function SideMenu({
             key={item.path} 
             to={item.path} 
             className="block"
+            onClick={(e) => handleNavigation(item.path, e)}
           >
             <SidebarMenuButton 
               className="w-full hover:bg-accent rounded-md transition-colors"
