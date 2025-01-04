@@ -31,7 +31,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ height: 0, opacity: 0 }}
+        initial={{ height: 32, opacity: 1 }}
         animate={{ 
           height: isVisible ? "12rem" : "2rem",
           opacity: 1
@@ -70,7 +70,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute left-1/2 transform -translate-x-1/2 translate-y-1/2 bottom-0 bg-background border shadow-sm hover:bg-accent rounded-full"
+            className="absolute left-1/2 transform -translate-x-1/2 bottom-0 translate-y-1/2 bg-background border shadow-sm hover:bg-accent rounded-full"
             onClick={toggleVisibility}
           >
             {isVisible ? (
