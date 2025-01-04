@@ -45,14 +45,6 @@ export default function SideMenu({
             key={item.path} 
             to={item.path} 
             className="block"
-            onClick={(e) => {
-              // Prevent the default link behavior which might trigger sidebar closing
-              e.preventDefault();
-              // Use the history API directly to navigate without side effects
-              window.history.pushState({}, '', item.path);
-              // Trigger a navigation event to update the router
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
           >
             <SidebarMenuButton 
               className="w-full hover:bg-accent rounded-md transition-colors"
