@@ -40,6 +40,10 @@ export default {
           DEFAULT: "#039be5",
           dark: "#38bdf8"
         },
+        "today": {
+          DEFAULT: "#1a73e8",
+          dark: "#4b6474" // Yeni eklenen renk
+        },
         // Diğer renkler
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

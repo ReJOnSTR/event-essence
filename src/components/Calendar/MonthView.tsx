@@ -138,7 +138,7 @@ export default function MonthView({
                 className={cn(
                   "min-h-[40px] p-1 bg-background/80 cursor-pointer hover:bg-accent/50 transition-colors duration-150",
                   !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-                  isToday(day.date) && "bg-accent text-accent-foreground",
+                  isToday(day.date) && "text-today-dark dark:text-today-dark",
                   holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
                   holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
                 )}
@@ -198,7 +198,7 @@ export default function MonthView({
                     className={cn(
                       "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
                       !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-                      isToday(day.date) && "bg-accent text-accent-foreground",
+                      isToday(day.date) && "text-today-dark dark:text-today-dark",
                       holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
                       holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
                       snapshot.isDraggingOver && "bg-accent/50"
@@ -206,7 +206,7 @@ export default function MonthView({
                   >
                     <div className={cn(
                       "text-sm font-medium mb-1",
-                      isToday(day.date) && "text-accent-foreground"
+                      isToday(day.date) && "text-today-dark dark:text-today-dark"
                     )}>
                       {format(day.date, "d")}
                       {holiday && (
