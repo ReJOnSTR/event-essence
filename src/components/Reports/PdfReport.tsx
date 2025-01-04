@@ -6,6 +6,8 @@ import { Student, Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { pdfStyles, tableLayout } from "@/utils/pdfStyles";
+import { calculatePdfStats, createTableBody } from "@/utils/pdfUtils";
 
 // Initialize pdfMake with fonts
 (window as any).pdfMake = pdfMake;
@@ -24,8 +26,7 @@ interface PdfReportProps {
   students: Student[];
   selectedStudent: string;
   selectedPeriod: string;
-  totalHours: number;
-  totalEarnings: number;
+  selectedDate: Date;
   startDate?: Date;
   endDate?: Date;
 }
@@ -35,14 +36,23 @@ export function PdfReport({
   students,
   selectedStudent,
   selectedPeriod,
-  totalHours,
-  totalEarnings,
+  selectedDate,
   startDate,
   endDate
 }: PdfReportProps) {
   const { toast } = useToast();
 
   const generatePDF = () => {
+    const { filteredLessons, totalHours, totalEarnings } = calculatePdfStats(
+      lessons,
+      students,
+      selectedDate,
+      selectedStudent,
+      selectedPeriod,
+      startDate,
+      endDate
+    );
+
     // Period Info
     let periodText = "";
     if (startDate && endDate) {
@@ -62,23 +72,7 @@ export function PdfReport({
       ? "Tüm Öğrenciler" 
       : students.find(s => s.id === selectedStudent)?.name || "Bilinmeyen Öğrenci";
 
-    const tableBody = lessons.map(lesson => {
-      const student = students.find(s => s.id === lesson.studentId);
-      return [
-        { text: format(new Date(lesson.start), 'd MMMM yyyy', { locale: tr }), style: 'tableCell' },
-        { text: `${format(new Date(lesson.start), 'HH:mm')} - ${format(new Date(lesson.end), 'HH:mm')}`, style: 'tableCell' },
-        { text: student?.name || "Bilinmeyen Öğrenci", style: 'tableCell' },
-        { 
-          text: (student?.price || 0).toLocaleString('tr-TR', { 
-            style: 'currency', 
-            currency: 'TRY',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          }), 
-          style: 'tableCell' 
-        }
-      ];
-    });
+    const tableBody = createTableBody(filteredLessons, students);
 
     const docDefinition = {
       pageMargins: [40, 60, 40, 60],
@@ -145,57 +139,10 @@ export function PdfReport({
               ...tableBody
             ]
           },
-          layout: {
-            hLineWidth: function(i: number, node: any) {
-              return i === 0 || i === node.table.body.length ? 2 : 1;
-            },
-            vLineWidth: function(i: number, node: any) {
-              return i === 0 || i === node.table.widths.length ? 2 : 1;
-            },
-            hLineColor: function(i: number, node: any) {
-              return i === 0 || i === node.table.body.length ? '#1a73e8' : '#dadce0';
-            },
-            vLineColor: function(i: number, node: any) {
-              return i === 0 || i === node.table.widths.length ? '#1a73e8' : '#dadce0';
-            },
-            paddingLeft: function(i: number) { return 8; },
-            paddingRight: function(i: number) { return 8; },
-            paddingTop: function(i: number) { return 8; },
-            paddingBottom: function(i: number) { return 8; }
-          }
+          layout: tableLayout
         }
       ],
-      styles: {
-        header: {
-          fontSize: 24,
-          bold: true,
-          color: '#1a73e8',
-          margin: [0, 0, 0, 20]
-        },
-        subheader: {
-          fontSize: 14,
-          bold: true,
-          margin: [0, 5, 0, 0]
-        },
-        totalInfo: {
-          fontSize: 14,
-          bold: true,
-          color: '#1a73e8',
-          margin: [0, 5, 0, 0]
-        },
-        tableHeader: {
-          bold: true,
-          fontSize: 12,
-          fillColor: '#1a73e8',
-          color: '#ffffff',
-          alignment: 'center'
-        },
-        tableCell: {
-          fontSize: 11,
-          alignment: 'center',
-          margin: [0, 5]
-        }
-      },
+      styles: pdfStyles,
       defaultStyle: {
         font: 'Roboto'
       }
