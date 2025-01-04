@@ -7,7 +7,7 @@ export function useStudentMutations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const saveStudent = useMutation({
+  const { mutate: saveStudent } = useMutation({
     mutationFn: async (student: Student) => {
       const {
         data: { user },
@@ -54,7 +54,7 @@ export function useStudentMutations() {
     }
   });
 
-  const deleteStudent = useMutation({
+  const { mutate: deleteStudent } = useMutation({
     mutationFn: async (studentId: string) => {
       const { error } = await supabase
         .from('students')

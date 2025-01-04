@@ -38,13 +38,14 @@ export function useStudentQueries() {
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
     queryFn: fetchStudents,
-    onError: (error: Error) => {
-      console.error('Error in students query:', error);
-      toast({
-        title: "Hata",
-        description: "Öğrenciler yüklenirken bir hata oluştu.",
-        variant: "destructive"
-      });
+    meta: {
+      onError: () => {
+        toast({
+          title: "Hata",
+          description: "Öğrenciler yüklenirken bir hata oluştu.",
+          variant: "destructive"
+        });
+      }
     }
   });
 
