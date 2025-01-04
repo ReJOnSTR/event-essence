@@ -34,6 +34,18 @@ export default function WeekViewTimeGrid({
   const { toast } = useToast();
 
   const handleCellClick = (day: Date, hour: number) => {
+    const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours[dayOfWeek];
+    
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const holiday = isHoliday(day);
     if (holiday && !allowWorkOnHolidays) {
       toast({
@@ -43,6 +55,19 @@ export default function WeekViewTimeGrid({
       });
       return;
     }
+
+    const [startHour] = daySettings.start.split(':').map(Number);
+    const [endHour] = daySettings.end.split(':').map(Number);
+
+    if (hour < startHour || hour >= endHour) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     onCellClick(day, hour);
   };
 
@@ -55,16 +80,6 @@ export default function WeekViewTimeGrid({
     
     if (!event) return;
 
-    const holiday = isHoliday(targetDay);
-    if (holiday && !allowWorkOnHolidays) {
-      toast({
-        title: "Resmi Tatil",
-        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
     const dayOfWeek = format(targetDay, 'EEEE').toLowerCase() as keyof typeof workingHours;
     const daySettings = workingHours[dayOfWeek];
     
@@ -72,6 +87,16 @@ export default function WeekViewTimeGrid({
       toast({
         title: "Çalışma saatleri dışında",
         description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const holiday = isHoliday(targetDay);
+    if (holiday && !allowWorkOnHolidays) {
+      toast({
+        title: "Resmi Tatil",
+        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
         variant: "destructive"
       });
       return;
@@ -110,6 +135,9 @@ export default function WeekViewTimeGrid({
             const isDayEnabled = daySettings?.enabled;
             const holiday = isHoliday(day);
             const isWorkDisabled = (holiday && !allowWorkOnHolidays) || !isDayEnabled;
+            const [startHour] = (daySettings?.start || "09:00").split(':').map(Number);
+            const [endHour] = (daySettings?.end || "17:00").split(':').map(Number);
+            const isHourDisabled = hour < startHour || hour >= endHour;
 
             return (
               <Droppable droppableId={`${dayIndex}-${hour}`} key={`${day}-${hour}`}>
@@ -118,9 +146,10 @@ export default function WeekViewTimeGrid({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "bg-white border-t border-gray-200 min-h-[60px] cursor-pointer hover:bg-gray-50 relative",
+                      "bg-white border-t border-gray-200 min-h-[60px] relative",
                       isToday(day) && "bg-blue-50",
-                      isWorkDisabled && "bg-gray-100 cursor-not-allowed",
+                      (isWorkDisabled || isHourDisabled) && "bg-gray-100 cursor-not-allowed",
+                      !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-gray-50",
                       snapshot.isDraggingOver && "bg-blue-50"
                     )}
                     onClick={() => handleCellClick(day, hour)}
