@@ -38,7 +38,12 @@ export default function SideMenu({
   ];
 
   return (
-    <div className="flex flex-col h-full bg-background w-full">
+    <div 
+      className="flex flex-col h-full bg-background w-full"
+      style={{
+        transition: 'all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
+      }}
+    >
       <SidebarGroup className="space-y-2">
         {menuItems.map((item) => (
           <Link 
