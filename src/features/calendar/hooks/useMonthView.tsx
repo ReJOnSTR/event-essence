@@ -22,10 +22,16 @@ export function useMonthView(date: Date, events: CalendarEvent[]) {
     return [...prefixDays, ...days, ...suffixDays].map(dayDate => ({
       date: dayDate,
       isCurrentMonth: isSameMonth(dayDate, currentDate),
-      lessons: events.filter(event => {
-        const eventStart = new Date(event.start);
-        return eventStart.toDateString() === dayDate.toDateString();
-      })
+      lessons: events
+        .filter(event => {
+          const eventStart = new Date(event.start);
+          return eventStart.toDateString() === dayDate.toDateString();
+        })
+        .sort((a, b) => {
+          const aStart = new Date(a.start).getTime();
+          const bStart = new Date(b.start).getTime();
+          return aStart - bStart;
+        })
     }));
   };
 
