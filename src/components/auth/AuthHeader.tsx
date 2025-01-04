@@ -22,20 +22,18 @@ export default function AuthHeader() {
     }
   };
 
-  const height = isVisible ? "h-[72px]" : isPartiallyOpen ? "h-[32px]" : "h-0";
-
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ height: 0 }}
-        animate={{ height: isVisible ? 72 : isPartiallyOpen ? 32 : 0 }}
+        initial={{ y: -100 }}
+        animate={{ y: isVisible ? 0 : isPartiallyOpen ? -60 : -100 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
         onHoverStart={() => {
           setIsVisible(true);
           setIsPartiallyOpen(false);
         }}
         onClick={handleClickOutside}
-        className="w-full bg-background/95 backdrop-blur-sm border-b shadow-lg overflow-hidden"
+        className="fixed top-0 left-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b shadow-lg"
       >
         <div className="container mx-auto py-4 px-4">
           <div className="flex justify-end items-center gap-4">
