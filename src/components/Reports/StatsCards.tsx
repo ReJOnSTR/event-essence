@@ -22,7 +22,6 @@ export function StatsCards({
   startDate,
   endDate,
 }: StatsCardsProps) {
-  // Always call hooks at the top level
   const hours = useCalculatePeriodHours(
     lessons,
     selectedDate,
