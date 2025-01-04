@@ -1,7 +1,6 @@
 import { Plus, FileBarChart, Settings, Calendar, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
-import { motion } from "framer-motion";
 import { 
   SidebarMenu, 
   SidebarMenuItem, 
@@ -19,13 +18,11 @@ import { useStudents } from "@/hooks/useStudents";
 interface SideMenuProps {
   onAddStudent?: () => void;
   onEdit?: (student: Student) => void;
-  headerHeight?: number;
 }
 
 export default function SideMenu({ 
   onAddStudent,
   onEdit,
-  headerHeight = 0
 }: SideMenuProps) {
   const { students } = useStudents();
   const location = useLocation();
@@ -41,16 +38,7 @@ export default function SideMenu({
   ];
 
   return (
-    <motion.div 
-      className="flex flex-col h-full bg-background w-full"
-      animate={{ 
-        marginTop: headerHeight 
-      }}
-      transition={{ 
-        duration: 0.3,
-        ease: "easeInOut"
-      }}
-    >
+    <div className="flex flex-col h-full bg-background w-full">
       <SidebarGroup className="space-y-2">
         {menuItems.map((item) => (
           <Link 
@@ -133,6 +121,6 @@ export default function SideMenu({
           </div>
         </div>
       </SidebarFooter>
-    </motion.div>
+    </div>
   );
 }
