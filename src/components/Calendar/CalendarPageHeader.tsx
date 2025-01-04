@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
-import { ViewSelector } from "./ViewSelector";
+import ViewSelector from "./ViewSelector";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
