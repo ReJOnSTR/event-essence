@@ -44,18 +44,9 @@ export default function StudentsManagementPage() {
   };
 
   const handleSaveStudent = () => {
-    if (!studentName.trim()) {
-      toast({
-        title: "Hata",
-        description: "Öğrenci ismi boş olamaz.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const studentData = {
       id: selectedStudent?.id || crypto.randomUUID(),
-      name: studentName.trim(),
+      name: studentName,
       price: studentPrice,
       color: studentColor,
     };
