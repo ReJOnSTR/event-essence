@@ -20,7 +20,7 @@ interface DayViewProps {
   onEventUpdate?: (event: CalendarEvent) => void;
   onEventCopy?: (event: CalendarEvent) => void;
   onEventPaste?: () => void;
-  onEventDelete?: (event: CalendarEvent) => void;
+  onEventDelete?: (lessonId: string) => void;
   canPaste?: boolean;
   students?: Student[];
 }
@@ -190,7 +190,7 @@ export default function DayView({
                           key={event.id} 
                           event={event} 
                           onClick={onEventClick}
-                          onDelete={onEventDelete}
+                          onDelete={() => onEventDelete?.(event.id)}
                           onCopy={onEventCopy}
                           onPaste={onEventPaste}
                           canPaste={canPaste}
