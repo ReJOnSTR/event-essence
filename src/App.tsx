@@ -48,7 +48,7 @@ const AnimatedRoutes = () => {
         exit="exit"
         variants={pageVariants}
         transition={pageTransition}
-        className="w-full h-screen overflow-hidden"
+        className="w-full h-screen"
       >
         <Routes location={location}>
           <Route path="/calendar" element={<CalendarPage />} />
@@ -66,13 +66,13 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <SidebarProvider>
-        <div className="overflow-hidden min-h-screen flex w-full">
-          <Toaster />
-          <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
-          <BrowserRouter>
+        <BrowserRouter>
+          <div className="min-h-screen flex w-full bg-background">
+            <Toaster />
+            <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
             <AnimatedRoutes />
-          </BrowserRouter>
-        </div>
+          </div>
+        </BrowserRouter>
       </SidebarProvider>
     </TooltipProvider>
   </QueryClientProvider>
