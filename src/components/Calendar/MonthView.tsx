@@ -1,4 +1,4 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { CalendarEvent, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
+import { getWorkingHours } from "@/utils/workingHours";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthViewProps {
   events: CalendarEvent[];
