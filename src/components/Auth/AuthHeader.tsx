@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, LogIn } from "lucide-react";
+import { UserPlus, LogIn, ChevronUp, ChevronDown } from "lucide-react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -31,10 +31,12 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
     }
   };
 
-  const handleClickOutside = () => {
+  const toggleVisibility = () => {
     if (isVisible) {
       setIsVisible(false);
       setIsPartiallyOpen(true);
+    } else {
+      setIsVisible(true);
     }
   };
 
@@ -49,7 +51,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
           className="w-full bg-background border-b fixed top-0 z-50"
           onMouseEnter={handleMouseEnter}
         >
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 relative">
             {isVisible ? (
               <div className="py-8 flex flex-col items-center gap-6">
                 <h2 className="text-2xl font-semibold">Hoş Geldiniz</h2>
@@ -63,19 +65,28 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                     Giriş Yap
                   </Button>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  className="absolute top-2 right-4"
-                  onClick={handleClickOutside}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-1/2 transform -translate-x-1/2 -bottom-5 bg-background border shadow-sm hover:bg-accent"
+                  onClick={toggleVisibility}
                 >
-                  Kapat
+                  <ChevronUp className="h-4 w-4" />
                 </Button>
               </div>
             ) : (
-              <div className="h-8 flex items-center justify-center">
+              <div className="h-8 flex items-center justify-center relative">
                 <span className="text-sm text-muted-foreground">
                   Giriş yapmak için tıklayın
                 </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-1/2 transform -translate-x-1/2 -bottom-5 bg-background border shadow-sm hover:bg-accent"
+                  onClick={toggleVisibility}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
               </div>
             )}
           </div>
