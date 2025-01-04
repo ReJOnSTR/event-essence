@@ -125,8 +125,8 @@ export default function ReportsPage() {
         </div>
 
         <StudentDialog
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
           student={editingStudent}
           studentColor={studentColor}
           setStudentColor={setStudentColor}
