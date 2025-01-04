@@ -4,7 +4,6 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import { AuthError, AuthResponse } from "@supabase/supabase-js";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -84,33 +83,6 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
           }}
           theme="light"
           providers={[]}
-          onError={(error: AuthError) => {
-            if (error.message.includes("email_address_invalid")) {
-              toast({
-                title: "Geçersiz e-posta",
-                description: "Lütfen geçerli bir e-posta adresi girin.",
-                variant: "destructive"
-              });
-            } else if (error.message.includes("over_email_send_rate_limit")) {
-              toast({
-                title: "Çok fazla deneme",
-                description: "Lütfen 20 saniye bekleyip tekrar deneyin.",
-                variant: "destructive"
-              });
-            } else if (error.message.includes("invalid_credentials")) {
-              toast({
-                title: "Giriş başarısız",
-                description: "E-posta veya şifre hatalı.",
-                variant: "destructive"
-              });
-            } else {
-              toast({
-                title: "Hata",
-                description: error.message,
-                variant: "destructive"
-              });
-            }
-          }}
         />
       </DialogContent>
     </Dialog>
