@@ -41,6 +41,7 @@ export function DatePicker({ date, setDate, placeholder = "Tarih seçin" }: Date
           selected={date}
           onSelect={(date) => date && setDate(date)}
           initialFocus
+          locale={tr}
         />
       </PopoverContent>
     </Popover>
