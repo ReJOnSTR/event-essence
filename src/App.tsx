@@ -9,6 +9,7 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,12 @@ const pageTransition = {
 const AnimatedRoutes = () => {
   const location = useLocation();
   
+  useEffect(() => {
+    // Tema ayarını localStorage'dan al veya varsayılan olarak 'light' kullan
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
