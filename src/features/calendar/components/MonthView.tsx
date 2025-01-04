@@ -38,13 +38,15 @@ export default function MonthView({
     const workingHours = getWorkingHours();
     const daySettings = workingHours[days[dayOfWeek]];
     
+    // Create a new date object without changing the month
+    const dateWithSameMonth = new Date(clickedDate);
+    
     if (daySettings.enabled && daySettings.start) {
       const [hours, minutes] = daySettings.start.split(':').map(Number);
-      const dateWithWorkingHours = new Date(clickedDate);
-      dateWithWorkingHours.setHours(hours, minutes, 0);
-      onDateSelect(dateWithWorkingHours);
+      dateWithSameMonth.setHours(hours, minutes, 0);
+      onDateSelect(dateWithSameMonth);
     } else {
-      const dateWithDefaultHour = setHours(clickedDate, 9);
+      const dateWithDefaultHour = setHours(dateWithSameMonth, 9);
       onDateSelect(dateWithDefaultHour);
     }
   };
