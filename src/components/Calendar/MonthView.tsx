@@ -119,7 +119,7 @@ export default function MonthView({
   if (isYearView) {
     return (
       <div className="w-full mx-auto">
-        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
           {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
             <div
               key={day}
@@ -137,18 +137,13 @@ export default function MonthView({
                 onClick={() => handleDateClick(day.date)}
                 className={cn(
                   "min-h-[40px] p-1 bg-background cursor-pointer hover:bg-accent/50 transition-colors duration-150",
-                  !day.isCurrentMonth && "bg-muted text-muted-foreground",
-                  isToday(day.date) && "bg-accent",
-                  holiday && !allowWorkOnHolidays && "bg-destructive/10",
-                  holiday && allowWorkOnHolidays && "bg-yellow-500/10"
+                  !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
+                  isToday(day.date) && "bg-accent text-accent-foreground",
+                  holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
+                  holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
                 )}
               >
-                <div className={cn(
-                  "text-xs font-medium",
-                  isToday(day.date) && "text-accent-foreground",
-                  holiday && !allowWorkOnHolidays && "text-destructive",
-                  holiday && allowWorkOnHolidays && "text-yellow-500"
-                )}>
+                <div className="text-xs font-medium">
                   {format(day.date, "d")}
                 </div>
               </div>
@@ -167,7 +162,7 @@ export default function MonthView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
           {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, index) => (
             <motion.div
               key={day}
@@ -202,18 +197,16 @@ export default function MonthView({
                     onClick={() => handleDateClick(day.date)}
                     className={cn(
                       "min-h-[120px] p-2 bg-background cursor-pointer transition-colors duration-150",
-                      !day.isCurrentMonth && "bg-muted text-muted-foreground",
-                      isToday(day.date) && "bg-accent",
-                      holiday && !allowWorkOnHolidays && "bg-destructive/10",
-                      holiday && allowWorkOnHolidays && "bg-yellow-500/10",
-                      snapshot.isDraggingOver && "bg-accent"
+                      !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
+                      isToday(day.date) && "bg-accent text-accent-foreground",
+                      holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
+                      holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
+                      snapshot.isDraggingOver && "bg-accent/50"
                     )}
                   >
                     <div className={cn(
                       "text-sm font-medium mb-1",
-                      isToday(day.date) && "text-accent-foreground",
-                      holiday && !allowWorkOnHolidays && "text-destructive",
-                      holiday && allowWorkOnHolidays && "text-yellow-500"
+                      isToday(day.date) && "text-accent-foreground"
                     )}>
                       {format(day.date, "d")}
                       {holiday && (
