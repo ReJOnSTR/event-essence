@@ -10,16 +10,6 @@ import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
 
-interface MonthViewProps {
-  events: CalendarEvent[];
-  onDateSelect: (date: Date) => void;
-  date: Date;
-  isYearView?: boolean;
-  onEventClick?: (event: CalendarEvent) => void;
-  onEventUpdate?: (event: CalendarEvent) => void;
-  students?: Student[];
-}
-
 export default function MonthView({ 
   events, 
   onDateSelect, 
@@ -168,7 +158,7 @@ export default function MonthView({
           {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
             <div
               key={day}
-              className="bg-gray-50 p-1 text-xs font-medium text-calendar-gray text-center"
+              className="bg-background p-1 text-xs font-medium text-muted-foreground text-center"
             >
               {day}
             </div>
@@ -181,18 +171,18 @@ export default function MonthView({
                 key={idx}
                 onClick={() => handleDateClick(day.date)}
                 className={cn(
-                  "min-h-[40px] p-1 bg-white cursor-pointer hover:bg-gray-50 transition-colors duration-150",
-                  !day.isCurrentMonth && "bg-gray-50 text-gray-400",
-                  isToday(day.date) && "bg-blue-50",
-                  holiday && !allowWorkOnHolidays && "bg-red-50",
-                  holiday && allowWorkOnHolidays && "bg-yellow-50"
+                  "min-h-[40px] p-1 bg-background cursor-pointer hover:bg-accent/50 transition-colors duration-150",
+                  !day.isCurrentMonth && "bg-muted text-muted-foreground",
+                  isToday(day.date) && "bg-accent",
+                  holiday && !allowWorkOnHolidays && "bg-destructive/10",
+                  holiday && allowWorkOnHolidays && "bg-yellow-500/10"
                 )}
               >
                 <div className={cn(
                   "text-xs font-medium",
-                  isToday(day.date) && "text-calendar-blue",
-                  holiday && !allowWorkOnHolidays && "text-red-600",
-                  holiday && allowWorkOnHolidays && "text-yellow-700"
+                  isToday(day.date) && "text-accent-foreground",
+                  holiday && !allowWorkOnHolidays && "text-destructive",
+                  holiday && allowWorkOnHolidays && "text-yellow-500"
                 )}>
                   {format(day.date, "d")}
                 </div>
@@ -223,7 +213,7 @@ export default function MonthView({
                 delay: index * 0.01,
                 ease: [0.23, 1, 0.32, 1]
               }}
-              className="bg-gray-50 p-2 text-sm font-medium text-calendar-gray text-center"
+              className="bg-background p-2 text-sm font-medium text-muted-foreground text-center"
             >
               {day}
             </motion.div>
@@ -246,25 +236,25 @@ export default function MonthView({
                     }}
                     onClick={() => handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] p-2 bg-white cursor-pointer transition-colors duration-150",
-                      !day.isCurrentMonth && "bg-gray-50 text-gray-400",
-                      isToday(day.date) && "bg-blue-50",
-                      holiday && !allowWorkOnHolidays && "bg-red-50",
-                      holiday && allowWorkOnHolidays && "bg-yellow-50",
-                      snapshot.isDraggingOver && "bg-blue-50"
+                      "min-h-[120px] p-2 bg-background cursor-pointer transition-colors duration-150",
+                      !day.isCurrentMonth && "bg-muted text-muted-foreground",
+                      isToday(day.date) && "bg-accent",
+                      holiday && !allowWorkOnHolidays && "bg-destructive/10",
+                      holiday && allowWorkOnHolidays && "bg-yellow-500/10",
+                      snapshot.isDraggingOver && "bg-accent"
                     )}
                   >
                     <div className={cn(
                       "text-sm font-medium mb-1",
-                      isToday(day.date) && "text-calendar-blue",
-                      holiday && !allowWorkOnHolidays && "text-red-600",
-                      holiday && allowWorkOnHolidays && "text-yellow-700"
+                      isToday(day.date) && "text-accent-foreground",
+                      holiday && !allowWorkOnHolidays && "text-destructive",
+                      holiday && allowWorkOnHolidays && "text-yellow-500"
                     )}>
                       {format(day.date, "d")}
                       {holiday && (
                         <div className={cn(
                           "text-xs truncate",
-                          !allowWorkOnHolidays ? "text-red-600" : "text-yellow-700"
+                          !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
                         )}>
                           {holiday.name}
                           {allowWorkOnHolidays && " (Çalışmaya Açık)"}
