@@ -9,35 +9,44 @@ export function useStudentMutations() {
 
   const { mutate: saveStudent, isPending: isSaving } = useMutation({
     mutationFn: async (student: Student) => {
-      console.log('Saving student:', student);
+      console.log('Attempting to save student:', student);
+      
+      const studentData = {
+        name: student.name,
+        color: student.color || "#1a73e8",
+        price: student.price,
+        updated_at: new Date().toISOString()
+      };
+
       if (student.id) {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('students')
-          .update({
-            name: student.name,
-            color: student.color,
-            price: student.price,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', student.id);
+          .update(studentData)
+          .eq('id', student.id)
+          .select()
+          .single();
         
         if (error) {
           console.error('Error updating student:', error);
           throw error;
         }
+        
+        console.log('Updated student:', data);
+        return data;
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('students')
-          .insert({
-            name: student.name,
-            color: student.color,
-            price: student.price
-          });
+          .insert(studentData)
+          .select()
+          .single();
         
         if (error) {
           console.error('Error inserting student:', error);
           throw error;
         }
+        
+        console.log('Inserted student:', data);
+        return data;
       }
     },
     onSuccess: () => {
@@ -59,7 +68,7 @@ export function useStudentMutations() {
 
   const { mutate: deleteStudent, isPending: isDeleting } = useMutation({
     mutationFn: async (studentId: string) => {
-      console.log('Deleting student:', studentId);
+      console.log('Attempting to delete student:', studentId);
       const { error } = await supabase
         .from('students')
         .delete()
@@ -69,6 +78,7 @@ export function useStudentMutations() {
         console.error('Error deleting student:', error);
         throw error;
       }
+      console.log('Successfully deleted student:', studentId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });

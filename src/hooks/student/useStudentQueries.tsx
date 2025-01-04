@@ -7,6 +7,7 @@ export function useStudentQueries() {
   const { toast } = useToast();
 
   const getStudents = async (): Promise<Student[]> => {
+    console.log('Fetching students...');
     try {
       const { data, error } = await supabase
         .from('students')
@@ -17,6 +18,8 @@ export function useStudentQueries() {
         console.error('Error fetching students:', error);
         throw error;
       }
+      
+      console.log('Fetched students:', data);
       
       return data.map(student => ({
         id: student.id,
