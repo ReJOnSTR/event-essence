@@ -113,7 +113,6 @@ export default function CalendarPage() {
                 setIsStudentDialogOpen(true);
               }}
               onAddStudent={() => setIsStudentDialogOpen(true)}
-              headerHeight={192} // Assuming a fixed height for the header
             />
           </SidebarContent>
         </Sidebar>
