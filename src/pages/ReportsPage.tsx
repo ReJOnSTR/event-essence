@@ -1,17 +1,19 @@
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { useState } from "react";
 import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
-import ReportFilters from "@/components/Reports/ReportFilters";
-import StatsCards from "@/components/Reports/StatsCards";
-import LessonList from "@/components/Reports/LessonList";
+import { ReportFilters } from "@/components/Reports/ReportFilters";
+import { StatsCards } from "@/components/Reports/StatsCards";
+import { LessonList } from "@/components/Reports/LessonList";
 import { PdfReport } from "@/components/Reports/PdfReport";
 import { useStudents } from "@/hooks/useStudents";
 import SideMenu from "@/components/Layout/SideMenu";
 
 export default function ReportsPage() {
-  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
-  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [selectedStudent, setSelectedStudent] = useState<string>("all");
+  const [selectedPeriod, setSelectedPeriod] = useState<"weekly" | "monthly" | "yearly" | "custom">("weekly");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const { students } = useStudents();
 
   return (
@@ -28,36 +30,61 @@ export default function ReportsPage() {
             title="Raporlar"
             backTo="/"
             backLabel="Takvime Dön"
-            actions={
-              <PdfReport
-                startDate={startDate}
-                endDate={endDate}
-                selectedStudentId={selectedStudentId}
-                students={students}
-              />
-            }
           />
 
           <div className="p-4 space-y-4">
             <ReportFilters
+              selectedStudent={selectedStudent}
+              setSelectedStudent={setSelectedStudent}
+              selectedPeriod={selectedPeriod}
+              setSelectedPeriod={setSelectedPeriod}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
               startDate={startDate}
+              setStartDate={setStartDate}
               endDate={endDate}
-              selectedStudentId={selectedStudentId}
-              onStartDateChange={setStartDate}
-              onEndDateChange={setEndDate}
-              onStudentChange={setSelectedStudentId}
+              setEndDate={setEndDate}
+              students={students}
             />
             
             <StatsCards
+              hours={{
+                weekly: 0,
+                monthly: 0,
+                yearly: 0,
+                custom: startDate && endDate ? 0 : undefined
+              }}
+              earnings={{
+                weekly: 0,
+                monthly: 0,
+                yearly: 0,
+                custom: startDate && endDate ? 0 : undefined
+              }}
+              selectedDate={selectedDate}
               startDate={startDate}
               endDate={endDate}
-              selectedStudentId={selectedStudentId}
+              selectedPeriod={selectedPeriod}
             />
             
             <LessonList
+              lessons={[]}
+              students={students}
+              selectedStudent={selectedStudent}
+              selectedPeriod={selectedPeriod}
+              selectedDate={selectedDate}
               startDate={startDate}
               endDate={endDate}
-              selectedStudentId={selectedStudentId}
+            />
+
+            <PdfReport
+              lessons={[]}
+              students={students}
+              selectedStudent={selectedStudent}
+              selectedPeriod={selectedPeriod}
+              totalHours={0}
+              totalEarnings={0}
+              startDate={startDate}
+              endDate={endDate}
             />
           </div>
         </div>
