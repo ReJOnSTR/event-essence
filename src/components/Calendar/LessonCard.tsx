@@ -2,6 +2,7 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
+import { cn } from "@/lib/utils";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -42,19 +43,21 @@ export default function LessonCard({
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
-      className={`text-white text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all ${
-        snapshot?.isDragging ? "shadow-lg opacity-70" : ""
-      }`}
+      className={cn(
+        "text-white text-xs md:text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all",
+        snapshot?.isDragging ? "shadow-lg opacity-70" : "",
+        heightInPixels < 40 ? "min-h-[40px] flex flex-col justify-center" : ""
+      )}
       style={{
         ...style,
         ...(provided?.draggableProps?.style || {}),
       }}
       onClick={handleClick}
     >
-      <div className="font-medium truncate">
+      <div className="font-medium truncate leading-tight">
         {student?.name || "İsimsiz Öğrenci"}
       </div>
-      <div className="text-xs flex items-center gap-1">
+      <div className="text-[10px] md:text-xs flex items-center gap-1 opacity-90">
         <span>{format(event.start, "HH:mm", { locale: tr })}</span>
         <span className="text-white/80">-</span>
         <span>{format(event.end, "HH:mm", { locale: tr })}</span>
