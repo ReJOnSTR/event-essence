@@ -1,4 +1,4 @@
-import { Plus, FileBarChart, Settings, Calendar, Users } from "lucide-react";
+import { Plus, FileBarChart, Calendar, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -7,12 +7,9 @@ import {
   SidebarMenuButton, 
   SidebarGroup, 
   SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarFooter
+  SidebarGroupContent
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { useStudents } from "@/hooks/useStudents";
 
 interface SideMenuProps {
@@ -103,30 +100,6 @@ export default function SideMenu({
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
-
-      <SidebarFooter className="mt-auto">
-        <div className="border-t pt-4">
-          <div className="flex items-center justify-between px-2">
-            <div className="flex items-center gap-2">
-              <Avatar>
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback>AD</AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium">Admin</span>
-            </div>
-            <Link to="/settings">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                data-active={isActive("/settings")}
-                className="hover:bg-secondary"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </SidebarFooter>
     </div>
   );
 }

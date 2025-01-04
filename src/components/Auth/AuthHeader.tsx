@@ -6,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { 
   Search, 
@@ -14,8 +15,15 @@ import {
   LogIn,
   UserPlus,
   Settings,
-  HelpCircle
+  HelpCircle,
+  Sun,
+  Moon,
+  Palette,
+  Languages,
+  FileText,
+  Clock
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -52,7 +60,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
           </div>
         </div>
 
-        {/* Sağ taraf - Bildirimler ve Profil */}
+        {/* Sağ taraf - Bildirimler, Ayarlar ve Profil */}
         <div className="flex items-center space-x-4">
           {/* Bildirim ikonu */}
           <Button variant="ghost" size="icon" className="relative">
@@ -63,6 +71,35 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
               </span>
             )}
           </Button>
+
+          {/* Ayarlar Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <Link to="/settings" className="w-full">
+                <DropdownMenuItem className="gap-2">
+                  <Palette className="h-4 w-4" />
+                  <span>Tema Ayarları</span>
+                </DropdownMenuItem>
+              </Link>
+              <DropdownMenuItem className="gap-2">
+                <Languages className="h-4 w-4" />
+                <span>Dil Seçenekleri</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2">
+                <Clock className="h-4 w-4" />
+                <span>Çalışma Saatleri</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2">
+                <FileText className="h-4 w-4" />
+                <span>Veri Yönetimi</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Profil Dropdown */}
           <DropdownMenu>
@@ -81,10 +118,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                 <UserPlus className="h-4 w-4" />
                 <span>Kayıt Ol</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2">
-                <Settings className="h-4 w-4" />
-                <span>Ayarlar</span>
-              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2">
                 <HelpCircle className="h-4 w-4" />
                 <span>Yardım</span>
