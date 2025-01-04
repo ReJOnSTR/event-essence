@@ -10,7 +10,17 @@ export default function AuthPage() {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Check current session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate("/");
+      }
+    });
+
+    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session);
+      
       if (event === "SIGNED_IN") {
         toast({
           title: "Başarılı",
