@@ -22,6 +22,18 @@ export default function LessonDialog({
   event,
   students
 }: LessonDialogProps) {
+  const handleSave = (lessonData: Omit<CalendarEvent, "id">) => {
+    onSave(lessonData);
+    onClose();
+  };
+
+  const handleDelete = (lessonId: string) => {
+    if (onDelete) {
+      onDelete(lessonId);
+      onClose();
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] overflow-hidden">
@@ -42,8 +54,8 @@ export default function LessonDialog({
             selectedDate={selectedDate}
             selectedLesson={event}
             students={students}
-            onSave={onSave}
-            onDelete={onDelete}
+            onSave={handleSave}
+            onDelete={handleDelete}
             onClose={onClose}
           />
         </motion.div>
