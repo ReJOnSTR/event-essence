@@ -101,7 +101,7 @@ export default function CalendarPage() {
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background font-sans">
         <Sidebar>
-          <SidebarContent className="p-4">
+          <SidebarContent>
             <SideMenu
               onEdit={(student) => {
                 setStudentDialogState({
@@ -113,7 +113,6 @@ export default function CalendarPage() {
                 setIsStudentDialogOpen(true);
               }}
               onAddStudent={() => setIsStudentDialogOpen(true)}
-              headerHeight={192} // Assuming a fixed height for the header
             />
           </SidebarContent>
         </Sidebar>
