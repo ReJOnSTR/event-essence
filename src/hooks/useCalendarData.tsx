@@ -3,11 +3,20 @@ import { CalendarEvent } from "@/types/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
+interface LessonRow {
+  id: string;
+  title: string;
+  description: string | null;
+  start_time: string;
+  end_time: string;
+  student_id: string | null;
+}
+
 export function useCalendarData() {
   const [lessons, setLessons] = useState<CalendarEvent[]>([]);
   const { toast } = useToast();
 
-  // Verileri Supabase'den yükle
+  // Load data from Supabase
   useEffect(() => {
     const loadLessons = async () => {
       try {
@@ -17,17 +26,20 @@ export function useCalendarData() {
             id,
             title,
             description,
-            start_time as start,
-            end_time as end,
-            student_id as studentId
+            start_time,
+            end_time,
+            student_id
           `);
 
         if (error) throw error;
 
-        const formattedLessons = data.map(lesson => ({
-          ...lesson,
-          start: new Date(lesson.start),
-          end: new Date(lesson.end)
+        const formattedLessons: CalendarEvent[] = (data as LessonRow[]).map(lesson => ({
+          id: lesson.id,
+          title: lesson.title,
+          description: lesson.description || undefined,
+          start: new Date(lesson.start_time),
+          end: new Date(lesson.end_time),
+          studentId: lesson.student_id || undefined
         }));
 
         setLessons(formattedLessons);
@@ -61,8 +73,12 @@ export function useCalendarData() {
       if (error) throw error;
 
       const newLesson: CalendarEvent = {
-        ...lessonData,
-        id: data.id
+        id: data.id,
+        title: data.title,
+        description: data.description || undefined,
+        start: new Date(data.start_time),
+        end: new Date(data.end_time),
+        studentId: data.student_id || undefined
       };
 
       setLessons(prev => [...prev, newLesson]);
