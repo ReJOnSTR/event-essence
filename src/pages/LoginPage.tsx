@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,6 +19,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
       if (isLogin) {
         await signIn(email, password);
@@ -27,6 +30,8 @@ export default function LoginPage() {
       navigate(from, { replace: true });
     } catch (error) {
       console.error("Authentication error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,6 +56,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -61,18 +67,28 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
-            <Button type="submit" className="w-full">
-              {isLogin ? "Giriş Yap" : "Kayıt Ol"}
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading 
+                ? "İşlem yapılıyor..." 
+                : isLogin 
+                  ? "Giriş Yap" 
+                  : "Kayıt Ol"}
             </Button>
             <Button
               type="button"
               variant="ghost"
               onClick={() => setIsLogin(!isLogin)}
               className="w-full"
+              disabled={isLoading}
             >
               {isLogin 
                 ? "Hesabınız yok mu? Kayıt olun" 

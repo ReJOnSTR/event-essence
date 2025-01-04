@@ -48,10 +48,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Giriş başarılı",
         description: "Hoş geldiniz!",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Sign in error:", error);
       toast({
         title: "Giriş başarısız",
-        description: "Email veya şifre hatalı.",
+        description: error.message === "Invalid login credentials"
+          ? "Email veya şifre hatalı."
+          : "Bir hata oluştu. Lütfen tekrar deneyin.",
         variant: "destructive",
       });
       throw error;
@@ -64,17 +67,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
       });
-      if (error) throw error;
+      
+      if (error) {
+        if (error.message.includes("User already registered")) {
+          toast({
+            title: "Kayıt başarısız",
+            description: "Bu email adresi zaten kayıtlı. Lütfen giriş yapmayı deneyin.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Kayıt başarısız",
+            description: "Bir hata oluştu. Lütfen tekrar deneyin.",
+            variant: "destructive",
+          });
+        }
+        throw error;
+      }
+      
       toast({
         title: "Kayıt başarılı",
         description: "Hesabınız oluşturuldu.",
       });
     } catch (error) {
-      toast({
-        title: "Kayıt başarısız",
-        description: "Bir hata oluştu.",
-        variant: "destructive",
-      });
+      console.error("Sign up error:", error);
       throw error;
     }
   };
