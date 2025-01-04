@@ -73,7 +73,7 @@ export default function MonthView({
   if (isYearView) {
     return (
       <div className="w-full mx-auto">
-        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
           <MonthHeader days={weekDays} />
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);
@@ -103,7 +103,7 @@ export default function MonthView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
           <MonthHeader days={weekDays} />
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);
