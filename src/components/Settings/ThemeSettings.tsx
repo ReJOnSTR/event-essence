@@ -24,11 +24,11 @@ const themes: Theme[] = [
     description: "Klasik açık tema"
   },
   {
-    id: "dark",
-    name: "Koyu Tema",
-    class: "dark",
-    preview: "bg-[#1A1F2C]",
-    description: "Göz yormayan koyu tema"
+    id: "sunset",
+    name: "Gün Batımı",
+    class: "sunset",
+    preview: "bg-gradient-to-r from-[#ee9ca7] to-[#ffdde1]",
+    description: "Sıcak ve romantik pembe tonları"
   }
 ];
 

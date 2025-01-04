@@ -22,10 +22,10 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, type: "tween" }}
-      className="w-full bg-background/80 rounded-lg shadow-sm sticky top-0 z-10"
+      className="w-full bg-white rounded-lg shadow-sm p-1 md:p-2 sticky top-0 z-10"
     >
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2">
+        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2 p-1">
           {["day", "week", "month", "year"].map((view, index) => (
             <motion.div
               key={view}

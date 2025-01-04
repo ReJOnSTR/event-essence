@@ -47,7 +47,7 @@ export default function StudentsManagementPage() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-gray-50">
         <Sidebar>
           <SidebarContent>
             <SideMenu 

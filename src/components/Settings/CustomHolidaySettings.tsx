@@ -8,12 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Gift } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function CustomHolidaySettings() {
   const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
-    const savedHolidays = localStorage.getItem('customHolidays');
+    const savedHolidays = localStorage.getItem('holidays');
     return savedHolidays ? JSON.parse(savedHolidays).map((h: { date: string }) => new Date(h.date)) : [];
   });
 
@@ -32,7 +32,7 @@ export default function CustomHolidaySettings() {
       description: "Özel Tatil"
     }));
     
-    localStorage.setItem('customHolidays', JSON.stringify(holidays));
+    localStorage.setItem('holidays', JSON.stringify(holidays));
     
     toast({
       title: "Özel tatil günleri güncellendi",
@@ -42,7 +42,7 @@ export default function CustomHolidaySettings() {
 
   const clearHolidays = () => {
     setSelectedDates([]);
-    localStorage.setItem('customHolidays', JSON.stringify([]));
+    localStorage.setItem('holidays', JSON.stringify([]));
     toast({
       title: "Özel tatil günleri temizlendi",
       description: "Tüm özel tatil günleri kaldırıldı.",
@@ -103,10 +103,10 @@ export default function CustomHolidaySettings() {
           </div>
 
           <div className="space-y-4">
-            <div className="text-sm font-medium">Seçilen Özel Tatil Günleri</div>
+            <div className="text-sm font-medium">Seçilen Tatil Günleri</div>
             {selectedDates.length === 0 ? (
               <div className="text-sm text-muted-foreground">
-                Henüz seçili özel tatil günü bulunmamaktadır.
+                Henüz seçili tatil günü bulunmamaktadır.
               </div>
             ) : (
               <ScrollArea className="h-[400px] rounded-md border p-4">

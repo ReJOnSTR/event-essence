@@ -7,7 +7,6 @@ import {
   startOfYear, 
   endOfYear, 
   isWithinInterval,
-  parseISO,
 } from "date-fns";
 
 export interface PeriodHours {
@@ -143,48 +142,24 @@ export const getFilteredLessons = (
 
   return lessons
     .filter((lesson) => {
-      // Tarihi string ise Date objesine çevir
-      const lessonStart = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
+      const lessonStart = new Date(lesson.start);
       
-      // Öğrenci filtresi
       if (selectedStudent !== "all" && lesson.studentId !== selectedStudent) {
         return false;
       }
 
-      // Tarih aralığı filtresi
-      let periodStart: Date;
-      let periodEnd: Date;
-
       switch (selectedPeriod) {
         case "weekly":
-          periodStart = weekStart;
-          periodEnd = weekEnd;
-          break;
+          return isWithinInterval(lessonStart, { start: weekStart, end: weekEnd });
         case "monthly":
-          periodStart = monthStart;
-          periodEnd = monthEnd;
-          break;
+          return isWithinInterval(lessonStart, { start: monthStart, end: monthEnd });
         case "yearly":
-          periodStart = yearStart;
-          periodEnd = yearEnd;
-          break;
+          return isWithinInterval(lessonStart, { start: yearStart, end: yearEnd });
         case "custom":
-          if (!startDate || !endDate) return false;
-          periodStart = startDate;
-          periodEnd = endDate;
-          break;
+          return startDate && endDate ? isWithinInterval(lessonStart, { start: startDate, end: endDate }) : false;
         default:
           return false;
       }
-
-      return isWithinInterval(lessonStart, { 
-        start: periodStart, 
-        end: periodEnd 
-      });
     })
-    .sort((a, b) => {
-      const dateA = new Date(a.start);
-      const dateB = new Date(b.start);
-      return dateA.getTime() - dateB.getTime();
-    });
+    .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 };

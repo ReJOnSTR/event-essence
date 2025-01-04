@@ -15,8 +15,8 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
-    <div className="grid grid-cols-8 gap-px bg-border">
-      <div className="bg-background w-16" />
+    <div className="grid grid-cols-8 gap-px bg-gray-200">
+      <div className="bg-white w-16" />
       {weekDays.map((day, index) => {
         const holiday = isHoliday(day);
         return (
@@ -30,15 +30,15 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
               ease: [0.23, 1, 0.32, 1]
             }}
             className={cn(
-              "bg-background p-2 text-center relative min-h-[60px] md:min-h-[80px] flex flex-col justify-between",
-              isToday(day) && "text-primary"
+              "bg-white p-2 text-center relative min-h-[60px] md:min-h-[80px] flex flex-col justify-between",
+              isToday(day) && "text-calendar-blue"
             )}
           >
             <div>
               <div className="font-medium text-sm md:text-base">
                 {format(day, isMobile ? "EEE" : "EEEE", { locale: tr })}
               </div>
-              <div className="text-xs md:text-sm text-muted-foreground">
+              <div className="text-xs md:text-sm text-gray-500">
                 {format(day, "d MMM", { locale: tr })}
               </div>
             </div>
@@ -46,7 +46,7 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
               <div 
                 className={cn(
                   "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded-md",
-                  "bg-destructive/10 text-destructive border border-destructive/20 truncate"
+                  "bg-red-50 text-red-700 border border-red-100 truncate"
                 )}
                 title={holiday.name}
               >

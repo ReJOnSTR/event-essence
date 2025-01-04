@@ -1,13 +1,14 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours, setMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
-import { CalendarEvent, Student } from "@/types/calendar";
+import { CalendarEvent, DayCell, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
+import LessonCard from "./LessonCard";
+import { getWorkingHours } from "@/utils/workingHours";
+import { isHoliday } from "@/utils/turkishHolidays";
 import { motion } from "framer-motion";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
-import { getWorkingHours } from "@/utils/workingHours";
-import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -30,14 +31,15 @@ export default function MonthView({
 }: MonthViewProps) {
   const { toast } = useToast();
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+  const workingHours = getWorkingHours();
 
-  const getDaysInMonth = (currentDate: Date) => {
+  const getDaysInMonth = (currentDate: Date): DayCell[] => {
     const start = startOfMonth(currentDate);
     const end = endOfMonth(currentDate);
     const days = eachDayOfInterval({ start, end });
     
     let startDay = start.getDay() - 1;
-    if (startDay === -1) startDay = 6;
+    if (startDay === -1) startDay = 6; // Sunday becomes last day
     
     const prefixDays = Array.from({ length: startDay }, (_, i) => 
       addDays(start, -(startDay - i))
@@ -59,6 +61,11 @@ export default function MonthView({
   };
 
   const handleDateClick = (clickedDate: Date) => {
+    const holiday = isHoliday(clickedDate);
+    if (holiday && !allowWorkOnHolidays) {
+      return;
+    }
+
     const dayOfWeek = clickedDate.getDay();
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
     const workingHours = getWorkingHours();
@@ -79,24 +86,62 @@ export default function MonthView({
     if (!result.destination || !onEventUpdate) return;
 
     const [dayIndex] = result.destination.droppableId.split('-').map(Number);
+    const days = getDaysInMonth(date);
     const targetDay = days[dayIndex].date;
     const event = events.find(e => e.id === result.draggableId);
     
     if (!event) return;
 
+    // Ensure event.start is a Date object
     const eventStart = new Date(event.start);
     const eventEnd = new Date(event.end);
-    const duration = eventEnd.getTime() - eventStart.getTime();
-    
-    const newStart = new Date(targetDay);
-    newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
-    const newEnd = new Date(newStart.getTime() + duration);
 
+    const dayOfWeek = format(targetDay, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours[dayOfWeek];
     const holiday = isHoliday(targetDay);
+    
     if (holiday && !allowWorkOnHolidays) {
       toast({
         title: "Tatil günü",
         description: `${holiday.name} nedeniyle bu gün tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Keep the original hours and minutes
+    const originalHours = eventStart.getHours();
+    const originalMinutes = eventStart.getMinutes();
+    
+    // Create new date with original time
+    const newStart = new Date(targetDay);
+    newStart.setHours(originalHours, originalMinutes, 0);
+    
+    // Calculate duration and set end time
+    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
+    const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
+
+    // Check if the new time is within working hours
+    const [startHour, startMinute] = daySettings.start.split(':').map(Number);
+    const [endHour, endMinute] = daySettings.end.split(':').map(Number);
+    const workStart = new Date(targetDay);
+    workStart.setHours(startHour, startMinute, 0);
+    const workEnd = new Date(targetDay);
+    workEnd.setHours(endHour, endMinute, 0);
+
+    if (newStart < workStart || newEnd > workEnd) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
         variant: "destructive"
       });
       return;
@@ -119,11 +164,11 @@ export default function MonthView({
   if (isYearView) {
     return (
       <div className="w-full mx-auto">
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
           {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
             <div
               key={day}
-              className="bg-background/80 p-1 text-xs font-medium text-muted-foreground text-center"
+              className="bg-gray-50 p-1 text-xs font-medium text-calendar-gray text-center"
             >
               {day}
             </div>
@@ -136,14 +181,19 @@ export default function MonthView({
                 key={idx}
                 onClick={() => handleDateClick(day.date)}
                 className={cn(
-                  "min-h-[40px] p-1 bg-background/80 cursor-pointer hover:bg-accent/50 transition-colors duration-150",
-                  !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-                  isToday(day.date) && "bg-accent text-accent-foreground",
-                  holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-                  holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
+                  "min-h-[40px] p-1 bg-white cursor-pointer hover:bg-gray-50 transition-colors duration-150",
+                  !day.isCurrentMonth && "bg-gray-50 text-gray-400",
+                  isToday(day.date) && "bg-blue-50",
+                  holiday && !allowWorkOnHolidays && "bg-red-50",
+                  holiday && allowWorkOnHolidays && "bg-yellow-50"
                 )}
               >
-                <div className="text-xs font-medium">
+                <div className={cn(
+                  "text-xs font-medium",
+                  isToday(day.date) && "text-calendar-blue",
+                  holiday && !allowWorkOnHolidays && "text-red-600",
+                  holiday && allowWorkOnHolidays && "text-yellow-700"
+                )}>
                   {format(day.date, "d")}
                 </div>
               </div>
@@ -162,7 +212,7 @@ export default function MonthView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
           {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, index) => (
             <motion.div
               key={day}
@@ -173,7 +223,7 @@ export default function MonthView({
                 delay: index * 0.01,
                 ease: [0.23, 1, 0.32, 1]
               }}
-              className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
+              className="bg-gray-50 p-2 text-sm font-medium text-calendar-gray text-center"
             >
               {day}
             </motion.div>
@@ -196,23 +246,25 @@ export default function MonthView({
                     }}
                     onClick={() => handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
-                      !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-                      isToday(day.date) && "bg-accent text-accent-foreground",
-                      holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-                      holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-                      snapshot.isDraggingOver && "bg-accent/50"
+                      "min-h-[120px] p-2 bg-white cursor-pointer transition-colors duration-150",
+                      !day.isCurrentMonth && "bg-gray-50 text-gray-400",
+                      isToday(day.date) && "bg-blue-50",
+                      holiday && !allowWorkOnHolidays && "bg-red-50",
+                      holiday && allowWorkOnHolidays && "bg-yellow-50",
+                      snapshot.isDraggingOver && "bg-blue-50"
                     )}
                   >
                     <div className={cn(
                       "text-sm font-medium mb-1",
-                      isToday(day.date) && "text-accent-foreground"
+                      isToday(day.date) && "text-calendar-blue",
+                      holiday && !allowWorkOnHolidays && "text-red-600",
+                      holiday && allowWorkOnHolidays && "text-yellow-700"
                     )}>
                       {format(day.date, "d")}
                       {holiday && (
                         <div className={cn(
                           "text-xs truncate",
-                          !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
+                          !allowWorkOnHolidays ? "text-red-600" : "text-yellow-700"
                         )}>
                           {holiday.name}
                           {allowWorkOnHolidays && " (Çalışmaya Açık)"}
