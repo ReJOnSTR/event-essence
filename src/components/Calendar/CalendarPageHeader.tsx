@@ -5,7 +5,6 @@ import { tr } from 'date-fns/locale';
 import ViewSelector from "./ViewSelector";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { motion } from "framer-motion";
 
 interface CalendarPageHeaderProps {
   date: Date;
@@ -57,23 +56,13 @@ export default function CalendarPageHeader({
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
-      className="p-2 md:p-4 border-b bg-background sticky top-0 z-10"
-    >
+    <div className="p-2 md:p-4 border-b bg-background sticky top-0 z-10">
       <ViewSelector
         currentView={currentView}
         onViewChange={onViewChange}
       />
       
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2, delay: 0.1 }}
-        className="flex justify-between items-center mt-2 md:mt-4"
-      >
+      <div className="flex justify-between items-center mt-2 md:mt-4">
         <div className="flex items-center gap-2 md:gap-4">
           <h1 className={cn(
             "text-lg md:text-2xl font-semibold truncate text-foreground",
@@ -107,7 +96,7 @@ export default function CalendarPageHeader({
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
