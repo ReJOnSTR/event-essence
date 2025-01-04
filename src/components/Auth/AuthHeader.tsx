@@ -22,7 +22,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
 
   useEffect(() => {
     // Report height changes to parent component
-    onHeightChange?.(isVisible ? 192 : (isPartiallyOpen ? 32 : 0)); // 12rem = 192px, 2rem = 32px
+    onHeightChange?.(isVisible ? 128 : (isPartiallyOpen ? 32 : 0)); // 8rem = 128px, 2rem = 32px
   }, [isVisible, isPartiallyOpen, onHeightChange]);
 
   const handleMouseEnter = () => {
@@ -43,7 +43,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
       {(isVisible || isPartiallyOpen) && (
         <motion.div
           initial={{ height: 0 }}
-          animate={{ height: isVisible ? "12rem" : "2rem" }}
+          animate={{ height: isVisible ? "8rem" : "2rem" }}
           exit={{ height: 0 }}
           transition={{ duration: 0.3 }}
           className="w-full bg-background border-b fixed top-0 z-50"
@@ -51,8 +51,8 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
         >
           <div className="container mx-auto px-4">
             {isVisible ? (
-              <div className="py-8 flex flex-col items-center gap-6">
-                <h2 className="text-2xl font-semibold">Hoş Geldiniz</h2>
+              <div className="py-4 flex flex-col items-center gap-4">
+                <h2 className="text-xl font-semibold">Hoş Geldiniz</h2>
                 <div className="flex gap-4">
                   <Button className="w-32">
                     <UserPlus className="mr-2 h-4 w-4" />
@@ -65,14 +65,14 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                 </div>
                 <Button 
                   variant="ghost" 
-                  className="absolute top-2 right-4"
+                  className="absolute top-2 right-4 text-sm"
                   onClick={handleClickOutside}
                 >
-                  Kapat
+                  Gizle
                 </Button>
               </div>
             ) : (
-              <div className="h-8 flex items-center justify-center">
+              <div className="h-8 flex items-center justify-center cursor-pointer">
                 <span className="text-sm text-muted-foreground">
                   Giriş yapmak için tıklayın
                 </span>
