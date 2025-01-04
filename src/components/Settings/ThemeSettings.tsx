@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTheme } from "next-themes";
 
 type Theme = {
   id: string;
@@ -24,11 +25,18 @@ const themes: Theme[] = [
     description: "Klasik açık tema"
   },
   {
-    id: "sunset",
-    name: "Gün Batımı",
-    class: "sunset",
-    preview: "bg-gradient-to-r from-[#ee9ca7] to-[#ffdde1]",
-    description: "Sıcak ve romantik pembe tonları"
+    id: "dark",
+    name: "Koyu Tema",
+    class: "dark",
+    preview: "bg-[#1e293b]",
+    description: "Göz yormayan koyu tema"
+  },
+  {
+    id: "system",
+    name: "Sistem Teması",
+    class: "system",
+    preview: "bg-gradient-to-r from-[#f8fafc] to-[#1e293b]",
+    description: "Sistem ayarlarını kullan"
   }
 ];
 
@@ -54,10 +62,7 @@ const fontFamilies = [
 ];
 
 export default function ThemeSettings() {
-  const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
-  });
-  
+  const { theme, setTheme } = useTheme();
   const [fontSize, setFontSize] = useState(() => {
     return localStorage.getItem("fontSize") || "medium";
   });
@@ -69,13 +74,6 @@ export default function ThemeSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Remove all theme classes
-    document.documentElement.classList.remove(...themes.map(t => t.class));
-    // Add selected theme class
-    document.documentElement.classList.add(currentTheme);
-    // Save to localStorage
-    localStorage.setItem("theme", currentTheme);
-    
     // Apply font size
     document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
     document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
@@ -92,7 +90,7 @@ export default function ThemeSettings() {
       title: "Görünüm ayarları güncellendi",
       description: "Yeni ayarlarınız kaydedildi.",
     });
-  }, [currentTheme, fontSize, fontFamily, toast]);
+  }, [fontSize, fontFamily, toast]);
 
   return (
     <Card className="border shadow-sm">
@@ -103,33 +101,33 @@ export default function ThemeSettings() {
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Tema</h3>
           <RadioGroup
-            value={currentTheme}
-            onValueChange={setCurrentTheme}
+            value={theme}
+            onValueChange={setTheme}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
-            {themes.map((theme) => (
+            {themes.map((themeOption) => (
               <div 
-                key={theme.id} 
+                key={themeOption.id} 
                 className={cn(
                   "relative flex items-center space-x-2 rounded-lg border-2 p-4 cursor-pointer transition-all",
-                  currentTheme === theme.id ? "border-primary" : "border-transparent hover:border-muted"
+                  theme === themeOption.id ? "border-primary" : "border-transparent hover:border-muted"
                 )}
               >
-                <RadioGroupItem value={theme.id} id={theme.id} className="sr-only" />
+                <RadioGroupItem value={themeOption.id} id={themeOption.id} className="sr-only" />
                 <Label
-                  htmlFor={theme.id}
+                  htmlFor={themeOption.id}
                   className="flex flex-col gap-2 cursor-pointer w-full"
                 >
                   <div className="flex items-center gap-2">
                     <div
                       className={cn(
                         "w-10 h-10 rounded-md shadow-sm",
-                        theme.preview
+                        themeOption.preview
                       )}
                     />
                     <div>
-                      <div className="font-medium">{theme.name}</div>
-                      <div className="text-sm text-muted-foreground">{theme.description}</div>
+                      <div className="font-medium">{themeOption.name}</div>
+                      <div className="text-sm text-muted-foreground">{themeOption.description}</div>
                     </div>
                   </div>
                 </Label>
