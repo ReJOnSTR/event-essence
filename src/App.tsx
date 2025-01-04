@@ -69,7 +69,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className="overflow-hidden">
-          <Toaster position={isMobile ? "bottom-center" : "top-right"} />
+          <Toaster />
           <Sonner position={isMobile ? "bottom-center" : "top-right"} />
           <BrowserRouter>
             <AnimatedRoutes />

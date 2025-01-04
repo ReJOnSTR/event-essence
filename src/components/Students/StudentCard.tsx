@@ -1,6 +1,7 @@
 import { Student } from "@/types/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface StudentCardProps {
   student: Student;
