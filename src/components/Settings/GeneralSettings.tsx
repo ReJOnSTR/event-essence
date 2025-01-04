@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { useSettings } from "@/hooks/useThemeSettings";
+import { useSettings } from "@/hooks/useSettings";
 
 export default function GeneralSettings() {
   const { toast } = useToast();
