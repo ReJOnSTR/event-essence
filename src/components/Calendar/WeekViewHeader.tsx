@@ -1,4 +1,4 @@
-import { format, isToday, startOfWeek, addDays } from "date-fns";
+import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -11,12 +11,17 @@ interface WeekViewHeaderProps {
 
 export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
   const isMobile = useIsMobile();
-  const weekStart = startOfWeek(date, { weekStartsOn: 1 });
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const weekStart = new Date(date);
+  weekStart.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1));
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(weekStart);
+    day.setDate(weekStart.getDate() + i);
+    return day;
+  });
 
   return (
     <div className="grid grid-cols-8 gap-px bg-border">
-      <div className="bg-background w-16" />
+      <div className="bg-background w-16 border-b border-border" />
       {weekDays.map((day, index) => {
         const holiday = isHoliday(day);
         return (
@@ -30,8 +35,8 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
               ease: [0.23, 1, 0.32, 1]
             }}
             className={cn(
-              "bg-background p-2 text-center relative min-h-[60px] md:min-h-[80px] flex flex-col justify-between",
-              isToday(day) && "text-calendar-blue dark:text-calendar-blue-dark"
+              "bg-background p-2 text-center relative min-h-[60px] md:min-h-[80px] flex flex-col justify-between border-b border-border",
+              isToday(day) && "text-primary"
             )}
           >
             <div>

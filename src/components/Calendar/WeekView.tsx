@@ -37,15 +37,9 @@ export default function WeekView({
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
-  const handleCellClick = (day: Date, hour: number) => {
-    const eventDate = new Date(day);
-    eventDate.setHours(hour);
-    onDateSelect(eventDate);
-  };
-
   return (
     <motion.div 
-      className="w-full overflow-x-auto"
+      className="w-full overflow-x-auto bg-background border border-border rounded-lg"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
@@ -58,7 +52,11 @@ export default function WeekView({
           events={events}
           workingHours={workingHours}
           allowWorkOnHolidays={allowWorkOnHolidays}
-          onCellClick={handleCellClick}
+          onCellClick={(day, hour) => {
+            const eventDate = new Date(day);
+            eventDate.setHours(hour);
+            onDateSelect(eventDate);
+          }}
           onEventClick={onEventClick}
           onEventUpdate={onEventUpdate}
           students={students}
