@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/Layout/PageHeader";
 import { useState } from "react";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { ReportFilters } from "@/components/Reports/ReportFilters";
@@ -9,6 +8,8 @@ import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
 import SideMenu from "@/components/Layout/SideMenu";
 import { calculatePeriodHours, calculatePeriodEarnings } from "@/utils/reportCalculations";
+import { Student } from "@/types/calendar";
+import StudentDialog from "@/components/Students/StudentDialog";
 
 export default function ReportsPage() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
@@ -17,8 +18,19 @@ export default function ReportsPage() {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   
+  // Student Dialog State
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [studentColor, setStudentColor] = useState<string>("#000000");
+  
   const { students } = useStudents();
   const { lessons } = useLessons();
+
+  const handleEditStudent = (student: Student) => {
+    setEditingStudent(student);
+    setStudentColor(student.color || "#000000");
+    setIsDialogOpen(true);
+  };
 
   const hours = calculatePeriodHours(
     lessons,
@@ -50,7 +62,10 @@ export default function ReportsPage() {
       <div className="min-h-screen flex w-full bg-background font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
-            <SideMenu />
+            <SideMenu 
+              onAddStudent={() => setIsDialogOpen(true)}
+              onEdit={handleEditStudent}
+            />
           </SidebarContent>
         </Sidebar>
         
@@ -108,6 +123,14 @@ export default function ReportsPage() {
             />
           </div>
         </div>
+
+        <StudentDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          student={editingStudent}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
+        />
       </div>
     </SidebarProvider>
   );
