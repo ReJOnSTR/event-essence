@@ -26,7 +26,7 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white p-1.5 rounded mb-1 cursor-pointer hover:brightness-90 transition-colors",
+        "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm",
         snapshot?.isDragging ? "shadow-lg opacity-70" : ""
       )}
       style={{ 
@@ -35,11 +35,11 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       }}
       onClick={handleClick}
     >
-      <div className="flex flex-col gap-0.5">
-        <span className="font-medium truncate text-[11px] leading-tight md:text-sm">
+      <div className="flex flex-col gap-1">
+        <span className="font-medium truncate text-[13px] leading-tight md:text-sm">
           {student?.name || "İsimsiz Öğrenci"}
         </span>
-        <span className="text-[10px] md:text-xs whitespace-nowrap opacity-90">
+        <span className="text-[12px] md:text-xs whitespace-nowrap opacity-90">
           {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
         </span>
       </div>
