@@ -1,16 +1,13 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
-import { tr } from 'date-fns/locale';
-import LessonCard from "./LessonCard";
-import StaticLessonCard from "./StaticLessonCard";
+import { format } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { getWorkingHours } from "@/utils/workingHours";
-import { getDefaultLessonDuration } from "@/utils/settings";
-import { isHoliday } from "@/utils/turkishHolidays";
-import { motion, AnimatePresence } from "framer-motion";
+import { useDayView } from "@/hooks/useDayView";
+import DayHeader from "./DayHeader";
+import DayTimeSlot from "./DayTimeSlot";
 import { TimeIndicator } from "./TimeIndicator";
-import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 
 interface DayViewProps {
   date: Date;
@@ -30,60 +27,16 @@ export default function DayView({
   students 
 }: DayViewProps) {
   const { toast } = useToast();
-  const workingHours = getWorkingHours();
-  const holiday = isHoliday(date);
-  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
-  
-  const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
-  const daySettings = workingHours[dayOfWeek];
-
-  const dayEvents = events.filter(event => 
-    format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-  );
-
-  const startHour = daySettings?.enabled ? 
-    parseInt(daySettings.start.split(':')[0]) : 
-    9;
-  const endHour = daySettings?.enabled ? 
-    parseInt(daySettings.end.split(':')[0]) : 
-    17;
-
-  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
-
-  const handleHourClick = (hour: number, minute: number) => {
-    const eventDate = new Date(date);
-    eventDate.setHours(hour, minute);
-    
-    if (holiday && !allowWorkOnHolidays) {
-      toast({
-        title: "Resmi Tatil",
-        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!daySettings?.enabled) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Bu gün için çalışma saatleri kapalıdır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const currentTime = `${hour}:00`;
-    if (hour < startHour || hour >= endHour) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Seçilen saat çalışma saatleri dışındadır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onDateSelect(eventDate);
-  };
+  const {
+    dayEvents,
+    hours,
+    startHour,
+    endHour,
+    daySettings,
+    holiday,
+    allowWorkOnHolidays,
+    handleHourClick
+  } = useDayView(date, events);
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
@@ -104,9 +57,10 @@ export default function DayView({
     const event = events.find(e => e.id === result.draggableId);
     if (!event) return;
 
-    const duration = differenceInMinutes(event.end, event.start);
-    const newStart = setMinutes(setHours(date, hour), minute);
-    const newEnd = new Date(newStart.getTime() + duration * 60000);
+    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
+    const newStart = new Date(date);
+    newStart.setHours(hour, minute);
+    const newEnd = new Date(newStart.getTime() + duration);
 
     onEventUpdate({
       ...event,
@@ -158,38 +112,24 @@ export default function DayView({
               }}
               className="grid grid-cols-12 gap-2"
             >
-              <div className="col-span-1 text-right text-sm text-muted-foreground relative">
-                {`${hour.toString().padStart(2, '0')}:00`}
-                <TimeIndicator events={dayEvents} hour={hour} />
-              </div>
+              <DayHeader hour={hour} />
               <Droppable droppableId={`${hour}:0`}>
                 {(provided, snapshot) => (
-                  <div 
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={cn(
-                      "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
-                      snapshot.isDraggingOver && "bg-accent",
-                      (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
-                      "bg-muted cursor-not-allowed"
-                    )}
-                    onClick={() => handleHourClick(hour, 0)}
-                  >
-                    {dayEvents
-                      .filter(event => new Date(event.start).getHours() === hour)
-                      .map((event, index) => (
-                        <LessonCard 
-                          key={event.id} 
-                          event={event} 
-                          onClick={onEventClick}
-                          students={students}
-                          index={index}
-                        />
-                      ))}
-                    {provided.placeholder}
-                  </div>
+                  <DayTimeSlot
+                    hour={hour}
+                    dayEvents={dayEvents}
+                    isDraggingOver={snapshot.isDraggingOver}
+                    isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
+                    onClick={() => {
+                      const newDate = handleHourClick(hour, 0);
+                      if (newDate) onDateSelect(newDate);
+                    }}
+                    students={students}
+                    onEventClick={onEventClick}
+                  />
                 )}
               </Droppable>
+              <TimeIndicator events={dayEvents} hour={hour} />
             </motion.div>
           ))}
         </div>
