@@ -4,8 +4,6 @@ import { Lesson } from "@/types/calendar";
 import { 
   useCalculatePeriodHours,
   useCalculatePeriodEarnings,
-  PeriodHours,
-  PeriodEarnings
 } from "@/utils/reportCalculations";
 
 interface StatsCardsProps {
@@ -17,7 +15,7 @@ interface StatsCardsProps {
   endDate?: Date;
 }
 
-export default function StatsCards({
+export function StatsCards({
   lessons,
   students,
   selectedDate,
@@ -25,7 +23,7 @@ export default function StatsCards({
   startDate,
   endDate,
 }: StatsCardsProps) {
-  const hours: PeriodHours = useCalculatePeriodHours(
+  const hours = useCalculatePeriodHours(
     lessons,
     selectedDate,
     selectedStudent,
@@ -33,7 +31,7 @@ export default function StatsCards({
     endDate
   );
 
-  const earnings: PeriodEarnings = useCalculatePeriodEarnings(
+  const earnings = useCalculatePeriodEarnings(
     lessons,
     selectedDate,
     selectedStudent,
