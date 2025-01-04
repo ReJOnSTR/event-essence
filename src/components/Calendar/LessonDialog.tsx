@@ -127,14 +127,24 @@ export default function LessonDialog({
       const currentStart = new Date(baseStart);
       const currentEnd = new Date(baseEnd);
 
-      if (i > 0) { // İlk ders için tarih değişikliği yapma
-        if (recurrenceType === "weekly") {
-          currentStart.setDate(currentStart.getDate() + (i * 7));
-          currentEnd.setDate(currentEnd.getDate() + (i * 7));
-        } else if (recurrenceType === "monthly") {
-          currentStart.setMonth(currentStart.getMonth() + i);
-          currentEnd.setMonth(currentEnd.getMonth() + i);
+      if (recurrenceType === "weekly") {
+        currentStart.setDate(currentStart.getDate() + (i * 7));
+        currentEnd.setDate(currentEnd.getDate() + (i * 7));
+      } else if (recurrenceType === "monthly") {
+        const newStart = new Date(baseStart);
+        const newEnd = new Date(baseEnd);
+        newStart.setMonth(newStart.getMonth() + i);
+        newEnd.setMonth(newEnd.getMonth() + i);
+        
+        // Ayın son gününü kontrol et
+        const lastDayOfMonth = new Date(newStart.getFullYear(), newStart.getMonth() + 1, 0).getDate();
+        if (newStart.getDate() > lastDayOfMonth) {
+          newStart.setDate(lastDayOfMonth);
+          newEnd.setDate(lastDayOfMonth);
         }
+        
+        currentStart.setTime(newStart.getTime());
+        currentEnd.setTime(newEnd.getTime());
       }
 
       // Çakışma kontrolü
