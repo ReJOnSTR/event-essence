@@ -14,15 +14,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useStudents } from "@/hooks/useStudents";
+import { motion } from "framer-motion";
 
 interface SideMenuProps {
   onAddStudent?: () => void;
   onEdit?: (student: Student) => void;
+  headerHeight?: number;
 }
 
 export default function SideMenu({ 
   onAddStudent,
   onEdit,
+  headerHeight = 0
 }: SideMenuProps) {
   const { students } = useStudents();
   const location = useLocation();
@@ -38,8 +41,18 @@ export default function SideMenu({
   ];
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <SidebarGroup className="space-y-2 px-2">
+    <motion.div 
+      className="flex flex-col h-full bg-background w-full"
+      initial={false}
+      animate={{ 
+        marginTop: headerHeight 
+      }}
+      transition={{ 
+        duration: 0.3,
+        ease: "easeInOut"
+      }}
+    >
+      <SidebarGroup className="space-y-2">
         {menuItems.map((item) => (
           <Link 
             key={item.path} 
@@ -62,7 +75,7 @@ export default function SideMenu({
         ))}
       </SidebarGroup>
 
-      <SidebarGroup className="mt-6 px-2">
+      <SidebarGroup className="mt-6">
         <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
         <SidebarGroupContent className="mt-2">
           <SidebarMenu>
@@ -98,7 +111,7 @@ export default function SideMenu({
         </SidebarGroupContent>
       </SidebarGroup>
 
-      <SidebarFooter className="mt-auto px-2">
+      <SidebarFooter className="mt-auto">
         <div className="border-t pt-4">
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-2">
@@ -121,6 +134,6 @@ export default function SideMenu({
           </div>
         </div>
       </SidebarFooter>
-    </div>
+    </motion.div>
   );
 }
