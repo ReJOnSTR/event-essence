@@ -20,22 +20,34 @@ export function useStudentMutations() {
 
       try {
         if (student.id) {
+          // First check if student exists
+          const { data: existingStudent, error: checkError } = await supabase
+            .from('students')
+            .select()
+            .eq('id', student.id)
+            .maybeSingle();
+          
+          if (checkError) {
+            console.error('Error checking student:', checkError);
+            throw checkError;
+          }
+
+          if (!existingStudent) {
+            console.error('Student not found:', student.id);
+            throw new Error('Student not found');
+          }
+
           // Update existing student
           const { data, error } = await supabase
             .from('students')
             .update(studentData)
             .eq('id', student.id)
             .select()
-            .maybeSingle();
+            .single();
           
           if (error) {
             console.error('Error updating student:', error);
             throw error;
-          }
-
-          if (!data) {
-            console.error('Student not found:', student.id);
-            throw new Error('Student not found');
           }
 
           console.log('Updated student:', data);
@@ -46,16 +58,11 @@ export function useStudentMutations() {
             .from('students')
             .insert([studentData])
             .select()
-            .maybeSingle();
+            .single();
           
           if (error) {
             console.error('Error inserting student:', error);
             throw error;
-          }
-
-          if (!data) {
-            console.error('Failed to create student');
-            throw new Error('Failed to create student');
           }
 
           console.log('Created student:', data);
@@ -63,7 +70,11 @@ export function useStudentMutations() {
         }
       } catch (error: any) {
         console.error('Operation failed:', error);
-        throw new Error(error.message || 'Failed to save student');
+        // Provide a more specific error message based on the operation
+        const errorMessage = student.id 
+          ? 'Failed to update student: Student may have been deleted'
+          : 'Failed to create student';
+        throw new Error(errorMessage);
       }
     },
     onSuccess: () => {
@@ -77,7 +88,7 @@ export function useStudentMutations() {
       console.error('Mutation error:', error);
       toast({
         title: "Hata",
-        description: "Öğrenci kaydedilirken bir hata oluştu: " + error.message,
+        description: error.message,
         variant: "destructive"
       });
     }
@@ -88,6 +99,22 @@ export function useStudentMutations() {
       console.log('Attempting to delete student:', studentId);
       
       try {
+        // First check if student exists
+        const { data: existingStudent, error: checkError } = await supabase
+          .from('students')
+          .select()
+          .eq('id', studentId)
+          .maybeSingle();
+        
+        if (checkError) {
+          console.error('Error checking student:', checkError);
+          throw checkError;
+        }
+
+        if (!existingStudent) {
+          throw new Error('Student not found or already deleted');
+        }
+
         const { error } = await supabase
           .from('students')
           .delete()
@@ -115,7 +142,7 @@ export function useStudentMutations() {
       console.error('Delete error:', error);
       toast({
         title: "Hata",
-        description: "Öğrenci silinirken bir hata oluştu: " + error.message,
+        description: error.message,
         variant: "destructive"
       });
     }
