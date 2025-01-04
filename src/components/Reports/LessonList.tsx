@@ -10,7 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useFilteredLessons } from "@/utils/reportCalculations";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface LessonListProps {
   lessons: Lesson[];
@@ -21,32 +20,6 @@ interface LessonListProps {
   startDate?: Date;
   endDate?: Date;
 }
-
-const tableVariants = {
-  hidden: { opacity: 0 },
-  visible: { 
-    opacity: 1,
-    transition: { 
-      duration: 0.3,
-      when: "beforeChildren",
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const rowVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: { 
-    opacity: 1, 
-    x: 0,
-    transition: { duration: 0.2 }
-  },
-  exit: { 
-    opacity: 0, 
-    x: 20,
-    transition: { duration: 0.2 }
-  }
-};
 
 export function LessonList({
   lessons,
@@ -78,12 +51,7 @@ export function LessonList({
   };
 
   return (
-    <motion.div 
-      className="rounded-md border"
-      variants={tableVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -94,52 +62,36 @@ export function LessonList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          <AnimatePresence mode="wait">
-            {filteredLessons.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4}>
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="text-center py-4"
-                  >
-                    Bu dönemde ders bulunamadı
-                  </motion.div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredLessons.map((lesson) => {
-                const start = new Date(lesson.start);
-                const end = new Date(lesson.end);
-                const fee = getLessonFee(lesson.studentId);
+          {filteredLessons.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                Bu dönemde ders bulunamadı
+              </TableCell>
+            </TableRow>
+          ) : (
+            filteredLessons.map((lesson) => {
+              const start = new Date(lesson.start);
+              const end = new Date(lesson.end);
+              const fee = getLessonFee(lesson.studentId);
 
-                return (
-                  <motion.tr
-                    key={lesson.id}
-                    variants={rowVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className="hover:bg-accent/50 transition-colors"
-                  >
-                    <TableCell>
-                      {format(start, "d MMMM yyyy", { locale: tr })}
-                    </TableCell>
-                    <TableCell>
-                      {format(start, "HH:mm")} - {format(end, "HH:mm")}
-                    </TableCell>
-                    <TableCell>{getStudentName(lesson.studentId)}</TableCell>
-                    <TableCell className="text-right">
-                      {fee.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
-                    </TableCell>
-                  </motion.tr>
-                );
-              })
-            )}
-          </AnimatePresence>
+              return (
+                <TableRow key={lesson.id}>
+                  <TableCell>
+                    {format(start, "d MMMM yyyy", { locale: tr })}
+                  </TableCell>
+                  <TableCell>
+                    {format(start, "HH:mm")} - {format(end, "HH:mm")}
+                  </TableCell>
+                  <TableCell>{getStudentName(lesson.studentId)}</TableCell>
+                  <TableCell className="text-right">
+                    {fee.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
+                  </TableCell>
+                </TableRow>
+              );
+            })
+          )}
         </TableBody>
       </Table>
-    </motion.div>
+    </div>
   );
 }

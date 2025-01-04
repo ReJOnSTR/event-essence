@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -103,10 +103,7 @@ export default function CustomHolidaySettings() {
           </div>
 
           <div className="space-y-4">
-            <div className="text-sm font-medium">
-              Seçilen Özel Tatil Günleri
-            </div>
-            
+            <div className="text-sm font-medium">Seçilen Özel Tatil Günleri</div>
             {selectedDates.length === 0 ? (
               <div className="text-sm text-muted-foreground">
                 Henüz seçili özel tatil günü bulunmamaktadır.
