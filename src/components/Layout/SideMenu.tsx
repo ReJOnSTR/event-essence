@@ -1,4 +1,4 @@
-import { Plus, FileBarChart, Settings, Calendar, Users } from "lucide-react";
+import { Plus, FileBarChart, Settings, Calendar, Users, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -18,6 +18,7 @@ import { AuthButtons, LoginButton } from "@/components/Auth/AuthButtons";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { Separator } from "@/components/ui/separator";
 
 interface SideMenuProps {
   onAddStudent?: () => void;
@@ -113,40 +114,47 @@ export default function SideMenu({
       )}
 
       <SidebarFooter className="mt-auto">
-        <div className="border-t pt-4">
-          <div className="flex items-center justify-between px-2">
-            {user ? (
-              <>
-                <div className="flex items-center gap-2">
-                  <Avatar>
-                    <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback>
-                      {user.email?.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm font-medium truncate">
+        {user ? (
+          <div className="border-t pt-4 space-y-4">
+            <div className="px-4">
+              <div className="flex items-center space-x-4 bg-accent/50 p-4 rounded-lg">
+                <Avatar className="h-10 w-10 border-2 border-primary/10">
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback className="bg-primary/5 text-primary/70">
+                    {user.email?.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
                     {user.email}
-                  </span>
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    Öğretmen
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Link to="/settings">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      data-active={isActive("/settings")}
-                      className="hover:bg-secondary"
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <AuthButtons />
-                </div>
-              </>
-            ) : (
-              <LoginButton />
-            )}
+              </div>
+            </div>
+            
+            <div className="px-2 flex items-center gap-2">
+              <Link to="/settings" className="flex-1">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                  data-active={isActive("/settings")}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Ayarlar
+                </Button>
+              </Link>
+              <AuthButtons />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="p-4">
+            <LoginButton />
+          </div>
+        )}
       </SidebarFooter>
     </div>
   );
