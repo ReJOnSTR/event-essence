@@ -10,8 +10,6 @@ import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavi
 import CalendarToolbar from "@/features/calendar/components/CalendarToolbar";
 import CalendarDialogs from "@/features/calendar/components/CalendarDialogs";
 import { useCalendarData } from "@/hooks/useCalendarData";
-import AuthDialog from "@/components/Auth/AuthDialog";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function CalendarPage() {
   const {
@@ -23,11 +21,9 @@ export default function CalendarPage() {
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { user, isAuthenticated } = useAuth();
   
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent, deleteStudent } = useStudents();
@@ -41,31 +37,18 @@ export default function CalendarPage() {
   });
 
   const handleDateSelect = (date: Date) => {
-    if (!isAuthenticated) {
-      setIsAuthDialogOpen(true);
-      return;
-    }
     setSelectedDate(date);
     setSelectedLesson(undefined);
     setIsDialogOpen(true);
   };
 
   const handleLessonClick = (lesson: CalendarEvent) => {
-    if (!isAuthenticated) {
-      setIsAuthDialogOpen(true);
-      return;
-    }
     setSelectedLesson(lesson);
     setSelectedDate(lesson.start);
     setIsDialogOpen(true);
   };
 
   const handleSaveLessonClick = (lessonData: Omit<CalendarEvent, "id">) => {
-    if (!isAuthenticated) {
-      setIsAuthDialogOpen(true);
-      return;
-    }
-    
     if (selectedLesson) {
       handleUpdateLesson(selectedLesson.id, lessonData);
     } else {
@@ -75,19 +58,7 @@ export default function CalendarPage() {
   };
 
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
-    if (!isAuthenticated) {
-      setIsAuthDialogOpen(true);
-      return;
-    }
     handleUpdateLesson(updatedEvent.id, updatedEvent);
-  };
-
-  const handleAddStudent = () => {
-    if (!isAuthenticated) {
-      setIsAuthDialogOpen(true);
-      return;
-    }
-    setIsStudentDialogOpen(true);
   };
 
   return (
@@ -97,10 +68,6 @@ export default function CalendarPage() {
           <SidebarContent className="p-4">
             <SideMenu
               onEdit={(student) => {
-                if (!isAuthenticated) {
-                  setIsAuthDialogOpen(true);
-                  return;
-                }
                 setStudentDialogState({
                   selectedStudent: student,
                   studentName: student.name,
@@ -109,7 +76,7 @@ export default function CalendarPage() {
                 });
                 setIsStudentDialogOpen(true);
               }}
-              onAddStudent={handleAddStudent}
+              onAddStudent={() => setIsStudentDialogOpen(true)}
             />
           </SidebarContent>
         </Sidebar>
@@ -123,10 +90,6 @@ export default function CalendarPage() {
             <CalendarToolbar
               onSearchClick={() => setIsSearchOpen(true)}
               onAddLessonClick={() => {
-                if (!isAuthenticated) {
-                  setIsAuthDialogOpen(true);
-                  return;
-                }
                 setSelectedLesson(undefined);
                 setIsDialogOpen(true);
               }}
@@ -203,11 +166,6 @@ export default function CalendarPage() {
             setStudentColor={(color) => setStudentDialogState(prev => ({ ...prev, studentColor: color }))}
             setSelectedDate={setSelectedDate}
             setCurrentView={setCurrentView}
-          />
-
-          <AuthDialog 
-            isOpen={isAuthDialogOpen}
-            onClose={() => setIsAuthDialogOpen(false)}
           />
         </div>
       </div>
