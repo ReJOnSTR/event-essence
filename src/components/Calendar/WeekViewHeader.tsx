@@ -31,7 +31,7 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
             }}
             className={cn(
               "bg-background p-2 text-center relative min-h-[60px] md:min-h-[80px] flex flex-col justify-between",
-              isToday(day) && "text-primary"
+              isToday(day) && "text-[#1a73e8]"
             )}
           >
             <div>
