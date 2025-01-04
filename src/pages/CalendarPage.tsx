@@ -31,11 +31,33 @@ export default function CalendarPage() {
     localStorage.setItem('lessons', JSON.stringify(updatedLessons));
   };
 
+  const handlePrevious = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setSelectedDate(newDate);
+  };
+
+  const handleNext = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setSelectedDate(newDate);
+  };
+
+  const handleToday = () => {
+    setSelectedDate(new Date());
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen flex flex-col bg-background">
         <AuthOverlay />
-        <CalendarHeader />
+        <CalendarHeader 
+          date={selectedDate}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onToday={handleToday}
+          title=""
+        />
         <CalendarToolbar
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}

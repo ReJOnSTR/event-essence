@@ -11,26 +11,34 @@ export default function CalendarToolbar({ selectedDate, setSelectedDate }: Calen
   const { currentView, setCurrentView } = useCalendarStore();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
+  const handlePrevClick = () => {
+    handleNavigationClick('prev', currentView)(new Event('click'));
+  };
+
+  const handleNextClick = () => {
+    handleNavigationClick('next', currentView)(new Event('click'));
+  };
+
   return (
     <div className="flex items-center gap-2 p-4 border-b">
       <Button
         variant="outline"
         size="sm"
-        onClick={() => handleNavigationClick('prev', currentView)()}
+        onClick={handlePrevClick}
       >
         Önceki
       </Button>
       <Button
         variant="outline"
         size="sm"
-        onClick={handleTodayClick}
+        onClick={() => handleTodayClick(new Event('click'))}
       >
         Bugün
       </Button>
       <Button
         variant="outline"
         size="sm"
-        onClick={() => handleNavigationClick('next', currentView)()}
+        onClick={handleNextClick}
       >
         Sonraki
       </Button>
