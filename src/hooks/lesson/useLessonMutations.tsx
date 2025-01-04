@@ -1,50 +1,54 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CalendarEvent } from "@/types/calendar";
+import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { validateDate } from "@/utils/dateUtils";
 
 export function useLessonMutations() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { mutate: saveLesson } = useMutation({
-    mutationFn: async (lesson: Omit<CalendarEvent, "id">): Promise<CalendarEvent> => {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log("Current user:", user); // Debug log
-
-      if (!user) {
-        console.error("No authenticated user found");
-        throw new Error("User not authenticated");
+  const saveLessons = async (lessons: Lesson[]): Promise<Lesson[]> => {
+    try {
+      if (!Array.isArray(lessons)) {
+        throw new Error('Invalid lessons data');
       }
 
-      const { data, error } = await supabase
-        .from('lessons')
-        .insert({
-          title: lesson.title,
-          description: lesson.description,
-          start_time: lesson.start.toISOString(),
-          end_time: lesson.end.toISOString(),
-          student_id: lesson.studentId,
-          user_id: user.id
-        })
-        .select()
-        .single();
+      lessons.forEach(lesson => {
+        if (!lesson.id || !lesson.title || !validateDate(lesson.start) || !validateDate(lesson.end)) {
+          throw new Error('Invalid lesson data format');
+        }
+      });
 
-      console.log("Insert response:", { data, error }); // Debug log
+      localStorage.setItem('lessons', JSON.stringify(lessons));
+      return lessons;
+    } catch (error) {
+      console.error('Error saving lessons:', error);
+      toast({
+        title: "Hata",
+        description: "Ders verileri kaydedilirken bir hata oluştu.",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
 
-      if (error) {
-        console.error("Database error:", error);
-        throw error;
+  const { mutate: saveLesson } = useMutation({
+    mutationFn: async (lesson: Lesson): Promise<Lesson[]> => {
+      const currentLessons = JSON.parse(localStorage.getItem('lessons') || '[]');
+      const existingIndex = currentLessons.findIndex((l: Lesson) => l.id === lesson.id);
+      
+      let updatedLessons;
+      if (existingIndex >= 0) {
+        updatedLessons = [
+          ...currentLessons.slice(0, existingIndex),
+          lesson,
+          ...currentLessons.slice(existingIndex + 1)
+        ];
+      } else {
+        updatedLessons = [...currentLessons, { ...lesson, id: crypto.randomUUID() }];
       }
       
-      return {
-        id: data.id,
-        title: data.title,
-        description: data.description,
-        start: new Date(data.start_time),
-        end: new Date(data.end_time),
-        studentId: data.student_id
-      };
+      return saveLessons(updatedLessons);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
@@ -53,8 +57,7 @@ export function useLessonMutations() {
         description: "Ders başarıyla kaydedildi.",
       });
     },
-    onError: (error) => {
-      console.error("Mutation error:", error); // Debug log
+    onError: () => {
       toast({
         title: "Hata",
         description: "Ders kaydedilirken bir hata oluştu.",
@@ -64,13 +67,10 @@ export function useLessonMutations() {
   });
 
   const { mutate: deleteLesson } = useMutation({
-    mutationFn: async (lessonId: string): Promise<void> => {
-      const { error } = await supabase
-        .from('lessons')
-        .delete()
-        .eq('id', lessonId);
-
-      if (error) throw error;
+    mutationFn: async (lessonId: string): Promise<Lesson[]> => {
+      const currentLessons = JSON.parse(localStorage.getItem('lessons') || '[]');
+      const updatedLessons = currentLessons.filter((l: Lesson) => l.id !== lessonId);
+      return saveLessons(updatedLessons);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons'] });

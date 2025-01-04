@@ -7,10 +7,6 @@ import {
   startOfYear, 
   endOfYear, 
   isWithinInterval,
-  parseISO,
-  endOfDay,
-  startOfDay,
-  differenceInHours
 } from "date-fns";
 import { useMemo } from "react";
 
@@ -32,30 +28,27 @@ const getPeriodRange = (period: Period, selectedDate: Date, customRange?: DateRa
   switch (period) {
     case 'weekly':
       return {
-        start: startOfDay(startOfWeek(selectedDate, { weekStartsOn: 1 })),
-        end: endOfDay(endOfWeek(selectedDate, { weekStartsOn: 1 }))
+        start: startOfWeek(selectedDate, { weekStartsOn: 1 }),
+        end: endOfWeek(selectedDate, { weekStartsOn: 1 })
       };
     case 'monthly':
       return {
-        start: startOfDay(startOfMonth(selectedDate)),
-        end: endOfDay(endOfMonth(selectedDate))
+        start: startOfMonth(selectedDate),
+        end: endOfMonth(selectedDate)
       };
     case 'yearly':
       return {
-        start: startOfDay(startOfYear(selectedDate)),
-        end: endOfDay(endOfYear(selectedDate))
+        start: startOfYear(selectedDate),
+        end: endOfYear(selectedDate)
       };
     case 'custom':
       if (!customRange?.start || !customRange?.end) {
         return {
-          start: startOfDay(selectedDate),
-          end: endOfDay(selectedDate)
+          start: selectedDate,
+          end: selectedDate
         };
       }
-      return {
-        start: startOfDay(customRange.start),
-        end: endOfDay(customRange.end)
-      };
+      return customRange;
   }
 };
 
@@ -70,16 +63,9 @@ export const filterLessons = (
 
   return lessons
     .filter(lesson => {
-      const lessonStart = new Date(lesson.start);
-      const lessonEnd = new Date(lesson.end);
-      
-      return (
-        (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
-        isWithinInterval(lessonStart, { 
-          start: range.start, 
-          end: range.end 
-        })
-      );
+      const lessonStart = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
+      return (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
+             isWithinInterval(lessonStart, range);
     })
     .sort((a, b) => {
       const dateA = new Date(a.start);
@@ -110,21 +96,13 @@ export const useCalculatePeriodStats = (
   endDate?: Date
 ): { hours: PeriodHours; earnings: PeriodEarnings } => {
   return useMemo(() => {
-    const calculateStats = (filteredLessons: Lesson[]) => {
-      const totalHours = filteredLessons.reduce((total, lesson) => {
-        const start = new Date(lesson.start);
-        const end = new Date(lesson.end);
-        return total + differenceInHours(end, start);
-      }, 0);
-
-      const totalEarnings = filteredLessons.reduce((total, lesson) => {
+    const calculateStats = (filteredLessons: Lesson[]) => ({
+      hours: filteredLessons.length,
+      earnings: filteredLessons.reduce((total, lesson) => {
         const student = students.find(s => s.id === lesson.studentId);
-        const hours = differenceInHours(new Date(lesson.end), new Date(lesson.start));
-        return total + (student?.price || 0) * hours;
-      }, 0);
-
-      return { hours: totalHours, earnings: totalEarnings };
-    };
+        return total + (student?.price || 0);
+      }, 0)
+    });
 
     const weeklyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'weekly');
     const monthlyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'monthly');

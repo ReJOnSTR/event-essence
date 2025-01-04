@@ -1,46 +1,53 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 export function useStudentMutations() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { mutate: saveStudent } = useMutation({
-    mutationFn: async (student: Omit<Student, "id">): Promise<Student> => {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log("Current user:", user); // Debug log
-
-      if (!user) {
-        console.error("No authenticated user found");
-        throw new Error("User not authenticated");
-      }
-
-      const { data, error } = await supabase
-        .from('students')
-        .insert({
-          name: student.name,
-          price: student.price,
-          color: student.color,
-          user_id: user.id
-        })
-        .select()
-        .single();
-
-      console.log("Insert response:", { data, error }); // Debug log
-
-      if (error) {
-        console.error("Database error:", error);
-        throw error;
+  const saveStudents = async (students: Student[]): Promise<Student[]> => {
+    try {
+      if (!Array.isArray(students)) {
+        throw new Error('Invalid students data');
       }
       
-      return {
-        id: data.id,
-        name: data.name,
-        price: Number(data.price),
-        color: data.color
-      };
+      students.forEach(student => {
+        if (!student.id || !student.name || typeof student.price !== 'number') {
+          throw new Error('Invalid student data format');
+        }
+      });
+
+      localStorage.setItem('students', JSON.stringify(students));
+      return students;
+    } catch (error) {
+      console.error('Error saving students:', error);
+      toast({
+        title: "Hata",
+        description: "Öğrenci verileri kaydedilirken bir hata oluştu.",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const { mutate: saveStudent } = useMutation({
+    mutationFn: async (student: Student): Promise<Student[]> => {
+      const currentStudents = JSON.parse(localStorage.getItem('students') || '[]');
+      const existingIndex = currentStudents.findIndex((s: Student) => s.id === student.id);
+      
+      let updatedStudents;
+      if (existingIndex >= 0) {
+        updatedStudents = [
+          ...currentStudents.slice(0, existingIndex),
+          student,
+          ...currentStudents.slice(existingIndex + 1)
+        ];
+      } else {
+        updatedStudents = [...currentStudents, { ...student, id: crypto.randomUUID() }];
+      }
+      
+      return saveStudents(updatedStudents);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -49,8 +56,7 @@ export function useStudentMutations() {
         description: "Öğrenci bilgileri başarıyla kaydedildi.",
       });
     },
-    onError: (error) => {
-      console.error("Mutation error:", error); // Debug log
+    onError: () => {
       toast({
         title: "Hata",
         description: "Öğrenci kaydedilirken bir hata oluştu.",
@@ -60,13 +66,10 @@ export function useStudentMutations() {
   });
 
   const { mutate: deleteStudent } = useMutation({
-    mutationFn: async (studentId: string): Promise<void> => {
-      const { error } = await supabase
-        .from('students')
-        .delete()
-        .eq('id', studentId);
-
-      if (error) throw error;
+    mutationFn: async (studentId: string): Promise<Student[]> => {
+      const currentStudents = JSON.parse(localStorage.getItem('students') || '[]');
+      const updatedStudents = currentStudents.filter((s: Student) => s.id !== studentId);
+      return saveStudents(updatedStudents);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
