@@ -52,7 +52,7 @@ const getPeriodRange = (period: Period, selectedDate: Date, customRange?: DateRa
   }
 };
 
-const filterLessons = (
+export const filterLessons = (
   lessons: Lesson[],
   selectedDate: Date,
   selectedStudent: string,
@@ -72,6 +72,19 @@ const filterLessons = (
       const dateB = new Date(b.start);
       return dateA.getTime() - dateB.getTime();
     });
+};
+
+export const useFilteredLessons = (
+  lessons: Lesson[],
+  selectedDate: Date,
+  selectedStudent: string,
+  period: Period,
+  customRange?: DateRange
+): Lesson[] => {
+  return useMemo(
+    () => filterLessons(lessons, selectedDate, selectedStudent, period, customRange),
+    [lessons, selectedDate, selectedStudent, period, customRange]
+  );
 };
 
 export const useCalculatePeriodStats = (
