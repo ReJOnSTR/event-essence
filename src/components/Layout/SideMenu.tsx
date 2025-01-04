@@ -42,9 +42,13 @@ export default function SideMenu({
 
   return (
     <motion.div 
-      className="flex flex-col h-full bg-background w-full"
+      className="fixed left-0 top-0 flex flex-col h-screen bg-background"
+      style={{
+        width: "var(--sidebar-width)",
+        paddingTop: headerHeight
+      }}
       animate={{ 
-        marginTop: headerHeight 
+        paddingTop: headerHeight 
       }}
       transition={{ 
         duration: 0.3,
