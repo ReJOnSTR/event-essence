@@ -34,10 +34,13 @@ export const createTableBody = (
   students: Student[]
 ) => {
   return lessons.map(lesson => {
+    const start = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
+    const end = lesson.end instanceof Date ? lesson.end : new Date(lesson.end);
     const student = students.find(s => s.id === lesson.studentId);
+    
     return [
-      { text: format(new Date(lesson.start), 'd MMMM yyyy', { locale: tr }), style: 'tableCell' },
-      { text: `${format(new Date(lesson.start), 'HH:mm')} - ${format(new Date(lesson.end), 'HH:mm')}`, style: 'tableCell' },
+      { text: format(start, 'd MMMM yyyy', { locale: tr }), style: 'tableCell' },
+      { text: `${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`, style: 'tableCell' },
       { text: student?.name || "Bilinmeyen Öğrenci", style: 'tableCell' },
       { 
         text: (student?.price || 0).toLocaleString('tr-TR', { 

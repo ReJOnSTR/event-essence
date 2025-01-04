@@ -7,6 +7,7 @@ import {
   startOfYear, 
   endOfYear, 
   isWithinInterval,
+  parseISO
 } from "date-fns";
 import { useMemo } from "react";
 
@@ -63,13 +64,16 @@ export const filterLessons = (
 
   return lessons
     .filter(lesson => {
-      const lessonStart = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
+      const lessonStart = lesson.start instanceof Date ? lesson.start : parseISO(lesson.start as unknown as string);
       return (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
-             isWithinInterval(lessonStart, range);
+             isWithinInterval(lessonStart, { 
+               start: range.start, 
+               end: range.end 
+             });
     })
     .sort((a, b) => {
-      const dateA = new Date(a.start);
-      const dateB = new Date(b.start);
+      const dateA = a.start instanceof Date ? a.start : parseISO(a.start as unknown as string);
+      const dateB = b.start instanceof Date ? b.start : parseISO(b.start as unknown as string);
       return dateA.getTime() - dateB.getTime();
     });
 };
