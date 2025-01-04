@@ -17,14 +17,17 @@ const queryClient = new QueryClient();
 const pageVariants = {
   initial: {
     opacity: 0,
+    x: -10,
     scale: 0.99
   },
   animate: {
     opacity: 1,
+    x: 0,
     scale: 1
   },
   exit: {
     opacity: 0,
+    x: 10,
     scale: 0.99
   }
 };
