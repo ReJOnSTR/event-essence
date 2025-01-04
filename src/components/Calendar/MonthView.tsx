@@ -1,10 +1,12 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { motion } from "framer-motion";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
-import { useMonthView } from "../hooks/useMonthView";
+import { useMonthView } from "@/features/calendar/hooks/useMonthView";
 import { isHoliday } from "@/utils/turkishHolidays";
-import MonthHeader from "./MonthHeader";
-import MonthCell from "./MonthCell";
+import { cn } from "@/lib/utils";
+import { format, isToday } from "date-fns";
+import MonthHeader from "@/features/calendar/components/MonthHeader";
+import MonthCell from "@/features/calendar/components/MonthCell";
 import { useToast } from "@/components/ui/use-toast";
 
 interface MonthViewProps {
@@ -73,31 +75,21 @@ export default function MonthView({
   if (isYearView) {
     return (
       <div className="w-full mx-auto">
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
           <MonthHeader days={weekDays} />
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);
             return (
-              <div
+              <MonthCell
                 key={idx}
-                onClick={() => handleDateClick(day.date)}
-                className={cn(
-                  "min-h-[40px] p-1 bg-background cursor-pointer hover:bg-accent transition-colors duration-150",
-                  !day.isCurrentMonth && "bg-muted text-muted-foreground",
-                  isToday(day.date) && "bg-primary/5",
-                  holiday && !allowWorkOnHolidays && "bg-destructive/10",
-                  holiday && allowWorkOnHolidays && "bg-yellow-500/10 dark:bg-yellow-400/10"
-                )}
-              >
-                <div className={cn(
-                  "text-xs font-medium",
-                  isToday(day.date) && "text-calendar-blue dark:text-calendar-blue-dark",
-                  holiday && !allowWorkOnHolidays && "text-destructive",
-                  holiday && allowWorkOnHolidays && "text-yellow-700 dark:text-yellow-400"
-                )}>
-                  {format(day.date, "d")}
-                </div>
-              </div>
+                day={day}
+                idx={idx}
+                holiday={holiday}
+                allowWorkOnHolidays={allowWorkOnHolidays}
+                handleDateClick={onDateSelect}
+                onEventClick={onEventClick}
+                students={students}
+              />
             );
           })}
         </div>
@@ -113,7 +105,7 @@ export default function MonthView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-calendar-border rounded-lg overflow-hidden">
           <MonthHeader days={weekDays} />
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);

@@ -17,7 +17,7 @@ export default function MonthHeader({ days }: MonthHeaderProps) {
             delay: index * 0.01,
             ease: [0.23, 1, 0.32, 1]
           }}
-          className="bg-gray-50 p-2 text-sm font-medium text-calendar-gray text-center"
+          className="bg-muted p-2 text-sm font-medium text-muted-foreground text-center dark:bg-muted/50"
         >
           {day}
         </motion.div>

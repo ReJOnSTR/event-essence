@@ -1,5 +1,4 @@
 import { format, isToday } from "date-fns";
-import { tr } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
@@ -45,7 +44,7 @@ export default function MonthCell({
           }}
           onClick={() => handleDateClick(day.date)}
           className={cn(
-            "min-h-[120px] p-2 bg-background cursor-pointer transition-colors duration-150",
+            "min-h-[120px] p-2 bg-background cursor-pointer hover:bg-accent/50 transition-colors duration-150",
             !day.isCurrentMonth && "bg-muted text-muted-foreground",
             isToday(day.date) && "bg-primary/5",
             holiday && !allowWorkOnHolidays && "bg-destructive/10",
@@ -55,7 +54,7 @@ export default function MonthCell({
         >
           <div className={cn(
             "text-sm font-medium mb-1",
-            isToday(day.date) && "text-calendar-blue dark:text-calendar-blue-dark",
+            isToday(day.date) && "text-primary",
             holiday && !allowWorkOnHolidays && "text-destructive",
             holiday && allowWorkOnHolidays && "text-yellow-700 dark:text-yellow-400"
           )}>
