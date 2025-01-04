@@ -1,7 +1,7 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { useDayView } from "@/hooks/useDayView";
@@ -113,19 +113,22 @@ export default function DayView({
               className="grid grid-cols-12 gap-2"
             >
               <DayHeader hour={hour} />
-              <DayTimeSlot
-                hour={hour}
-                dayEvents={dayEvents}
-                isDraggingOver={false}
-                isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
-                onClick={() => {
-                  const newDate = handleHourClick(hour, 0);
-                  if (newDate) onDateSelect(newDate);
-                }}
-                students={students}
-                onEventClick={onEventClick}
-                droppableId={`${hour}:0`}
-              />
+              <Droppable droppableId={`${hour}:0`}>
+                {(provided, snapshot) => (
+                  <DayTimeSlot
+                    hour={hour}
+                    dayEvents={dayEvents}
+                    isDraggingOver={snapshot.isDraggingOver}
+                    isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
+                    onClick={() => {
+                      const newDate = handleHourClick(hour, 0);
+                      if (newDate) onDateSelect(newDate);
+                    }}
+                    students={students}
+                    onEventClick={onEventClick}
+                  />
+                )}
+              </Droppable>
               <TimeIndicator events={dayEvents} hour={hour} />
             </motion.div>
           ))}

@@ -20,8 +20,8 @@ export default function LessonCard({
   isDraggable = true 
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
-  const durationInMinutes = differenceInMinutes(new Date(event.end), new Date(event.start));
-  const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40);
+  const durationInMinutes = differenceInMinutes(event.end, event.start);
+  const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40); // Minimum height of 40px
   const student = students?.find(s => s.id === event.studentId);
   const isCompact = heightInPixels <= 40;
 
@@ -61,9 +61,9 @@ export default function LessonCard({
             {student?.name || "İsimsiz Öğrenci"}
           </div>
           <div className="text-xs whitespace-nowrap">
-            {format(new Date(event.start), "HH:mm", { locale: tr })}
+            {format(event.start, "HH:mm", { locale: tr })}
             <span className="mx-0.5">-</span>
-            {format(new Date(event.end), "HH:mm", { locale: tr })}
+            {format(event.end, "HH:mm", { locale: tr })}
           </div>
         </>
       ) : (
@@ -72,9 +72,9 @@ export default function LessonCard({
             {student?.name || "İsimsiz Öğrenci"}
           </div>
           <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90 mt-0.5">
-            <span>{format(new Date(event.start), "HH:mm", { locale: tr })}</span>
+            <span>{format(event.start, "HH:mm", { locale: tr })}</span>
             <span className="text-white/90">-</span>
-            <span>{format(new Date(event.end), "HH:mm", { locale: tr })}</span>
+            <span>{format(event.end, "HH:mm", { locale: tr })}</span>
           </div>
         </>
       )}

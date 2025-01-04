@@ -11,7 +11,6 @@ interface DayTimeSlotProps {
   onClick: () => void;
   students?: Student[];
   onEventClick?: (event: CalendarEvent) => void;
-  droppableId: string;
 }
 
 export default function DayTimeSlot({
@@ -21,38 +20,28 @@ export default function DayTimeSlot({
   isDisabled,
   onClick,
   students,
-  onEventClick,
-  droppableId
+  onEventClick
 }: DayTimeSlotProps) {
-  const hourEvents = dayEvents.filter(event => 
-    new Date(event.start).getHours() === hour
-  );
-
   return (
-    <Droppable droppableId={droppableId}>
-      {(provided, snapshot) => (
-        <div 
-          ref={provided.innerRef}
-          {...provided.droppableProps}
-          className={cn(
-            "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
-            snapshot.isDraggingOver && "bg-accent",
-            isDisabled && "bg-muted cursor-not-allowed"
-          )}
-          onClick={onClick}
-        >
-          {hourEvents.map((event, index) => (
-            <LessonCard 
-              key={event.id} 
-              event={event} 
-              onClick={onEventClick}
-              students={students}
-              index={index}
-            />
-          ))}
-          {provided.placeholder}
-        </div>
+    <div 
+      className={cn(
+        "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
+        isDraggingOver && "bg-accent",
+        isDisabled && "bg-muted cursor-not-allowed"
       )}
-    </Droppable>
+      onClick={onClick}
+    >
+      {dayEvents
+        .filter(event => new Date(event.start).getHours() === hour)
+        .map((event, index) => (
+          <LessonCard 
+            key={event.id} 
+            event={event} 
+            onClick={onEventClick}
+            students={students}
+            index={index}
+          />
+        ))}
+    </div>
   );
 }
