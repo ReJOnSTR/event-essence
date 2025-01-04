@@ -29,7 +29,7 @@ export const isHoliday = (date: Date | string | number): Holiday | undefined => 
 
   // Check custom holidays from settings
   try {
-    const customHolidays = JSON.parse(localStorage.getItem('holidays') || '[]');
+    const customHolidays = JSON.parse(localStorage.getItem('customHolidays') || '[]');
     const customHoliday = customHolidays.find((holiday: { date: string }) => 
       new Date(holiday.date).toDateString() === dateObj.toDateString()
     );

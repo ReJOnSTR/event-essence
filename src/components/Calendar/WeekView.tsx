@@ -51,7 +51,7 @@ export default function WeekView({
       transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
     >
       <WeekViewHeader date={date} />
-      <div className="grid grid-cols-8 gap-px bg-gray-200">
+      <div className="grid grid-cols-8 gap-px bg-border">
         <WeekViewTimeGrid
           weekDays={weekDays}
           hours={hours}

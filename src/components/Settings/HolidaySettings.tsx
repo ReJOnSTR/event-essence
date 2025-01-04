@@ -1,22 +1,14 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { getTurkishHolidays } from "@/utils/turkishHolidays";
-import { format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface Holiday {
-  date: Date;
-  description: string;
-}
-
-export default function HolidaySettings() {
+export function HolidaySettings() {
   const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
     const savedHolidays = localStorage.getItem('holidays');
-    return savedHolidays ? JSON.parse(savedHolidays).map((h: Holiday) => new Date(h.date)) : [];
+    return savedHolidays ? JSON.parse(savedHolidays).map((h: { date: string }) => new Date(h.date)) : [];
   });
   
   const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
@@ -24,8 +16,6 @@ export default function HolidaySettings() {
   });
 
   const { toast } = useToast();
-
-  const officialHolidays = getTurkishHolidays(new Date().getFullYear());
 
   useEffect(() => {
     const holidays = selectedDates.map(date => ({
@@ -64,32 +54,27 @@ export default function HolidaySettings() {
           <Label htmlFor="allow-work">Tatil günlerinde çalışmaya izin ver</Label>
         </div>
         
-        <div className="border rounded-lg p-4">
-          <h3 className="text-sm font-medium mb-4">Özel Tatil Günlerini Seçin</h3>
-          <Calendar
-            mode="multiple"
-            selected={selectedDates}
-            onSelect={setSelectedDates}
-            className="rounded-md border"
-          />
-        </div>
-
-        <div className="border rounded-lg p-4">
-          <h3 className="text-sm font-medium mb-4">Resmi Tatil Günleri</h3>
-          <div className="space-y-2">
-            {officialHolidays.map((holiday, index) => (
-              <div 
-                key={index}
-                className="flex justify-between items-center p-2 bg-gray-50 rounded-md"
-              >
-                <span className="font-medium">{holiday.name}</span>
-                <span className="text-sm text-gray-600">
-                  {format(holiday.date, "d MMMM yyyy", { locale: tr })}
-                </span>
+        <ScrollArea className="h-[400px] rounded-md border">
+          <div className="p-4">
+            <h3 className="text-sm font-medium mb-4">Özel Tatil Günleri</h3>
+            {selectedDates.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Henüz özel tatil günü eklenmemiş.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {selectedDates.map((date, index) => (
+                  <div 
+                    key={index}
+                    className="flex justify-between items-center p-2 bg-gray-50 rounded-md"
+                  >
+                    <span className="text-sm">{date.toLocaleDateString('tr-TR')}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );
