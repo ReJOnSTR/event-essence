@@ -9,6 +9,7 @@ import { checkLessonConflict } from "@/utils/lessonConflicts";
 import DayHeader from "./DayHeader";
 import DayTimeSlot from "./DayTimeSlot";
 import { TimeIndicator } from "./TimeIndicator";
+import { useCallback } from "react";
 
 interface DayViewProps {
   date: Date;
@@ -39,7 +40,7 @@ export default function DayView({
     handleHourClick
   } = useDayView(date, events);
 
-  const onDragEnd = (result: DropResult) => {
+  const onDragEnd = useCallback((result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
     const [hourStr, minuteStr] = result.destination.droppableId.split(':');
@@ -85,7 +86,7 @@ export default function DayView({
       title: "Ders taşındı",
       description: "Ders başarıyla yeni saate taşındı.",
     });
-  };
+  }, [date, endHour, events, onEventUpdate, startHour, toast]);
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -126,20 +127,26 @@ export default function DayView({
               className="grid grid-cols-12 gap-2"
             >
               <DayHeader hour={hour} />
-              <Droppable droppableId={`${hour}:0`}>
+              <Droppable droppableId={`${hour}:0`} type="lesson">
                 {(provided, snapshot) => (
-                  <DayTimeSlot
-                    hour={hour}
-                    dayEvents={dayEvents}
-                    isDraggingOver={snapshot.isDraggingOver}
-                    isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
-                    onClick={() => {
-                      const newDate = handleHourClick(hour, 0);
-                      if (newDate) onDateSelect(newDate);
-                    }}
-                    students={students}
-                    onEventClick={onEventClick}
-                  />
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    <DayTimeSlot
+                      hour={hour}
+                      dayEvents={dayEvents}
+                      isDraggingOver={snapshot.isDraggingOver}
+                      isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
+                      onClick={() => {
+                        const newDate = handleHourClick(hour, 0);
+                        if (newDate) onDateSelect(newDate);
+                      }}
+                      students={students}
+                      onEventClick={onEventClick}
+                    />
+                    {provided.placeholder}
+                  </div>
                 )}
               </Droppable>
               <TimeIndicator events={dayEvents} hour={hour} />
