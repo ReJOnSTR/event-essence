@@ -2,30 +2,28 @@ import { useQuery } from "@tanstack/react-query";
 import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { validateDate } from "@/utils/dateUtils";
+import { supabase } from "@/lib/supabase";
 
 export function useLessonQueries() {
   const { toast } = useToast();
 
-  const getLessons = (): Lesson[] => {
+  const getLessons = async (): Promise<Lesson[]> => {
     try {
-      const savedLessons = localStorage.getItem('lessons');
-      if (!savedLessons) return [];
-      
-      const parsedLessons = JSON.parse(savedLessons);
-      if (!Array.isArray(parsedLessons)) {
-        throw new Error('Invalid lessons data format');
-      }
+      const { data: lessons, error } = await supabase
+        .from('lessons')
+        .select('*')
+        .order('start', { ascending: true });
 
-      return parsedLessons.map(lesson => ({
-        ...lesson,
+      if (error) throw error;
+
+      return (lessons || []).map(lesson => ({
+        id: lesson.id,
+        title: lesson.title,
+        description: lesson.description || undefined,
         start: new Date(lesson.start),
-        end: new Date(lesson.end)
-      })).filter(lesson => 
-        validateDate(lesson.start) && 
-        validateDate(lesson.end) &&
-        lesson.id &&
-        typeof lesson.title === 'string'
-      );
+        end: new Date(lesson.end),
+        studentId: lesson.student_id || undefined
+      }));
     } catch (error) {
       console.error('Error loading lessons:', error);
       toast({
