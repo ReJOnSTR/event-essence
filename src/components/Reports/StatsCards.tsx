@@ -22,6 +22,7 @@ export function StatsCards({
   startDate,
   endDate,
 }: StatsCardsProps) {
+  // Always call hooks at the top level
   const hours = useCalculatePeriodHours(
     lessons,
     selectedDate,
@@ -84,31 +85,19 @@ export function StatsCards({
         </CardContent>
       </Card>
 
-      {startDate && endDate ? (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Seçili Dönem</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{hours.custom || 0} Saat</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {formatCurrency(earnings.custom || 0)}
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Seçili Dönem</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0 Saat</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {formatCurrency(0)}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Seçili Dönem</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {(startDate && endDate && hours.custom) || 0} Saat
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {formatCurrency((startDate && endDate && earnings.custom) || 0)}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
