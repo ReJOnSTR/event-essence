@@ -25,8 +25,8 @@ export default function ReportsPage() {
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState<string>("#000000");
   
-  const { students } = useStudents();
-  const { lessons } = useLessons();
+  const { students = [] } = useStudents();
+  const { lessons = [] } = useLessons();
 
   const handleEditStudent = (student: Student) => {
     setEditingStudent(student);
@@ -42,7 +42,7 @@ export default function ReportsPage() {
   };
 
   const hours = calculatePeriodHours(
-    lessons,
+    lessons || [],
     selectedDate,
     selectedStudent,
     startDate,
@@ -50,10 +50,10 @@ export default function ReportsPage() {
   );
 
   const earnings = calculatePeriodEarnings(
-    lessons,
+    lessons || [],
     selectedDate,
     selectedStudent,
-    students,
+    students || [],
     startDate,
     endDate
   );
@@ -104,7 +104,7 @@ export default function ReportsPage() {
               setStartDate={setStartDate}
               endDate={endDate}
               setEndDate={setEndDate}
-              students={students}
+              students={students || []}
             />
             
             <StatsCards
@@ -117,8 +117,8 @@ export default function ReportsPage() {
             />
             
             <LessonList
-              lessons={lessons}
-              students={students}
+              lessons={lessons || []}
+              students={students || []}
               selectedStudent={selectedStudent}
               selectedPeriod={selectedPeriod}
               selectedDate={selectedDate}
@@ -127,8 +127,8 @@ export default function ReportsPage() {
             />
 
             <PdfReport
-              lessons={lessons}
-              students={students}
+              lessons={lessons || []}
+              students={students || []}
               selectedStudent={selectedStudent}
               selectedPeriod={selectedPeriod}
               totalHours={totalHours}
