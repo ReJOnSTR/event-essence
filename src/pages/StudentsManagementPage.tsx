@@ -6,7 +6,8 @@ import { useStudents } from "@/hooks/useStudents";
 import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import SideMenu from "@/components/Layout/SideMenu";
 
 export default function StudentsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -49,7 +50,10 @@ export default function StudentsManagementPage() {
       <div className="min-h-screen flex w-full bg-gray-50">
         <Sidebar>
           <SidebarContent>
-            <SideMenu />
+            <SideMenu 
+              onAddStudent={() => setIsDialogOpen(true)}
+              onEdit={handleEditStudent}
+            />
           </SidebarContent>
         </Sidebar>
         
@@ -71,8 +75,7 @@ export default function StudentsManagementPage() {
               <StudentCard
                 key={student.id}
                 student={student}
-                onEdit={() => handleEditStudent(student)}
-                onDelete={() => deleteStudent(student.id)}
+                onClick={handleEditStudent}
               />
             ))}
           </div>
