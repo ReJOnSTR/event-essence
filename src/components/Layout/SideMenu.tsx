@@ -38,7 +38,7 @@ export default function SideMenu({
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-800">
+    <div className="flex flex-col h-full bg-background">
       <SidebarGroup className="space-y-2">
         {menuItems.map((item) => (
           <Link 
