@@ -65,7 +65,7 @@ const App = () => (
     <TooltipProvider>
       <div className="overflow-hidden">
         <Toaster />
-        <Sonner />
+        <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
         <BrowserRouter>
           <AnimatedRoutes />
         </BrowserRouter>
