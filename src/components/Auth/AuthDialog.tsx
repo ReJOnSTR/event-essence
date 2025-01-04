@@ -4,6 +4,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { AuthError, AuthResponse } from "@supabase/supabase-js";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -15,14 +16,13 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
 
   // Listen for auth state changes and errors
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'USER_DELETED') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_OUT") {
         toast({
-          title: "Hata",
-          description: "Kullanıcı bulunamadı.",
-          variant: "destructive"
+          title: "Çıkış yapıldı",
+          description: "Başarıyla çıkış yaptınız."
         });
-      } else if (event === 'PASSWORD_RECOVERY') {
+      } else if (event === "PASSWORD_RECOVERY") {
         toast({
           title: "Şifre sıfırlama",
           description: "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi."
@@ -84,6 +84,33 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
           }}
           theme="light"
           providers={[]}
+          onError={(error: AuthError) => {
+            if (error.message.includes("email_address_invalid")) {
+              toast({
+                title: "Geçersiz e-posta",
+                description: "Lütfen geçerli bir e-posta adresi girin.",
+                variant: "destructive"
+              });
+            } else if (error.message.includes("over_email_send_rate_limit")) {
+              toast({
+                title: "Çok fazla deneme",
+                description: "Lütfen 20 saniye bekleyip tekrar deneyin.",
+                variant: "destructive"
+              });
+            } else if (error.message.includes("invalid_credentials")) {
+              toast({
+                title: "Giriş başarısız",
+                description: "E-posta veya şifre hatalı.",
+                variant: "destructive"
+              });
+            } else {
+              toast({
+                title: "Hata",
+                description: error.message,
+                variant: "destructive"
+              });
+            }
+          }}
         />
       </DialogContent>
     </Dialog>
