@@ -6,7 +6,9 @@ import { StatsCards } from "@/components/Reports/StatsCards";
 import { LessonList } from "@/components/Reports/LessonList";
 import { PdfReport } from "@/components/Reports/PdfReport";
 import { useStudents } from "@/hooks/useStudents";
+import { useLessons } from "@/hooks/useLessons";
 import SideMenu from "@/components/Layout/SideMenu";
+import { calculatePeriodHours, calculatePeriodEarnings } from "@/utils/reportCalculations";
 
 export default function ReportsPage() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
@@ -14,7 +16,34 @@ export default function ReportsPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
+  
   const { students } = useStudents();
+  const { lessons } = useLessons();
+
+  const hours = calculatePeriodHours(
+    lessons,
+    selectedDate,
+    selectedStudent,
+    startDate,
+    endDate
+  );
+
+  const earnings = calculatePeriodEarnings(
+    lessons,
+    selectedDate,
+    selectedStudent,
+    students,
+    startDate,
+    endDate
+  );
+
+  const totalHours = selectedPeriod === "custom" 
+    ? hours.custom || 0 
+    : hours[selectedPeriod];
+
+  const totalEarnings = selectedPeriod === "custom"
+    ? earnings.custom || 0
+    : earnings[selectedPeriod];
 
   return (
     <SidebarProvider>
@@ -48,18 +77,8 @@ export default function ReportsPage() {
             />
             
             <StatsCards
-              hours={{
-                weekly: 0,
-                monthly: 0,
-                yearly: 0,
-                custom: startDate && endDate ? 0 : undefined
-              }}
-              earnings={{
-                weekly: 0,
-                monthly: 0,
-                yearly: 0,
-                custom: startDate && endDate ? 0 : undefined
-              }}
+              hours={hours}
+              earnings={earnings}
               selectedDate={selectedDate}
               startDate={startDate}
               endDate={endDate}
@@ -67,7 +86,7 @@ export default function ReportsPage() {
             />
             
             <LessonList
-              lessons={[]}
+              lessons={lessons}
               students={students}
               selectedStudent={selectedStudent}
               selectedPeriod={selectedPeriod}
@@ -77,12 +96,12 @@ export default function ReportsPage() {
             />
 
             <PdfReport
-              lessons={[]}
+              lessons={lessons}
               students={students}
               selectedStudent={selectedStudent}
               selectedPeriod={selectedPeriod}
-              totalHours={0}
-              totalEarnings={0}
+              totalHours={totalHours}
+              totalEarnings={totalEarnings}
               startDate={startDate}
               endDate={endDate}
             />
