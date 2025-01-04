@@ -7,7 +7,8 @@ import { ThemeOptions } from "./ThemeOptions";
 
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem("theme") || "system";
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme || "light"; // Varsayılan değer "light" olarak değiştirildi
   });
   
   const [fontSize, setFontSize] = useState(() => {
