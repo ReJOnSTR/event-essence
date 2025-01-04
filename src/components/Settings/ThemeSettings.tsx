@@ -61,7 +61,10 @@ const fontFamilies = [
 
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem("theme") || "system";
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("theme") || "system";
+    }
+    return "system";
   });
   
   const [fontSize, setFontSize] = useState(() => {
@@ -77,22 +80,26 @@ export default function ThemeSettings() {
   useEffect(() => {
     const root = document.documentElement;
     
-    // Önce tüm tema sınıflarını kaldır
-    root.classList.remove('light', 'dark');
-    
+    const applyTheme = (theme: string) => {
+      root.classList.remove('light', 'dark');
+      if (theme !== 'system') {
+        root.classList.add(theme);
+      }
+    };
+
     if (currentTheme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const updateTheme = (e: MediaQueryListEvent | MediaQueryList) => {
-        root.classList.toggle("dark", e.matches);
+      
+      const updateSystemTheme = (e: MediaQueryListEvent | MediaQueryList) => {
+        applyTheme(e.matches ? 'dark' : 'light');
       };
       
-      updateTheme(mediaQuery);
-      mediaQuery.addEventListener("change", updateTheme);
+      updateSystemTheme(mediaQuery);
+      mediaQuery.addEventListener("change", updateSystemTheme);
       
-      return () => mediaQuery.removeEventListener("change", updateTheme);
+      return () => mediaQuery.removeEventListener("change", updateSystemTheme);
     } else {
-      // Manuel tema seçimi
-      root.classList.add(currentTheme);
+      applyTheme(currentTheme);
     }
     
     localStorage.setItem("theme", currentTheme);
