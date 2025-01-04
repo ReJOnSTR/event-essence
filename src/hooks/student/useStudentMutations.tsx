@@ -1,21 +1,25 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase";
 
 export function useStudentMutations() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const { mutate: saveStudent } = useMutation({
-    mutationFn: async (student: Omit<Student, 'id'>): Promise<Student> => {
+    mutationFn: async (student: Omit<Student, "id">): Promise<Student> => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const { data, error } = await supabase
         .from('students')
-        .insert([{
+        .insert({
           name: student.name,
           price: student.price,
-          color: student.color
-        }])
+          color: student.color,
+          user_id: user.id
+        })
         .select()
         .single();
 

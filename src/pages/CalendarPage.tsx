@@ -91,6 +91,15 @@ export default function CalendarPage() {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
 
+  const handleSaveStudent = () => {
+    saveStudent({
+      name: studentDialogState.studentName,
+      price: studentDialogState.studentPrice,
+      color: studentDialogState.studentColor,
+    });
+    setIsStudentDialogOpen(false);
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background font-sans">
@@ -176,15 +185,7 @@ export default function CalendarPage() {
             onCloseSearchDialog={() => setIsSearchOpen(false)}
             onSaveLesson={handleSaveLesson}
             onDeleteLesson={handleDeleteLesson}
-            onSaveStudent={() => {
-              saveStudent({
-                id: studentDialogState.selectedStudent?.id || crypto.randomUUID(),
-                name: studentDialogState.studentName,
-                price: studentDialogState.studentPrice,
-                color: studentDialogState.studentColor,
-              });
-              setIsStudentDialogOpen(false);
-            }}
+            onSaveStudent={handleSaveStudent}
             onDeleteStudent={() => {
               if (studentDialogState.selectedStudent) {
                 deleteStudent(studentDialogState.selectedStudent.id);

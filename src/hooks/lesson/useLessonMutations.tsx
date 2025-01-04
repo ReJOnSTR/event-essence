@@ -1,23 +1,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Lesson } from "@/types/calendar";
+import { CalendarEvent } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase";
 
 export function useLessonMutations() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const { mutate: saveLesson } = useMutation({
-    mutationFn: async (lesson: Omit<Lesson, 'id'>): Promise<Lesson> => {
+    mutationFn: async (lesson: Omit<CalendarEvent, "id">): Promise<CalendarEvent> => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const { data, error } = await supabase
         .from('lessons')
-        .insert([{
+        .insert({
           title: lesson.title,
           description: lesson.description,
           start_time: lesson.start.toISOString(),
           end_time: lesson.end.toISOString(),
-          student_id: lesson.studentId
-        }])
+          student_id: lesson.studentId,
+          user_id: user.id
+        })
         .select()
         .single();
 
