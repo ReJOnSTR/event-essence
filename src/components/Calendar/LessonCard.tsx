@@ -3,6 +3,7 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -21,7 +22,7 @@ export default function LessonCard({
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
   const durationInMinutes = differenceInMinutes(event.end, event.start);
-  const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40); // Minimum height of 40px
+  const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40);
   const student = students?.find(s => s.id === event.studentId);
   const isCompact = heightInPixels <= 40;
 
@@ -40,10 +41,15 @@ export default function LessonCard({
   };
 
   const content = (provided?: any, snapshot?: any) => (
-    <div
+    <motion.div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.2 }}
       className={cn(
         "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm",
         snapshot?.isDragging ? "shadow-lg opacity-70" : "",
@@ -78,7 +84,7 @@ export default function LessonCard({
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   );
 
   if (!isDraggable) {
