@@ -23,6 +23,23 @@ export default function AuthPage() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const handleError = (error: Error) => {
+    console.error("Auth error:", error);
+    let errorMessage = "Bir hata oluştu. Lütfen tekrar deneyin.";
+    
+    if (error.message.includes("email_address_invalid")) {
+      errorMessage = "Geçersiz email adresi. Lütfen kontrol edip tekrar deneyin.";
+    } else if (error.message.includes("password")) {
+      errorMessage = "Şifre en az 6 karakter olmalıdır.";
+    }
+    
+    toast({
+      title: "Hata",
+      description: errorMessage,
+      variant: "destructive",
+    });
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm space-y-4 rounded-lg border bg-card p-4 shadow-sm">
@@ -68,22 +85,8 @@ export default function AuthPage() {
             },
           }}
           providers={[]}
-          onError={(error) => {
-            console.error("Auth error:", error);
-            let errorMessage = "Bir hata oluştu. Lütfen tekrar deneyin.";
-            
-            if (error.message.includes("email_address_invalid")) {
-              errorMessage = "Geçersiz email adresi. Lütfen kontrol edip tekrar deneyin.";
-            } else if (error.message.includes("password")) {
-              errorMessage = "Şifre en az 6 karakter olmalıdır.";
-            }
-            
-            toast({
-              title: "Hata",
-              description: errorMessage,
-              variant: "destructive",
-            });
-          }}
+          view="sign_in"
+          onError={handleError}
         />
       </div>
     </div>
