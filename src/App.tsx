@@ -3,7 +3,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AuthHeader } from "@/components/Auth/AuthHeader";
 import CalendarPage from "./pages/CalendarPage";
@@ -14,22 +13,6 @@ import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
-const pageVariants = {
-  initial: {
-    opacity: 0,
-  },
-  animate: {
-    opacity: 1,
-  },
-  exit: {
-    opacity: 0,
-  }
-};
-
-const pageTransition = {
-  duration: 0.1
-};
-
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
   
@@ -39,26 +22,13 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   }, []);
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageVariants}
-        transition={pageTransition}
-        className="w-full h-full"
-        style={{ marginTop: headerHeight }}
-      >
-        <Routes location={location}>
-          <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/" element={<Navigate to="/calendar" replace />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
+    <Routes location={location}>
+      <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
+      <Route path="/students" element={<StudentsManagementPage />} />
+      <Route path="/reports" element={<ReportsPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/" element={<Navigate to="/calendar" replace />} />
+    </Routes>
   );
 };
 
