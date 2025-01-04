@@ -18,10 +18,9 @@ interface DatePickerProps {
   date?: Date
   setDate: (date: Date) => void
   placeholder?: string
-  className?: string
 }
 
-export function DatePicker({ date, setDate, placeholder = "Tarih seçin", className }: DatePickerProps) {
+export function DatePicker({ date, setDate, placeholder = "Tarih seçin" }: DatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -29,8 +28,7 @@ export function DatePicker({ date, setDate, placeholder = "Tarih seçin", classN
           variant={"outline"}
           className={cn(
             "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground",
-            className
+            !date && "text-muted-foreground"
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />

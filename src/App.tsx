@@ -8,7 +8,6 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const queryClient = new QueryClient();
 
@@ -38,7 +37,6 @@ const pageTransition = {
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-  const isMobile = useIsMobile();
   
   return (
     <AnimatePresence mode="wait">
@@ -62,22 +60,18 @@ const AnimatedRoutes = () => {
   );
 };
 
-const App = () => {
-  const isMobile = useIsMobile();
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="overflow-hidden">
-          <Toaster />
-          <Sonner position={isMobile ? "bottom-center" : "top-right"} />
-          <BrowserRouter>
-            <AnimatedRoutes />
-          </BrowserRouter>
-        </div>
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
-};
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <div className="overflow-hidden">
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </div>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;

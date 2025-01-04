@@ -1,83 +1,52 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
-import { cn } from "@/lib/utils";
 import { Draggable } from "@hello-pangea/dnd";
-import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-interface MonthEventCardProps {
+interface EventCardProps {
   event: CalendarEvent;
   students?: Student[];
   index: number;
   onClick?: (event: CalendarEvent) => void;
 }
 
-export default function MonthEventCard({
-  event,
-  students,
-  index,
-  onClick
-}: MonthEventCardProps) {
-  const isMobile = useIsMobile();
+export default function MonthEventCard({ event, students, index, onClick }: EventCardProps) {
   const student = students?.find(s => s.id === event.studentId);
-  const start = new Date(event.start);
-  const end = new Date(event.end);
 
-  const cardContent = (
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClick?.(event);
+  };
+
+  const content = (provided?: any, snapshot?: any) => (
     <div
-      onClick={() => onClick?.(event)}
-      className={cn(
-        "text-xs md:text-sm p-1 rounded cursor-pointer transition-colors",
-        "hover:opacity-90 active:opacity-80",
-        isMobile ? "bg-opacity-90" : ""
-      )}
-      style={{ backgroundColor: student?.color || '#1a73e8' }}
+      ref={provided?.innerRef}
+      {...(provided?.draggableProps || {})}
+      {...(provided?.dragHandleProps || {})}
+      className={`text-white text-sm p-1 rounded mb-1 cursor-pointer hover:brightness-90 transition-colors ${
+        snapshot?.isDragging ? "shadow-lg opacity-70" : ""
+      }`}
+      style={{ 
+        backgroundColor: student?.color || "#039be5",
+        ...(provided?.draggableProps?.style || {})
+      }}
+      onClick={handleClick}
     >
-      <div className="font-medium text-white truncate">
-        {format(start, "HH:mm", { locale: tr })} - {format(end, "HH:mm", { locale: tr })}
+      <div className="flex items-center gap-1">
+        <span className="font-medium truncate">
+          {student?.name || "İsimsiz Öğrenci"}
+        </span>
+        <span className="text-xs whitespace-nowrap">
+          {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
+        </span>
       </div>
-      {student && (
-        <div className="text-white/90 truncate">
-          {student.name}
-        </div>
-      )}
     </div>
   );
 
   return (
     <Draggable draggableId={event.id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          className={cn(
-            "rounded",
-            snapshot.isDragging && "opacity-70"
-          )}
-        >
-          {isMobile ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                {cardContent}
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-[200px]">
-                <div className="text-sm">
-                  <div className="font-medium">{student?.name}</div>
-                  <div>{format(start, "HH:mm", { locale: tr })} - {format(end, "HH:mm", { locale: tr })}</div>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            cardContent
-          )}
-        </div>
-      )}
+      {(provided, snapshot) => content(provided, snapshot)}
     </Draggable>
   );
 }
