@@ -10,15 +10,12 @@ interface ViewSelectorProps {
 const tabVariants = {
   initial: { 
     opacity: 0,
-    y: 0,
     scale: 0.98
   },
   animate: { 
     opacity: 1,
-    y: 0,
     scale: 1,
     transition: {
-      type: "tween",
       duration: 0.2,
       ease: "easeOut"
     }
@@ -28,12 +25,6 @@ const tabVariants = {
     scale: 0.98,
     transition: {
       duration: 0.15
-    }
-  },
-  hover: {
-    backgroundColor: "rgba(var(--primary) / 0.1)",
-    transition: {
-      duration: 0.2
     }
   }
 };
@@ -49,9 +40,9 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
   ];
 
   return (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="w-full bg-background">
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 p-1 bg-transparent">
+        <TabsList className="inline-flex h-auto w-full justify-start gap-2 bg-transparent p-0 text-muted-foreground">
           <AnimatePresence mode="wait">
             {views.map((view) => (
               <motion.div
@@ -60,19 +51,23 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                whileHover="hover"
-                className="w-full"
+                className="relative"
               >
                 <TabsTrigger 
                   value={view.id} 
                   onClick={() => onViewChange(view.id)}
-                  className="w-full relative text-xs md:text-sm py-2 transition-all duration-200 rounded-md data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+                  className={`
+                    relative px-3 py-2 text-sm font-medium transition-all
+                    hover:text-foreground
+                    data-[state=active]:text-calendar-blue
+                    data-[state=active]:dark:text-calendar-blue-dark
+                  `}
                 >
                   {view.label}
                   {currentView === view.id && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full"
+                      className="absolute -bottom-[1px] left-0 right-0 h-0.5 rounded-full bg-calendar-blue dark:bg-calendar-blue-dark"
                       initial={false}
                       transition={{
                         type: "spring",
