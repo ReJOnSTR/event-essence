@@ -49,7 +49,7 @@ export default function StudentsManagementPage() {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar>
-          <SidebarContent>
+          <SidebarContent className="p-4">
             <SideMenu 
               onAddStudent={() => setIsDialogOpen(true)}
               onEdit={handleEditStudent}
