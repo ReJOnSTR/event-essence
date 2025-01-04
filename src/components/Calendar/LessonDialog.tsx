@@ -121,23 +121,20 @@ export default function LessonDialog({
 
   const createRecurringLessons = (baseStart: Date, baseEnd: Date) => {
     const lessons = [];
-    let currentStart = new Date(baseStart);
-    let currentEnd = new Date(baseEnd);
+    
+    // Tüm tekrarlar için (ilk ders dahil)
+    for (let i = 0; i < recurrenceCount; i++) {
+      const currentStart = new Date(baseStart);
+      const currentEnd = new Date(baseEnd);
 
-    // İlk dersi ekle
-    lessons.push({
-      start: new Date(currentStart),
-      end: new Date(currentEnd)
-    });
-
-    // Tekrarlayan dersleri ekle
-    for (let i = 1; i < recurrenceCount; i++) {
-      if (recurrenceType === "weekly") {
-        currentStart = addWeeks(currentStart, 1);
-        currentEnd = addWeeks(currentEnd, 1);
-      } else if (recurrenceType === "monthly") {
-        currentStart = addMonths(currentStart, 1);
-        currentEnd = addMonths(currentEnd, 1);
+      if (i > 0) { // İlk ders için tarih değişikliği yapma
+        if (recurrenceType === "weekly") {
+          currentStart.setDate(currentStart.getDate() + (i * 7));
+          currentEnd.setDate(currentEnd.getDate() + (i * 7));
+        } else if (recurrenceType === "monthly") {
+          currentStart.setMonth(currentStart.getMonth() + i);
+          currentEnd.setMonth(currentEnd.getMonth() + i);
+        }
       }
 
       // Çakışma kontrolü
