@@ -122,44 +122,46 @@ export default function LessonDialog({
   const createRecurringLessons = (baseStart: Date, baseEnd: Date) => {
     const lessons = [];
     
-    // Tüm tekrarlar için (ilk ders dahil)
+    // recurrenceCount kadar ders oluştur (1'den başlayarak)
     for (let i = 0; i < recurrenceCount; i++) {
-      const currentStart = new Date(baseStart);
-      const currentEnd = new Date(baseEnd);
+      const lessonStart = new Date(baseStart);
+      const lessonEnd = new Date(baseEnd);
 
       if (recurrenceType === "weekly") {
-        currentStart.setDate(currentStart.getDate() + (i * 7));
-        currentEnd.setDate(currentEnd.getDate() + (i * 7));
+        // Her hafta için 7 gün ekle
+        lessonStart.setDate(lessonStart.getDate() + (i * 7));
+        lessonEnd.setDate(lessonEnd.getDate() + (i * 7));
       } else if (recurrenceType === "monthly") {
-        const newStart = new Date(baseStart);
-        const newEnd = new Date(baseEnd);
-        newStart.setMonth(newStart.getMonth() + i);
-        newEnd.setMonth(newEnd.getMonth() + i);
+        // Her ay için ay ekle
+        lessonStart.setMonth(lessonStart.getMonth() + i);
+        lessonEnd.setMonth(lessonEnd.getMonth() + i);
         
         // Ayın son gününü kontrol et
-        const lastDayOfMonth = new Date(newStart.getFullYear(), newStart.getMonth() + 1, 0).getDate();
-        if (newStart.getDate() > lastDayOfMonth) {
-          newStart.setDate(lastDayOfMonth);
-          newEnd.setDate(lastDayOfMonth);
+        const lastDayOfMonth = new Date(lessonStart.getFullYear(), lessonStart.getMonth() + 1, 0).getDate();
+        if (lessonStart.getDate() > lastDayOfMonth) {
+          lessonStart.setDate(lastDayOfMonth);
+          lessonEnd.setDate(lastDayOfMonth);
         }
-        
-        currentStart.setTime(newStart.getTime());
-        currentEnd.setTime(newEnd.getTime());
       }
 
       // Çakışma kontrolü
-      if (checkLessonOverlap(currentStart, currentEnd, event?.id)) {
+      if (checkLessonOverlap(lessonStart, lessonEnd, event?.id)) {
         toast({
           title: "Çakışma Tespit Edildi",
-          description: `${format(currentStart, "dd.MM.yyyy HH:mm")} tarihinde başka bir ders bulunuyor.`,
+          description: `${format(lessonStart, "dd.MM.yyyy HH:mm")} tarihinde başka bir ders bulunuyor.`,
           variant: "destructive"
         });
         return null;
       }
 
       lessons.push({
-        start: new Date(currentStart),
-        end: new Date(currentEnd)
+        start: new Date(lessonStart),
+        end: new Date(lessonEnd)
+      });
+
+      console.log(`Ders ${i + 1} eklendi:`, {
+        start: lessonStart.toLocaleString(),
+        end: lessonEnd.toLocaleString()
       });
     }
 
