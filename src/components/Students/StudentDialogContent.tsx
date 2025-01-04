@@ -31,10 +31,15 @@ export default function StudentDialogContent({
 }: StudentDialogContentProps) {
   const { toast } = useToast();
   const [localName, setLocalName] = useState(studentName);
+  const [localPrice, setLocalPrice] = useState(studentPrice.toString());
 
   useEffect(() => {
     setLocalName(studentName);
   }, [studentName]);
+
+  useEffect(() => {
+    setLocalPrice(studentPrice.toString());
+  }, [studentPrice]);
 
   const debouncedNameChange = useMemo(
     () =>
@@ -59,9 +64,12 @@ export default function StudentDialogContent({
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value >= 0 && value <= 999999.99) {
-      setStudentPrice(value);
+    const value = e.target.value;
+    setLocalPrice(value);
+    
+    const numericValue = value === '' ? 0 : Number(value);
+    if (numericValue >= 0 && numericValue <= 999999.99) {
+      setStudentPrice(numericValue);
     } else {
       toast({
         title: "Geçersiz Ücret",
@@ -95,7 +103,7 @@ export default function StudentDialogContent({
         <Label>Ders Ücreti (₺)</Label>
         <Input
           type="number"
-          value={studentPrice}
+          value={localPrice}
           onChange={handlePriceChange}
           placeholder="0"
           min="0"
