@@ -4,6 +4,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Theme = {
@@ -15,13 +16,6 @@ type Theme = {
 };
 
 const themes: Theme[] = [
-  {
-    id: "system",
-    name: "Sistem Teması",
-    class: "system",
-    preview: "bg-background",
-    description: "Sistem ayarlarınızı takip eder"
-  },
   {
     id: "light",
     name: "Açık Tema",
@@ -61,10 +55,7 @@ const fontFamilies = [
 
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem("theme") || "system";
-    }
-    return "system";
+    return localStorage.getItem("theme") || "light";
   });
   
   const [fontSize, setFontSize] = useState(() => {
@@ -78,41 +69,22 @@ export default function ThemeSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const root = document.documentElement;
-    
-    const applyTheme = (theme: string) => {
-      root.classList.remove('light', 'dark');
-      if (theme !== 'system') {
-        root.classList.add(theme);
-      }
-    };
-
-    if (currentTheme === "system") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      
-      const updateSystemTheme = (e: MediaQueryListEvent | MediaQueryList) => {
-        applyTheme(e.matches ? 'dark' : 'light');
-      };
-      
-      updateSystemTheme(mediaQuery);
-      mediaQuery.addEventListener("change", updateSystemTheme);
-      
-      return () => mediaQuery.removeEventListener("change", updateSystemTheme);
-    } else {
-      applyTheme(currentTheme);
-    }
-    
+    // Remove all theme classes
+    document.documentElement.classList.remove(...themes.map(t => t.class));
+    // Add selected theme class
+    document.documentElement.classList.add(currentTheme);
+    // Save to localStorage
     localStorage.setItem("theme", currentTheme);
     
-    // Yazı boyutunu uygula
-    root.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
-    root.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
+    // Apply font size
+    document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
+    document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
     localStorage.setItem("fontSize", fontSize);
 
-    // Yazı tipini uygula
+    // Apply font family
     const selectedFont = fontFamilies.find(f => f.id === fontFamily);
     if (selectedFont) {
-      root.style.setProperty('--font-family', selectedFont.value);
+      document.documentElement.style.setProperty('--font-family', selectedFont.value);
       localStorage.setItem("fontFamily", fontFamily);
     }
     
