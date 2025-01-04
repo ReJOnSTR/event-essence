@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual } from "date-fns";
+import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import RecurringLessonOptions from "./RecurringLessonOptions";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -42,6 +43,9 @@ export default function LessonDialog({
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceType, setRecurrenceType] = useState("weekly");
+  const [recurrenceCount, setRecurrenceCount] = useState(1);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -51,6 +55,8 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
+        setIsRecurring(false);
+        setRecurrenceCount(1);
       } else {
         const hours = selectedDate.getHours();
         const minutes = selectedDate.getMinutes();
@@ -69,6 +75,8 @@ export default function LessonDialog({
         
         setDescription("");
         setSelectedStudentId("");
+        setIsRecurring(false);
+        setRecurrenceCount(1);
       }
     }
   }, [isOpen, selectedDate, event]);
@@ -86,9 +94,9 @@ export default function LessonDialog({
     }
   };
 
-  const checkLessonOverlap = (start: Date, end: Date) => {
+  const checkLessonOverlap = (start: Date, end: Date, skipLessonId?: string) => {
     return events.some(existingEvent => {
-      if (event && existingEvent.id === event.id) return false;
+      if (skipLessonId && existingEvent.id === skipLessonId) return false;
       
       if (isEqual(start, existingEvent.end) || isEqual(end, existingEvent.start)) {
         return false;
@@ -101,6 +109,39 @@ export default function LessonDialog({
         isWithinInterval(existingEvent.end, { start, end })
       );
     });
+  };
+
+  const createRecurringLessons = (baseStart: Date, baseEnd: Date) => {
+    const lessons = [];
+    let currentStart = baseStart;
+    let currentEnd = baseEnd;
+
+    for (let i = 0; i < recurrenceCount; i++) {
+      if (checkLessonOverlap(currentStart, currentEnd, event?.id)) {
+        toast({
+          title: "Çakışma Tespit Edildi",
+          description: `${format(currentStart, "dd.MM.yyyy HH:mm")} tarihinde başka bir ders bulunuyor.`,
+          variant: "destructive"
+        });
+        return null;
+      }
+
+      lessons.push({
+        start: currentStart,
+        end: currentEnd
+      });
+
+      // Bir sonraki tekrar için tarihleri güncelle
+      if (recurrenceType === "weekly") {
+        currentStart = addWeeks(currentStart, 1);
+        currentEnd = addWeeks(currentEnd, 1);
+      } else if (recurrenceType === "monthly") {
+        currentStart = addMonths(currentStart, 1);
+        currentEnd = addMonths(currentEnd, 1);
+      }
+    }
+
+    return lessons;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -124,12 +165,31 @@ export default function LessonDialog({
     const end = new Date(selectedDate);
     end.setHours(endHours, endMinutes);
 
-    if (checkLessonOverlap(start, end)) {
-      toast({
-        title: "Zaman Çakışması",
-        description: "Bu zaman aralığında başka bir ders bulunuyor.",
-        variant: "destructive"
+    if (!isRecurring) {
+      if (checkLessonOverlap(start, end, event?.id)) {
+        toast({
+          title: "Zaman Çakışması",
+          description: "Bu zaman aralığında başka bir ders bulunuyor.",
+          variant: "destructive"
+        });
+        return;
+      }
+    } else {
+      const recurringLessons = createRecurringLessons(start, end);
+      if (!recurringLessons) return; // Çakışma varsa işlemi durdur
+      
+      const student = students.find(s => s.id === selectedStudentId);
+      recurringLessons.forEach(lesson => {
+        onSave({
+          title: student ? `${student.name} Dersi` : "Ders",
+          description,
+          start: lesson.start,
+          end: lesson.end,
+          studentId: selectedStudentId,
+        });
       });
+      
+      onClose();
       return;
     }
     
@@ -175,7 +235,7 @@ export default function LessonDialog({
               transition={{ delay: 0.1 }}
               className="space-y-2"
             >
-              <label className="text-sm font-medium">Öğrenci</label>
+              <Label>Öğrenci</Label>
               <Select
                 value={selectedStudentId}
                 onValueChange={setSelectedStudentId}
@@ -208,7 +268,7 @@ export default function LessonDialog({
               transition={{ delay: 0.2 }}
               className="space-y-2"
             >
-              <label className="text-sm font-medium">Açıklama</label>
+              <Label>Açıklama</Label>
               <Textarea
                 value={description}
                 onChange={handleDescriptionChange}
@@ -227,7 +287,7 @@ export default function LessonDialog({
               className="grid grid-cols-2 gap-4"
             >
               <div className="space-y-2">
-                <label className="text-sm font-medium">Başlangıç Saati</label>
+                <Label>Başlangıç Saati</Label>
                 <Input
                   type="time"
                   value={startTime}
@@ -236,7 +296,7 @@ export default function LessonDialog({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Bitiş Saati</label>
+                <Label>Bitiş Saati</Label>
                 <Input
                   type="time"
                   value={endTime}
@@ -245,6 +305,17 @@ export default function LessonDialog({
                 />
               </div>
             </motion.div>
+
+            {!event && (
+              <RecurringLessonOptions
+                isRecurring={isRecurring}
+                recurrenceType={recurrenceType}
+                recurrenceCount={recurrenceCount}
+                onRecurringChange={setIsRecurring}
+                onRecurrenceTypeChange={setRecurrenceType}
+                onRecurrenceCountChange={setRecurrenceCount}
+              />
+            )}
             
             <motion.div
               initial={{ opacity: 0, y: 20 }}
