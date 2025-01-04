@@ -22,14 +22,7 @@ export function useCalendarData() {
       try {
         const { data, error } = await supabase
           .from('lessons')
-          .select(`
-            id,
-            title,
-            description,
-            start_time,
-            end_time,
-            student_id
-          `);
+          .select('*');
 
         if (error) throw error;
 
@@ -68,25 +61,27 @@ export function useCalendarData() {
           student_id: lessonData.studentId
         }])
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
-      const newLesson: CalendarEvent = {
-        id: data.id,
-        title: data.title,
-        description: data.description || undefined,
-        start: new Date(data.start_time),
-        end: new Date(data.end_time),
-        studentId: data.student_id || undefined
-      };
+      if (data) {
+        const newLesson: CalendarEvent = {
+          id: data.id,
+          title: data.title,
+          description: data.description || undefined,
+          start: new Date(data.start_time),
+          end: new Date(data.end_time),
+          studentId: data.student_id || undefined
+        };
 
-      setLessons(prev => [...prev, newLesson]);
-      
-      toast({
-        title: "Başarılı",
-        description: "Ders başarıyla oluşturuldu.",
-      });
+        setLessons(prev => [...prev, newLesson]);
+        
+        toast({
+          title: "Başarılı",
+          description: "Ders başarıyla oluşturuldu.",
+        });
+      }
     } catch (error) {
       console.error('Ders kaydedilirken hata:', error);
       toast({
@@ -99,7 +94,7 @@ export function useCalendarData() {
 
   const handleUpdateLesson = async (lessonId: string, lessonData: Omit<CalendarEvent, "id">) => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('lessons')
         .update({
           title: lessonData.title,
@@ -108,18 +103,29 @@ export function useCalendarData() {
           end_time: lessonData.end.toISOString(),
           student_id: lessonData.studentId
         })
-        .eq('id', lessonId);
+        .eq('id', lessonId)
+        .select()
+        .maybeSingle();
 
       if (error) throw error;
 
-      setLessons(prev => prev.map(lesson =>
-        lesson.id === lessonId ? { ...lessonData, id: lessonId } : lesson
-      ));
+      if (data) {
+        setLessons(prev => prev.map(lesson =>
+          lesson.id === lessonId ? {
+            id: data.id,
+            title: data.title,
+            description: data.description || undefined,
+            start: new Date(data.start_time),
+            end: new Date(data.end_time),
+            studentId: data.student_id || undefined
+          } : lesson
+        ));
 
-      toast({
-        title: "Başarılı",
-        description: "Ders başarıyla güncellendi.",
-      });
+        toast({
+          title: "Başarılı",
+          description: "Ders başarıyla güncellendi.",
+        });
+      }
     } catch (error) {
       console.error('Ders güncellenirken hata:', error);
       toast({
