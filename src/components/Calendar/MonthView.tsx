@@ -53,7 +53,10 @@ export default function MonthView({
     return [...prefixDays, ...days, ...suffixDays].map(dayDate => ({
       date: dayDate,
       isCurrentMonth: isSameMonth(dayDate, currentDate),
-      lessons: events.filter(event => isSameDay(event.start, dayDate))
+      lessons: events.filter(event => {
+        const eventStart = new Date(event.start);
+        return isSameDay(eventStart, dayDate);
+      })
     }));
   };
 
@@ -89,6 +92,10 @@ export default function MonthView({
     
     if (!event) return;
 
+    // Ensure event.start is a Date object
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+
     const dayOfWeek = format(targetDay, 'EEEE').toLowerCase() as keyof typeof workingHours;
     const daySettings = workingHours[dayOfWeek];
     const holiday = isHoliday(targetDay);
@@ -112,15 +119,15 @@ export default function MonthView({
     }
 
     // Keep the original hours and minutes
-    const originalHours = event.start.getHours();
-    const originalMinutes = event.start.getMinutes();
+    const originalHours = eventStart.getHours();
+    const originalMinutes = eventStart.getMinutes();
     
     // Create new date with original time
     const newStart = new Date(targetDay);
     newStart.setHours(originalHours, originalMinutes, 0);
     
     // Calculate duration and set end time
-    const duration = (event.end.getTime() - event.start.getTime()) / (1000 * 60);
+    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
 
     // Check if the new time is within working hours
