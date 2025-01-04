@@ -11,9 +11,9 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
   const isMobile = useIsMobile();
 
   return (
-    <div className="w-full bg-background/80 rounded-lg shadow-sm">
+    <div className="w-full bg-white rounded-lg">
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2">
+        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2 bg-[#F1F0FB] p-1">
           {["day", "week", "month", "year"].map((view) => (
             <motion.div
               key={view}
@@ -25,7 +25,7 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
               <TabsTrigger 
                 value={view} 
                 onClick={() => onViewChange(view)}
-                className="w-full relative text-xs md:text-sm py-1.5 md:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="w-full relative text-xs md:text-sm py-1.5 md:py-2 text-[#8E9196] data-[state=active]:bg-white data-[state=active]:text-[#7E69AB] data-[state=active]:shadow-sm"
               >
                 {view === "day" && (isMobile ? "Gün" : "Günlük")}
                 {view === "week" && (isMobile ? "Hafta" : "Haftalık")}
@@ -34,7 +34,7 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
                 {currentView === view && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#9b87f5]"
                     transition={{ duration: 0.15 }}
                   />
                 )}
