@@ -79,7 +79,25 @@ export default function AuthPage() {
                 password_input_placeholder: "Şifreniz",
                 link_text: "Zaten hesabınız var mı? Giriş yapın",
               },
+              forgotten_password: {
+                button_label: "Şifremi Sıfırla",
+                link_text: "Şifrenizi mi unuttunuz?",
+                email_label: "Email",
+                email_input_placeholder: "Email adresiniz",
+              },
             },
+            messages: {
+              sign_up: {
+                user_already_exists: "Bu email adresi zaten kayıtlı. Lütfen giriş yapın.",
+                password_too_short: "Şifre en az 6 karakter olmalıdır.",
+                email_required: "Email adresi gereklidir.",
+                password_required: "Şifre gereklidir.",
+              },
+              sign_in: {
+                user_not_found: "Kullanıcı bulunamadı.",
+                invalid_credentials: "Email veya şifre hatalı.",
+              },
+            }
           }}
           providers={[]}
         />
