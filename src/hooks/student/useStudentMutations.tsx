@@ -9,20 +9,13 @@ export function useStudentMutations() {
 
   const saveStudent = async (student: Student) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
       const { data, error } = await supabase
         .from('students')
         .upsert({
           id: student.id,
           name: student.name,
           color: student.color,
-          price: student.price,
-          user_id: user.id // Set the user_id here
+          price: student.price
         })
         .select()
         .maybeSingle();

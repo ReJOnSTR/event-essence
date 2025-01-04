@@ -100,14 +100,14 @@ export default function DayView({
         </AnimatePresence>
 
         <div className="space-y-2">
-          {hours.map((hour) => (
+          {hours.map((hour, index) => (
             <motion.div 
               key={hour}
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ 
                 duration: 0.25,
-                delay: hour * 0.02,
+                delay: index * 0.02,
                 ease: [0.23, 1, 0.32, 1]
               }}
               className="grid grid-cols-12 gap-2"
@@ -115,25 +115,18 @@ export default function DayView({
               <DayHeader hour={hour} />
               <Droppable droppableId={`${hour}:0`}>
                 {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="col-span-11"
-                  >
-                    <DayTimeSlot
-                      hour={hour}
-                      dayEvents={dayEvents}
-                      isDraggingOver={snapshot.isDraggingOver}
-                      isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
-                      onClick={() => {
-                        const newDate = handleHourClick(hour, 0);
-                        if (newDate) onDateSelect(newDate);
-                      }}
-                      students={students}
-                      onEventClick={onEventClick}
-                    />
-                    {provided.placeholder}
-                  </div>
+                  <DayTimeSlot
+                    hour={hour}
+                    dayEvents={dayEvents}
+                    isDraggingOver={snapshot.isDraggingOver}
+                    isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
+                    onClick={() => {
+                      const newDate = handleHourClick(hour, 0);
+                      if (newDate) onDateSelect(newDate);
+                    }}
+                    students={students}
+                    onEventClick={onEventClick}
+                  />
                 )}
               </Droppable>
               <TimeIndicator events={dayEvents} hour={hour} />

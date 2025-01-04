@@ -1,6 +1,6 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
-import { Droppable, DroppableProvided, DroppableStateSnapshot } from "@hello-pangea/dnd";
+import { Droppable } from "@hello-pangea/dnd";
 import LessonCard from "./LessonCard";
 
 interface DayTimeSlotProps {
@@ -25,7 +25,7 @@ export default function DayTimeSlot({
   return (
     <div 
       className={cn(
-        "col-span-11 min-h-[60px] border-t border-border relative",
+        "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
         isDraggingOver && "bg-accent",
         isDisabled && "bg-muted cursor-not-allowed"
       )}

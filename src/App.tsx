@@ -9,7 +9,6 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
-import AuthPage from "./components/Auth/AuthPage";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -58,7 +57,6 @@ const AnimatedRoutes = () => {
         className="w-full h-full"
       >
         <Routes location={location}>
-          <Route path="/auth" element={<AuthPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/students" element={<StudentsManagementPage />} />
           <Route path="/reports" element={<ReportsPage />} />
