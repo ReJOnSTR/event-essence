@@ -10,6 +10,20 @@ import {
 } from "date-fns";
 import { useMemo } from "react";
 
+export interface PeriodHours {
+  weekly: number;
+  monthly: number;
+  yearly: number;
+  custom?: number;
+}
+
+export interface PeriodEarnings {
+  weekly: number;
+  monthly: number;
+  yearly: number;
+  custom?: number;
+}
+
 export const useFilteredLessons = (
   lessons: Lesson[],
   selectedDate: Date,
@@ -46,7 +60,7 @@ export const useCalculatePeriodHours = (
   selectedStudent: string,
   startDate?: Date,
   endDate?: Date
-) => {
+): PeriodHours => {
   return useMemo(() => {
     const weekly = useFilteredLessons(lessons, selectedDate, selectedStudent, 'weekly').length;
     const monthly = useFilteredLessons(lessons, selectedDate, selectedStudent, 'monthly').length;
@@ -66,7 +80,7 @@ export const useCalculatePeriodEarnings = (
   students: { id: string; price: number; }[],
   startDate?: Date,
   endDate?: Date
-) => {
+): PeriodEarnings => {
   return useMemo(() => {
     const calculateEarnings = (filteredLessons: Lesson[]) => {
       return filteredLessons.reduce((total, lesson) => {
