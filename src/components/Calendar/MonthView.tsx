@@ -37,7 +37,7 @@ export default function MonthView({
     const days = eachDayOfInterval({ start, end });
     
     let startDay = start.getDay() - 1;
-    if (startDay === -1) startDay = 6; // Sunday becomes last day
+    if (startDay === -1) startDay = 6;
     
     const prefixDays = Array.from({ length: startDay }, (_, i) => 
       addDays(start, -(startDay - i))
