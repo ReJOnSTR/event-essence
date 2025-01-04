@@ -38,7 +38,7 @@ export default function MonthCell({
         className={cn(
           "min-h-[40px] p-1 bg-background/80 cursor-pointer hover:bg-accent/50 transition-colors duration-150",
           !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-          isToday(day.date) && "dark:bg-[#354c5a] bg-[#eff6ff]",
+          isToday(day.date) && "bg-[#eff6ff] dark:bg-[#354c5a]",
           holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
           holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
         )}
@@ -67,7 +67,7 @@ export default function MonthCell({
           className={cn(
             "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
             !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-            isToday(day.date) && "dark:bg-[#354c5a] bg-[#eff6ff]",
+            isToday(day.date) && "bg-[#eff6ff] dark:bg-[#354c5a]",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
             snapshot.isDraggingOver && "bg-accent/50"
@@ -84,7 +84,7 @@ export default function MonthCell({
                 !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
               )}>
                 {holiday.name}
-                {allowWorkOnHolidays && " (Çalışmaya Açık)"}
+                {allowWorkOnHolidings && " (Çalışmaya Açık)"}
               </div>
             )}
           </div>
