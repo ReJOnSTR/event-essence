@@ -14,7 +14,6 @@ import SideMenu from "@/components/Layout/SideMenu";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
-import AuthHeader from "@/components/auth/AuthHeader";
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
@@ -101,7 +100,6 @@ export default function CalendarPage() {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background font-sans">
-        <AuthHeader />
         <Sidebar>
           <SidebarContent className="p-4">
             <SideMenu
