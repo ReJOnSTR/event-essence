@@ -40,13 +40,10 @@ export default function SideMenu({
 
   return (
     <motion.div 
-      className="flex flex-col h-[calc(100vh-var(--header-height,0px))] bg-background w-full transition-all duration-300"
-      animate={{ 
-        height: "calc(100vh - var(--header-height, 0px))"
-      }}
-      transition={{ 
-        duration: 0.3,
-        ease: "easeInOut"
+      className="flex flex-col bg-background w-full"
+      style={{ 
+        height: "calc(100vh - var(--header-height))",
+        transition: "height 0.3s ease-in-out"
       }}
     >
       <SidebarGroup className="space-y-2">
