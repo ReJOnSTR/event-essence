@@ -17,6 +17,13 @@ type Theme = {
 
 const themes: Theme[] = [
   {
+    id: "system",
+    name: "Sistem Teması",
+    class: "",
+    preview: "bg-background",
+    description: "Sistem ayarlarınızı takip eder"
+  },
+  {
     id: "light",
     name: "Açık Tema",
     class: "light",
@@ -55,7 +62,7 @@ const fontFamilies = [
 
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
+    return localStorage.getItem("theme") || "system";
   });
   
   const [fontSize, setFontSize] = useState(() => {
@@ -71,8 +78,25 @@ export default function ThemeSettings() {
   useEffect(() => {
     // Remove all theme classes
     document.documentElement.classList.remove(...themes.map(t => t.class));
-    // Add selected theme class
-    document.documentElement.classList.add(currentTheme);
+    
+    if (currentTheme === "system") {
+      // Sistem temasını takip et
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+        document.documentElement.classList.toggle("dark", e.matches);
+      };
+      
+      handleChange(mediaQuery); // İlk yükleme için kontrol et
+      mediaQuery.addEventListener("change", handleChange);
+      
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    } else {
+      // Manuel tema seçimi
+      if (currentTheme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    }
+    
     // Save to localStorage
     localStorage.setItem("theme", currentTheme);
     
