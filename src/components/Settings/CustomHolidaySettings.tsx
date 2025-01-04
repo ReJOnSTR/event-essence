@@ -68,6 +68,7 @@ export default function CustomHolidaySettings() {
           selected={selectedDates}
           onSelect={handleSelect}
           className="rounded-md border"
+          locale={tr}
         />
 
         {selectedDates.length > 0 && (
