@@ -3,11 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Calendar, User, Clock } from "lucide-react";
-import { format, isFuture, compareAsc } from "date-fns";
+import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 
 interface SearchDialogProps {
   isOpen: boolean;
@@ -27,8 +26,8 @@ export default function SearchDialog({
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredLessons, setFilteredLessons] = useState<CalendarEvent[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
-  const navigate = useNavigate();
 
+  // Update filtered results whenever search term, lessons, or students change
   useEffect(() => {
     if (!searchTerm) {
       setFilteredLessons([]);
@@ -44,30 +43,11 @@ export default function SearchDialog({
       return (
         lesson.title.toLowerCase().includes(searchTermLower) ||
         lesson.description?.toLowerCase().includes(searchTermLower) ||
-        format(new Date(lesson.start), "d MMMM yyyy", { locale: tr })
+        format(lesson.start, "d MMMM yyyy", { locale: tr })
           .toLowerCase()
           .includes(searchTermLower) ||
         student?.name.toLowerCase().includes(searchTermLower)
       );
-    });
-
-    // Sort lessons by date (closest first)
-    const sortedLessons = [...matchingLessons].sort((a, b) => {
-      const dateA = new Date(a.start);
-      const dateB = new Date(b.start);
-      const now = new Date();
-
-      // If both dates are in the future, sort by closest first
-      if (isFuture(dateA) && isFuture(dateB)) {
-        return compareAsc(dateA, dateB);
-      }
-      
-      // If only one date is in the future, prioritize it
-      if (isFuture(dateA)) return -1;
-      if (isFuture(dateB)) return 1;
-      
-      // For past dates, sort by most recent first
-      return compareAsc(dateB, dateA);
     });
 
     // Filter students
@@ -75,17 +55,12 @@ export default function SearchDialog({
       student.name.toLowerCase().includes(searchTermLower)
     );
 
-    setFilteredLessons(sortedLessons);
+    setFilteredLessons(matchingLessons);
     setFilteredStudents(matchingStudents);
   }, [searchTerm, lessons, students]);
 
   const handleSelectDate = (date: Date) => {
-    onSelectDate(new Date(date));
-    onClose();
-  };
-
-  const handleStudentClick = (student: Student) => {
-    navigate('/students');
+    onSelectDate(date);
     onClose();
   };
 
@@ -127,7 +102,6 @@ export default function SearchDialog({
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="p-2 hover:bg-accent rounded-md cursor-pointer"
-                          onClick={() => handleStudentClick(student)}
                         >
                           <div className="flex items-center gap-2">
                             <div
@@ -148,17 +122,12 @@ export default function SearchDialog({
                       </h3>
                       {filteredLessons.map((lesson) => {
                         const student = students.find((s) => s.id === lesson.studentId);
-                        const lessonDate = new Date(lesson.start);
-                        const isFutureLesson = isFuture(lessonDate);
-                        
                         return (
                           <motion.div
                             key={lesson.id}
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`p-2 hover:bg-accent rounded-md cursor-pointer ${
-                              isFutureLesson ? 'border-l-2 border-green-500' : ''
-                            }`}
+                            className="p-2 hover:bg-accent rounded-md cursor-pointer"
                             onClick={() => handleSelectDate(lesson.start)}
                           >
                             <div className="space-y-1">
@@ -166,11 +135,11 @@ export default function SearchDialog({
                                 <span className="font-medium">{lesson.title}</span>
                                 <div className="flex items-center text-sm text-muted-foreground gap-1">
                                   <Clock className="h-3 w-3" />
-                                  {format(lessonDate, "HH:mm")}
+                                  {format(lesson.start, "HH:mm")}
                                 </div>
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                {format(lessonDate, "d MMMM yyyy", { locale: tr })}
+                                {format(lesson.start, "d MMMM yyyy", { locale: tr })}
                               </div>
                               {student && (
                                 <div className="flex items-center gap-2 text-sm">
