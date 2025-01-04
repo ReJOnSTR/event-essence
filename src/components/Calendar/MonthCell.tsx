@@ -39,7 +39,7 @@ export default function MonthCell({
           "min-h-[40px] p-1 cursor-pointer transition-colors duration-150",
           "bg-background/80 hover:bg-accent/50",
           !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-          isToday(day.date) && "bg-[#eff6ff] dark:!bg-[#354c5a]",
+          isToday(day.date) && "!bg-[#eff6ff] dark:!bg-[#354c5a]",
           holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
           holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
         )}
@@ -69,7 +69,7 @@ export default function MonthCell({
             "min-h-[120px] p-2 cursor-pointer transition-colors duration-150",
             "bg-background/80",
             !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-            isToday(day.date) && "bg-[#eff6ff] dark:!bg-[#354c5a]",
+            isToday(day.date) && "!bg-[#eff6ff] dark:!bg-[#354c5a]",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
             snapshot.isDraggingOver && "bg-accent/50"
