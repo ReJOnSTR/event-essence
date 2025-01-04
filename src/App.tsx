@@ -67,7 +67,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <SidebarProvider>
-          <div className="overflow-hidden min-h-screen flex w-full">
+          <div className="overflow-hidden min-h-screen flex w-full bg-background">
             <Toaster />
             <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
             <BrowserRouter>
