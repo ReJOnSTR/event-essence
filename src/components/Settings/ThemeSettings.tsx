@@ -75,36 +75,37 @@ export default function ThemeSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
+    const root = document.documentElement;
+    
     // Önce tüm tema sınıflarını kaldır
-    document.documentElement.classList.remove('light', 'dark');
+    root.classList.remove('light', 'dark');
     
     if (currentTheme === "system") {
-      // Sistem temasını takip et
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-        document.documentElement.classList.toggle("dark", e.matches);
+      const updateTheme = (e: MediaQueryListEvent | MediaQueryList) => {
+        root.classList.toggle("dark", e.matches);
       };
       
-      handleChange(mediaQuery);
-      mediaQuery.addEventListener("change", handleChange);
+      updateTheme(mediaQuery);
+      mediaQuery.addEventListener("change", updateTheme);
       
-      return () => mediaQuery.removeEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", updateTheme);
     } else {
       // Manuel tema seçimi
-      document.documentElement.classList.add(currentTheme);
+      root.classList.add(currentTheme);
     }
     
     localStorage.setItem("theme", currentTheme);
     
     // Yazı boyutunu uygula
-    document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
-    document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
+    root.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
+    root.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
     localStorage.setItem("fontSize", fontSize);
 
     // Yazı tipini uygula
     const selectedFont = fontFamilies.find(f => f.id === fontFamily);
     if (selectedFont) {
-      document.documentElement.style.setProperty('--font-family', selectedFont.value);
+      root.style.setProperty('--font-family', selectedFont.value);
       localStorage.setItem("fontFamily", fontFamily);
     }
     
