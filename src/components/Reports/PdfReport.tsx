@@ -81,19 +81,54 @@ export function PdfReport({
     });
 
     const docDefinition = {
+      pageMargins: [40, 60, 40, 60],
+      header: {
+        text: 'Ders Raporu',
+        alignment: 'center',
+        margin: [0, 20],
+        fontSize: 24,
+        bold: true,
+        color: '#1a73e8'
+      },
+      footer: function(currentPage: number, pageCount: number) {
+        return {
+          text: currentPage.toString() + ' / ' + pageCount,
+          alignment: 'center',
+          margin: [0, 20]
+        };
+      },
       content: [
-        { text: 'Ders Raporu', style: 'header' },
-        { text: periodText, style: 'subheader', margin: [0, 10, 0, 5] },
-        { text: `Öğrenci: ${studentName}`, style: 'subheader', margin: [0, 0, 0, 5] },
-        { text: `Toplam Ders Saati: ${totalHours}`, style: 'info', margin: [0, 0, 0, 5] },
-        { 
-          text: `Toplam Kazanç: ${totalEarnings.toLocaleString('tr-TR', { 
-            style: 'currency', 
-            currency: 'TRY',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })}`, 
-          style: 'info',
+        {
+          columns: [
+            {
+              width: '*',
+              stack: [
+                { text: periodText, style: 'subheader' },
+                { text: `Öğrenci: ${studentName}`, style: 'subheader' },
+              ]
+            },
+            {
+              width: 'auto',
+              stack: [
+                { 
+                  text: `Toplam Ders: ${totalHours} Saat`, 
+                  style: 'totalInfo',
+                  alignment: 'right'
+                },
+                { 
+                  text: `Toplam Kazanç: ${totalEarnings.toLocaleString('tr-TR', { 
+                    style: 'currency', 
+                    currency: 'TRY',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}`, 
+                  style: 'totalInfo',
+                  alignment: 'right'
+                },
+              ]
+            }
+          ],
+          columnGap: 20,
           margin: [0, 0, 0, 20]
         },
         {
@@ -109,21 +144,44 @@ export function PdfReport({
               ],
               ...tableBody
             ]
+          },
+          layout: {
+            hLineWidth: function(i: number, node: any) {
+              return i === 0 || i === node.table.body.length ? 2 : 1;
+            },
+            vLineWidth: function(i: number, node: any) {
+              return i === 0 || i === node.table.widths.length ? 2 : 1;
+            },
+            hLineColor: function(i: number, node: any) {
+              return i === 0 || i === node.table.body.length ? '#1a73e8' : '#dadce0';
+            },
+            vLineColor: function(i: number, node: any) {
+              return i === 0 || i === node.table.widths.length ? '#1a73e8' : '#dadce0';
+            },
+            paddingLeft: function(i: number) { return 8; },
+            paddingRight: function(i: number) { return 8; },
+            paddingTop: function(i: number) { return 8; },
+            paddingBottom: function(i: number) { return 8; }
           }
         }
       ],
       styles: {
         header: {
-          fontSize: 20,
+          fontSize: 24,
           bold: true,
-          alignment: 'center'
+          color: '#1a73e8',
+          margin: [0, 0, 0, 20]
         },
         subheader: {
           fontSize: 14,
-          bold: true
+          bold: true,
+          margin: [0, 5, 0, 0]
         },
-        info: {
-          fontSize: 12
+        totalInfo: {
+          fontSize: 14,
+          bold: true,
+          color: '#1a73e8',
+          margin: [0, 5, 0, 0]
         },
         tableHeader: {
           bold: true,
@@ -134,7 +192,8 @@ export function PdfReport({
         },
         tableCell: {
           fontSize: 11,
-          alignment: 'center'
+          alignment: 'center',
+          margin: [0, 5]
         }
       },
       defaultStyle: {
