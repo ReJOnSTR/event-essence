@@ -18,6 +18,8 @@ export function useStudentMutations() {
         updated_at: new Date().toISOString()
       };
 
+      let result;
+
       if (student.id) {
         const { data, error } = await supabase
           .from('students')
@@ -28,15 +30,10 @@ export function useStudentMutations() {
         
         if (error) {
           console.error('Error updating student:', error);
-          throw error;
+          throw new Error(error.message);
         }
-        
-        if (!data) {
-          throw new Error('Student not found');
-        }
-        
-        console.log('Updated student:', data);
-        return data;
+
+        result = data;
       } else {
         const { data, error } = await supabase
           .from('students')
@@ -46,16 +43,18 @@ export function useStudentMutations() {
         
         if (error) {
           console.error('Error inserting student:', error);
-          throw error;
+          throw new Error(error.message);
         }
-        
-        if (!data) {
-          throw new Error('Failed to create student');
-        }
-        
-        console.log('Inserted student:', data);
-        return data;
+
+        result = data;
       }
+
+      if (!result) {
+        throw new Error('Failed to save student');
+      }
+
+      console.log('Saved student:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -64,11 +63,11 @@ export function useStudentMutations() {
         description: "Öğrenci bilgileri başarıyla kaydedildi.",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Mutation error:', error);
       toast({
         title: "Hata",
-        description: "Öğrenci kaydedilirken bir hata oluştu.",
+        description: "Öğrenci kaydedilirken bir hata oluştu: " + error.message,
         variant: "destructive"
       });
     }
@@ -84,7 +83,7 @@ export function useStudentMutations() {
       
       if (error) {
         console.error('Error deleting student:', error);
-        throw error;
+        throw new Error(error.message);
       }
       console.log('Successfully deleted student:', studentId);
     },
@@ -95,11 +94,11 @@ export function useStudentMutations() {
         description: "Öğrenci başarıyla silindi.",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Delete error:', error);
       toast({
         title: "Hata",
-        description: "Öğrenci silinirken bir hata oluştu.",
+        description: "Öğrenci silinirken bir hata oluştu: " + error.message,
         variant: "destructive"
       });
     }
