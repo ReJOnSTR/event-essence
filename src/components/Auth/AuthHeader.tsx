@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, LogIn, ChevronUp } from "lucide-react";
+import { UserPlus, LogIn } from "lucide-react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -40,13 +40,21 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isVisible]);
 
-  const handleToggle = () => {
-    if (isVisible) {
-      setIsVisible(false);
-      setIsPartiallyOpen(true);
-    } else {
+  const handleMouseEnter = () => {
+    if (isPartiallyOpen) {
       setIsVisible(true);
     }
+  };
+
+  const handleClickMinimized = () => {
+    if (isPartiallyOpen) {
+      setIsVisible(true);
+    }
+  };
+
+  const handleHide = () => {
+    setIsVisible(false);
+    setIsPartiallyOpen(true);
   };
 
   return (
@@ -69,10 +77,11 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
             velocity: 2
           }}
           className="w-full bg-background border-b fixed top-0 z-50"
+          onMouseEnter={handleMouseEnter}
         >
           <div className="container mx-auto px-4">
             <AnimatePresence mode="wait">
-              {isVisible && (
+              {isVisible ? (
                 <motion.div 
                   className="py-4 flex flex-col items-center gap-4"
                   initial={{ opacity: 0, y: -20 }}
@@ -84,6 +93,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                     damping: 25
                   }}
                 >
+                  <h2 className="text-xl font-semibold">Hoş Geldiniz</h2>
                   <div className="flex gap-4">
                     <Button className="w-32">
                       <UserPlus className="mr-2 h-4 w-4" />
@@ -94,34 +104,30 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                       Giriş Yap
                     </Button>
                   </div>
+                  <Button 
+                    variant="ghost" 
+                    className="absolute top-2 right-4 text-sm"
+                    onClick={handleHide}
+                  >
+                    Gizle
+                  </Button>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  className="h-8 flex items-center justify-center cursor-pointer"
+                  onClick={handleClickMinimized}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <span className="text-sm text-muted-foreground">
+                    Giriş yapmak için tıklayın
+                  </span>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-
-          {/* Toggle Button */}
-          <motion.div 
-            className="absolute left-1/2 -bottom-6 -translate-x-1/2 z-50"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12 rounded-full border-2 shadow-md bg-background"
-              onClick={handleToggle}
-            >
-              <ChevronUp 
-                className="h-6 w-6" 
-                style={{ 
-                  transform: isVisible ? 'rotate(0deg)' : 'rotate(180deg)',
-                  transition: 'transform 0.3s ease'
-                }}
-              />
-            </Button>
-          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
