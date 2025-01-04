@@ -18,6 +18,10 @@ interface DayViewProps {
   onDateSelect: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   onEventUpdate?: (event: CalendarEvent) => void;
+  onEventCopy?: (event: CalendarEvent) => void;
+  onEventPaste?: () => void;
+  onEventDelete?: (event: CalendarEvent) => void;
+  canPaste?: boolean;
   students?: Student[];
 }
 
@@ -27,6 +31,10 @@ export default function DayView({
   onDateSelect, 
   onEventClick,
   onEventUpdate,
+  onEventCopy,
+  onEventPaste,
+  onEventDelete,
+  canPaste,
   students 
 }: DayViewProps) {
   const { toast } = useToast();
@@ -182,6 +190,10 @@ export default function DayView({
                           key={event.id} 
                           event={event} 
                           onClick={onEventClick}
+                          onDelete={onEventDelete}
+                          onCopy={onEventCopy}
+                          onPaste={onEventPaste}
+                          canPaste={canPaste}
                           students={students}
                           index={index}
                         />

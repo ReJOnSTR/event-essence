@@ -3,21 +3,30 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import LessonContextMenu from "./LessonContextMenu";
 
 interface EventCardProps {
   event: CalendarEvent;
   onClick?: (event: CalendarEvent) => void;
+  onDelete?: (event: CalendarEvent) => void;
+  onCopy?: (event: CalendarEvent) => void;
+  onPaste?: () => void;
   students?: Student[];
   index: number;
   isDraggable?: boolean;
+  canPaste?: boolean;
 }
 
 export default function LessonCard({ 
   event, 
   onClick, 
+  onDelete,
+  onCopy,
+  onPaste,
   students, 
   index,
-  isDraggable = true 
+  isDraggable = true,
+  canPaste = false
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
   const durationInMinutes = differenceInMinutes(event.end, event.start);
@@ -31,38 +40,39 @@ export default function LessonCard({
     backgroundColor: student?.color || "#039be5",
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onClick) {
-      onClick(event);
-    }
-  };
-
   const content = (provided?: any, snapshot?: any) => (
-    <div
-      ref={provided?.innerRef}
-      {...(provided?.draggableProps || {})}
-      {...(provided?.dragHandleProps || {})}
-      className={cn(
-        "text-white p-2 rounded absolute left-1 right-1 overflow-y-auto max-h-full cursor-pointer hover:brightness-90 transition-all shadow-sm scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
-        snapshot?.isDragging ? "shadow-lg opacity-70" : "",
-        heightInPixels < 40 ? "min-h-[40px] flex flex-col justify-center" : ""
-      )}
-      style={{
-        ...style,
-        ...(provided?.draggableProps?.style || {}),
-      }}
-      onClick={handleClick}
+    <LessonContextMenu
+      event={event}
+      onEdit={onClick}
+      onDelete={onDelete}
+      onCopy={onCopy}
+      onPaste={onPaste}
+      canPaste={canPaste}
     >
-      <div className="font-medium text-[13px] leading-tight md:text-sm">
-        {student?.name || "İsimsiz Öğrenci"}
+      <div
+        ref={provided?.innerRef}
+        {...(provided?.draggableProps || {})}
+        {...(provided?.dragHandleProps || {})}
+        className={cn(
+          "text-white p-2 rounded absolute left-1 right-1 overflow-y-auto max-h-full cursor-pointer hover:brightness-90 transition-all shadow-sm scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
+          snapshot?.isDragging ? "shadow-lg opacity-70" : "",
+          heightInPixels < 40 ? "min-h-[40px] flex flex-col justify-center" : ""
+        )}
+        style={{
+          ...style,
+          ...(provided?.draggableProps?.style || {}),
+        }}
+      >
+        <div className="font-medium text-[13px] leading-tight md:text-sm">
+          {student?.name || "İsimsiz Öğrenci"}
+        </div>
+        <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90 mt-0.5">
+          <span>{format(event.start, "HH:mm", { locale: tr })}</span>
+          <span className="text-white/90">-</span>
+          <span>{format(event.end, "HH:mm", { locale: tr })}</span>
+        </div>
       </div>
-      <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90 mt-0.5">
-        <span>{format(event.start, "HH:mm", { locale: tr })}</span>
-        <span className="text-white/90">-</span>
-        <span>{format(event.end, "HH:mm", { locale: tr })}</span>
-      </div>
-    </div>
+    </LessonContextMenu>
   );
 
   if (!isDraggable) {
