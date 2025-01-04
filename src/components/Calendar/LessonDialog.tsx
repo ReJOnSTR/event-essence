@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual } from "date-fns";
+import { format, isWithinInterval, isEqual, addMinutes } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
@@ -77,14 +77,15 @@ export default function LessonDialog({
 
         setStartTime(initialStartTime);
         
-        const defaultDuration = getDefaultLessonDuration();
-        const endDate = new Date(selectedDate);
-        endDate.setMinutes(endDate.getMinutes() + defaultDuration);
-        const endHours = endDate.getHours();
-        const endMinutes = endDate.getMinutes();
-        const endTimeStr = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
-        setEndTime(endTimeStr);
+        // Calculate end time based on start time and default duration
+        const [hours, minutes] = initialStartTime.split(':').map(Number);
+        const startDate = new Date(selectedDate);
+        startDate.setHours(hours, minutes, 0, 0);
         
+        const defaultDuration = getDefaultLessonDuration();
+        const endDate = addMinutes(startDate, defaultDuration);
+        
+        setEndTime(format(endDate, 'HH:mm'));
         setDescription("");
         setSelectedStudentId("");
       }
