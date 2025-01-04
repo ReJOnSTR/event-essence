@@ -52,6 +52,37 @@ export default function Reports() {
     setStudentColor("#1a73e8");
   };
 
+  const handleSaveStudent = () => {
+    const studentData = {
+      id: editingStudent?.id || crypto.randomUUID(),
+      name: studentName,
+      price: studentPrice,
+      color: studentColor,
+    };
+
+    saveStudent(studentData);
+    
+    toast({
+      title: editingStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
+      description: editingStudent 
+        ? "Öğrenci bilgileri başarıyla güncellendi."
+        : "Yeni öğrenci başarıyla eklendi.",
+    });
+
+    handleCloseDialog();
+  };
+
+  const handleDeleteStudent = () => {
+    if (editingStudent) {
+      deleteStudent(editingStudent.id);
+      toast({
+        title: "Öğrenci silindi",
+        description: "Öğrenci başarıyla silindi.",
+      });
+      handleCloseDialog();
+    }
+  };
+
   const lessons = (() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
