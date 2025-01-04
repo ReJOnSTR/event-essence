@@ -1,11 +1,10 @@
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
-import { startOfWeek, addDays, isToday } from "date-fns";
+import { startOfWeek, addDays } from "date-fns";
 import { motion } from "framer-motion";
 import { getWorkingHours } from "@/utils/workingHours";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
-import { cn } from "@/lib/utils";
 
 interface WeekViewProps {
   date: Date;
@@ -52,10 +51,7 @@ export default function WeekView({
       transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
     >
       <WeekViewHeader date={date} />
-      <div className={cn(
-        "grid grid-cols-8 gap-px bg-border",
-        isToday(date) && "bg-today-dark dark:bg-today-dark text-white"
-      )}>
+      <div className="grid grid-cols-8 gap-px bg-border">
         <WeekViewTimeGrid
           weekDays={weekDays}
           hours={hours}

@@ -2,8 +2,9 @@ import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
-import { motion } from "framer-motion";
 import MonthEventCard from "@/components/Calendar/MonthEventCard";
+import { motion } from "framer-motion";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthCellProps {
   day: {
@@ -17,7 +18,6 @@ interface MonthCellProps {
   handleDateClick: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   students?: Student[];
-  isYearView?: boolean;
 }
 
 export default function MonthCell({
@@ -27,28 +27,8 @@ export default function MonthCell({
   allowWorkOnHolidays,
   handleDateClick,
   onEventClick,
-  students,
-  isYearView = false
+  students
 }: MonthCellProps) {
-  if (isYearView) {
-    return (
-      <div
-        onClick={() => handleDateClick(day.date)}
-        className={cn(
-          "min-h-[40px] p-1 bg-background/80 cursor-pointer hover:bg-accent/50 transition-colors duration-150",
-          !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-          isToday(day.date) && "bg-today-dark dark:bg-today-dark text-white",
-          holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-          holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
-        )}
-      >
-        <div className="text-xs font-medium">
-          {format(day.date, "d")}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <Droppable droppableId={`${idx}`}>
       {(provided, snapshot) => (
@@ -64,17 +44,17 @@ export default function MonthCell({
           }}
           onClick={() => handleDateClick(day.date)}
           className={cn(
-            "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
+            "min-h-[120px] p-2 bg-background cursor-pointer transition-colors duration-150",
             !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-            isToday(day.date) && "bg-today-dark dark:bg-today-dark text-white",
+            isToday(day.date) && "bg-accent text-accent-foreground",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
             snapshot.isDraggingOver && "bg-accent/50"
           )}
         >
           <div className={cn(
-            "text-sm font-medium mb-1",
-            isToday(day.date) && "text-white"
+            "text-sm font-medium mb-1 text-foreground",
+            isToday(day.date) && "text-accent-foreground"
           )}>
             {format(day.date, "d")}
             {holiday && (
