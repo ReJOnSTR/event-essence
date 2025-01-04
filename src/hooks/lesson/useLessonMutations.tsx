@@ -10,7 +10,12 @@ export function useLessonMutations() {
   const { mutate: saveLesson } = useMutation({
     mutationFn: async (lesson: Omit<CalendarEvent, "id">): Promise<CalendarEvent> => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
+      console.log("Current user:", user); // Debug log
+
+      if (!user) {
+        console.error("No authenticated user found");
+        throw new Error("User not authenticated");
+      }
 
       const { data, error } = await supabase
         .from('lessons')
@@ -25,7 +30,12 @@ export function useLessonMutations() {
         .select()
         .single();
 
-      if (error) throw error;
+      console.log("Insert response:", { data, error }); // Debug log
+
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
       
       return {
         id: data.id,
@@ -43,7 +53,8 @@ export function useLessonMutations() {
         description: "Ders başarıyla kaydedildi.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Mutation error:", error); // Debug log
       toast({
         title: "Hata",
         description: "Ders kaydedilirken bir hata oluştu.",

@@ -10,7 +10,12 @@ export function useStudentMutations() {
   const { mutate: saveStudent } = useMutation({
     mutationFn: async (student: Omit<Student, "id">): Promise<Student> => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
+      console.log("Current user:", user); // Debug log
+
+      if (!user) {
+        console.error("No authenticated user found");
+        throw new Error("User not authenticated");
+      }
 
       const { data, error } = await supabase
         .from('students')
@@ -23,7 +28,12 @@ export function useStudentMutations() {
         .select()
         .single();
 
-      if (error) throw error;
+      console.log("Insert response:", { data, error }); // Debug log
+
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
       
       return {
         id: data.id,
@@ -39,7 +49,8 @@ export function useStudentMutations() {
         description: "Öğrenci bilgileri başarıyla kaydedildi.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Mutation error:", error); // Debug log
       toast({
         title: "Hata",
         description: "Öğrenci kaydedilirken bir hata oluştu.",
