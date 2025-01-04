@@ -6,7 +6,7 @@ import { useStudents } from "@/hooks/useStudents";
 import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
-import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarInset } from "@/components/ui/sidebar";
 import SideMenu from "@/components/Layout/SideMenu";
 
 export default function StudentsManagementPage() {
@@ -46,55 +46,53 @@ export default function StudentsManagementPage() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <Sidebar>
-          <SidebarContent>
-            <SideMenu 
-              onAddStudent={() => setIsDialogOpen(true)}
-              onEdit={handleEditStudent}
+    <div className="min-h-screen flex w-full bg-background">
+      <Sidebar>
+        <SidebarContent>
+          <SideMenu 
+            onAddStudent={() => setIsDialogOpen(true)}
+            onEdit={handleEditStudent}
+          />
+        </SidebarContent>
+      </Sidebar>
+      
+      <SidebarInset>
+        <PageHeader
+          title="Öğrenci Yönetimi"
+          backTo="/"
+          backLabel="Takvime Dön"
+          actions={
+            <Button onClick={() => setIsDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Öğrenci Ekle
+            </Button>
+          }
+        />
+
+        <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {students.map((student) => (
+            <StudentCard
+              key={student.id}
+              student={student}
+              onClick={handleEditStudent}
             />
-          </SidebarContent>
-        </Sidebar>
-        
-        <div className="flex-1 flex flex-col">
-          <PageHeader
-            title="Öğrenci Yönetimi"
-            backTo="/"
-            backLabel="Takvime Dön"
-            actions={
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Öğrenci Ekle
-              </Button>
-            }
-          />
-
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {students.map((student) => (
-              <StudentCard
-                key={student.id}
-                student={student}
-                onClick={handleEditStudent}
-              />
-            ))}
-          </div>
-
-          <StudentDialog
-            isOpen={isDialogOpen}
-            onClose={handleCloseDialog}
-            onSave={handleSaveStudent}
-            onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
-            student={selectedStudent}
-            studentName={studentName}
-            setStudentName={setStudentName}
-            studentPrice={studentPrice}
-            setStudentPrice={setStudentPrice}
-            studentColor={studentColor}
-            setStudentColor={setStudentColor}
-          />
+          ))}
         </div>
-      </div>
-    </SidebarProvider>
+
+        <StudentDialog
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+          onSave={handleSaveStudent}
+          onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+          student={selectedStudent}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
+        />
+      </SidebarInset>
+    </div>
   );
 }
