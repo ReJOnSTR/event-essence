@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
-import { useToast } from "@/components/ui/use-toast";
 import { CalendarEvent } from "@/types/calendar";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
@@ -10,12 +9,15 @@ import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
 import CalendarToolbar from "@/features/calendar/components/CalendarToolbar";
 import CalendarDialogs from "@/features/calendar/components/CalendarDialogs";
+import { useCalendarData } from "@/hooks/useCalendarData";
 
 export default function CalendarPage() {
-  const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
-    const savedLessons = localStorage.getItem('lessons');
-    return savedLessons ? JSON.parse(savedLessons) : [];
-  });
+  const {
+    lessons,
+    handleSaveLesson,
+    handleUpdateLesson,
+    handleDeleteLesson
+  } = useCalendarData();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
@@ -25,7 +27,6 @@ export default function CalendarPage() {
   
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent, deleteStudent } = useStudents();
-  const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
   const [studentDialogState, setStudentDialogState] = useState({
@@ -47,49 +48,18 @@ export default function CalendarPage() {
     setIsDialogOpen(true);
   };
 
-  const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
+  const handleSaveLessonClick = (lessonData: Omit<CalendarEvent, "id">) => {
     if (selectedLesson) {
-      const updatedLessons = lessons.map(lesson => 
-        lesson.id === selectedLesson.id 
-          ? { ...lessonData, id: lesson.id }
-          : lesson
-      );
-      setLessons(updatedLessons);
-      toast({
-        title: "Ders güncellendi",
-        description: "Dersiniz başarıyla güncellendi.",
-      });
+      handleUpdateLesson(selectedLesson.id, lessonData);
     } else {
-      const newLesson: CalendarEvent = {
-        ...lessonData,
-        id: crypto.randomUUID(),
-      };
-      setLessons([...lessons, newLesson]);
-      toast({
-        title: "Ders oluşturuldu",
-        description: "Dersiniz başarıyla oluşturuldu.",
-      });
+      handleSaveLesson(lessonData);
     }
-  };
-
-  const handleDeleteLesson = (lessonId: string) => {
-    setLessons(lessons.filter(lesson => lesson.id !== lessonId));
-    toast({
-      title: "Ders silindi",
-      description: "Dersiniz başarıyla silindi.",
-    });
+    setIsDialogOpen(false);
   };
 
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
-    const updatedLessons = lessons.map(lesson =>
-      lesson.id === updatedEvent.id ? updatedEvent : lesson
-    );
-    setLessons(updatedLessons);
+    handleUpdateLesson(updatedEvent.id, updatedEvent);
   };
-
-  React.useEffect(() => {
-    localStorage.setItem('lessons', JSON.stringify(lessons));
-  }, [lessons]);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -174,7 +144,7 @@ export default function CalendarPage() {
               });
             }}
             onCloseSearchDialog={() => setIsSearchOpen(false)}
-            onSaveLesson={handleSaveLesson}
+            onSaveLesson={handleSaveLessonClick}
             onDeleteLesson={handleDeleteLesson}
             onSaveStudent={() => {
               saveStudent({
@@ -188,12 +158,6 @@ export default function CalendarPage() {
             onDeleteStudent={() => {
               if (studentDialogState.selectedStudent) {
                 deleteStudent(studentDialogState.selectedStudent.id);
-                const updatedLessons = lessons.map(lesson => 
-                  lesson.studentId === studentDialogState.selectedStudent.id 
-                    ? { ...lesson, studentId: undefined }
-                    : lesson
-                );
-                setLessons(updatedLessons);
                 setIsStudentDialogOpen(false);
               }
             }}

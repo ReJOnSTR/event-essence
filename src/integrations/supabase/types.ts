@@ -13,9 +13,9 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
-          end: string
+          end_time: string
           id: string
-          start: string
+          start_time: string
           student_id: string | null
           title: string
           updated_at: string
@@ -23,9 +23,9 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
-          end: string
+          end_time: string
           id?: string
-          start: string
+          start_time: string
           student_id?: string | null
           title: string
           updated_at?: string
@@ -33,9 +33,9 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
-          end?: string
+          end_time?: string
           id?: string
-          start?: string
+          start_time?: string
           student_id?: string | null
           title?: string
           updated_at?: string
