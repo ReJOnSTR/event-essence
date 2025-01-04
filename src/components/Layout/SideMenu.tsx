@@ -38,7 +38,7 @@ export default function SideMenu({
   ];
 
   return (
-    <div className="flex flex-col h-full bg-background w-full">
+    <div className="flex flex-col h-full bg-background border-r border-border w-full">
       <SidebarGroup className="space-y-2">
         {menuItems.map((item) => (
           <Link 
@@ -46,11 +46,8 @@ export default function SideMenu({
             to={item.path} 
             className="block"
             onClick={(e) => {
-              // Prevent the default link behavior which might trigger sidebar closing
               e.preventDefault();
-              // Use the history API directly to navigate without side effects
               window.history.pushState({}, '', item.path);
-              // Trigger a navigation event to update the router
               window.dispatchEvent(new PopStateEvent('popstate'));
             }}
           >

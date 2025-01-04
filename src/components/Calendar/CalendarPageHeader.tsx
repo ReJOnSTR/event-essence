@@ -56,7 +56,7 @@ export default function CalendarPageHeader({
   };
 
   return (
-    <div className="p-2 md:p-4 border-b bg-white sticky top-0 z-10">
+    <div className="p-2 md:p-4 border-b bg-background sticky top-0 z-10">
       <ViewSelector
         currentView={currentView}
         onViewChange={onViewChange}
@@ -66,7 +66,7 @@ export default function CalendarPageHeader({
         <div className="flex items-center gap-2 md:gap-4">
           <h1 className={cn(
             "text-lg md:text-2xl font-semibold truncate",
-            currentView === 'day' && isToday(date) ? "text-calendar-blue" : "text-gray-900"
+            currentView === 'day' && isToday(date) ? "text-calendar-blue dark:text-calendar-blue-dark" : "text-foreground"
           )}>
             {format(date, getDateFormat(), { locale: tr })}
           </h1>

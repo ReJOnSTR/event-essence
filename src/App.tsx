@@ -56,7 +56,7 @@ const AnimatedRoutes = () => {
           exit="exit"
           variants={pageVariants}
           transition={pageTransition}
-          className="w-full h-screen overflow-hidden"
+          className="w-full h-screen overflow-hidden bg-background"
         >
           <Routes location={location}>
             <Route path="/" element={<CalendarPage />} />
