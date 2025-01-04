@@ -12,11 +12,11 @@ export default function CalendarToolbar({ selectedDate, setSelectedDate }: Calen
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
   const handlePrevClick = () => {
-    handleNavigationClick('prev', currentView)(new Event('click'));
+    handleNavigationClick('prev', currentView)(new MouseEvent('click'));
   };
 
   const handleNextClick = () => {
-    handleNavigationClick('next', currentView)(new Event('click'));
+    handleNavigationClick('next', currentView)(new MouseEvent('click'));
   };
 
   return (
@@ -31,7 +31,7 @@ export default function CalendarToolbar({ selectedDate, setSelectedDate }: Calen
       <Button
         variant="outline"
         size="sm"
-        onClick={() => handleTodayClick(new Event('click'))}
+        onClick={() => handleTodayClick(new MouseEvent('click'))}
       >
         Bugün
       </Button>
