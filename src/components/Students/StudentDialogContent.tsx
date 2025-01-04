@@ -31,7 +31,6 @@ export default function StudentDialogContent({
 }: StudentDialogContentProps) {
   const { toast } = useToast();
   const [localName, setLocalName] = useState(studentName);
-  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
 
   useEffect(() => {
     setLocalName(studentName);
@@ -108,36 +107,17 @@ export default function StudentDialogContent({
 
       <div className="space-y-2">
         <Label>Renk</Label>
-        <div className="relative space-y-2">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full flex items-center justify-between"
-            onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: studentColor }}
-              />
-              <span>Renk Seç</span>
-            </div>
-          </Button>
-          {isColorPickerOpen && (
-            <div className="relative z-50">
-              <div
-                className="fixed inset-0"
-                onClick={() => setIsColorPickerOpen(false)}
-              />
-              <div className="absolute w-full">
-                <SliderPicker
-                  color={studentColor}
-                  onChange={handleColorChange}
-                />
-              </div>
-            </div>
-          )}
+        <div className="flex items-center gap-2 mb-2">
+          <div
+            className="w-4 h-4 rounded-full"
+            style={{ backgroundColor: studentColor }}
+          />
+          <span className="text-sm text-muted-foreground">Seçilen Renk</span>
         </div>
+        <SliderPicker
+          color={studentColor}
+          onChange={handleColorChange}
+        />
       </div>
 
       {student && onDelete && (
