@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { CalendarEvent } from "@/types/calendar";
@@ -11,8 +11,7 @@ import CalendarToolbar from "@/features/calendar/components/CalendarToolbar";
 import CalendarDialogs from "@/features/calendar/components/CalendarDialogs";
 import { useCalendarData } from "@/hooks/useCalendarData";
 import AuthDialog from "@/components/Auth/AuthDialog";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function CalendarPage() {
   const {
@@ -28,8 +27,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [user, setUser] = useState(supabase.auth.getUser());
-  const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
   
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent, deleteStudent } = useStudents();
@@ -42,26 +40,8 @@ export default function CalendarPage() {
     studentColor: "#1a73e8"
   });
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        setUser(session);
-        setIsAuthDialogOpen(false);
-        toast({
-          title: "Giriş başarılı",
-          description: "Hoş geldiniz!"
-        });
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [toast]);
-
-  const handleDateSelect = async (date: Date) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+  const handleDateSelect = (date: Date) => {
+    if (!isAuthenticated) {
       setIsAuthDialogOpen(true);
       return;
     }
@@ -70,9 +50,8 @@ export default function CalendarPage() {
     setIsDialogOpen(true);
   };
 
-  const handleLessonClick = async (lesson: CalendarEvent) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+  const handleLessonClick = (lesson: CalendarEvent) => {
+    if (!isAuthenticated) {
       setIsAuthDialogOpen(true);
       return;
     }
@@ -81,9 +60,8 @@ export default function CalendarPage() {
     setIsDialogOpen(true);
   };
 
-  const handleSaveLessonClick = async (lessonData: Omit<CalendarEvent, "id">) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+  const handleSaveLessonClick = (lessonData: Omit<CalendarEvent, "id">) => {
+    if (!isAuthenticated) {
       setIsAuthDialogOpen(true);
       return;
     }
@@ -96,18 +74,16 @@ export default function CalendarPage() {
     setIsDialogOpen(false);
   };
 
-  const handleEventUpdate = async (updatedEvent: CalendarEvent) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+    if (!isAuthenticated) {
       setIsAuthDialogOpen(true);
       return;
     }
     handleUpdateLesson(updatedEvent.id, updatedEvent);
   };
 
-  const handleAddStudent = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+  const handleAddStudent = () => {
+    if (!isAuthenticated) {
       setIsAuthDialogOpen(true);
       return;
     }
@@ -120,9 +96,8 @@ export default function CalendarPage() {
         <Sidebar>
           <SidebarContent className="p-4">
             <SideMenu
-              onEdit={async (student) => {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
+              onEdit={(student) => {
+                if (!isAuthenticated) {
                   setIsAuthDialogOpen(true);
                   return;
                 }
@@ -147,9 +122,8 @@ export default function CalendarPage() {
             </h1>
             <CalendarToolbar
               onSearchClick={() => setIsSearchOpen(true)}
-              onAddLessonClick={async () => {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
+              onAddLessonClick={() => {
+                if (!isAuthenticated) {
                   setIsAuthDialogOpen(true);
                   return;
                 }
