@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, LogIn } from "lucide-react";
@@ -10,6 +10,7 @@ interface AuthHeaderProps {
 export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isPartiallyOpen, setIsPartiallyOpen] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Show header after 2 seconds
@@ -25,23 +26,42 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
     onHeightChange?.(isVisible ? 128 : (isPartiallyOpen ? 32 : 0)); // 8rem = 128px, 2rem = 32px
   }, [isVisible, isPartiallyOpen, onHeightChange]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        if (isVisible) {
+          setIsVisible(false);
+          setIsPartiallyOpen(true);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isVisible]);
+
   const handleMouseEnter = () => {
     if (isPartiallyOpen) {
       setIsVisible(true);
     }
   };
 
-  const handleClickOutside = () => {
-    if (isVisible) {
-      setIsVisible(false);
-      setIsPartiallyOpen(true);
+  const handleClickMinimized = () => {
+    if (isPartiallyOpen) {
+      setIsVisible(true);
     }
+  };
+
+  const handleHide = () => {
+    setIsVisible(false);
+    setIsPartiallyOpen(true);
   };
 
   return (
     <AnimatePresence>
       {(isVisible || isPartiallyOpen) && (
         <motion.div
+          ref={headerRef}
           initial={{ height: 0 }}
           animate={{ height: isVisible ? "8rem" : "2rem" }}
           exit={{ height: 0 }}
@@ -66,13 +86,16 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                 <Button 
                   variant="ghost" 
                   className="absolute top-2 right-4 text-sm"
-                  onClick={handleClickOutside}
+                  onClick={handleHide}
                 >
                   Gizle
                 </Button>
               </div>
             ) : (
-              <div className="h-8 flex items-center justify-center cursor-pointer">
+              <div 
+                className="h-8 flex items-center justify-center cursor-pointer"
+                onClick={handleClickMinimized}
+              >
                 <span className="text-sm text-muted-foreground">
                   Giriş yapmak için tıklayın
                 </span>
