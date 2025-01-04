@@ -1,52 +1,37 @@
 import { useQuery } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
 export function useStudentQueries() {
   const { toast } = useToast();
 
-  const fetchStudents = async (): Promise<Student[]> => {
-    const {
-      data: { user },
-      error: sessionError
-    } = await supabase.auth.getUser();
-
-    if (sessionError || !user) {
-      throw new Error("Authentication required");
+  const getStudents = (): Student[] => {
+    try {
+      const savedStudents = localStorage.getItem('students');
+      if (!savedStudents) return [];
+      
+      const parsedStudents = JSON.parse(savedStudents);
+      if (!Array.isArray(parsedStudents)) {
+        throw new Error('Invalid students data format');
+      }
+      
+      return parsedStudents;
+    } catch (error) {
+      console.error('Error loading students:', error);
+      toast({
+        title: "Hata",
+        description: "Öğrenci verileri yüklenirken bir hata oluştu.",
+        variant: "destructive"
+      });
+      return [];
     }
-
-    const { data, error } = await supabase
-      .from('students')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching students:', error);
-      throw error;
-    }
-
-    return data.map(student => ({
-      id: student.id,
-      name: student.name,
-      color: student.color || undefined,
-      price: student.price
-    }));
   };
 
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
-    queryFn: fetchStudents,
-    meta: {
-      onError: () => {
-        toast({
-          title: "Hata",
-          description: "Öğrenciler yüklenirken bir hata oluştu.",
-          variant: "destructive"
-        });
-      }
-    }
+    queryFn: getStudents,
+    staleTime: 1000 * 60,
+    gcTime: 1000 * 60 * 5,
   });
 
   return {

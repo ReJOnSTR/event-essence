@@ -1,51 +1,62 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
 export function useStudentMutations() {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const saveStudents = async (students: Student[]): Promise<Student[]> => {
+    try {
+      if (!Array.isArray(students)) {
+        throw new Error('Invalid students data');
+      }
+      
+      students.forEach(student => {
+        if (!student.id || !student.name || typeof student.price !== 'number') {
+          throw new Error('Invalid student data format');
+        }
+      });
+
+      localStorage.setItem('students', JSON.stringify(students));
+      return students;
+    } catch (error) {
+      console.error('Error saving students:', error);
+      toast({
+        title: "Hata",
+        description: "Öğrenci verileri kaydedilirken bir hata oluştu.",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
 
   const { mutate: saveStudent } = useMutation({
-    mutationFn: async (student: Student) => {
-      const {
-        data: { user },
-        error: sessionError
-      } = await supabase.auth.getUser();
-
-      if (sessionError || !user) {
-        throw new Error("Authentication required");
+    mutationFn: async (student: Student): Promise<Student[]> => {
+      const currentStudents = JSON.parse(localStorage.getItem('students') || '[]');
+      const existingIndex = currentStudents.findIndex((s: Student) => s.id === student.id);
+      
+      let updatedStudents;
+      if (existingIndex >= 0) {
+        updatedStudents = [
+          ...currentStudents.slice(0, existingIndex),
+          student,
+          ...currentStudents.slice(existingIndex + 1)
+        ];
+      } else {
+        updatedStudents = [...currentStudents, { ...student, id: crypto.randomUUID() }];
       }
-
-      const { data, error } = await supabase
-        .from('students')
-        .upsert({
-          id: student.id,
-          name: student.name,
-          color: student.color,
-          price: student.price,
-          user_id: user.id
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error saving student:', error);
-        throw error;
-      }
-
-      return data;
+      
+      return saveStudents(updatedStudents);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
       toast({
         title: "Başarılı",
-        description: "Öğrenci başarıyla kaydedildi.",
+        description: "Öğrenci bilgileri başarıyla kaydedildi.",
       });
     },
-    onError: (error: Error) => {
-      console.error('Error saving student:', error);
+    onError: () => {
       toast({
         title: "Hata",
         description: "Öğrenci kaydedilirken bir hata oluştu.",
@@ -55,16 +66,10 @@ export function useStudentMutations() {
   });
 
   const { mutate: deleteStudent } = useMutation({
-    mutationFn: async (studentId: string) => {
-      const { error } = await supabase
-        .from('students')
-        .delete()
-        .eq('id', studentId);
-
-      if (error) {
-        console.error('Error deleting student:', error);
-        throw error;
-      }
+    mutationFn: async (studentId: string): Promise<Student[]> => {
+      const currentStudents = JSON.parse(localStorage.getItem('students') || '[]');
+      const updatedStudents = currentStudents.filter((s: Student) => s.id !== studentId);
+      return saveStudents(updatedStudents);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -73,8 +78,7 @@ export function useStudentMutations() {
         description: "Öğrenci başarıyla silindi.",
       });
     },
-    onError: (error: Error) => {
-      console.error('Error deleting student:', error);
+    onError: () => {
       toast({
         title: "Hata",
         description: "Öğrenci silinirken bir hata oluştu.",
