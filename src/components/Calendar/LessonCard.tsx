@@ -44,7 +44,7 @@ export default function LessonCard({
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white text-xs md:text-sm p-1 rounded absolute left-0 right-0 mx-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all",
+        "text-white p-1.5 rounded absolute left-0.5 right-0.5 overflow-hidden cursor-pointer hover:brightness-90 transition-all",
         snapshot?.isDragging ? "shadow-lg opacity-70" : "",
         heightInPixels < 40 ? "min-h-[40px] flex flex-col justify-center" : ""
       )}
@@ -54,10 +54,10 @@ export default function LessonCard({
       }}
       onClick={handleClick}
     >
-      <div className="font-medium truncate leading-tight">
+      <div className="font-medium truncate text-[11px] leading-tight md:text-sm">
         {student?.name || "İsimsiz Öğrenci"}
       </div>
-      <div className="text-[10px] md:text-xs flex items-center gap-1 opacity-90">
+      <div className="text-[10px] md:text-xs flex items-center gap-0.5 opacity-90">
         <span>{format(event.start, "HH:mm", { locale: tr })}</span>
         <span className="text-white/80">-</span>
         <span>{format(event.end, "HH:mm", { locale: tr })}</span>

@@ -26,7 +26,7 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white text-xs p-1 rounded mb-1 cursor-pointer hover:brightness-90 transition-colors",
+        "text-white p-1.5 rounded mb-1 cursor-pointer hover:brightness-90 transition-colors",
         snapshot?.isDragging ? "shadow-lg opacity-70" : ""
       )}
       style={{ 
@@ -35,8 +35,8 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       }}
       onClick={handleClick}
     >
-      <div className="flex flex-col md:flex-row md:items-center md:gap-1">
-        <span className="font-medium truncate leading-tight">
+      <div className="flex flex-col gap-0.5">
+        <span className="font-medium truncate text-[11px] leading-tight md:text-sm">
           {student?.name || "İsimsiz Öğrenci"}
         </span>
         <span className="text-[10px] md:text-xs whitespace-nowrap opacity-90">
