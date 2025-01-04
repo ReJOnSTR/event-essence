@@ -1,5 +1,6 @@
-import { startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth } from "date-fns";
+import { startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, setHours } from "date-fns";
 import { CalendarEvent, DayCell } from "@/types/calendar";
+import { getWorkingHours } from "@/utils/workingHours";
 
 export function useMonthView(date: Date, events: CalendarEvent[]) {
   const getDaysInMonth = (currentDate: Date): DayCell[] => {
@@ -23,19 +24,29 @@ export function useMonthView(date: Date, events: CalendarEvent[]) {
       date: dayDate,
       isCurrentMonth: isSameMonth(dayDate, currentDate),
       lessons: events
-        .filter(event => {
-          const eventStart = new Date(event.start);
-          return eventStart.toDateString() === dayDate.toDateString();
-        })
-        .sort((a, b) => {
-          const aStart = new Date(a.start).getTime();
-          const bStart = new Date(b.start).getTime();
-          return aStart - bStart;
-        })
+        .filter(event => isSameDay(new Date(event.start), dayDate))
+        .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
     }));
   };
 
+  const handleDateClick = (clickedDate: Date) => {
+    const dayOfWeek = clickedDate.getDay();
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const workingHours = getWorkingHours();
+    const daySettings = workingHours[days[dayOfWeek]];
+    
+    if (daySettings.enabled && daySettings.start) {
+      const [hours, minutes] = daySettings.start.split(':').map(Number);
+      const dateWithWorkingHours = new Date(clickedDate);
+      dateWithWorkingHours.setHours(hours, minutes, 0);
+      return dateWithWorkingHours;
+    }
+    
+    return setHours(clickedDate, 9);
+  };
+
   return {
-    getDaysInMonth
+    getDaysInMonth,
+    handleDateClick
   };
 }
