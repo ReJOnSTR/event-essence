@@ -1,54 +1,36 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { validateDate } from "@/utils/dateUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useLessonMutations() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const saveLessons = async (lessons: Lesson[]): Promise<Lesson[]> => {
-    try {
-      if (!Array.isArray(lessons)) {
-        throw new Error('Invalid lessons data');
-      }
-
-      lessons.forEach(lesson => {
-        if (!lesson.id || !lesson.title || !validateDate(lesson.start) || !validateDate(lesson.end)) {
-          throw new Error('Invalid lesson data format');
-        }
-      });
-
-      localStorage.setItem('lessons', JSON.stringify(lessons));
-      return lessons;
-    } catch (error) {
-      console.error('Error saving lessons:', error);
-      toast({
-        title: "Hata",
-        description: "Ders verileri kaydedilirken bir hata oluştu.",
-        variant: "destructive"
-      });
-      throw error;
-    }
-  };
-
   const { mutate: saveLesson } = useMutation({
-    mutationFn: async (lesson: Lesson): Promise<Lesson[]> => {
-      const currentLessons = JSON.parse(localStorage.getItem('lessons') || '[]');
-      const existingIndex = currentLessons.findIndex((l: Lesson) => l.id === lesson.id);
+    mutationFn: async (lesson: Omit<Lesson, 'id'>): Promise<Lesson> => {
+      const { data, error } = await supabase
+        .from('lessons')
+        .insert([{
+          title: lesson.title,
+          description: lesson.description,
+          start_time: lesson.start.toISOString(),
+          end_time: lesson.end.toISOString(),
+          student_id: lesson.studentId
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
       
-      let updatedLessons;
-      if (existingIndex >= 0) {
-        updatedLessons = [
-          ...currentLessons.slice(0, existingIndex),
-          lesson,
-          ...currentLessons.slice(existingIndex + 1)
-        ];
-      } else {
-        updatedLessons = [...currentLessons, { ...lesson, id: crypto.randomUUID() }];
-      }
-      
-      return saveLessons(updatedLessons);
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        start: new Date(data.start_time),
+        end: new Date(data.end_time),
+        studentId: data.student_id
+      };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
@@ -67,10 +49,13 @@ export function useLessonMutations() {
   });
 
   const { mutate: deleteLesson } = useMutation({
-    mutationFn: async (lessonId: string): Promise<Lesson[]> => {
-      const currentLessons = JSON.parse(localStorage.getItem('lessons') || '[]');
-      const updatedLessons = currentLessons.filter((l: Lesson) => l.id !== lessonId);
-      return saveLessons(updatedLessons);
+    mutationFn: async (lessonId: string): Promise<void> => {
+      const { error } = await supabase
+        .from('lessons')
+        .delete()
+        .eq('id', lessonId);
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons'] });

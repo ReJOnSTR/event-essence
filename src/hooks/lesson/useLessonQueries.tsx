@@ -1,40 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
 import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { validateDate } from "@/utils/dateUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useLessonQueries() {
   const { toast } = useToast();
 
-  const getLessons = (): Lesson[] => {
-    try {
-      const savedLessons = localStorage.getItem('lessons');
-      if (!savedLessons) return [];
-      
-      const parsedLessons = JSON.parse(savedLessons);
-      if (!Array.isArray(parsedLessons)) {
-        throw new Error('Invalid lessons data format');
-      }
+  const getLessons = async (): Promise<Lesson[]> => {
+    const { data, error } = await supabase
+      .from('lessons')
+      .select('*')
+      .order('start_time', { ascending: true });
 
-      return parsedLessons.map(lesson => ({
-        ...lesson,
-        start: new Date(lesson.start),
-        end: new Date(lesson.end)
-      })).filter(lesson => 
-        validateDate(lesson.start) && 
-        validateDate(lesson.end) &&
-        lesson.id &&
-        typeof lesson.title === 'string'
-      );
-    } catch (error) {
+    if (error) {
       console.error('Error loading lessons:', error);
       toast({
         title: "Hata",
         description: "Ders verileri yüklenirken bir hata oluştu.",
         variant: "destructive"
       });
-      return [];
+      throw error;
     }
+
+    return data.map(lesson => ({
+      id: lesson.id,
+      title: lesson.title,
+      description: lesson.description,
+      start: new Date(lesson.start_time),
+      end: new Date(lesson.end_time),
+      studentId: lesson.student_id
+    }));
   };
 
   const { data: lessons = [], isLoading, error } = useQuery({
