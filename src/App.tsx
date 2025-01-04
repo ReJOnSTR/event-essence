@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { DragDropContext } from "@hello-pangea/dnd";
 import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -40,25 +41,32 @@ const pageTransition = {
 const AnimatedRoutes = () => {
   const location = useLocation();
   
+  const handleDragEnd = () => {
+    // This is a no-op function to satisfy the DragDropContext requirement
+    // The actual drag end handlers are implemented in the individual components
+  };
+  
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageVariants}
-        transition={pageTransition}
-        className="w-full h-screen overflow-hidden"
-      >
-        <Routes location={location}>
-          <Route path="/" element={<CalendarPage />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          variants={pageVariants}
+          transition={pageTransition}
+          className="w-full h-screen overflow-hidden"
+        >
+          <Routes location={location}>
+            <Route path="/" element={<CalendarPage />} />
+            <Route path="/students" element={<StudentsManagementPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
+        </motion.div>
+      </AnimatePresence>
+    </DragDropContext>
   );
 };
 
