@@ -4,7 +4,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Theme = {
@@ -75,20 +74,26 @@ export default function ThemeSettings() {
   
   const { toast } = useToast();
 
+  const applyTheme = (theme: string) => {
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", systemTheme);
+    } else {
+      document.documentElement.setAttribute("data-theme", theme);
+    }
+  };
+
   useEffect(() => {
-    const handleThemeChange = () => {
+    const handleSystemThemeChange = () => {
       if (currentTheme === "system") {
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        document.documentElement.setAttribute("data-theme", systemTheme);
-      } else {
-        document.documentElement.setAttribute("data-theme", currentTheme);
+        applyTheme("system");
       }
     };
 
-    handleThemeChange();
+    applyTheme(currentTheme);
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    mediaQuery.addEventListener("change", handleThemeChange);
+    mediaQuery.addEventListener("change", handleSystemThemeChange);
 
     // Font ayarlarını uygula
     document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
@@ -109,7 +114,7 @@ export default function ThemeSettings() {
     });
 
     return () => {
-      mediaQuery.removeEventListener("change", handleThemeChange);
+      mediaQuery.removeEventListener("change", handleSystemThemeChange);
     };
   }, [currentTheme, fontSize, fontFamily, toast]);
 
