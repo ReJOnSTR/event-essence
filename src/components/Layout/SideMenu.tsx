@@ -52,28 +52,29 @@ export default function SideMenu({
         ease: "easeInOut"
       }}
     >
-      <SidebarGroup className="space-y-2">
+      <SidebarMenu className="p-2">
         {menuItems.map((item) => (
-          <Link 
-            key={item.path} 
-            to={item.path} 
-            className="block"
-            onClick={(e) => {
-              e.preventDefault();
-              window.history.pushState({}, '', item.path);
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
-          >
-            <SidebarMenuButton 
-              className="w-full hover:bg-secondary rounded-md transition-colors"
-              data-active={isActive(item.path)}
+          <SidebarMenuItem key={item.path}>
+            <Link 
+              to={item.path} 
+              className="block"
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.pushState({}, '', item.path);
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
             >
-              <item.icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </SidebarMenuButton>
-          </Link>
+              <SidebarMenuButton 
+                className="w-full hover:bg-secondary rounded-md transition-colors"
+                data-active={isActive(item.path)}
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </SidebarMenuButton>
+            </Link>
+          </SidebarMenuItem>
         ))}
-      </SidebarGroup>
+      </SidebarMenu>
 
       <SidebarGroup className="mt-6">
         <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
