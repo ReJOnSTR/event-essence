@@ -10,7 +10,7 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
@@ -69,23 +69,36 @@ const AnimatedRoutes = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <SidebarProvider>
-        <BrowserRouter>
-          <div className="min-h-screen flex w-full overflow-hidden bg-background">
-            <AuthHeader />
-            <div className="w-full mt-12"> {/* Add margin-top to prevent content overlap */}
-              <Toaster />
-              <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
-              <AnimatedRoutes />
+const App = () => {
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <SidebarProvider>
+          <BrowserRouter>
+            <div className="min-h-screen flex w-full overflow-hidden bg-background">
+              <AuthHeader onHeightChange={setHeaderHeight} />
+              <motion.div 
+                className="w-full"
+                animate={{ 
+                  marginTop: headerHeight 
+                }}
+                transition={{ 
+                  duration: 0.3,
+                  ease: "easeInOut"
+                }}
+              >
+                <Toaster />
+                <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
+                <AnimatedRoutes />
+              </motion.div>
             </div>
-          </div>
-        </BrowserRouter>
-      </SidebarProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+          </BrowserRouter>
+        </SidebarProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

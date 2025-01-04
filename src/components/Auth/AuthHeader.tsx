@@ -3,7 +3,11 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, LogIn } from "lucide-react";
 
-export function AuthHeader() {
+interface AuthHeaderProps {
+  onHeightChange?: (height: number) => void;
+}
+
+export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isPartiallyOpen, setIsPartiallyOpen] = useState(false);
 
@@ -15,6 +19,11 @@ export function AuthHeader() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    // Report height changes to parent component
+    onHeightChange?.(isVisible ? 192 : (isPartiallyOpen ? 32 : 0)); // 12rem = 192px, 2rem = 32px
+  }, [isVisible, isPartiallyOpen, onHeightChange]);
 
   const handleMouseEnter = () => {
     if (isPartiallyOpen) {
