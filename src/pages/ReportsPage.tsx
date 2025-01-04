@@ -103,8 +103,7 @@ export default function ReportsPage() {
               students={students}
               selectedStudent={selectedStudent}
               selectedPeriod={selectedPeriod}
-              totalHours={0}
-              totalEarnings={0}
+              selectedDate={selectedDate}
               startDate={startDate}
               endDate={endDate}
             />
