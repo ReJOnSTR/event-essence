@@ -16,6 +16,8 @@ import { useCalendarStore, type ViewType } from "@/store/calendarStore";
 import SideMenu from "@/components/Layout/SideMenu";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
+import SearchDialog from "@/components/Calendar/SearchDialog";
+import { Search } from "lucide-react";
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
@@ -28,6 +30,7 @@ export default function CalendarPage() {
   const { currentView, setCurrentView } = useCalendarStore();
   const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
   const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [studentName, setStudentName] = useState("");
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#1a73e8");
@@ -214,6 +217,14 @@ export default function CalendarPage() {
             <SidebarTrigger />
             <h1 className="text-lg md:text-2xl font-semibold text-gray-900 truncate">Özel Ders Takip</h1>
             <div className="ml-auto flex items-center gap-1 md:gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsSearchOpen(true)}
+              >
+                <Search className="h-4 w-4" />
+                <span className="hidden md:inline ml-2">Ara</span>
+              </Button>
               <WeeklySchedulePdf lessons={lessons} students={students} />
               <Button 
                 size="sm"
