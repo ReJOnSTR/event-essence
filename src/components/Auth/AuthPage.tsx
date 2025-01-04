@@ -3,14 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
         navigate("/");
+      } else if (event === "SIGNED_OUT") {
+        navigate("/auth");
+      } else if (event === "USER_UPDATED") {
+        console.log("User updated:", session);
       }
     });
 
@@ -47,13 +53,36 @@ export default function AuthPage() {
                 email_label: "Email",
                 password_label: "Şifre",
                 button_label: "Giriş Yap",
+                email_input_placeholder: "Email adresiniz",
+                password_input_placeholder: "Şifreniz",
+                link_text: "Zaten hesabınız var mı? Giriş yapın",
               },
               sign_up: {
                 email_label: "Email",
                 password_label: "Şifre",
                 button_label: "Kayıt Ol",
+                email_input_placeholder: "Email adresiniz",
+                password_input_placeholder: "Şifreniz",
+                link_text: "Hesabınız yok mu? Kayıt olun",
               },
             },
+          }}
+          providers={[]}
+          onError={(error) => {
+            console.error("Auth error:", error);
+            let errorMessage = "Bir hata oluştu. Lütfen tekrar deneyin.";
+            
+            if (error.message.includes("email_address_invalid")) {
+              errorMessage = "Geçersiz email adresi. Lütfen kontrol edip tekrar deneyin.";
+            } else if (error.message.includes("password")) {
+              errorMessage = "Şifre en az 6 karakter olmalıdır.";
+            }
+            
+            toast({
+              title: "Hata",
+              description: errorMessage,
+              variant: "destructive",
+            });
           }}
         />
       </div>
