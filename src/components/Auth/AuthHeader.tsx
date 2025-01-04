@@ -37,8 +37,8 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
           opacity: 1
         }}
         transition={{ 
-          duration: 0.4,
-          ease: [0.4, 0, 0.2, 1]
+          duration: 0.3,
+          ease: "easeInOut"
         }}
         className="w-full bg-background border-b fixed top-0 z-50"
       >
@@ -47,10 +47,10 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
             {isVisible ? (
               <motion.div 
                 key="full"
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 className="py-6 flex flex-col items-center gap-4"
               >
                 <h2 className="text-2xl font-semibold">Hoş Geldiniz</h2>
@@ -71,6 +71,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
                 className="h-8 flex items-center justify-center"
               />
             )}
@@ -78,13 +79,13 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute left-1/2 transform -translate-x-1/2 bottom-0 translate-y-1/2 bg-background border shadow-sm hover:bg-accent rounded-full"
+            className="absolute left-1/2 transform -translate-x-1/2 bottom-0 translate-y-1/2 bg-background border shadow-sm hover:bg-accent rounded-full w-12 h-12"
             onClick={toggleVisibility}
           >
             {isVisible ? (
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp className="h-6 w-6" />
             ) : (
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-6 w-6" />
             )}
           </Button>
         </div>
