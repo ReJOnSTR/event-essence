@@ -13,31 +13,22 @@ interface AuthDialogProps {
 export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { toast } = useToast();
 
-  // Listen for auth errors
+  // Listen for auth state changes and errors
   useEffect(() => {
-    const handleAuthError = (error: Error) => {
-      if (error.message.includes("email_address_invalid")) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'USER_DELETED') {
         toast({
-          title: "Geçersiz e-posta",
-          description: "Lütfen geçerli bir e-posta adresi girin.",
+          title: "Hata",
+          description: "Kullanıcı bulunamadı.",
           variant: "destructive"
         });
-      } else if (error.message.includes("over_email_send_rate_limit")) {
+      } else if (event === 'PASSWORD_RECOVERY') {
         toast({
-          title: "Çok fazla deneme",
-          description: "Lütfen 20 saniye bekleyip tekrar deneyin.",
-          variant: "destructive"
-        });
-      } else if (error.message.includes("invalid_credentials")) {
-        toast({
-          title: "Giriş başarısız",
-          description: "E-posta veya şifre hatalı.",
-          variant: "destructive"
+          title: "Şifre sıfırlama",
+          description: "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi."
         });
       }
-    };
-
-    const { data: { subscription } } = supabase.auth.onError(handleAuthError);
+    });
 
     return () => {
       subscription.unsubscribe();
