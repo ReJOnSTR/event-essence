@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Student, Lesson } from "@/types/calendar";
+import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import SideMenu from "@/components/Layout/SideMenu";
@@ -14,6 +12,7 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
 import { PdfReport } from "@/components/Reports/PdfReport";
+import { BackButton } from "@/components/ui/back-button";
 
 export default function Reports() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
@@ -53,37 +52,6 @@ export default function Reports() {
     setStudentColor("#1a73e8");
   };
 
-  const handleSaveStudent = () => {
-    const studentData = {
-      id: editingStudent?.id || crypto.randomUUID(),
-      name: studentName,
-      price: studentPrice,
-      color: studentColor,
-    };
-
-    saveStudent(studentData);
-    
-    toast({
-      title: editingStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
-      description: editingStudent 
-        ? "Öğrenci bilgileri başarıyla güncellendi."
-        : "Yeni öğrenci başarıyla eklendi.",
-    });
-
-    handleCloseDialog();
-  };
-
-  const handleDeleteStudent = () => {
-    if (editingStudent) {
-      deleteStudent(editingStudent.id);
-      toast({
-        title: "Öğrenci silindi",
-        description: "Öğrenci başarıyla silindi.",
-      });
-      handleCloseDialog();
-    }
-  };
-
   const lessons = (() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
@@ -107,13 +75,7 @@ export default function Reports() {
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <div className="flex items-center gap-4 p-4 border-b bg-white">
             <SidebarTrigger />
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Takvime Dön</span>
-            </Link>
+            <BackButton to="/" label="Takvime Dön" />
             <h1 className="text-2xl font-semibold text-gray-900">Raporlar</h1>
           </div>
 

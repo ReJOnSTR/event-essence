@@ -5,9 +5,9 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import SideMenu from "@/components/Layout/SideMenu";
 import StudentCard from "@/components/Students/StudentCard";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { Link } from "react-router-dom";
+import { BackButton } from "@/components/ui/back-button";
 import { useStudents } from "@/hooks/useStudents";
 
 export default function StudentsManagementPage() {
@@ -89,13 +89,7 @@ export default function StudentsManagementPage() {
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <div className="flex items-center gap-4 p-4 border-b bg-white">
             <SidebarTrigger />
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Takvime Dön</span>
-            </Link>
+            <BackButton to="/" label="Takvime Dön" />
             <h1 className="text-2xl font-semibold text-gray-900">Öğrenciler</h1>
             <div className="ml-auto">
               <Button onClick={() => handleOpenDialog()}>

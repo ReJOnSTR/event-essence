@@ -5,7 +5,7 @@ import GeneralSettings from "@/components/Settings/GeneralSettings";
 import WorkingHoursSettings from "@/components/Settings/WorkingHoursSettings";
 import ThemeSettings from "@/components/Settings/ThemeSettings";
 import DataManagement from "@/components/Settings/DataManagement";
-import { Link } from "react-router-dom";
+import { BackButton } from "@/components/ui/back-button";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
@@ -13,13 +13,9 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gray-50/50">
       <div className="flex items-center gap-4 p-4 border-b bg-white">
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <SettingsIcon className="h-5 w-5" />
-          <span className="font-semibold">Ayarlar</span>
-        </Link>
+        <BackButton to="/" label="Takvime Dön" />
+        <SettingsIcon className="h-5 w-5" />
+        <span className="font-semibold">Ayarlar</span>
       </div>
 
       <div className="container py-6">
