@@ -11,6 +11,7 @@ import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
+import { checkLessonConflict } from "@/utils/lessonConflict";
 
 interface DayViewProps {
   date: Date;
@@ -107,6 +108,22 @@ export default function DayView({
     const duration = differenceInMinutes(event.end, event.start);
     const newStart = setMinutes(setHours(date, hour), minute);
     const newEnd = new Date(newStart.getTime() + duration * 60000);
+
+    // Çakışma kontrolü
+    const hasConflict = checkLessonConflict(
+      { start: newStart, end: newEnd },
+      events,
+      event.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders çakışması",
+        description: "Seçilen saatte başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     onEventUpdate({
       ...event,

@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useMonthView } from "../hooks/useMonthView";
 import { isHoliday } from "@/utils/turkishHolidays";
 import MonthCell from "./MonthCell";
+import { checkLessonConflict } from "@/utils/lessonConflict";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -53,6 +54,22 @@ export default function MonthView({
       toast({
         title: "Tatil günü",
         description: `${holiday.name} nedeniyle bu gün tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Çakışma kontrolü
+    const hasConflict = checkLessonConflict(
+      { start: newStart, end: newEnd },
+      events,
+      event.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders çakışması",
+        description: "Seçilen günde ve saatte başka bir ders bulunuyor.",
         variant: "destructive"
       });
       return;

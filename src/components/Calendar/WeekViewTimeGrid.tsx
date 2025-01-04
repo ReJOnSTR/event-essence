@@ -7,6 +7,7 @@ import { isHoliday } from "@/utils/turkishHolidays";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
+import { checkLessonConflict } from "@/utils/lessonConflict";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -109,6 +110,22 @@ export default function WeekViewTimeGrid({
     newStart.setHours(hour, 0, 0, 0);
     const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
+
+    // Çakışma kontrolü
+    const hasConflict = checkLessonConflict(
+      { start: newStart, end: newEnd },
+      events,
+      event.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders çakışması",
+        description: "Seçilen saatte başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     onEventUpdate({
       ...event,
