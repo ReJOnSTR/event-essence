@@ -10,6 +10,16 @@ import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
 
+interface MonthViewProps {
+  events: CalendarEvent[];
+  onDateSelect: (date: Date) => void;
+  date: Date;
+  isYearView?: boolean;
+  onEventClick?: (event: CalendarEvent) => void;
+  onEventUpdate?: (event: CalendarEvent) => void;
+  students?: Student[];
+}
+
 export default function MonthView({ 
   events, 
   onDateSelect, 
