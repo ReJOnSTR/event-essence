@@ -38,13 +38,12 @@ const pageTransition = {
   duration: 0.15
 };
 
-// Basit bir auth kontrolü için
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  // TODO: Implement actual auth check
+  const location = useLocation();
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
   
   if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
