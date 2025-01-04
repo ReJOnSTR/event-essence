@@ -5,7 +5,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useMonthView } from "../hooks/useMonthView";
 import { isHoliday } from "@/utils/turkishHolidays";
 import MonthCell from "./MonthCell";
-import MonthHeader from "./MonthHeader";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -27,7 +26,7 @@ export default function MonthView({
   students
 }: MonthViewProps) {
   const { toast } = useToast();
-  const { getDaysInMonth, handleDateClick } = useMonthView(date, events);
+  const { getDaysInMonth } = useMonthView(date, events);
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   const days = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
@@ -80,7 +79,21 @@ export default function MonthView({
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
       >
         <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-          <MonthHeader weekDays={weekDays} />
+          {weekDays.map((day, index) => (
+            <motion.div
+              key={day}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.15,
+                delay: index * 0.01,
+                ease: [0.23, 1, 0.32, 1]
+              }}
+              className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
+            >
+              {day}
+            </motion.div>
+          ))}
           
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);
@@ -91,7 +104,7 @@ export default function MonthView({
                 idx={idx}
                 holiday={holiday}
                 allowWorkOnHolidays={allowWorkOnHolidays}
-                handleDateClick={(date) => onDateSelect(handleDateClick(date))}
+                handleDateClick={onDateSelect}
                 onEventClick={onEventClick}
                 students={students}
               />

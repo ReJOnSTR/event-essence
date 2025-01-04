@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 
 interface MonthHeaderProps {
-  weekDays: string[];
+  days: string[];
 }
 
-export default function MonthHeader({ weekDays }: MonthHeaderProps) {
+export default function MonthHeader({ days }: MonthHeaderProps) {
   return (
     <>
-      {weekDays.map((day, index) => (
+      {days.map((day, index) => (
         <motion.div
           key={day}
           initial={{ opacity: 0, y: -4 }}
@@ -17,7 +17,7 @@ export default function MonthHeader({ weekDays }: MonthHeaderProps) {
             delay: index * 0.01,
             ease: [0.23, 1, 0.32, 1]
           }}
-          className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
+          className="bg-background p-2 text-sm font-medium text-muted-foreground text-center"
         >
           {day}
         </motion.div>
