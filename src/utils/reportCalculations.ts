@@ -9,7 +9,8 @@ import {
   isWithinInterval,
   parseISO,
   endOfDay,
-  startOfDay
+  startOfDay,
+  differenceInHours
 } from "date-fns";
 import { useMemo } from "react";
 
@@ -69,7 +70,8 @@ export const filterLessons = (
 
   return lessons
     .filter(lesson => {
-      const lessonStart = lesson.start instanceof Date ? lesson.start : parseISO(lesson.start as unknown as string);
+      const lessonStart = new Date(lesson.start);
+      const lessonEnd = new Date(lesson.end);
       
       return (
         (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
@@ -80,8 +82,8 @@ export const filterLessons = (
       );
     })
     .sort((a, b) => {
-      const dateA = a.start instanceof Date ? a.start : parseISO(a.start as unknown as string);
-      const dateB = b.start instanceof Date ? b.start : parseISO(b.start as unknown as string);
+      const dateA = new Date(a.start);
+      const dateB = new Date(b.start);
       return dateA.getTime() - dateB.getTime();
     });
 };
@@ -108,13 +110,21 @@ export const useCalculatePeriodStats = (
   endDate?: Date
 ): { hours: PeriodHours; earnings: PeriodEarnings } => {
   return useMemo(() => {
-    const calculateStats = (filteredLessons: Lesson[]) => ({
-      hours: filteredLessons.length,
-      earnings: filteredLessons.reduce((total, lesson) => {
+    const calculateStats = (filteredLessons: Lesson[]) => {
+      const totalHours = filteredLessons.reduce((total, lesson) => {
+        const start = new Date(lesson.start);
+        const end = new Date(lesson.end);
+        return total + differenceInHours(end, start);
+      }, 0);
+
+      const totalEarnings = filteredLessons.reduce((total, lesson) => {
         const student = students.find(s => s.id === lesson.studentId);
-        return total + (student?.price || 0);
-      }, 0)
-    });
+        const hours = differenceInHours(new Date(lesson.end), new Date(lesson.start));
+        return total + (student?.price || 0) * hours;
+      }, 0);
+
+      return { hours: totalHours, earnings: totalEarnings };
+    };
 
     const weeklyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'weekly');
     const monthlyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'monthly');
