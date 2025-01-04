@@ -12,7 +12,7 @@ import SideMenu from "@/components/Layout/SideMenu";
 export default function SettingsPage() {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-gray-50">
         <Sidebar>
           <SidebarContent className="p-4">
             <SideMenu />

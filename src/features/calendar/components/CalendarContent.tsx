@@ -33,24 +33,14 @@ export default function CalendarContent({
     students,
   };
 
-  const renderView = () => {
-    const commonClasses = "rounded-lg border border-border bg-background";
-    
-    switch (currentView) {
-      case "day":
-        return <div className={commonClasses}><DayView {...viewProps} /></div>;
-      case "week":
-        return <div className={commonClasses}><WeekView {...viewProps} /></div>;
-      case "year":
-        return <div className={commonClasses}><YearView {...viewProps} /></div>;
-      default:
-        return <div className={commonClasses}><MonthView {...viewProps} /></div>;
-    }
-  };
-
-  return (
-    <div className="w-full h-full">
-      {renderView()}
-    </div>
-  );
+  switch (currentView) {
+    case "day":
+      return <DayView {...viewProps} />;
+    case "week":
+      return <WeekView {...viewProps} />;
+    case "year":
+      return <YearView {...viewProps} />;
+    default:
+      return <MonthView {...viewProps} />;
+  }
 }

@@ -5,8 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { ThemeProvider } from "@/components/theme-provider";
-import { DragDropContext } from "@hello-pangea/dnd";
 import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -41,51 +39,42 @@ const pageTransition = {
 const AnimatedRoutes = () => {
   const location = useLocation();
   
-  const handleDragEnd = () => {
-    // This is a no-op function to satisfy the DragDropContext requirement
-    // The actual drag end handlers are implemented in the individual components
-  };
-  
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={location.pathname}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          variants={pageVariants}
-          transition={pageTransition}
-          className="w-full h-screen overflow-hidden bg-background"
-        >
-          <Routes location={location}>
-            <Route path="/" element={<CalendarPage />} />
-            <Route path="/students" element={<StudentsManagementPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Routes>
-        </motion.div>
-      </AnimatePresence>
-    </DragDropContext>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={pageVariants}
+        transition={pageTransition}
+        className="w-full h-screen overflow-hidden"
+      >
+        <Routes location={location}>
+          <Route path="/" element={<CalendarPage />} />
+          <Route path="/students" element={<StudentsManagementPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <SidebarProvider>
-          <div className="overflow-hidden min-h-screen flex w-full bg-background">
-            <Toaster />
-            <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
-            <BrowserRouter>
-              <AnimatedRoutes />
-            </BrowserRouter>
-          </div>
-        </SidebarProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ThemeProvider>
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <SidebarProvider>
+        <div className="overflow-hidden min-h-screen flex w-full">
+          <Toaster />
+          <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </div>
+      </SidebarProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
 );
 
 export default App;

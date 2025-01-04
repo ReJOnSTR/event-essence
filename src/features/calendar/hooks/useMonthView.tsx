@@ -29,7 +29,7 @@ export function useMonthView(date: Date, events: CalendarEvent[]) {
     
     return [...prefixDays, ...days, ...suffixDays].map(dayDate => ({
       date: dayDate,
-      isCurrentMonth: dayDate.getMonth() === currentDate.getMonth(),
+      isCurrentMonth: true,
       lessons: events.filter(event => {
         const eventStart = new Date(event.start);
         return eventStart.toDateString() === dayDate.toDateString();
@@ -50,6 +50,7 @@ export function useMonthView(date: Date, events: CalendarEvent[]) {
 
     const dayOfWeek = clickedDate.getDay();
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const workingHours = getWorkingHours();
     const daySettings = workingHours[days[dayOfWeek]];
     
     if (!daySettings?.enabled) {
@@ -62,7 +63,7 @@ export function useMonthView(date: Date, events: CalendarEvent[]) {
     }
 
     return clickedDate;
-  }, [allowWorkOnHolidays, toast, workingHours]);
+  }, [allowWorkOnHolidays, toast]);
 
   return {
     getDaysInMonth,

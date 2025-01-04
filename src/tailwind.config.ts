@@ -19,6 +19,7 @@ export default {
     },
     extend: {
       colors: {
+        // Google Calendar renkleri
         "calendar-blue": {
           DEFAULT: "#1a73e8",
           dark: "#60a5fa"
@@ -33,12 +34,13 @@ export default {
         },
         "calendar-border": {
           DEFAULT: "#dadce0",
-          dark: "#1e293b"
+          dark: "#374151"
         },
         "calendar-event": {
           DEFAULT: "#039be5",
           dark: "#38bdf8"
         },
+        // Diğer renkler
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
