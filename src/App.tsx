@@ -18,24 +18,21 @@ const pageVariants = {
   initial: {
     opacity: 0,
     x: -10,
-    scale: 0.99
   },
   animate: {
     opacity: 1,
     x: 0,
-    scale: 1
   },
   exit: {
     opacity: 0,
     x: 10,
-    scale: 0.99
   }
 };
 
 const pageTransition = {
   type: "tween",
-  ease: "easeOut",
-  duration: 0.15
+  ease: [0.25, 0.1, 0.25, 1],
+  duration: 0.3
 };
 
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
@@ -56,7 +53,10 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         variants={pageVariants}
         transition={pageTransition}
         className="w-full h-full"
-        style={{ marginTop: headerHeight }}
+        style={{ 
+          marginTop: headerHeight,
+          transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
+        }}
       >
         <Routes location={location}>
           <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />

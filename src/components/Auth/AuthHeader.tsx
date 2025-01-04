@@ -58,15 +58,18 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
           animate={{ 
             y: 0, 
             opacity: 1,
-            height: isVisible ? "8rem" : "2rem"
+            height: isVisible ? "8rem" : "2rem",
+            transition: {
+              height: {
+                duration: 0.3,
+                ease: [0.25, 0.1, 0.25, 1]
+              }
+            }
           }}
           exit={{ y: -100, opacity: 0 }}
           transition={{ 
-            type: "spring",
-            stiffness: 260,
-            damping: 20,
-            mass: 0.8,
-            velocity: 2
+            duration: 0.3,
+            ease: [0.25, 0.1, 0.25, 1]
           }}
           className="w-full bg-background border-b fixed top-0 z-50"
         >
@@ -79,9 +82,8 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 25
+                    duration: 0.3,
+                    ease: [0.25, 0.1, 0.25, 1]
                   }}
                 >
                   <div className="flex gap-4">
@@ -99,13 +101,15 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
             </AnimatePresence>
           </div>
 
-          {/* Toggle Button */}
           <motion.div 
             className="absolute left-1/2 -bottom-6 -translate-x-1/2 z-50"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ delay: 0.2 }}
+            transition={{ 
+              duration: 0.3,
+              ease: [0.25, 0.1, 0.25, 1]
+            }}
           >
             <Button
               variant="outline"
@@ -117,7 +121,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                 className="h-6 w-6" 
                 style={{ 
                   transform: isVisible ? 'rotate(0deg)' : 'rotate(180deg)',
-                  transition: 'transform 0.3s ease'
+                  transition: 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
                 }}
               />
             </Button>
