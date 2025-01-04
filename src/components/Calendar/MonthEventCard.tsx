@@ -13,6 +13,12 @@ interface EventCardProps {
 export default function MonthEventCard({ event, students, index, onClick }: EventCardProps) {
   const student = students?.find(s => s.id === event.studentId);
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClick?.(event);
+  };
+
   const content = (provided?: any, snapshot?: any) => (
     <div
       ref={provided?.innerRef}
@@ -25,7 +31,7 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
         backgroundColor: student?.color || "#039be5",
         ...(provided?.draggableProps?.style || {})
       }}
-      onClick={() => onClick?.(event)}
+      onClick={handleClick}
     >
       <div className="flex items-center gap-1">
         <span className="font-medium truncate">
