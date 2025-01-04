@@ -12,8 +12,7 @@ export function HolidaySettings() {
   });
   
   const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    const savedSetting = localStorage.getItem('allowWorkOnHolidays');
-    return savedSetting === null ? true : savedSetting === 'true';
+    return localStorage.getItem('allowWorkOnHolidays') === 'true';
   });
 
   const { toast } = useToast();

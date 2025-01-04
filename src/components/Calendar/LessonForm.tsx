@@ -25,14 +25,8 @@ export default function LessonForm({
   onClose
 }: LessonFormProps) {
   const [description, setDescription] = useState(selectedLesson?.description || "");
-  const [startTime, setStartTime] = useState(selectedLesson ? 
-    new Date(selectedLesson.start).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', hour12: false }) : 
-    "09:00"
-  );
-  const [endTime, setEndTime] = useState(selectedLesson ? 
-    new Date(selectedLesson.end).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', hour12: false }) : 
-    "10:00"
-  );
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("10:00");
   const [selectedStudentId, setSelectedStudentId] = useState<string>(selectedLesson?.studentId || "");
 
   const handleSubmit = (e: React.FormEvent) => {
