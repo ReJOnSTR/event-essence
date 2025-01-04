@@ -4,7 +4,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { Slider } from "@/components/ui/slider";
+import { useTheme } from "@/components/theme-provider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Theme = {
@@ -24,11 +24,32 @@ const themes: Theme[] = [
     description: "Klasik açık tema"
   },
   {
+    id: "dark",
+    name: "Koyu Tema",
+    class: "dark",
+    preview: "bg-[#020817]",
+    description: "Klasik koyu tema"
+  },
+  {
     id: "sunset",
     name: "Gün Batımı",
     class: "sunset",
     preview: "bg-gradient-to-r from-[#ee9ca7] to-[#ffdde1]",
     description: "Sıcak ve romantik pembe tonları"
+  },
+  {
+    id: "sunset-dark",
+    name: "Gün Batımı (Karanlık)",
+    class: "sunset-dark",
+    preview: "bg-gradient-to-r from-[#614155] to-[#614155]",
+    description: "Gün batımının karanlık versiyonu"
+  },
+  {
+    id: "system",
+    name: "Sistem Teması",
+    class: "system",
+    preview: "bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900",
+    description: "Sistem ayarlarınıza göre otomatik değişir"
   }
 ];
 
@@ -54,10 +75,7 @@ const fontFamilies = [
 ];
 
 export default function ThemeSettings() {
-  const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
-  });
-  
+  const { theme, setTheme } = useTheme();
   const [fontSize, setFontSize] = useState(() => {
     return localStorage.getItem("fontSize") || "medium";
   });
@@ -69,13 +87,6 @@ export default function ThemeSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Remove all theme classes
-    document.documentElement.classList.remove(...themes.map(t => t.class));
-    // Add selected theme class
-    document.documentElement.classList.add(currentTheme);
-    // Save to localStorage
-    localStorage.setItem("theme", currentTheme);
-    
     // Apply font size
     document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
     document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
@@ -92,7 +103,7 @@ export default function ThemeSettings() {
       title: "Görünüm ayarları güncellendi",
       description: "Yeni ayarlarınız kaydedildi.",
     });
-  }, [currentTheme, fontSize, fontFamily, toast]);
+  }, [fontSize, fontFamily, toast]);
 
   return (
     <Card className="border shadow-sm">
@@ -103,8 +114,8 @@ export default function ThemeSettings() {
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Tema</h3>
           <RadioGroup
-            value={currentTheme}
-            onValueChange={setCurrentTheme}
+            value={theme}
+            onValueChange={(value) => setTheme(value as Theme)}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {themes.map((theme) => (
@@ -112,7 +123,7 @@ export default function ThemeSettings() {
                 key={theme.id} 
                 className={cn(
                   "relative flex items-center space-x-2 rounded-lg border-2 p-4 cursor-pointer transition-all",
-                  currentTheme === theme.id ? "border-primary" : "border-transparent hover:border-muted"
+                  theme.id === theme ? "border-primary" : "border-transparent hover:border-muted"
                 )}
               >
                 <RadioGroupItem value={theme.id} id={theme.id} className="sr-only" />
