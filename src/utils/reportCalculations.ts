@@ -63,9 +63,9 @@ export const filterLessons = (
 
   return lessons
     .filter(lesson => {
-      const lessonStart = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
+      const lessonStart = new Date(lesson.start);
       return (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
-             isWithinInterval(lessonStart, range);
+             isWithinInterval(lessonStart, { start: range.start, end: range.end });
     })
     .sort((a, b) => {
       const dateA = new Date(a.start);
