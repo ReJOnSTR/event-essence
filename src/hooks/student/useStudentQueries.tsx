@@ -1,21 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useStudentQueries() {
   const { toast } = useToast();
 
-  const getStudents = (): Student[] => {
+  const getStudents = async (): Promise<Student[]> => {
     try {
-      const savedStudents = localStorage.getItem('students');
-      if (!savedStudents) return [];
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .order('name');
       
-      const parsedStudents = JSON.parse(savedStudents);
-      if (!Array.isArray(parsedStudents)) {
-        throw new Error('Invalid students data format');
-      }
+      if (error) throw error;
       
-      return parsedStudents;
+      return data.map(student => ({
+        id: student.id,
+        name: student.name,
+        color: student.color || undefined,
+        price: Number(student.price)
+      }));
     } catch (error) {
       console.error('Error loading students:', error);
       toast({
@@ -30,8 +35,6 @@ export function useStudentQueries() {
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
     queryFn: getStudents,
-    staleTime: 1000 * 60,
-    gcTime: 1000 * 60 * 5,
   });
 
   return {
