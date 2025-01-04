@@ -6,7 +6,7 @@ import { useStudents } from "@/hooks/useStudents";
 import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import SideMenu from "@/components/Layout/SideMenu";
 
 export default function StudentsManagementPage() {
@@ -46,10 +46,10 @@ export default function StudentsManagementPage() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen flex w-full bg-background font-sans">
         <Sidebar>
-          <SidebarContent>
+          <SidebarContent className="p-4">
             <SideMenu 
               onAddStudent={() => setIsDialogOpen(true)}
               onEdit={handleEditStudent}
@@ -57,20 +57,21 @@ export default function StudentsManagementPage() {
           </SidebarContent>
         </Sidebar>
         
-        <SidebarInset>
-          <PageHeader
-            title="Öğrenci Yönetimi"
-            backTo="/"
-            backLabel="Takvime Dön"
-            actions={
+        <div className="flex-1 flex flex-col h-screen overflow-hidden">
+          <div className="flex items-center gap-2 md:gap-4 p-2 md:p-4 border-b bg-background">
+            <SidebarTrigger />
+            <h1 className="text-lg md:text-2xl font-semibold text-foreground truncate">
+              Öğrenci Yönetimi
+            </h1>
+            <div className="ml-auto">
               <Button onClick={() => setIsDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Öğrenci Ekle
               </Button>
-            }
-          />
+            </div>
+          </div>
 
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-auto">
             {students.map((student) => (
               <StudentCard
                 key={student.id}
@@ -93,7 +94,7 @@ export default function StudentsManagementPage() {
             studentColor={studentColor}
             setStudentColor={setStudentColor}
           />
-        </SidebarInset>
+        </div>
       </div>
     </SidebarProvider>
   );

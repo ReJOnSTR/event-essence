@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { useState } from "react";
-import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { ReportFilters } from "@/components/Reports/ReportFilters";
 import { StatsCards } from "@/components/Reports/StatsCards";
 import { LessonList } from "@/components/Reports/LessonList";
@@ -46,22 +46,23 @@ export default function ReportsPage() {
     : earnings[selectedPeriod];
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+    <SidebarProvider defaultOpen={true}>
+      <div className="min-h-screen flex w-full bg-background font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
             <SideMenu />
           </SidebarContent>
         </Sidebar>
         
-        <div className="flex-1 flex flex-col">
-          <PageHeader
-            title="Raporlar"
-            backTo="/"
-            backLabel="Takvime Dön"
-          />
+        <div className="flex-1 flex flex-col h-screen overflow-hidden">
+          <div className="flex items-center gap-2 md:gap-4 p-2 md:p-4 border-b bg-background">
+            <SidebarTrigger />
+            <h1 className="text-lg md:text-2xl font-semibold text-foreground truncate">
+              Raporlar
+            </h1>
+          </div>
 
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-4 overflow-auto">
             <ReportFilters
               selectedStudent={selectedStudent}
               setSelectedStudent={setSelectedStudent}
