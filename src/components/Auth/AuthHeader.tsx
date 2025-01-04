@@ -62,10 +62,19 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
       {(isVisible || isPartiallyOpen) && (
         <motion.div
           ref={headerRef}
-          initial={{ height: 0 }}
-          animate={{ height: isVisible ? "8rem" : "2rem" }}
-          exit={{ height: 0 }}
-          transition={{ duration: 0.3 }}
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ 
+            y: 0, 
+            opacity: 1,
+            height: isVisible ? "8rem" : "2rem"
+          }}
+          exit={{ y: -100, opacity: 0 }}
+          transition={{ 
+            duration: 0.3,
+            type: "spring",
+            stiffness: 260,
+            damping: 20
+          }}
           className="w-full bg-background border-b fixed top-0 z-50"
           onMouseEnter={handleMouseEnter}
         >
