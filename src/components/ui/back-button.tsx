@@ -13,16 +13,12 @@ export function BackButton({ to, label = "Geri Dön", className }: BackButtonPro
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleBack = () => {
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
-      navigate(to || "/");
-    }
-  };
+  // Only show back button if we're not on the calendar page and not going somewhere specific
+  if (location.pathname === "/" || to) return null;
 
-  // Don't show back button on home page
-  if (location.pathname === "/") return null;
+  const handleBack = () => {
+    navigate("/");
+  };
 
   return (
     <Button
