@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Student } from "@/types/calendar";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
 export function useStudentMutations() {
@@ -8,86 +8,85 @@ export function useStudentMutations() {
   const { toast } = useToast();
 
   const saveStudent = async (student: Student) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .upsert({
+          id: student.id,
+          name: student.name,
+          color: student.color,
+          price: student.price
+        })
+        .select()
+        .maybeSingle();
 
-    if (!user) {
-      throw new Error("User not authenticated");
-    }
+      if (error) {
+        console.error('Error saving student:', error);
+        throw error;
+      }
 
-    const { data, error } = await supabase
-      .from("students")
-      .upsert({
-        id: student.id,
-        name: student.name,
-        color: student.color,
-        price: student.price,
-        user_id: user.id
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error saving student:", error);
-      throw error;
-    }
-
-    return data;
-  };
-
-  const deleteStudent = async (studentId: string) => {
-    const { error } = await supabase
-      .from("students")
-      .delete()
-      .eq("id", studentId);
-
-    if (error) {
-      console.error("Error deleting student:", error);
+      return data;
+    } catch (error: any) {
+      console.error('Error saving student:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       throw error;
     }
   };
 
-  const saveMutation = useMutation({
+  const { mutateAsync: saveMutation } = useMutation({
     mutationFn: saveStudent,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ['students'] });
       toast({
         title: "Başarılı",
         description: "Öğrenci kaydedildi.",
       });
     },
     onError: (error: any) => {
-      console.error("Error saving student:", error);
       toast({
-        variant: "destructive",
         title: "Hata",
-        description: "Öğrenci kaydedilirken bir hata oluştu.",
+        description: "Öğrenci kaydedilemedi: " + error.message,
+        variant: "destructive",
       });
     },
   });
 
-  const deleteMutation = useMutation({
+  const deleteStudent = async (studentId: string) => {
+    const { error } = await supabase
+      .from('students')
+      .delete()
+      .eq('id', studentId);
+
+    if (error) {
+      console.error('Error deleting student:', error);
+      throw error;
+    }
+  };
+
+  const { mutateAsync: deleteMutation } = useMutation({
     mutationFn: deleteStudent,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ['students'] });
       toast({
         title: "Başarılı",
         description: "Öğrenci silindi.",
       });
     },
     onError: (error: any) => {
-      console.error("Error deleting student:", error);
       toast({
-        variant: "destructive",
         title: "Hata",
-        description: "Öğrenci silinirken bir hata oluştu.",
+        description: "Öğrenci silinemedi: " + error.message,
+        variant: "destructive",
       });
     },
   });
 
   return {
-    saveStudent: saveMutation.mutate,
-    deleteStudent: deleteMutation.mutate,
+    saveStudent: saveMutation,
+    deleteStudent: deleteMutation,
   };
 }
