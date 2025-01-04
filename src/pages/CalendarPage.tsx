@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useCalendarStore } from "@/store/calendarStore";
+import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
 import { CalendarEvent } from "@/types/calendar";
@@ -150,7 +150,7 @@ export default function CalendarPage() {
           <CalendarPageHeader
             date={selectedDate}
             currentView={currentView}
-            onViewChange={(view) => setCurrentView(view)}
+            onViewChange={(view: ViewType) => setCurrentView(view)}
             onPrevious={handleNavigationClick('prev', currentView)}
             onNext={handleNavigationClick('next', currentView)}
             onToday={handleTodayClick}
