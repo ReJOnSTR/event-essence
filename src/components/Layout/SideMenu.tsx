@@ -14,7 +14,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useStudents } from "@/hooks/useStudents";
-import { useToast } from "@/hooks/use-toast";
 
 interface SideMenuProps {
   onAddStudent?: () => void;
@@ -27,26 +26,9 @@ export default function SideMenu({
 }: SideMenuProps) {
   const { students } = useStudents();
   const location = useLocation();
-  const { toast } = useToast();
 
   const isActive = (path: string) => {
     return location.pathname === path;
-  };
-
-  const handleAddStudent = () => {
-    if (!onAddStudent) return;
-
-    const currentStudents = students.filter(s => !s.name.trim());
-    if (currentStudents.length > 0) {
-      toast({
-        title: "Hata",
-        description: "İsimsiz öğrenci ekleyemezsiniz.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    onAddStudent();
   };
 
   const menuItems = [
@@ -81,7 +63,7 @@ export default function SideMenu({
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton 
-                onClick={handleAddStudent}
+                onClick={onAddStudent}
                 className="w-full hover:bg-accent rounded-md transition-colors"
               >
                 <Plus className="h-4 w-4" />
