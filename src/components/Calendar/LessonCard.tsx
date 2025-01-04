@@ -62,6 +62,8 @@ export default function LessonCard({
           </div>
           <div className="text-xs whitespace-nowrap">
             {format(event.start, "HH:mm", { locale: tr })}
+            <span className="mx-0.5">-</span>
+            {format(event.end, "HH:mm", { locale: tr })}
           </div>
         </>
       ) : (
