@@ -9,7 +9,6 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
-import AuthPage from "./pages/AuthPage";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -38,17 +37,6 @@ const pageTransition = {
   duration: 0.15
 };
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
-  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
-  }
-
-  return <>{children}</>;
-};
-
 const AnimatedRoutes = () => {
   const location = useLocation();
   
@@ -69,39 +57,10 @@ const AnimatedRoutes = () => {
         className="w-full h-full"
       >
         <Routes location={location}>
-          <Route path="/auth" element={<AuthPage />} />
-          <Route
-            path="/calendar"
-            element={
-              <PrivateRoute>
-                <CalendarPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/students"
-            element={
-              <PrivateRoute>
-                <StudentsManagementPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <PrivateRoute>
-                <ReportsPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <PrivateRoute>
-                <SettingsPage />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/students" element={<StudentsManagementPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
       </motion.div>
