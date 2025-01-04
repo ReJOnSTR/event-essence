@@ -42,7 +42,7 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
   return (
     <div className="w-full">
       <Tabs value={currentView} className="w-full">
-        <TabsList className="inline-flex h-10 w-full justify-start rounded-lg bg-black p-1 text-muted-foreground shadow-sm">
+        <TabsList className="inline-flex h-10 w-full justify-start rounded-lg bg-[#1A1F2C] p-1 text-muted-foreground shadow-md">
           <AnimatePresence mode="wait">
             {views.map((view) => (
               <motion.div
@@ -58,8 +58,8 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
                   onClick={() => onViewChange(view.id)}
                   className={`
                     relative w-full rounded-md px-3 py-1.5 text-sm font-medium transition-all
-                    hover:bg-white/5 hover:text-foreground
-                    data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm
+                    hover:bg-[#222222]/80 hover:text-white
+                    data-[state=active]:bg-[#333333] data-[state=active]:text-white data-[state=active]:shadow-sm
                   `}
                 >
                   {view.label}
