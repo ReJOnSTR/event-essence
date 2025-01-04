@@ -1,5 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ViewSelectorProps {
   currentView: string;
@@ -14,15 +15,17 @@ const tabVariants = {
 };
 
 export default function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
+  const isMobile = useIsMobile();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, type: "tween" }}
-      className="w-full bg-white rounded-lg shadow-sm p-2"
+      className="w-full bg-white rounded-lg shadow-sm p-1 md:p-2 sticky top-0 z-10"
     >
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-2 p-1">
+        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2 p-1">
           {["day", "week", "month", "year"].map((view, index) => (
             <motion.div
               key={view}
@@ -37,12 +40,12 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
               <TabsTrigger 
                 value={view} 
                 onClick={() => onViewChange(view)}
-                className="w-full relative data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="w-full relative text-xs md:text-sm py-1.5 md:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                {view === "day" && "Günlük"}
-                {view === "week" && "Haftalık"}
-                {view === "month" && "Aylık"}
-                {view === "year" && "Yıllık"}
+                {view === "day" && (isMobile ? "Gün" : "Günlük")}
+                {view === "week" && (isMobile ? "Hafta" : "Haftalık")}
+                {view === "month" && (isMobile ? "Ay" : "Aylık")}
+                {view === "year" && (isMobile ? "Yıl" : "Yıllık")}
                 {currentView === view && (
                   <motion.div
                     layoutId="activeTab"

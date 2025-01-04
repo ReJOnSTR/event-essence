@@ -4,6 +4,7 @@ import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import ViewSelector from "./ViewSelector";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CalendarPageHeaderProps {
   date: Date;
@@ -22,7 +23,24 @@ export default function CalendarPageHeader({
   onNext,
   onToday
 }: CalendarPageHeaderProps) {
+  const isMobile = useIsMobile();
+
   const getDateFormat = () => {
+    if (isMobile) {
+      switch (currentView) {
+        case 'day':
+          return "d MMM EEE";
+        case 'week':
+          return "MMM yyyy";
+        case 'month':
+          return "MMM yyyy";
+        case 'year':
+          return "yyyy";
+        default:
+          return "MMM yyyy";
+      }
+    }
+
     switch (currentView) {
       case 'day':
         return "d MMMM yyyy, EEEE";
@@ -38,40 +56,41 @@ export default function CalendarPageHeader({
   };
 
   return (
-    <div className="p-4 border-b bg-white sticky top-0 z-10">
+    <div className="p-2 md:p-4 border-b bg-white sticky top-0 z-10">
       <ViewSelector
         currentView={currentView}
         onViewChange={onViewChange}
       />
       
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center gap-4">
+      <div className="flex justify-between items-center mt-2 md:mt-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <h1 className={cn(
-            "text-2xl font-semibold",
+            "text-lg md:text-2xl font-semibold truncate",
             currentView === 'day' && isToday(date) ? "text-calendar-blue" : "text-gray-900"
           )}>
             {format(date, getDateFormat(), { locale: tr })}
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1 md:gap-2">
           <Button 
             variant="outline" 
-            size="icon" 
+            size={isMobile ? "sm" : "icon"} 
             onClick={onPrevious}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button 
             variant="outline"
+            size={isMobile ? "sm" : "default"}
             onClick={onToday}
-            className="flex gap-2 items-center"
+            className="flex gap-1 md:gap-2 items-center whitespace-nowrap"
           >
             <CalendarDays className="h-4 w-4" />
-            Bugün
+            {!isMobile && "Bugün"}
           </Button>
           <Button 
             variant="outline" 
-            size="icon" 
+            size={isMobile ? "sm" : "icon"} 
             onClick={onNext}
           >
             <ChevronRight className="h-4 w-4" />

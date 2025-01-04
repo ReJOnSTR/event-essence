@@ -198,7 +198,7 @@ export default function CalendarPage() {
   };
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full bg-gray-50 font-sans">
         <Sidebar>
           <SidebarContent className="p-4">
@@ -210,17 +210,21 @@ export default function CalendarPage() {
         </Sidebar>
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          <div className="flex items-center gap-4 p-4 border-b bg-white">
+          <div className="flex items-center gap-2 md:gap-4 p-2 md:p-4 border-b bg-white">
             <SidebarTrigger />
-            <h1 className="text-2xl font-semibold text-gray-900">Özel Ders Takip</h1>
-            <div className="ml-auto flex items-center gap-2">
+            <h1 className="text-lg md:text-2xl font-semibold text-gray-900 truncate">Özel Ders Takip</h1>
+            <div className="ml-auto flex items-center gap-1 md:gap-2">
               <WeeklySchedulePdf lessons={lessons} students={students} />
-              <Button onClick={() => {
-                setSelectedLesson(undefined);
-                setIsDialogOpen(true);
-              }}>
-                <Plus className="h-4 w-4 mr-2" />
-                Ders Ekle
+              <Button 
+                size="sm"
+                onClick={() => {
+                  setSelectedLesson(undefined);
+                  setIsDialogOpen(true);
+                }}
+              >
+                <Plus className="h-4 w-4 mr-1 md:mr-2" />
+                <span className="hidden md:inline">Ders Ekle</span>
+                <span className="md:hidden">Ekle</span>
               </Button>
             </div>
           </div>
@@ -235,7 +239,7 @@ export default function CalendarPage() {
           />
           
           <div className="flex-1 overflow-auto">
-            <div className="p-4">
+            <div className="p-2 md:p-4">
               {renderView()}
             </div>
           </div>
