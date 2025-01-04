@@ -36,11 +36,18 @@ export default function MonthCell({
           ref={provided.innerRef}
           {...provided.droppableProps}
           initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            backgroundColor: snapshot.isDraggingOver ? "rgb(var(--accent) / 0.5)" : "",
+            scale: snapshot.isDraggingOver ? 1.01 : 1,
+          }}
           transition={{ 
-            duration: 0.15,
+            duration: 0.2,
             delay: idx * 0.01,
-            ease: [0.23, 1, 0.32, 1]
+            type: "spring",
+            stiffness: 300,
+            damping: 30
           }}
           onClick={() => handleDateClick(day.date)}
           className={cn(
@@ -48,8 +55,7 @@ export default function MonthCell({
             !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
             isToday(day.date) && "bg-accent text-accent-foreground",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-            holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-            snapshot.isDraggingOver && "bg-accent/50"
+            holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
           )}
         >
           <div className={cn(
