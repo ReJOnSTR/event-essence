@@ -1,5 +1,6 @@
-import { format, isToday, isHoliday } from "date-fns";
+import { format, isToday, startOfWeek, addDays } from "date-fns";
 import { tr } from 'date-fns/locale';
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isHoliday } from "@/utils/turkishHolidays";
