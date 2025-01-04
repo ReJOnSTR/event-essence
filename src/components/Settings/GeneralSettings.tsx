@@ -7,14 +7,16 @@ import { useToast } from "@/components/ui/use-toast";
 import { getDefaultLessonDuration, setDefaultLessonDuration } from "@/utils/settings";
 
 export default function GeneralSettings() {
-  const [defaultDuration, setDefaultDuration] = useState(() => getDefaultLessonDuration());
+  const [defaultDuration, setDefaultDuration] = useState(() => getDefaultLessonDuration().toString());
   const { toast } = useToast();
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (value > 0) {
-      setDefaultDuration(value);
-      setDefaultLessonDuration(value);
+    const value = e.target.value;
+    setDefaultDuration(value);
+    
+    const numericValue = parseInt(value);
+    if (numericValue > 0) {
+      setDefaultLessonDuration(numericValue);
       toast({
         title: "Ayarlar güncellendi",
         description: "Varsayılan ders süresi başarıyla kaydedildi.",
