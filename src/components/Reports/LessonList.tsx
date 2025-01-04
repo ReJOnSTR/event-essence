@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getFilteredLessons } from "@/utils/reportCalculations";
+import { useFilteredLessons } from "@/utils/reportCalculations";
 
 interface LessonListProps {
   lessons: Lesson[];
@@ -30,13 +30,12 @@ export function LessonList({
   startDate,
   endDate,
 }: LessonListProps) {
-  const filteredLessons = getFilteredLessons(
+  const filteredLessons = useFilteredLessons(
     lessons, 
     selectedDate, 
     selectedStudent, 
     selectedPeriod,
-    startDate,
-    endDate
+    startDate && endDate ? { start: startDate, end: endDate } : undefined
   );
 
   const getStudentName = (studentId: string | undefined) => {

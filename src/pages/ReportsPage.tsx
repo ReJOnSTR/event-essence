@@ -6,8 +6,8 @@ import { LessonList } from "@/components/Reports/LessonList";
 import { PdfReport } from "@/components/Reports/PdfReport";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
+import { useCalculatePeriodHours, useCalculatePeriodEarnings } from "@/utils/reportCalculations";
 import SideMenu from "@/components/Layout/SideMenu";
-import { calculatePeriodHours, calculatePeriodEarnings } from "@/utils/reportCalculations";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
 
@@ -41,7 +41,7 @@ export default function ReportsPage() {
     setIsDialogOpen(false);
   };
 
-  const hours = calculatePeriodHours(
+  const hours = useCalculatePeriodHours(
     lessons || [],
     selectedDate,
     selectedStudent,
@@ -49,7 +49,7 @@ export default function ReportsPage() {
     endDate
   );
 
-  const earnings = calculatePeriodEarnings(
+  const earnings = useCalculatePeriodEarnings(
     lessons || [],
     selectedDate,
     selectedStudent,
