@@ -87,7 +87,6 @@ export default function ThemeSettings() {
 
     handleThemeChange();
 
-    // Sistem teması değişikliğini dinle
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", handleThemeChange);
 
@@ -114,6 +113,10 @@ export default function ThemeSettings() {
     };
   }, [currentTheme, fontSize, fontFamily, toast]);
 
+  const handleThemeChange = (newTheme: string) => {
+    setCurrentTheme(newTheme);
+  };
+
   return (
     <Card className="border shadow-sm">
       <CardHeader>
@@ -124,7 +127,7 @@ export default function ThemeSettings() {
           <h3 className="text-lg font-medium">Tema</h3>
           <RadioGroup
             value={currentTheme}
-            onValueChange={setCurrentTheme}
+            onValueChange={handleThemeChange}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {themes.map((theme) => (
