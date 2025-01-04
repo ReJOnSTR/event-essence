@@ -3,7 +3,7 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -41,13 +41,25 @@ export default function LessonCard({
   };
 
   const content = (provided?: any, snapshot?: any) => (
-    <div
+    <motion.div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
+      initial={{ scale: 1, opacity: 1 }}
+      animate={{ 
+        scale: snapshot?.isDragging ? 1.02 : 1,
+        opacity: snapshot?.isDragging ? 0.9 : 1,
+        boxShadow: snapshot?.isDragging 
+          ? "0 8px 20px rgba(0,0,0,0.12)" 
+          : "0 2px 4px rgba(0,0,0,0.05)"
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }}
       className={cn(
-        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer transition-all duration-200",
-        snapshot?.isDragging ? "shadow-lg opacity-90 scale-[1.02] z-50" : "shadow-sm hover:brightness-95",
+        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer",
         isCompact ? "flex items-center justify-between gap-1" : ""
       )}
       style={{
@@ -59,37 +71,40 @@ export default function LessonCard({
       }}
       onClick={handleClick}
     >
-      <motion.div 
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        className={cn("w-full", isCompact ? "flex items-center justify-between gap-1" : "space-y-0.5")}
-      >
-        {isCompact ? (
-          <>
-            <div className="font-medium text-xs truncate flex-1">
-              {student?.name || "İsimsiz Öğrenci"}
-            </div>
-            <div className="text-xs whitespace-nowrap">
-              {format(event.start, "HH:mm", { locale: tr })}
-              <span className="mx-0.5">-</span>
-              {format(event.end, "HH:mm", { locale: tr })}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="font-medium text-[13px] leading-tight md:text-sm">
-              {student?.name || "İsimsiz Öğrenci"}
-            </div>
-            <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90">
-              <span>{format(event.start, "HH:mm", { locale: tr })}</span>
-              <span className="text-white/90">-</span>
-              <span>{format(event.end, "HH:mm", { locale: tr })}</span>
-            </div>
-          </>
-        )}
-      </motion.div>
-    </div>
+      <AnimatePresence>
+        <motion.div 
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.2 }}
+          className={cn("w-full", isCompact ? "flex items-center justify-between gap-1" : "space-y-0.5")}
+        >
+          {isCompact ? (
+            <>
+              <div className="font-medium text-xs truncate flex-1">
+                {student?.name || "İsimsiz Öğrenci"}
+              </div>
+              <div className="text-xs whitespace-nowrap">
+                {format(event.start, "HH:mm", { locale: tr })}
+                <span className="mx-0.5">-</span>
+                {format(event.end, "HH:mm", { locale: tr })}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="font-medium text-[13px] leading-tight md:text-sm">
+                {student?.name || "İsimsiz Öğrenci"}
+              </div>
+              <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90">
+                <span>{format(event.start, "HH:mm", { locale: tr })}</span>
+                <span className="text-white/90">-</span>
+                <span>{format(event.end, "HH:mm", { locale: tr })}</span>
+              </div>
+            </>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
   );
 
   if (!isDraggable) {
