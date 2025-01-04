@@ -1,6 +1,7 @@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 const themes = [
   {
@@ -32,6 +33,28 @@ interface ThemeOptionsProps {
 }
 
 export function ThemeOptions({ currentTheme, onThemeChange }: ThemeOptionsProps) {
+  const [systemTheme, setSystemTheme] = useState<string>(() => {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      setSystemTheme(e.matches ? "dark" : "light");
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  const getThemePreview = (themeId: string) => {
+    if (themeId === "system") {
+      return systemTheme === "dark" ? "bg-[#1A1F2C]" : "bg-[#f8fafc]";
+    }
+    const theme = themes.find(t => t.id === themeId);
+    return theme?.preview || "";
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Tema</h3>
@@ -57,12 +80,19 @@ export function ThemeOptions({ currentTheme, onThemeChange }: ThemeOptionsProps)
                 <div
                   className={cn(
                     "w-10 h-10 rounded-md shadow-sm",
-                    theme.preview
+                    theme.id === "system" ? getThemePreview(theme.id) : theme.preview
                   )}
                 />
                 <div>
                   <div className="font-medium">{theme.name}</div>
-                  <div className="text-sm text-muted-foreground">{theme.description}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {theme.description}
+                    {theme.id === "system" && (
+                      <span className="ml-1">
+                        (Şu an: {systemTheme === "dark" ? "Koyu" : "Açık"})
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </Label>
