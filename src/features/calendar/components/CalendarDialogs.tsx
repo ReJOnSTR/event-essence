@@ -63,7 +63,6 @@ export default function CalendarDialogs({
         onDelete={onDeleteLesson}
         selectedDate={selectedDate}
         event={selectedLesson}
-        events={lessons}
         students={students}
       />
 
