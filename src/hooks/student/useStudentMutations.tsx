@@ -18,9 +18,8 @@ export function useStudentMutations() {
         updated_at: new Date().toISOString()
       };
 
-      let result;
-
       if (student.id) {
+        // Update existing student
         const { data, error } = await supabase
           .from('students')
           .update(studentData)
@@ -33,11 +32,17 @@ export function useStudentMutations() {
           throw new Error(error.message);
         }
 
-        result = data;
+        if (!data) {
+          throw new Error('Student not found');
+        }
+
+        console.log('Updated student:', data);
+        return data;
       } else {
+        // Insert new student
         const { data, error } = await supabase
           .from('students')
-          .insert(studentData)
+          .insert({ ...studentData })
           .select()
           .maybeSingle();
         
@@ -46,15 +51,13 @@ export function useStudentMutations() {
           throw new Error(error.message);
         }
 
-        result = data;
-      }
+        if (!data) {
+          throw new Error('Failed to create student');
+        }
 
-      if (!result) {
-        throw new Error('Failed to save student');
+        console.log('Created student:', data);
+        return data;
       }
-
-      console.log('Saved student:', result);
-      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -76,6 +79,7 @@ export function useStudentMutations() {
   const { mutate: deleteStudent, isPending: isDeleting } = useMutation({
     mutationFn: async (studentId: string) => {
       console.log('Attempting to delete student:', studentId);
+      
       const { error } = await supabase
         .from('students')
         .delete()
@@ -85,6 +89,7 @@ export function useStudentMutations() {
         console.error('Error deleting student:', error);
         throw new Error(error.message);
       }
+      
       console.log('Successfully deleted student:', studentId);
     },
     onSuccess: () => {
