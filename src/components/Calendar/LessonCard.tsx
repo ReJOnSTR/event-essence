@@ -44,7 +44,7 @@ export default function LessonCard({
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm",
+        "text-white p-2 rounded absolute left-1 right-1 overflow-y-auto max-h-full cursor-pointer hover:brightness-90 transition-all shadow-sm scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
         snapshot?.isDragging ? "shadow-lg opacity-70" : "",
         heightInPixels < 40 ? "min-h-[40px] flex flex-col justify-center" : ""
       )}
@@ -54,7 +54,7 @@ export default function LessonCard({
       }}
       onClick={handleClick}
     >
-      <div className="font-medium truncate text-[13px] leading-tight md:text-sm">
+      <div className="font-medium text-[13px] leading-tight md:text-sm">
         {student?.name || "İsimsiz Öğrenci"}
       </div>
       <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90 mt-0.5">
