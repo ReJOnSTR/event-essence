@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { CalendarEvent } from "@/types/calendar";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface LessonRow {
   id: string;
@@ -10,19 +10,23 @@ interface LessonRow {
   start_time: string;
   end_time: string;
   student_id: string | null;
+  user_id: string | null;
 }
 
 export function useCalendarData() {
   const [lessons, setLessons] = useState<CalendarEvent[]>([]);
   const { toast } = useToast();
 
-  // Load data from Supabase
   useEffect(() => {
     const loadLessons = async () => {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
         const { data, error } = await supabase
           .from('lessons')
-          .select('*');
+          .select('*')
+          .eq('user_id', user.id);
 
         if (error) throw error;
 
@@ -30,7 +34,6 @@ export function useCalendarData() {
           id: lesson.id,
           title: lesson.title,
           description: lesson.description || undefined,
-          // Convert UTC dates from database to local timezone
           start: new Date(lesson.start_time),
           end: new Date(lesson.end_time),
           studentId: lesson.student_id || undefined
@@ -49,13 +52,36 @@ export function useCalendarData() {
     };
 
     loadLessons();
+
+    // Subscribe to changes
+    const channel = supabase
+      .channel('lessons_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'lessons' 
+      }, loadLessons)
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, [toast]);
 
   const handleSaveLesson = async (lessonData: Omit<CalendarEvent, "id">) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Hata",
+          description: "Lütfen giriş yapın.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       console.log('Saving lesson with data:', lessonData);
       
-      // Convert local dates to UTC for database storage
       const { data, error } = await supabase
         .from('lessons')
         .insert([{
@@ -63,7 +89,8 @@ export function useCalendarData() {
           description: lessonData.description,
           start_time: lessonData.start.toISOString(),
           end_time: lessonData.end.toISOString(),
-          student_id: lessonData.studentId
+          student_id: lessonData.studentId,
+          user_id: user.id
         }])
         .select()
         .maybeSingle();
@@ -100,6 +127,16 @@ export function useCalendarData() {
 
   const handleUpdateLesson = async (lessonId: string, lessonData: Omit<CalendarEvent, "id">) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Hata",
+          description: "Lütfen giriş yapın.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       console.log('Updating lesson:', lessonId, 'with data:', lessonData);
       
       const { data, error } = await supabase
@@ -109,7 +146,8 @@ export function useCalendarData() {
           description: lessonData.description,
           start_time: lessonData.start.toISOString(),
           end_time: lessonData.end.toISOString(),
-          student_id: lessonData.studentId
+          student_id: lessonData.studentId,
+          user_id: user.id
         })
         .eq('id', lessonId)
         .select()
@@ -147,6 +185,16 @@ export function useCalendarData() {
 
   const handleDeleteLesson = async (lessonId: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Hata",
+          description: "Lütfen giriş yapın.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       console.log('Deleting lesson:', lessonId);
       
       const { error } = await supabase

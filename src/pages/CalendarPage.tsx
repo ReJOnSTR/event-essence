@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { CalendarEvent } from "@/types/calendar";
@@ -10,6 +10,9 @@ import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavi
 import CalendarToolbar from "@/features/calendar/components/CalendarToolbar";
 import CalendarDialogs from "@/features/calendar/components/CalendarDialogs";
 import { useCalendarData } from "@/hooks/useCalendarData";
+import AuthDialog from "@/components/Auth/AuthDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CalendarPage() {
   const {
@@ -21,9 +24,12 @@ export default function CalendarPage() {
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [user, setUser] = useState(supabase.auth.getUser());
+  const { toast } = useToast();
   
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent, deleteStudent } = useStudents();
@@ -36,19 +42,52 @@ export default function CalendarPage() {
     studentColor: "#1a73e8"
   });
 
-  const handleDateSelect = (date: Date) => {
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        setUser(session);
+        setIsAuthDialogOpen(false);
+        toast({
+          title: "Giriş başarılı",
+          description: "Hoş geldiniz!"
+        });
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [toast]);
+
+  const handleDateSelect = async (date: Date) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsAuthDialogOpen(true);
+      return;
+    }
     setSelectedDate(date);
     setSelectedLesson(undefined);
     setIsDialogOpen(true);
   };
 
-  const handleLessonClick = (lesson: CalendarEvent) => {
+  const handleLessonClick = async (lesson: CalendarEvent) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsAuthDialogOpen(true);
+      return;
+    }
     setSelectedLesson(lesson);
     setSelectedDate(lesson.start);
     setIsDialogOpen(true);
   };
 
-  const handleSaveLessonClick = (lessonData: Omit<CalendarEvent, "id">) => {
+  const handleSaveLessonClick = async (lessonData: Omit<CalendarEvent, "id">) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsAuthDialogOpen(true);
+      return;
+    }
+    
     if (selectedLesson) {
       handleUpdateLesson(selectedLesson.id, lessonData);
     } else {
@@ -57,8 +96,22 @@ export default function CalendarPage() {
     setIsDialogOpen(false);
   };
 
-  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+  const handleEventUpdate = async (updatedEvent: CalendarEvent) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsAuthDialogOpen(true);
+      return;
+    }
     handleUpdateLesson(updatedEvent.id, updatedEvent);
+  };
+
+  const handleAddStudent = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsAuthDialogOpen(true);
+      return;
+    }
+    setIsStudentDialogOpen(true);
   };
 
   return (
@@ -67,7 +120,12 @@ export default function CalendarPage() {
         <Sidebar>
           <SidebarContent className="p-4">
             <SideMenu
-              onEdit={(student) => {
+              onEdit={async (student) => {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                  setIsAuthDialogOpen(true);
+                  return;
+                }
                 setStudentDialogState({
                   selectedStudent: student,
                   studentName: student.name,
@@ -76,7 +134,7 @@ export default function CalendarPage() {
                 });
                 setIsStudentDialogOpen(true);
               }}
-              onAddStudent={() => setIsStudentDialogOpen(true)}
+              onAddStudent={handleAddStudent}
             />
           </SidebarContent>
         </Sidebar>
@@ -89,7 +147,12 @@ export default function CalendarPage() {
             </h1>
             <CalendarToolbar
               onSearchClick={() => setIsSearchOpen(true)}
-              onAddLessonClick={() => {
+              onAddLessonClick={async () => {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                  setIsAuthDialogOpen(true);
+                  return;
+                }
                 setSelectedLesson(undefined);
                 setIsDialogOpen(true);
               }}
@@ -166,6 +229,11 @@ export default function CalendarPage() {
             setStudentColor={(color) => setStudentDialogState(prev => ({ ...prev, studentColor: color }))}
             setSelectedDate={setSelectedDate}
             setCurrentView={setCurrentView}
+          />
+
+          <AuthDialog 
+            isOpen={isAuthDialogOpen}
+            onClose={() => setIsAuthDialogOpen(false)}
           />
         </div>
       </div>
