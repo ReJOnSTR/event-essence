@@ -128,13 +128,6 @@ export default function DayView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className={cn(
-          "text-lg font-medium mb-4",
-          isToday(date) && "text-calendar-blue"
-        )}>
-          {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
-        </div>
-
         <AnimatePresence>
           {holiday && (
             <motion.div 
