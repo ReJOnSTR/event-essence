@@ -42,7 +42,7 @@ export default function SideMenu({
 
   return (
     <motion.div 
-      className="flex flex-col h-full bg-background"
+      className="flex flex-col h-full bg-background w-full"
       initial={false}
       animate={{ 
         marginTop: headerHeight 
@@ -52,90 +52,88 @@ export default function SideMenu({
         ease: "easeInOut"
       }}
     >
-      <div className="flex flex-col flex-1">
-        <SidebarGroup className="p-2">
-          {menuItems.map((item) => (
-            <Link 
-              key={item.path} 
-              to={item.path} 
-              className="block mb-1"
-              onClick={(e) => {
-                e.preventDefault();
-                window.history.pushState({}, '', item.path);
-                window.dispatchEvent(new PopStateEvent('popstate'));
-              }}
+      <SidebarGroup className="space-y-2">
+        {menuItems.map((item) => (
+          <Link 
+            key={item.path} 
+            to={item.path} 
+            className="block"
+            onClick={(e) => {
+              e.preventDefault();
+              window.history.pushState({}, '', item.path);
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+          >
+            <SidebarMenuButton 
+              className="w-full hover:bg-secondary rounded-md transition-colors"
+              data-active={isActive(item.path)}
             >
+              <item.icon className="h-4 w-4" />
+              <span>{item.label}</span>
+            </SidebarMenuButton>
+          </Link>
+        ))}
+      </SidebarGroup>
+
+      <SidebarGroup className="mt-6">
+        <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
+        <SidebarGroupContent className="mt-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
               <SidebarMenuButton 
+                onClick={onAddStudent}
                 className="w-full hover:bg-secondary rounded-md transition-colors"
-                data-active={isActive(item.path)}
               >
-                <item.icon className="h-4 w-4" />
-                <span>{item.label}</span>
+                <Plus className="h-4 w-4" />
+                <span>Öğrenci Ekle</span>
               </SidebarMenuButton>
-            </Link>
-          ))}
-        </SidebarGroup>
+            </SidebarMenuItem>
 
-        <SidebarGroup className="px-2 flex-1">
-          <SidebarGroupLabel>Öğrenciler</SidebarGroupLabel>
-          <SidebarGroupContent className="mt-2">
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={onAddStudent}
-                  className="w-full hover:bg-secondary rounded-md transition-colors"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Öğrenci Ekle</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+            <ScrollArea className="h-[200px] px-1">
+              {students.map((student) => (
+                <SidebarMenuItem key={student.id}>
+                  <SidebarMenuButton 
+                    onClick={() => onEdit?.(student)}
+                    className="w-full hover:bg-secondary rounded-md transition-colors group"
+                  >
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: student.color }}
+                    />
+                    <span className="truncate group-hover:text-secondary-foreground">
+                      {student.name}
+                    </span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </ScrollArea>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
 
-              <ScrollArea className="h-[200px] px-1">
-                {students.map((student) => (
-                  <SidebarMenuItem key={student.id}>
-                    <SidebarMenuButton 
-                      onClick={() => onEdit?.(student)}
-                      className="w-full hover:bg-secondary rounded-md transition-colors group"
-                    >
-                      <div
-                        className="h-2 w-2 rounded-full"
-                        style={{ backgroundColor: student.color }}
-                      />
-                      <span className="truncate group-hover:text-secondary-foreground">
-                        {student.name}
-                      </span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </ScrollArea>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarFooter>
-          <div className="border-t p-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Avatar>
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback>AD</AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium">Admin</span>
-              </div>
-              <Link to="/settings">
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  data-active={isActive("/settings")}
-                  className="hover:bg-secondary"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </Link>
+      <SidebarFooter className="mt-auto">
+        <div className="border-t pt-4">
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-2">
+              <Avatar>
+                <AvatarImage src="/placeholder.svg" />
+                <AvatarFallback>AD</AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium">Admin</span>
             </div>
+            <Link to="/settings">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                data-active={isActive("/settings")}
+                className="hover:bg-secondary"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
-        </SidebarFooter>
-      </div>
+        </div>
+      </SidebarFooter>
     </motion.div>
   );
 }
