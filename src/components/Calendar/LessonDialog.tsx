@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
+import { format, isWithinInterval, isEqual, addWeeks, addMonths, isBefore } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
@@ -96,18 +96,25 @@ export default function LessonDialog({
   };
 
   const checkLessonOverlap = (start: Date, end: Date, skipLessonId?: string) => {
+    if (isBefore(end, start)) {
+      return true; // Bitiş saati başlangıç saatinden önce olamaz
+    }
+
     return events.some(existingEvent => {
       if (skipLessonId && existingEvent.id === skipLessonId) return false;
       
-      if (isEqual(start, existingEvent.end) || isEqual(end, existingEvent.start)) {
+      const existingStart = new Date(existingEvent.start);
+      const existingEnd = new Date(existingEvent.end);
+
+      if (isEqual(start, existingEnd) || isEqual(end, existingStart)) {
         return false;
       }
 
       return (
-        isWithinInterval(start, { start: existingEvent.start, end: existingEvent.end }) ||
-        isWithinInterval(end, { start: existingEvent.start, end: existingEvent.end }) ||
-        isWithinInterval(existingEvent.start, { start, end }) ||
-        isWithinInterval(existingEvent.end, { start, end })
+        isWithinInterval(start, { start: existingStart, end: existingEnd }) ||
+        isWithinInterval(end, { start: existingStart, end: existingEnd }) ||
+        isWithinInterval(existingStart, { start, end }) ||
+        isWithinInterval(existingEnd, { start, end })
       );
     });
   };
@@ -128,8 +135,8 @@ export default function LessonDialog({
       }
 
       lessons.push({
-        start: currentStart,
-        end: currentEnd
+        start: new Date(currentStart),
+        end: new Date(currentEnd)
       });
 
       // Bir sonraki tekrar için tarihleri güncelle
@@ -161,10 +168,19 @@ export default function LessonDialog({
     const [endHours, endMinutes] = endTime.split(":").map(Number);
     
     const start = new Date(selectedDate);
-    start.setHours(startHours, startMinutes);
+    start.setHours(startHours, startMinutes, 0, 0);
     
     const end = new Date(selectedDate);
-    end.setHours(endHours, endMinutes);
+    end.setHours(endHours, endMinutes, 0, 0);
+
+    if (isBefore(end, start)) {
+      toast({
+        title: "Geçersiz Zaman Aralığı",
+        description: "Bitiş saati başlangıç saatinden önce olamaz.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     if (!isRecurring) {
       if (checkLessonOverlap(start, end, event?.id)) {
