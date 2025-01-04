@@ -18,45 +18,52 @@ export function useStudentMutations() {
         updated_at: new Date().toISOString()
       };
 
-      if (student.id) {
-        // Update existing student
-        const { data, error } = await supabase
-          .from('students')
-          .update(studentData)
-          .eq('id', student.id)
-          .select()
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Error updating student:', error);
-          throw new Error(error.message);
-        }
+      try {
+        if (student.id) {
+          // Update existing student
+          const { data, error } = await supabase
+            .from('students')
+            .update(studentData)
+            .eq('id', student.id)
+            .select()
+            .maybeSingle();
+          
+          if (error) {
+            console.error('Error updating student:', error);
+            throw error;
+          }
 
-        if (!data) {
-          throw new Error('Student not found');
-        }
+          if (!data) {
+            console.error('Student not found:', student.id);
+            throw new Error('Student not found');
+          }
 
-        console.log('Updated student:', data);
-        return data;
-      } else {
-        // Insert new student
-        const { data, error } = await supabase
-          .from('students')
-          .insert({ ...studentData })
-          .select()
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Error inserting student:', error);
-          throw new Error(error.message);
-        }
+          console.log('Updated student:', data);
+          return data;
+        } else {
+          // Insert new student
+          const { data, error } = await supabase
+            .from('students')
+            .insert([studentData])
+            .select()
+            .maybeSingle();
+          
+          if (error) {
+            console.error('Error inserting student:', error);
+            throw error;
+          }
 
-        if (!data) {
-          throw new Error('Failed to create student');
-        }
+          if (!data) {
+            console.error('Failed to create student');
+            throw new Error('Failed to create student');
+          }
 
-        console.log('Created student:', data);
-        return data;
+          console.log('Created student:', data);
+          return data;
+        }
+      } catch (error: any) {
+        console.error('Operation failed:', error);
+        throw new Error(error.message || 'Failed to save student');
       }
     },
     onSuccess: () => {
@@ -80,17 +87,22 @@ export function useStudentMutations() {
     mutationFn: async (studentId: string) => {
       console.log('Attempting to delete student:', studentId);
       
-      const { error } = await supabase
-        .from('students')
-        .delete()
-        .eq('id', studentId);
-      
-      if (error) {
-        console.error('Error deleting student:', error);
-        throw new Error(error.message);
+      try {
+        const { error } = await supabase
+          .from('students')
+          .delete()
+          .eq('id', studentId);
+        
+        if (error) {
+          console.error('Error deleting student:', error);
+          throw error;
+        }
+        
+        console.log('Successfully deleted student:', studentId);
+      } catch (error: any) {
+        console.error('Delete operation failed:', error);
+        throw new Error(error.message || 'Failed to delete student');
       }
-      
-      console.log('Successfully deleted student:', studentId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
