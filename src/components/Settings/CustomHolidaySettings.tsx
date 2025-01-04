@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Gift } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -13,6 +15,10 @@ export default function CustomHolidaySettings() {
   const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
     const savedHolidays = localStorage.getItem('holidays');
     return savedHolidays ? JSON.parse(savedHolidays).map((h: { date: string }) => new Date(h.date)) : [];
+  });
+
+  const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
+    return localStorage.getItem('allowWorkOnHolidays') === 'true';
   });
 
   const { toast } = useToast();
@@ -43,6 +49,17 @@ export default function CustomHolidaySettings() {
     });
   };
 
+  const handleWorkOnHolidaysChange = (checked: boolean) => {
+    setAllowWorkOnHolidays(checked);
+    localStorage.setItem('allowWorkOnHolidays', checked.toString());
+    toast({
+      title: "Tatil günü çalışma ayarı güncellendi",
+      description: checked 
+        ? "Tatil günlerinde çalışmaya izin verilecek" 
+        : "Tatil günlerinde çalışma kapatıldı",
+    });
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -52,6 +69,15 @@ export default function CustomHolidaySettings() {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
+            <div className="flex items-center space-x-2 pb-4">
+              <Switch
+                id="allow-work"
+                checked={allowWorkOnHolidays}
+                onCheckedChange={handleWorkOnHolidaysChange}
+              />
+              <Label htmlFor="allow-work">Tatil günlerinde çalışmaya izin ver</Label>
+            </div>
+
             <div className="text-sm text-muted-foreground">
               Takvimde özel tatil günü olarak işaretlemek istediğiniz günleri seçin.
             </div>
