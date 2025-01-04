@@ -1,10 +1,11 @@
-import { format, isToday, isHoliday } from "date-fns";
+import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
 import MonthEventCard from "./MonthEventCard";
 import { motion } from "framer-motion";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthCellProps {
   day: {

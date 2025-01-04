@@ -8,16 +8,16 @@ export function useCalendarNavigation(selectedDate: Date, setSelectedDate: (date
     
     switch (currentView) {
       case 'day':
-        setSelectedDate(prev => direction === 'next' ? addDays(prev, 1) : subDays(prev, 1));
+        setSelectedDate(direction === 'next' ? addDays(selectedDate, 1) : subDays(selectedDate, 1));
         break;
       case 'week':
-        setSelectedDate(prev => direction === 'next' ? addWeeks(prev, 1) : subWeeks(prev, 1));
+        setSelectedDate(direction === 'next' ? addWeeks(selectedDate, 1) : subWeeks(selectedDate, 1));
         break;
       case 'month':
-        setSelectedDate(prev => direction === 'next' ? addMonths(prev, 1) : subMonths(prev, 1));
+        setSelectedDate(direction === 'next' ? addMonths(selectedDate, 1) : subMonths(selectedDate, 1));
         break;
       case 'year':
-        setSelectedDate(prev => direction === 'next' ? addYears(prev, 1) : subYears(prev, 1));
+        setSelectedDate(direction === 'next' ? addYears(selectedDate, 1) : subYears(selectedDate, 1));
         break;
     }
   };
