@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual, addWeeks, addMonths, isBefore } from "date-fns";
+import { format, isWithinInterval, isEqual, addWeeks, addMonths, isBefore, getDay } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
@@ -123,8 +123,10 @@ export default function LessonDialog({
     const lessons = [];
     let currentStart = baseStart;
     let currentEnd = baseEnd;
+    const dayOfWeek = getDay(baseStart); // 0-6 (Pazar-Cumartesi)
 
     for (let i = 0; i < recurrenceCount; i++) {
+      // Aynı gün ve saatte çakışma kontrolü
       if (checkLessonOverlap(currentStart, currentEnd, event?.id)) {
         toast({
           title: "Çakışma Tespit Edildi",
@@ -141,9 +143,11 @@ export default function LessonDialog({
 
       // Bir sonraki tekrar için tarihleri güncelle
       if (recurrenceType === "weekly") {
+        // Haftalık tekrarda aynı gün ve saate ekle
         currentStart = addWeeks(currentStart, 1);
         currentEnd = addWeeks(currentEnd, 1);
       } else if (recurrenceType === "monthly") {
+        // Aylık tekrarda aynı gün ve saate ekle
         currentStart = addMonths(currentStart, 1);
         currentEnd = addMonths(currentEnd, 1);
       }
