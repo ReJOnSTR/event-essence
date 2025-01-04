@@ -21,6 +21,8 @@ export default function ReportsPage() {
   // Student Dialog State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [studentName, setStudentName] = useState("");
+  const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState<string>("#000000");
   
   const { students } = useStudents();
@@ -28,8 +30,15 @@ export default function ReportsPage() {
 
   const handleEditStudent = (student: Student) => {
     setEditingStudent(student);
+    setStudentName(student.name);
+    setStudentPrice(student.price);
     setStudentColor(student.color || "#000000");
     setIsDialogOpen(true);
+  };
+
+  const handleSaveStudent = () => {
+    // Handle save logic here
+    setIsDialogOpen(false);
   };
 
   const hours = calculatePeriodHours(
@@ -63,7 +72,13 @@ export default function ReportsPage() {
         <Sidebar>
           <SidebarContent className="p-4">
             <SideMenu 
-              onAddStudent={() => setIsDialogOpen(true)}
+              onAddStudent={() => {
+                setEditingStudent(null);
+                setStudentName("");
+                setStudentPrice(0);
+                setStudentColor("#000000");
+                setIsDialogOpen(true);
+              }}
               onEdit={handleEditStudent}
             />
           </SidebarContent>
@@ -127,7 +142,12 @@ export default function ReportsPage() {
         <StudentDialog
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
-          student={editingStudent}
+          onSave={handleSaveStudent}
+          student={editingStudent || undefined}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
           studentColor={studentColor}
           setStudentColor={setStudentColor}
         />
