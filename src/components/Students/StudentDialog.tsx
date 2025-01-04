@@ -65,6 +65,13 @@ export default function StudentDialog({
   studentColor,
   setStudentColor,
 }: StudentDialogProps) {
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete();
+      onClose();
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] overflow-hidden p-0">
@@ -94,7 +101,7 @@ export default function StudentDialog({
                 setStudentPrice={setStudentPrice}
                 studentColor={studentColor}
                 setStudentColor={setStudentColor}
-                onDelete={onDelete}
+                onDelete={handleDelete}
               />
 
               <DialogFooter className="flex items-center justify-end mt-6">
