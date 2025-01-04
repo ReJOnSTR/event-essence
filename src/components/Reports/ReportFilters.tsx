@@ -9,7 +9,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface ReportFiltersProps {
   selectedStudent: string;
@@ -39,6 +41,7 @@ export function ReportFilters({
   students
 }: ReportFiltersProps) {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const resetFilters = () => {
     setSelectedStudent("all");
@@ -54,9 +57,14 @@ export function ReportFilters({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className={cn(
+        "grid gap-4",
+        isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-4"
+      )}>
         <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-          <SelectTrigger>
+          <SelectTrigger className={cn(
+            isMobile && "h-10 text-sm"
+          )}>
             <SelectValue placeholder="Öğrenci Seçin" />
           </SelectTrigger>
           <SelectContent>
@@ -79,7 +87,9 @@ export function ReportFilters({
             }
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className={cn(
+            isMobile && "h-10 text-sm"
+          )}>
             <SelectValue placeholder="Periyot Seçin" />
           </SelectTrigger>
           <SelectContent>
@@ -92,26 +102,31 @@ export function ReportFilters({
 
         {selectedPeriod === "custom" ? (
           <>
-            <div>
-              <DatePicker
-                date={startDate}
-                setDate={setStartDate}
-                placeholder="Başlangıç Tarihi"
-              />
-            </div>
-            <div>
-              <DatePicker
-                date={endDate}
-                setDate={setEndDate}
-                placeholder="Bitiş Tarihi"
-              />
-            </div>
+            <DatePicker
+              date={startDate}
+              setDate={setStartDate}
+              placeholder="Başlangıç Tarihi"
+              className={cn(
+                isMobile && "h-10 text-sm"
+              )}
+            />
+            <DatePicker
+              date={endDate}
+              setDate={setEndDate}
+              placeholder="Bitiş Tarihi"
+              className={cn(
+                isMobile && "h-10 text-sm"
+              )}
+            />
           </>
         ) : (
-          <div className="md:col-span-2">
+          <div className={isMobile ? "w-full" : "md:col-span-2"}>
             <DatePicker
               date={selectedDate}
               setDate={setSelectedDate}
+              className={cn(
+                isMobile && "h-10 text-sm w-full"
+              )}
             />
           </div>
         )}
@@ -119,7 +134,10 @@ export function ReportFilters({
 
       <Button 
         variant="outline" 
-        className="w-full"
+        className={cn(
+          "w-full",
+          isMobile && "h-10 text-sm"
+        )}
         onClick={resetFilters}
       >
         <Filter className="h-4 w-4 mr-2" />
