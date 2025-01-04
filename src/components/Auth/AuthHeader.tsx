@@ -40,17 +40,6 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isVisible]);
 
-  const handleClickMinimized = () => {
-    if (isPartiallyOpen) {
-      setIsVisible(true);
-    }
-  };
-
-  const handleHide = () => {
-    setIsVisible(false);
-    setIsPartiallyOpen(true);
-  };
-
   const handleToggle = () => {
     if (isVisible) {
       setIsVisible(false);
@@ -83,7 +72,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
         >
           <div className="container mx-auto px-4">
             <AnimatePresence mode="wait">
-              {isVisible ? (
+              {isVisible && (
                 <motion.div 
                   className="py-4 flex flex-col items-center gap-4"
                   initial={{ opacity: 0, y: -20 }}
@@ -95,7 +84,6 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                     damping: 25
                   }}
                 >
-                  <h2 className="text-xl font-semibold">Hoş Geldiniz</h2>
                   <div className="flex gap-4">
                     <Button className="w-32">
                       <UserPlus className="mr-2 h-4 w-4" />
@@ -107,26 +95,13 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                     </Button>
                   </div>
                 </motion.div>
-              ) : (
-                <motion.div 
-                  className="h-8 flex items-center justify-center cursor-pointer"
-                  onClick={handleClickMinimized}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <span className="text-sm text-muted-foreground">
-                    Giriş yapmak için tıklayın
-                  </span>
-                </motion.div>
               )}
             </AnimatePresence>
           </div>
 
           {/* Toggle Button */}
           <motion.div 
-            className="absolute left-1/2 -bottom-4 -translate-x-1/2 z-50"
+            className="absolute left-1/2 -bottom-6 -translate-x-1/2 z-50"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -135,11 +110,11 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
             <Button
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-full border shadow-md bg-background"
+              className="h-12 w-12 rounded-full border-2 shadow-md bg-background"
               onClick={handleToggle}
             >
               <ChevronUp 
-                className="h-4 w-4" 
+                className="h-6 w-6" 
                 style={{ 
                   transform: isVisible ? 'rotate(0deg)' : 'rotate(180deg)',
                   transition: 'transform 0.3s ease'
