@@ -1,22 +1,26 @@
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Settings as SettingsIcon, Clock, Palette, Upload } from "lucide-react";
-import { PageHeader } from "@/components/Layout/PageHeader";
+import { Settings as SettingsIcon, Clock, Palette, Calendar, Upload } from "lucide-react";
 import GeneralSettings from "@/components/Settings/GeneralSettings";
 import WorkingHoursSettings from "@/components/Settings/WorkingHoursSettings";
 import ThemeSettings from "@/components/Settings/ThemeSettings";
 import DataManagement from "@/components/Settings/DataManagement";
+import { Link } from "react-router-dom";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <PageHeader 
-        title="Ayarlar"
-        backTo="/"
-        backLabel="Takvime Dön"
-      />
+      <div className="flex items-center gap-4 p-4 border-b bg-white">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <SettingsIcon className="h-5 w-5" />
+          <span className="font-semibold">Ayarlar</span>
+        </Link>
+      </div>
 
       <div className="container py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

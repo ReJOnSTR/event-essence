@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Student } from "@/types/calendar";
+import { ArrowLeft } from "lucide-react";
+import { Student, Lesson } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
-import { PageHeader } from "@/components/Layout/PageHeader";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import SideMenu from "@/components/Layout/SideMenu";
 import { ReportFilters } from "@/components/Reports/ReportFilters";
 import { StatsCards } from "@/components/Reports/StatsCards";
@@ -104,11 +105,17 @@ export default function Reports() {
         </Sidebar>
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          <PageHeader 
-            title="Raporlar"
-            backTo="/"
-            backLabel="Takvime Dön"
-          />
+          <div className="flex items-center gap-4 p-4 border-b bg-white">
+            <SidebarTrigger />
+            <Link 
+              to="/" 
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span>Takvime Dön</span>
+            </Link>
+            <h1 className="text-2xl font-semibold text-gray-900">Raporlar</h1>
+          </div>
 
           <div className="flex-1 overflow-auto p-4">
             <div className="space-y-4">
