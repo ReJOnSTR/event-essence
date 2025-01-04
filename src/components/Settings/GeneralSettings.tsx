@@ -15,11 +15,17 @@ export default function GeneralSettings() {
     setDefaultDuration(value);
     
     const numericValue = parseInt(value);
-    if (!isNaN(numericValue) && numericValue > 0) {
+    if (!isNaN(numericValue) && numericValue > 0 && numericValue <= 60) {
       setDefaultLessonDuration(numericValue);
       toast({
         title: "Ayarlar güncellendi",
         description: "Varsayılan ders süresi başarıyla kaydedildi.",
+      });
+    } else if (value !== '') {
+      toast({
+        title: "Geçersiz süre",
+        description: "Ders süresi 1-60 dakika arasında olmalıdır.",
+        variant: "destructive",
       });
     }
   };
@@ -41,10 +47,11 @@ export default function GeneralSettings() {
             value={defaultDuration}
             onChange={handleDurationChange}
             min="1"
+            max="60"
             className="max-w-[200px]"
           />
           <p className="text-sm text-muted-foreground">
-            Yeni ders eklerken otomatik olarak ayarlanacak süre
+            Yeni ders eklerken otomatik olarak ayarlanacak süre (1-60 dakika arası)
           </p>
         </div>
       </CardContent>
