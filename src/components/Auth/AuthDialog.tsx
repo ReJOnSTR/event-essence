@@ -26,6 +26,11 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
           title: "Şifre sıfırlama",
           description: "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi."
         });
+      } else if (event === "USER_UPDATED") {
+        toast({
+          title: "Profil güncellendi",
+          description: "Profiliniz başarıyla güncellendi."
+        });
       }
     });
 
@@ -69,7 +74,10 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 button_label: 'Giriş Yap',
                 loading_button_label: 'Giriş yapılıyor...',
                 email_input_placeholder: 'E-posta adresiniz',
-                password_input_placeholder: 'Şifreniz'
+                password_input_placeholder: 'Şifreniz',
+                email_address_invalid: 'Geçersiz e-posta adresi',
+                invalid_credentials: 'E-posta veya şifre hatalı',
+                over_email_send_rate_limit: 'Çok fazla deneme yapıldı, lütfen 20 saniye bekleyin'
               },
               sign_up: {
                 email_label: 'E-posta',
@@ -77,7 +85,9 @@ export default function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 button_label: 'Kaydol',
                 loading_button_label: 'Kaydolunuyor...',
                 email_input_placeholder: 'E-posta adresiniz',
-                password_input_placeholder: 'Şifreniz'
+                password_input_placeholder: 'Şifreniz',
+                email_address_invalid: 'Geçersiz e-posta adresi',
+                over_email_send_rate_limit: 'Çok fazla deneme yapıldı, lütfen 20 saniye bekleyin'
               }
             }
           }}
