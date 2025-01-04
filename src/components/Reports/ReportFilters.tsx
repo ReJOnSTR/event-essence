@@ -165,16 +165,19 @@ export function ReportFilters({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <Button 
-          variant="outline" 
-          className="w-full hover:bg-accent/50 transition-all duration-200"
-          onClick={resetFilters}
+        <motion.div
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
         >
-          <Filter className="h-4 w-4 mr-2" />
-          Filtreleri Sıfırla
-        </Button>
+          <Button 
+            variant="outline" 
+            className="w-full hover:bg-accent/50 transition-all duration-200"
+            onClick={resetFilters}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filtreleri Sıfırla
+          </Button>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
