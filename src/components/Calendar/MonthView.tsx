@@ -1,4 +1,4 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, setHours } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, setHours, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { CalendarEvent, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
