@@ -20,20 +20,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Get initial session
+    // Mevcut oturumu al
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
     });
 
-    // Listen for auth changes
+    // Oturum değişikliklerini dinle
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      // LocalStorage'a oturum bilgisini kaydet
+      if (session) {
+        localStorage.setItem('supabase.auth.token', session.access_token);
+      }
     });
 
+    // Component unmount olduğunda subscription'ı temizle
     return () => subscription.unsubscribe();
   }, []);
 
@@ -99,6 +105,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      // LocalStorage'dan oturum bilgisini temizle
+      localStorage.removeItem('supabase.auth.token');
       toast({
         title: "Çıkış yapıldı",
         description: "Güle güle!",
