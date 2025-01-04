@@ -75,9 +75,8 @@ export default function ThemeSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Remove all theme classes, filtering out empty strings
-    const themeClasses = themes.map(t => t.class).filter(Boolean);
-    document.documentElement.classList.remove(...themeClasses);
+    // Önce tüm tema sınıflarını kaldır
+    document.documentElement.classList.remove('light', 'dark');
     
     if (currentTheme === "system") {
       // Sistem temasını takip et
@@ -86,26 +85,23 @@ export default function ThemeSettings() {
         document.documentElement.classList.toggle("dark", e.matches);
       };
       
-      handleChange(mediaQuery); // İlk yükleme için kontrol et
+      handleChange(mediaQuery);
       mediaQuery.addEventListener("change", handleChange);
       
       return () => mediaQuery.removeEventListener("change", handleChange);
     } else {
       // Manuel tema seçimi
-      if (currentTheme === "dark") {
-        document.documentElement.classList.add("dark");
-      }
+      document.documentElement.classList.add(currentTheme);
     }
     
-    // Save to localStorage
     localStorage.setItem("theme", currentTheme);
     
-    // Apply font size
+    // Yazı boyutunu uygula
     document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
     document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
     localStorage.setItem("fontSize", fontSize);
 
-    // Apply font family
+    // Yazı tipini uygula
     const selectedFont = fontFamilies.find(f => f.id === fontFamily);
     if (selectedFont) {
       document.documentElement.style.setProperty('--font-family', selectedFont.value);
