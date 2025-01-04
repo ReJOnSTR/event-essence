@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -63,13 +64,15 @@ const AnimatedRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <div className="overflow-hidden">
-        <Toaster />
-        <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
-      </div>
+      <SidebarProvider>
+        <div className="overflow-hidden min-h-screen flex w-full">
+          <Toaster />
+          <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </div>
+      </SidebarProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
