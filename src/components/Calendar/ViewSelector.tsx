@@ -1,6 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ViewSelectorProps {
   currentView: string;
@@ -8,44 +7,31 @@ interface ViewSelectorProps {
 }
 
 const tabVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
   hover: { scale: 1.02 },
   tap: { scale: 0.98 }
 };
 
-export default function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
-  const isMobile = useIsMobile();
+export function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
+  const views = ["day", "week", "month", "year"];
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
-      className="w-full bg-background/80 rounded-lg shadow-sm sticky top-0 z-10"
-    >
+    <div className="w-full bg-background/80 rounded-lg shadow-sm sticky top-0 z-10">
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2">
-          {["day", "week", "month", "year"].map((view, index) => (
+        <TabsList className="w-full p-0 h-12">
+          {views.map((view, index) => (
             <motion.div
               key={view}
               variants={tabVariants}
-              initial="initial"
-              animate="animate"
               whileHover="hover"
               whileTap="tap"
-              transition={{ duration: 0.1, delay: index * 0.03 }}
               className="w-full"
             >
               <TabsTrigger 
-                value={view} 
+                value={view}
                 onClick={() => onViewChange(view)}
-                className="w-full relative text-xs md:text-sm py-1.5 md:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="w-full data-[state=active]:bg-transparent relative"
               >
-                {view === "day" && (isMobile ? "Gün" : "Günlük")}
-                {view === "week" && (isMobile ? "Hafta" : "Haftalık")}
-                {view === "month" && (isMobile ? "Ay" : "Aylık")}
-                {view === "year" && (isMobile ? "Yıl" : "Yıllık")}
+                {view.charAt(0).toUpperCase() + view.slice(1)}
                 {currentView === view && (
                   <motion.div
                     layoutId="activeTab"
@@ -64,6 +50,6 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
           ))}
         </TabsList>
       </Tabs>
-    </motion.div>
+    </div>
   );
 }
