@@ -46,53 +46,55 @@ export default function StudentsManagementPage() {
   };
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
-      <Sidebar>
-        <SidebarContent>
-          <SideMenu 
-            onAddStudent={() => setIsDialogOpen(true)}
-            onEdit={handleEditStudent}
-          />
-        </SidebarContent>
-      </Sidebar>
-      
-      <SidebarInset>
-        <PageHeader
-          title="Öğrenci Yönetimi"
-          backTo="/"
-          backLabel="Takvime Dön"
-          actions={
-            <Button onClick={() => setIsDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Öğrenci Ekle
-            </Button>
-          }
-        />
-
-        <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {students.map((student) => (
-            <StudentCard
-              key={student.id}
-              student={student}
-              onClick={handleEditStudent}
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <Sidebar>
+          <SidebarContent>
+            <SideMenu 
+              onAddStudent={() => setIsDialogOpen(true)}
+              onEdit={handleEditStudent}
             />
-          ))}
-        </div>
+          </SidebarContent>
+        </Sidebar>
+        
+        <SidebarInset>
+          <PageHeader
+            title="Öğrenci Yönetimi"
+            backTo="/"
+            backLabel="Takvime Dön"
+            actions={
+              <Button onClick={() => setIsDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Öğrenci Ekle
+              </Button>
+            }
+          />
 
-        <StudentDialog
-          isOpen={isDialogOpen}
-          onClose={handleCloseDialog}
-          onSave={handleSaveStudent}
-          onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
-          student={selectedStudent}
-          studentName={studentName}
-          setStudentName={setStudentName}
-          studentPrice={studentPrice}
-          setStudentPrice={setStudentPrice}
-          studentColor={studentColor}
-          setStudentColor={setStudentColor}
-        />
-      </SidebarInset>
-    </div>
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {students.map((student) => (
+              <StudentCard
+                key={student.id}
+                student={student}
+                onClick={handleEditStudent}
+              />
+            ))}
+          </div>
+
+          <StudentDialog
+            isOpen={isDialogOpen}
+            onClose={handleCloseDialog}
+            onSave={handleSaveStudent}
+            onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+            student={selectedStudent}
+            studentName={studentName}
+            setStudentName={setStudentName}
+            studentPrice={studentPrice}
+            setStudentPrice={setStudentPrice}
+            studentColor={studentColor}
+            setStudentColor={setStudentColor}
+          />
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 }
