@@ -109,40 +109,35 @@ export default function StudentDialogContent({
 
       <div className="space-y-2">
         <Label>Renk</Label>
-        <Popover open={isColorPickerOpen} onOpenChange={setIsColorPickerOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-between"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsColorPickerOpen(true);
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: studentColor }}
-                />
-                <span>Renk Seç</span>
-              </div>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="w-auto p-3 border-none shadow-lg" 
-            onInteractOutside={(e) => {
-              e.preventDefault();
-              setIsColorPickerOpen(false);
-            }}
-            onClick={(e) => e.stopPropagation()}
+        <div className="relative">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full flex items-center justify-between"
+            onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
           >
-            <ChromePicker
-              color={studentColor}
-              onChange={handleColorChange}
-              disableAlpha={true}
-            />
-          </PopoverContent>
-        </Popover>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-4 h-4 rounded-full"
+                style={{ backgroundColor: studentColor }}
+              />
+              <span>Renk Seç</span>
+            </div>
+          </Button>
+          {isColorPickerOpen && (
+            <div className="absolute z-50 mt-2">
+              <div
+                className="fixed inset-0"
+                onClick={() => setIsColorPickerOpen(false)}
+              />
+              <ChromePicker
+                color={studentColor}
+                onChange={handleColorChange}
+                disableAlpha={true}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {student && onDelete && (
