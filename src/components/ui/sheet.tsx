@@ -1,4 +1,4 @@
-import * as SheetPrimitive from "@radix-ui/react-dialog"
+import * as SheetPrimitive from "@radix-ui/react-sheet"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 import * as React from "react"
@@ -55,7 +55,11 @@ const SheetContent = React.forwardRef<
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
-      className={cn(sheetVariants({ side }), className)}
+      className={cn(
+        sheetVariants({ side }),
+        "bg-white dark:bg-gray-800", // Arka plan rengini belirgin hale getirdik
+        className
+      )}
       {...props}
     >
       {children}
