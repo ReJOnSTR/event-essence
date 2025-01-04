@@ -14,18 +14,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useStudents } from "@/hooks/useStudents";
-import { motion } from "framer-motion";
 
 interface SideMenuProps {
   onAddStudent?: () => void;
   onEdit?: (student: Student) => void;
-  headerHeight?: number;
 }
 
 export default function SideMenu({ 
   onAddStudent,
   onEdit,
-  headerHeight = 0
 }: SideMenuProps) {
   const { students } = useStudents();
   const location = useLocation();
@@ -41,17 +38,7 @@ export default function SideMenu({
   ];
 
   return (
-    <motion.div 
-      className="flex flex-col h-full bg-background w-full"
-      initial={false}
-      animate={{ 
-        marginTop: headerHeight 
-      }}
-      transition={{ 
-        duration: 0.3,
-        ease: "easeInOut"
-      }}
-    >
+    <div className="flex flex-col h-full bg-background w-full">
       <SidebarGroup className="space-y-2 px-2">
         {menuItems.map((item) => (
           <Link 
@@ -134,6 +121,6 @@ export default function SideMenu({
           </div>
         </div>
       </SidebarFooter>
-    </motion.div>
+    </div>
   );
 }
