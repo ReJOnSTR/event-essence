@@ -22,7 +22,7 @@ export default {
         // Google Calendar renkleri
         "calendar-blue": {
           DEFAULT: "#1a73e8",
-          dark: "#354c5a" // Karanlık temada bugünü belirten renk
+          dark: "#364c5b" // Karanlık temada istenen renk
         },
         "calendar-hover": {
           DEFAULT: "#1557b0",
