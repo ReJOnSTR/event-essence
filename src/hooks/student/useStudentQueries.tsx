@@ -4,9 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 
 export function useStudentQueries() {
   const fetchStudents = async (): Promise<Student[]> => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('students')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: true });
 
     if (error) {
