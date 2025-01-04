@@ -9,6 +9,7 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
+import AuthHeader from "./components/auth/AuthHeader";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -73,10 +74,13 @@ const App = () => (
     <TooltipProvider>
       <SidebarProvider>
         <BrowserRouter>
-          <div className="min-h-screen flex w-full overflow-hidden bg-background">
-            <Toaster />
-            <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
-            <AnimatedRoutes />
+          <div className="min-h-screen flex flex-col w-full overflow-hidden bg-background">
+            <AuthHeader />
+            <div className="flex flex-1">
+              <Toaster />
+              <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
+              <AnimatedRoutes />
+            </div>
           </div>
         </BrowserRouter>
       </SidebarProvider>
