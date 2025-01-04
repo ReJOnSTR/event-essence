@@ -21,7 +21,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
 
   useEffect(() => {
     // Report height changes to parent component
-    onHeightChange?.(isVisible ? 140 : 48);
+    onHeightChange?.(isVisible ? 140 : 32);
   }, [isVisible, onHeightChange]);
 
   const toggleVisibility = () => {
@@ -31,9 +31,9 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ height: 48, opacity: 1 }}
+        initial={{ height: 32, opacity: 1 }}
         animate={{ 
-          height: isVisible ? "8.75rem" : "3rem",
+          height: isVisible ? "8.75rem" : "2rem",
           opacity: 1
         }}
         transition={{ 
@@ -42,7 +42,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
         }}
         className="w-full bg-background border-b fixed top-0 z-50"
       >
-        <div className="container mx-auto px-4 relative">
+        <div className="container mx-auto px-4 h-full relative">
           <AnimatePresence mode="wait">
             {isVisible ? (
               <motion.div 
@@ -65,7 +65,15 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                   </Button>
                 </div>
               </motion.div>
-            ) : null}
+            ) : (
+              <motion.div
+                key="minimal"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-8 flex items-center justify-center"
+              />
+            )}
           </AnimatePresence>
           <Button
             variant="ghost"
