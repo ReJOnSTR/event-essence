@@ -21,7 +21,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
 
   useEffect(() => {
     // Report height changes to parent component
-    onHeightChange?.(isVisible ? 192 : 32);
+    onHeightChange?.(isVisible ? 140 : 48);
   }, [isVisible, onHeightChange]);
 
   const toggleVisibility = () => {
@@ -31,14 +31,14 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ height: 32, opacity: 1 }}
+        initial={{ height: 48, opacity: 1 }}
         animate={{ 
-          height: isVisible ? "12rem" : "2rem",
+          height: isVisible ? "8.75rem" : "3rem",
           opacity: 1
         }}
         transition={{ 
-          duration: 0.3,
-          ease: "easeInOut"
+          duration: 0.4,
+          ease: [0.4, 0, 0.2, 1]
         }}
         className="w-full bg-background border-b fixed top-0 z-50"
       >
@@ -47,11 +47,11 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
             {isVisible ? (
               <motion.div 
                 key="full"
-                initial={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.2 }}
-                className="py-8 flex flex-col items-center gap-6"
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="py-6 flex flex-col items-center gap-4"
               >
                 <h2 className="text-2xl font-semibold">Hoş Geldiniz</h2>
                 <div className="flex gap-4">
