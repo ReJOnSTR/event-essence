@@ -87,7 +87,7 @@ export default function LessonCard({
   }
 
   return (
-    <Draggable draggableId={event.id} index={index} type="lesson">
+    <Draggable draggableId={event.id} index={index}>
       {(provided, snapshot) => content(provided, snapshot)}
     </Draggable>
   );
