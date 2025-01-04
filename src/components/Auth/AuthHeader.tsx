@@ -40,12 +40,6 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isVisible]);
 
-  const handleMouseEnter = () => {
-    if (isPartiallyOpen) {
-      setIsVisible(true);
-    }
-  };
-
   const handleClickMinimized = () => {
     if (isPartiallyOpen) {
       setIsVisible(true);
@@ -55,6 +49,15 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
   const handleHide = () => {
     setIsVisible(false);
     setIsPartiallyOpen(true);
+  };
+
+  const handleToggle = () => {
+    if (isVisible) {
+      setIsVisible(false);
+      setIsPartiallyOpen(true);
+    } else {
+      setIsVisible(true);
+    }
   };
 
   return (
@@ -77,7 +80,6 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
             velocity: 2
           }}
           className="w-full bg-background border-b fixed top-0 z-50"
-          onMouseEnter={handleMouseEnter}
         >
           <div className="container mx-auto px-4">
             <AnimatePresence mode="wait">
@@ -122,7 +124,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
             </AnimatePresence>
           </div>
 
-          {/* Hide Button */}
+          {/* Toggle Button */}
           <motion.div 
             className="absolute left-1/2 -bottom-4 -translate-x-1/2 z-50"
             initial={{ opacity: 0, y: -10 }}
@@ -134,9 +136,15 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
               variant="outline"
               size="icon"
               className="h-8 w-8 rounded-full border shadow-md bg-background"
-              onClick={handleHide}
+              onClick={handleToggle}
             >
-              <ChevronUp className="h-4 w-4" />
+              <ChevronUp 
+                className="h-4 w-4" 
+                style={{ 
+                  transform: isVisible ? 'rotate(0deg)' : 'rotate(180deg)',
+                  transition: 'transform 0.3s ease'
+                }}
+              />
             </Button>
           </motion.div>
         </motion.div>
