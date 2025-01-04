@@ -5,7 +5,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { CalendarEvent } from "@/types/calendar";
-import { Copy, Paste, Edit, Trash } from "lucide-react";
+import { Copy, ClipboardPaste, Edit, Trash } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface LessonContextMenuProps {
@@ -49,7 +49,7 @@ export default function LessonContextMenu({
         </ContextMenuItem>
         {canPaste && (
           <ContextMenuItem onClick={onPaste} className="gap-2">
-            <Paste className="h-4 w-4" />
+            <ClipboardPaste className="h-4 w-4" />
             Yapıştır
           </ContextMenuItem>
         )}
