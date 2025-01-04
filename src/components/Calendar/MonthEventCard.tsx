@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -24,15 +23,10 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
   return (
     <Draggable draggableId={event.id} index={index}>
       {(provided, snapshot) => (
-        <motion.div
+        <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.2 }}
           className={cn(
             "p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
             snapshot.isDragging ? "shadow-lg opacity-70" : ""
@@ -51,7 +45,7 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
               {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
             </span>
           </div>
-        </motion.div>
+        </div>
       )}
     </Draggable>
   );
