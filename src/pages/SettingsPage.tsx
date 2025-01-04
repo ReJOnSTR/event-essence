@@ -6,6 +6,7 @@ import GeneralSettings from "@/components/Settings/GeneralSettings";
 import WorkingHoursSettings from "@/components/Settings/WorkingHoursSettings";
 import ThemeSettings from "@/components/Settings/ThemeSettings";
 import DataManagement from "@/components/Settings/DataManagement";
+import CustomHolidaySettings from "@/components/Settings/CustomHolidaySettings";
 import SideMenu from "@/components/Layout/SideMenu";
 import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
 
@@ -51,7 +52,10 @@ export default function SettingsPage() {
 
               <div className="space-y-6">
                 <TabsContent value="general">
-                  <GeneralSettings />
+                  <div className="space-y-6">
+                    <GeneralSettings />
+                    <CustomHolidaySettings />
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="working-hours">
