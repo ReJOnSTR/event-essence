@@ -11,7 +11,6 @@ import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { useEffect, useState } from "react";
-import SideMenu from "./components/Layout/SideMenu";
 
 const queryClient = new QueryClient();
 
@@ -80,7 +79,6 @@ const App = () => {
           <BrowserRouter>
             <div className="min-h-screen flex w-full overflow-hidden bg-background">
               <AuthHeader onHeightChange={setHeaderHeight} />
-              <SideMenu headerHeight={headerHeight} />
               <motion.div 
                 className="w-full"
                 animate={{ 
