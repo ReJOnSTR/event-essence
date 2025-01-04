@@ -29,13 +29,6 @@ const themes: Theme[] = [
     class: "sunset",
     preview: "bg-gradient-to-r from-[#ee9ca7] to-[#ffdde1]",
     description: "Sıcak ve romantik pembe tonları"
-  },
-  {
-    id: "sunset-dark",
-    name: "Gün Batımı (Karanlık)",
-    class: "sunset-dark",
-    preview: "bg-gradient-to-r from-[#1A1F2C] to-[#403E43]",
-    description: "Karanlık gün batımı teması"
   }
 ];
 
