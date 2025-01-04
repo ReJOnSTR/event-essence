@@ -30,6 +30,7 @@ export default function MonthCell({
   students
 }: MonthCellProps) {
   const holiday = isHoliday(day.date);
+  const isCurrentDay = isToday(day.date);
 
   if (isYearView) {
     return (
@@ -39,12 +40,15 @@ export default function MonthCell({
           "min-h-[40px] p-1 cursor-pointer transition-colors duration-150",
           "bg-background/80 hover:bg-accent/50",
           !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-          isToday(day.date) && "!bg-[#eff6ff] dark:!bg-[#354c5a]",
+          isCurrentDay && "!bg-[#eff6ff] dark:!bg-[#354c5a] font-semibold",
           holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
           holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
         )}
       >
-        <div className="text-xs font-medium">
+        <div className={cn(
+          "text-xs",
+          isCurrentDay && "text-calendar-blue dark:text-calendar-blue-dark font-medium"
+        )}>
           {format(day.date, "d")}
         </div>
       </div>
@@ -69,7 +73,7 @@ export default function MonthCell({
             "min-h-[120px] p-2 cursor-pointer transition-colors duration-150",
             "bg-background/80",
             !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-            isToday(day.date) && "!bg-[#eff6ff] dark:!bg-[#354c5a]",
+            isCurrentDay && "!bg-[#eff6ff] dark:!bg-[#354c5a] ring-2 ring-calendar-blue dark:ring-calendar-blue-dark",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
             snapshot.isDraggingOver && "bg-accent/50"
@@ -77,7 +81,7 @@ export default function MonthCell({
         >
           <div className={cn(
             "text-sm font-medium mb-1",
-            isToday(day.date) && "text-accent-foreground"
+            isCurrentDay && "text-calendar-blue dark:text-calendar-blue-dark"
           )}>
             {format(day.date, "d")}
             {holiday && (
