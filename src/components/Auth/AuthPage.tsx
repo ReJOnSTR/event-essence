@@ -12,6 +12,10 @@ export default function AuthPage() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
+        toast({
+          title: "Başarılı",
+          description: "Giriş yapıldı",
+        });
         navigate("/");
       } else if (event === "SIGNED_OUT") {
         navigate("/auth");
@@ -21,7 +25,7 @@ export default function AuthPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -55,7 +59,7 @@ export default function AuthPage() {
                 button_label: "Giriş Yap",
                 email_input_placeholder: "Email adresiniz",
                 password_input_placeholder: "Şifreniz",
-                link_text: "Zaten hesabınız var mı? Giriş yapın",
+                link_text: "Hesabınız yok mu? Kayıt olun",
               },
               sign_up: {
                 email_label: "Email",
@@ -63,12 +67,11 @@ export default function AuthPage() {
                 button_label: "Kayıt Ol",
                 email_input_placeholder: "Email adresiniz",
                 password_input_placeholder: "Şifreniz",
-                link_text: "Hesabınız yok mu? Kayıt olun",
+                link_text: "Zaten hesabınız var mı? Giriş yapın",
               },
             },
           }}
           providers={[]}
-          view="sign_in"
         />
       </div>
     </div>
