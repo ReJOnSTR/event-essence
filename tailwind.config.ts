@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -19,64 +18,49 @@ export default {
     },
     extend: {
       colors: {
-        "calendar-blue": {
-          DEFAULT: "#1a73e8",
-          dark: "#60a5fa"
-        },
-        "calendar-hover": {
-          DEFAULT: "#1557b0",
-          dark: "#3b82f6"
-        },
-        "calendar-gray": {
-          DEFAULT: "#70757a",
-          dark: "#9ca3af"
-        },
-        "calendar-border": {
-          DEFAULT: "#dadce0",
-          dark: "#374151"
-        },
-        "calendar-event": {
-          DEFAULT: "#039be5",
-          dark: "#38bdf8"
-        },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        "calendar-blue": "#1a73e8",
+        "calendar-hover": "#1557b0",
+        "calendar-gray": "#70757a",
+        "calendar-border": "#dadce0",
+        "calendar-event": "#039be5",
+        border: "#e2e8f0",
+        input: "#e2e8f0",
+        ring: "#2563eb",
+        background: "#ffffff",
+        foreground: "#0f172a",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#2563eb",
+          foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#f1f5f9",
+          foreground: "#0f172a",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#ef4444",
+          foreground: "#ffffff",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#f1f5f9",
+          foreground: "#64748b",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#f1f5f9",
+          foreground: "#0f172a",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "#ffffff",
+          foreground: "#0f172a",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#ffffff",
+          foreground: "#0f172a",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "0.5rem",
+        md: "0.375rem",
+        sm: "0.25rem",
       },
       keyframes: {
         "accordion-down": {
