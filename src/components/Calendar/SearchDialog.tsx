@@ -43,7 +43,7 @@ export default function SearchDialog({
       return (
         lesson.title.toLowerCase().includes(searchTermLower) ||
         lesson.description?.toLowerCase().includes(searchTermLower) ||
-        format(lesson.start, "d MMMM yyyy", { locale: tr })
+        format(new Date(lesson.start), "d MMMM yyyy", { locale: tr })
           .toLowerCase()
           .includes(searchTermLower) ||
         student?.name.toLowerCase().includes(searchTermLower)
@@ -60,7 +60,7 @@ export default function SearchDialog({
   }, [searchTerm, lessons, students]);
 
   const handleSelectDate = (date: Date) => {
-    onSelectDate(date);
+    onSelectDate(new Date(date));
     onClose();
   };
 
@@ -135,11 +135,11 @@ export default function SearchDialog({
                                 <span className="font-medium">{lesson.title}</span>
                                 <div className="flex items-center text-sm text-muted-foreground gap-1">
                                   <Clock className="h-3 w-3" />
-                                  {format(lesson.start, "HH:mm")}
+                                  {format(new Date(lesson.start), "HH:mm")}
                                 </div>
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                {format(lesson.start, "d MMMM yyyy", { locale: tr })}
+                                {format(new Date(lesson.start), "d MMMM yyyy", { locale: tr })}
                               </div>
                               {student && (
                                 <div className="flex items-center gap-2 text-sm">

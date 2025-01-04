@@ -7,7 +7,7 @@ import LessonDialog from "@/components/Calendar/LessonDialog";
 import StudentDialog from "@/components/Students/StudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
@@ -17,7 +17,45 @@ import SideMenu from "@/components/Layout/SideMenu";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import SearchDialog from "@/components/Calendar/SearchDialog";
-import { Search } from "lucide-react";
+
+// Extract the calendar view logic into a separate component
+const CalendarView = ({ 
+  currentView, 
+  selectedDate, 
+  lessons, 
+  onDateSelect, 
+  onEventClick, 
+  onEventUpdate, 
+  students 
+}: {
+  currentView: ViewType;
+  selectedDate: Date;
+  lessons: CalendarEvent[];
+  onDateSelect: (date: Date) => void;
+  onEventClick: (event: CalendarEvent) => void;
+  onEventUpdate: (event: CalendarEvent) => void;
+  students: Student[];
+}) => {
+  const viewProps = {
+    date: selectedDate,
+    events: lessons,
+    onDateSelect,
+    onEventClick,
+    onEventUpdate,
+    students,
+  };
+
+  switch (currentView) {
+    case "day":
+      return <DayView {...viewProps} />;
+    case "week":
+      return <WeekView {...viewProps} />;
+    case "year":
+      return <YearView {...viewProps} />;
+    default:
+      return <MonthView {...viewProps} />;
+  }
+};
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
@@ -37,7 +75,7 @@ export default function CalendarPage() {
   const { toast } = useToast();
   const { students, saveStudent, deleteStudent } = useStudents();
 
-  // Dersleri localStorage'a kaydetme
+  // Save lessons to localStorage
   useEffect(() => {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
@@ -152,7 +190,6 @@ export default function CalendarPage() {
           : lesson
       );
       setLessons(updatedLessons);
-      localStorage.setItem('lessons', JSON.stringify(updatedLessons));
       
       toast({
         title: "Öğrenci silindi",
@@ -176,28 +213,6 @@ export default function CalendarPage() {
       lesson.id === updatedEvent.id ? updatedEvent : lesson
     );
     setLessons(updatedLessons);
-  };
-
-  const renderView = () => {
-    const viewProps = {
-      date: selectedDate,
-      events: lessons,
-      onDateSelect: handleDateSelect,
-      onEventClick: handleLessonClick,
-      onEventUpdate: handleEventUpdate,
-      students: students,
-    };
-
-    switch (currentView) {
-      case "day":
-        return <DayView {...viewProps} />;
-      case "week":
-        return <WeekView {...viewProps} />;
-      case "year":
-        return <YearView {...viewProps} />;
-      default:
-        return <MonthView {...viewProps} />;
-    }
   };
 
   return (
@@ -251,7 +266,15 @@ export default function CalendarPage() {
           
           <div className="flex-1 overflow-auto">
             <div className="p-2 md:p-4">
-              {renderView()}
+              <CalendarView
+                currentView={currentView}
+                selectedDate={selectedDate}
+                lessons={lessons}
+                onDateSelect={handleDateSelect}
+                onEventClick={handleLessonClick}
+                onEventUpdate={handleEventUpdate}
+                students={students}
+              />
             </div>
           </div>
           
@@ -281,6 +304,17 @@ export default function CalendarPage() {
             setStudentPrice={setStudentPrice}
             studentColor={studentColor}
             setStudentColor={setStudentColor}
+          />
+
+          <SearchDialog
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onSelectDate={(date) => {
+              setSelectedDate(date);
+              setCurrentView('day');
+            }}
+            lessons={lessons}
+            students={students}
           />
         </div>
       </div>
