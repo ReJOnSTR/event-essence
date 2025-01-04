@@ -54,7 +54,7 @@ export function ReportFilters({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Select value={selectedStudent} onValueChange={setSelectedStudent}>
           <SelectTrigger>
             <SelectValue placeholder="Öğrenci Seçin" />
@@ -92,23 +92,19 @@ export function ReportFilters({
 
         {selectedPeriod === "custom" ? (
           <>
-            <div>
-              <DatePicker
-                date={startDate}
-                setDate={setStartDate}
-                placeholder="Başlangıç Tarihi"
-              />
-            </div>
-            <div>
-              <DatePicker
-                date={endDate}
-                setDate={setEndDate}
-                placeholder="Bitiş Tarihi"
-              />
-            </div>
+            <DatePicker
+              date={startDate}
+              setDate={setStartDate}
+              placeholder="Başlangıç Tarihi"
+            />
+            <DatePicker
+              date={endDate}
+              setDate={setEndDate}
+              placeholder="Bitiş Tarihi"
+            />
           </>
         ) : (
-          <div className="md:col-span-2">
+          <div className="sm:col-span-2">
             <DatePicker
               date={selectedDate}
               setDate={setSelectedDate}
