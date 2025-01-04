@@ -137,7 +137,7 @@ export default function DayView({
               transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
               className={cn(
                 "mb-4 p-2 rounded-md border",
-                !allowWorkOnHolidays ? "bg-red-50 text-red-700 border-red-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                !allowWorkOnHolidays ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-yellow-50 dark:bg-yellow-900/10 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/20"
               )}
             >
               {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
@@ -158,7 +158,7 @@ export default function DayView({
               }}
               className="grid grid-cols-12 gap-2"
             >
-              <div className="col-span-1 text-right text-sm text-gray-500 relative">
+              <div className="col-span-1 text-right text-sm text-muted-foreground relative">
                 {`${hour.toString().padStart(2, '0')}:00`}
                 <TimeIndicator events={dayEvents} hour={hour} />
               </div>
@@ -168,10 +168,10 @@ export default function DayView({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer relative",
-                      snapshot.isDraggingOver && "bg-blue-50",
+                      "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
+                      snapshot.isDraggingOver && "bg-primary/5",
                       (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
-                      "bg-gray-100 cursor-not-allowed"
+                      "bg-muted cursor-not-allowed"
                     )}
                     onClick={() => handleHourClick(hour, 0)}
                   >
