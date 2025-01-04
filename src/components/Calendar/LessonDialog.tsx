@@ -121,12 +121,26 @@ export default function LessonDialog({
 
   const createRecurringLessons = (baseStart: Date, baseEnd: Date) => {
     const lessons = [];
-    let currentStart = baseStart;
-    let currentEnd = baseEnd;
-    const dayOfWeek = getDay(baseStart); // 0-6 (Pazar-Cumartesi)
+    let currentStart = new Date(baseStart);
+    let currentEnd = new Date(baseEnd);
 
-    for (let i = 0; i < recurrenceCount; i++) {
-      // Aynı gün ve saatte çakışma kontrolü
+    // İlk dersi ekle
+    lessons.push({
+      start: new Date(currentStart),
+      end: new Date(currentEnd)
+    });
+
+    // Tekrarlayan dersleri ekle
+    for (let i = 1; i < recurrenceCount; i++) {
+      if (recurrenceType === "weekly") {
+        currentStart = addWeeks(currentStart, 1);
+        currentEnd = addWeeks(currentEnd, 1);
+      } else if (recurrenceType === "monthly") {
+        currentStart = addMonths(currentStart, 1);
+        currentEnd = addMonths(currentEnd, 1);
+      }
+
+      // Çakışma kontrolü
       if (checkLessonOverlap(currentStart, currentEnd, event?.id)) {
         toast({
           title: "Çakışma Tespit Edildi",
@@ -140,17 +154,6 @@ export default function LessonDialog({
         start: new Date(currentStart),
         end: new Date(currentEnd)
       });
-
-      // Bir sonraki tekrar için tarihleri güncelle
-      if (recurrenceType === "weekly") {
-        // Haftalık tekrarda aynı gün ve saate ekle
-        currentStart = addWeeks(currentStart, 1);
-        currentEnd = addWeeks(currentEnd, 1);
-      } else if (recurrenceType === "monthly") {
-        // Aylık tekrarda aynı gün ve saate ekle
-        currentStart = addMonths(currentStart, 1);
-        currentEnd = addMonths(currentEnd, 1);
-      }
     }
 
     return lessons;
