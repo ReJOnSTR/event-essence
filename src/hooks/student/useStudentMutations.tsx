@@ -4,21 +4,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
 export function useStudentMutations() {
-  const queryClient = useQueryClient();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const saveStudent = async (student: Student) => {
-    try {
+  const saveStudent = useMutation({
+    mutationFn: async (student: Student) => {
+      const {
+        data: { user },
+        error: sessionError
+      } = await supabase.auth.getUser();
+
+      if (sessionError || !user) {
+        throw new Error("Authentication required");
+      }
+
       const { data, error } = await supabase
         .from('students')
         .upsert({
           id: student.id,
           name: student.name,
           color: student.color,
-          price: student.price
+          price: student.price,
+          user_id: user.id
         })
         .select()
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error('Error saving student:', error);
@@ -26,67 +36,55 @@ export function useStudentMutations() {
       }
 
       return data;
-    } catch (error: any) {
-      console.error('Error saving student:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      });
-      throw error;
-    }
-  };
-
-  const { mutateAsync: saveMutation } = useMutation({
-    mutationFn: saveStudent,
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
       toast({
         title: "Başarılı",
-        description: "Öğrenci kaydedildi.",
+        description: "Öğrenci başarıyla kaydedildi.",
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
+      console.error('Error saving student:', error);
       toast({
         title: "Hata",
-        description: "Öğrenci kaydedilemedi: " + error.message,
-        variant: "destructive",
+        description: "Öğrenci kaydedilirken bir hata oluştu.",
+        variant: "destructive"
       });
-    },
+    }
   });
 
-  const deleteStudent = async (studentId: string) => {
-    const { error } = await supabase
-      .from('students')
-      .delete()
-      .eq('id', studentId);
+  const deleteStudent = useMutation({
+    mutationFn: async (studentId: string) => {
+      const { error } = await supabase
+        .from('students')
+        .delete()
+        .eq('id', studentId);
 
-    if (error) {
-      console.error('Error deleting student:', error);
-      throw error;
-    }
-  };
-
-  const { mutateAsync: deleteMutation } = useMutation({
-    mutationFn: deleteStudent,
+      if (error) {
+        console.error('Error deleting student:', error);
+        throw error;
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
       toast({
         title: "Başarılı",
-        description: "Öğrenci silindi.",
+        description: "Öğrenci başarıyla silindi.",
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
+      console.error('Error deleting student:', error);
       toast({
         title: "Hata",
-        description: "Öğrenci silinemedi: " + error.message,
-        variant: "destructive",
+        description: "Öğrenci silinirken bir hata oluştu.",
+        variant: "destructive"
       });
-    },
+    }
   });
 
   return {
-    saveStudent: saveMutation,
-    deleteStudent: deleteMutation,
+    saveStudent,
+    deleteStudent
   };
 }
