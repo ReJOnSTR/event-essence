@@ -47,13 +47,19 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
           initial={{ height: 0 }}
           animate={{ height: isVisible ? "12rem" : "2rem" }}
           exit={{ height: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
           className="w-full bg-background border-b fixed top-0 z-50"
           onMouseEnter={handleMouseEnter}
         >
           <div className="container mx-auto px-4 relative">
             {isVisible ? (
-              <div className="py-8 flex flex-col items-center gap-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="py-8 flex flex-col items-center gap-6"
+              >
                 <h2 className="text-2xl font-semibold">Hoş Geldiniz</h2>
                 <div className="flex gap-4">
                   <Button className="w-32">
@@ -73,9 +79,15 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                 >
                   <ChevronUp className="h-4 w-4" />
                 </Button>
-              </div>
+              </motion.div>
             ) : (
-              <div className="h-8 flex items-center justify-center relative">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="h-8 flex items-center justify-center relative"
+              >
                 <span className="text-sm text-muted-foreground">
                   Giriş yapmak için tıklayın
                 </span>
@@ -87,7 +99,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                 >
                   <ChevronDown className="h-4 w-4" />
                 </Button>
-              </div>
+              </motion.div>
             )}
           </div>
         </motion.div>
