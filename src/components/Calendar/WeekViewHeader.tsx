@@ -30,18 +30,25 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
               ease: [0.23, 1, 0.32, 1]
             }}
             className={cn(
-              "bg-white p-2 text-center",
+              "bg-white p-2 text-center relative min-h-[80px] flex flex-col justify-between",
               isToday(day) && "text-calendar-blue"
             )}
           >
-            <div className="font-medium">
-              {format(day, isMobile ? "EEE" : "EEEE", { locale: tr })}
-            </div>
-            <div className="text-sm text-gray-500">
-              {format(day, "d MMM", { locale: tr })}
+            <div>
+              <div className="font-medium">
+                {format(day, isMobile ? "EEE" : "EEEE", { locale: tr })}
+              </div>
+              <div className="text-sm text-gray-500">
+                {format(day, "d MMM", { locale: tr })}
+              </div>
             </div>
             {holiday && (
-              <div className="text-xs text-gray-500">
+              <div 
+                className={cn(
+                  "text-xs px-2 py-1 rounded-md mt-1",
+                  "bg-red-50 text-red-700 border border-red-100"
+                )}
+              >
                 {holiday.name}
               </div>
             )}
