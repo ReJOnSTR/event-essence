@@ -17,6 +17,13 @@ type Theme = {
 
 const themes: Theme[] = [
   {
+    id: "system",
+    name: "Sistem Teması",
+    class: "system",
+    preview: "bg-gradient-to-r from-[#f8fafc] to-[#1A1F2C]",
+    description: "Sistem ayarlarına göre otomatik tema"
+  },
+  {
     id: "light",
     name: "Açık Tema",
     class: "light",
@@ -55,7 +62,7 @@ const fontFamilies = [
 
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
+    return localStorage.getItem("theme") || "system";
   });
   
   const [fontSize, setFontSize] = useState(() => {
@@ -69,29 +76,42 @@ export default function ThemeSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Remove all theme classes
-    document.documentElement.classList.remove(...themes.map(t => t.class));
-    // Add selected theme class
-    document.documentElement.classList.add(currentTheme);
-    // Save to localStorage
-    localStorage.setItem("theme", currentTheme);
-    
-    // Apply font size
+    const handleThemeChange = () => {
+      if (currentTheme === "system") {
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", systemTheme);
+      } else {
+        document.documentElement.setAttribute("data-theme", currentTheme);
+      }
+    };
+
+    handleThemeChange();
+
+    // Sistem teması değişikliğini dinle
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", handleThemeChange);
+
+    // Font ayarlarını uygula
     document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
     document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
     localStorage.setItem("fontSize", fontSize);
 
-    // Apply font family
     const selectedFont = fontFamilies.find(f => f.id === fontFamily);
     if (selectedFont) {
       document.documentElement.style.setProperty('--font-family', selectedFont.value);
       localStorage.setItem("fontFamily", fontFamily);
     }
+
+    localStorage.setItem("theme", currentTheme);
     
     toast({
       title: "Görünüm ayarları güncellendi",
       description: "Yeni ayarlarınız kaydedildi.",
     });
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleThemeChange);
+    };
   }, [currentTheme, fontSize, fontFamily, toast]);
 
   return (
