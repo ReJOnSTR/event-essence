@@ -1,5 +1,5 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
+import { format, isToday, setHours, setMinutes, differenceInMinutes } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
 import StaticLessonCard from "./StaticLessonCard";
@@ -128,6 +128,13 @@ export default function DayView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
       >
+        <div className={cn(
+          "text-lg font-medium mb-4",
+          isToday(date) && "text-calendar-blue dark:text-calendar-blue-dark"
+        )}>
+          {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
+        </div>
+
         <AnimatePresence>
           {holiday && (
             <motion.div 
