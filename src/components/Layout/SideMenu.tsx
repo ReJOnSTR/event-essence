@@ -52,65 +52,67 @@ export default function SideMenu({
         ease: "easeInOut"
       }}
     >
-      <SidebarMenu className="p-2">
-        {menuItems.map((item) => (
-          <SidebarMenuItem key={item.path}>
-            <Link 
-              to={item.path} 
-              className="block"
-              onClick={(e) => {
-                e.preventDefault();
-                window.history.pushState({}, '', item.path);
-                window.dispatchEvent(new PopStateEvent('popstate'));
-              }}
-            >
-              <SidebarMenuButton 
-                className="w-full hover:bg-secondary rounded-md transition-colors"
-                data-active={isActive(item.path)}
+      <div className="flex flex-col flex-grow">
+        <SidebarMenu className="p-2">
+          {menuItems.map((item) => (
+            <SidebarMenuItem key={item.path}>
+              <Link 
+                to={item.path} 
+                className="block"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', item.path);
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
               >
-                <item.icon className="h-4 w-4" />
-                <span>{item.label}</span>
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
-
-      <SidebarGroup className="mt-6">
-        <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
-        <SidebarGroupContent className="mt-2">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                onClick={onAddStudent}
-                className="w-full hover:bg-secondary rounded-md transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Öğrenci Ekle</span>
-              </SidebarMenuButton>
+                <SidebarMenuButton 
+                  className="w-full hover:bg-secondary rounded-md transition-colors"
+                  data-active={isActive(item.path)}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
 
-            <ScrollArea className="h-[200px] px-1">
-              {students.map((student) => (
-                <SidebarMenuItem key={student.id}>
-                  <SidebarMenuButton 
-                    onClick={() => onEdit?.(student)}
-                    className="w-full hover:bg-secondary rounded-md transition-colors group"
-                  >
-                    <div
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: student.color }}
-                    />
-                    <span className="truncate group-hover:text-secondary-foreground">
-                      {student.name}
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </ScrollArea>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
+        <SidebarGroup className="mt-4">
+          <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
+          <SidebarGroupContent className="mt-2">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  onClick={onAddStudent}
+                  className="w-full hover:bg-secondary rounded-md transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Öğrenci Ekle</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <ScrollArea className="h-[200px] px-1">
+                {students.map((student) => (
+                  <SidebarMenuItem key={student.id}>
+                    <SidebarMenuButton 
+                      onClick={() => onEdit?.(student)}
+                      className="w-full hover:bg-secondary rounded-md transition-colors group"
+                    >
+                      <div
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: student.color }}
+                      />
+                      <span className="truncate group-hover:text-secondary-foreground">
+                        {student.name}
+                      </span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </ScrollArea>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </div>
 
       <SidebarFooter className="mt-auto">
         <div className="border-t pt-4">
