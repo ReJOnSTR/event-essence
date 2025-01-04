@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,10 +7,10 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { AnimatePresence, motion } from "framer-motion";
 import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { AuthHeader } from "@/components/Auth/AuthHeader";
-import CalendarPage from "./pages/CalendarPage";
-import StudentsManagementPage from "./pages/StudentsManagementPage";
-import ReportsPage from "./pages/ReportsPage";
-import SettingsPage from "./pages/SettingsPage";
+import CalendarPage from "./CalendarPage";
+import StudentsManagementPage from "./StudentsManagementPage";
+import ReportsPage from "./ReportsPage";
+import SettingsPage from "./SettingsPage";
 import SideMenu from "@/components/Layout/SideMenu";
 
 const queryClient = new QueryClient();
@@ -69,7 +70,15 @@ const AnimatedRoutes = () => {
   );
 };
 
-const App = () => {
+const CalendarPage = () => {
+  const [studentDialogState, setStudentDialogState] = useState({
+    selectedStudent: null,
+    studentName: "",
+    studentPrice: 0,
+    studentColor: "#1a73e8"
+  });
+  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -97,7 +106,7 @@ const App = () => {
                 <main className="flex-1 overflow-hidden">
                   <Toaster />
                   <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
-                  <AnimatedRoutes />
+                  {/* Calendar content will go here */}
                 </main>
               </div>
             </div>
@@ -108,4 +117,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default CalendarPage;
