@@ -1,13 +1,37 @@
-import { PageHeader } from "@/components/Layout/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { useState } from "react";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useStudents } from "@/hooks/useStudents";
 import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import SideMenu from "@/components/Layout/SideMenu";
+import { motion } from "framer-motion";
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24
+    }
+  }
+};
 
 export default function StudentsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -58,28 +82,43 @@ export default function StudentsManagementPage() {
         </Sidebar>
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          <div className="flex items-center gap-2 md:gap-4 p-2 md:p-4 border-b bg-background">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex items-center gap-2 md:gap-4 p-2 md:p-4 border-b bg-background"
+          >
             <SidebarTrigger />
             <h1 className="text-lg md:text-2xl font-semibold text-foreground truncate">
               Öğrenci Yönetimi
             </h1>
-            <div className="ml-auto">
+            <motion.div 
+              className="ml-auto"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               <Button onClick={() => setIsDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Öğrenci Ekle
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-auto">
+          <motion.div 
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-auto"
+          >
             {students.map((student) => (
-              <StudentCard
-                key={student.id}
-                student={student}
-                onClick={handleEditStudent}
-              />
+              <motion.div key={student.id} variants={item}>
+                <StudentCard
+                  student={student}
+                  onClick={handleEditStudent}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <StudentDialog
             isOpen={isDialogOpen}
