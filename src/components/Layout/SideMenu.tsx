@@ -46,16 +46,13 @@ export default function SideMenu({
             to={item.path} 
             className="block"
             onClick={(e) => {
-              // Prevent the default link behavior which might trigger sidebar closing
               e.preventDefault();
-              // Use the history API directly to navigate without side effects
               window.history.pushState({}, '', item.path);
-              // Trigger a navigation event to update the router
               window.dispatchEvent(new PopStateEvent('popstate'));
             }}
           >
             <SidebarMenuButton 
-              className="w-full hover:bg-accent rounded-md transition-colors"
+              className="w-full hover:bg-secondary rounded-md transition-colors"
               data-active={isActive(item.path)}
             >
               <item.icon className="h-4 w-4" />
@@ -72,7 +69,7 @@ export default function SideMenu({
             <SidebarMenuItem>
               <SidebarMenuButton 
                 onClick={onAddStudent}
-                className="w-full hover:bg-accent rounded-md transition-colors"
+                className="w-full hover:bg-secondary rounded-md transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 <span>Öğrenci Ekle</span>
@@ -84,13 +81,13 @@ export default function SideMenu({
                 <SidebarMenuItem key={student.id}>
                   <SidebarMenuButton 
                     onClick={() => onEdit?.(student)}
-                    className="w-full hover:bg-accent rounded-md transition-colors group"
+                    className="w-full hover:bg-secondary rounded-md transition-colors group"
                   >
                     <div
                       className="h-2 w-2 rounded-full"
                       style={{ backgroundColor: student.color }}
                     />
-                    <span className="truncate group-hover:text-accent-foreground">
+                    <span className="truncate group-hover:text-secondary-foreground">
                       {student.name}
                     </span>
                   </SidebarMenuButton>
@@ -116,6 +113,7 @@ export default function SideMenu({
                 variant="ghost" 
                 size="icon"
                 data-active={isActive("/settings")}
+                className="hover:bg-secondary"
               >
                 <Settings className="h-4 w-4" />
               </Button>
