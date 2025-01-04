@@ -2,7 +2,7 @@ import React from "react";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent, Student } from "@/types/calendar";
@@ -33,6 +33,19 @@ export default function WeekViewTimeGrid({
 }: WeekViewTimeGridProps) {
   const { toast } = useToast();
 
+  const handleCellClick = (day: Date, hour: number) => {
+    const holiday = isHoliday(day);
+    if (holiday && !allowWorkOnHolidays) {
+      toast({
+        title: "Resmi Tatil",
+        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    onCellClick(day, hour);
+  };
+
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
@@ -41,6 +54,16 @@ export default function WeekViewTimeGrid({
     const event = events.find(e => e.id === result.draggableId);
     
     if (!event) return;
+
+    const holiday = isHoliday(targetDay);
+    if (holiday && !allowWorkOnHolidays) {
+      toast({
+        title: "Resmi Tatil",
+        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
 
     const dayOfWeek = format(targetDay, 'EEEE').toLowerCase() as keyof typeof workingHours;
     const daySettings = workingHours[dayOfWeek];
@@ -100,7 +123,7 @@ export default function WeekViewTimeGrid({
                       isWorkDisabled && "bg-gray-100 cursor-not-allowed",
                       snapshot.isDraggingOver && "bg-blue-50"
                     )}
-                    onClick={() => onCellClick(day, hour)}
+                    onClick={() => handleCellClick(day, hour)}
                   >
                     {events
                       .filter(
