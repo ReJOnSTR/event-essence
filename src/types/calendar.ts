@@ -21,3 +21,15 @@ export interface DayCell {
 }
 
 export type CalendarEvent = Lesson;
+
+export interface DateRange {
+  start: Date;
+  end: Date;
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+export type Period = 'weekly' | 'monthly' | 'yearly' | 'custom';

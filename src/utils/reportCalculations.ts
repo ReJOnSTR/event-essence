@@ -1,4 +1,4 @@
-import { Lesson } from "@/types/calendar";
+import { Lesson, Period, DateRange } from "@/types/calendar";
 import { 
   startOfWeek, 
   endOfWeek, 
@@ -7,8 +7,8 @@ import {
   startOfYear, 
   endOfYear, 
   isWithinInterval,
-  parseISO,
 } from "date-fns";
+import { useMemo } from "react";
 
 export interface PeriodHours {
   weekly: number;
@@ -24,167 +24,119 @@ export interface PeriodEarnings {
   custom?: number;
 }
 
-export const calculatePeriodHours = (
+const getPeriodRange = (period: Period, selectedDate: Date, customRange?: DateRange): DateRange => {
+  switch (period) {
+    case 'weekly':
+      return {
+        start: startOfWeek(selectedDate, { weekStartsOn: 1 }),
+        end: endOfWeek(selectedDate, { weekStartsOn: 1 })
+      };
+    case 'monthly':
+      return {
+        start: startOfMonth(selectedDate),
+        end: endOfMonth(selectedDate)
+      };
+    case 'yearly':
+      return {
+        start: startOfYear(selectedDate),
+        end: endOfYear(selectedDate)
+      };
+    case 'custom':
+      if (!customRange) throw new Error('Custom range required for custom period');
+      return customRange;
+  }
+};
+
+export const useCalculatePeriodHours = (
   lessons: Lesson[],
   selectedDate: Date,
   selectedStudent: string,
-  startDate?: Date,
-  endDate?: Date
+  customRange?: DateRange
 ): PeriodHours => {
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
-  
-  const monthStart = startOfMonth(selectedDate);
-  const monthEnd = endOfMonth(selectedDate);
-  
-  const yearStart = startOfYear(selectedDate);
-  const yearEnd = endOfYear(selectedDate);
+  return useMemo(() => {
+    const periods: Period[] = ['weekly', 'monthly', 'yearly'];
+    if (customRange) periods.push('custom');
 
-  let weeklyCount = 0;
-  let monthlyCount = 0;
-  let yearlyCount = 0;
-  let customCount = 0;
+    const result: Partial<PeriodHours> = {};
 
-  lessons.forEach((lesson) => {
-    const lessonStart = new Date(lesson.start);
+    periods.forEach(period => {
+      const range = getPeriodRange(period, selectedDate, customRange);
+      let count = 0;
 
-    if (selectedStudent === "all" || lesson.studentId === selectedStudent) {
-      if (isWithinInterval(lessonStart, { start: weekStart, end: weekEnd })) {
-        weeklyCount++;
-      }
-      if (isWithinInterval(lessonStart, { start: monthStart, end: monthEnd })) {
-        monthlyCount++;
-      }
-      if (isWithinInterval(lessonStart, { start: yearStart, end: yearEnd })) {
-        yearlyCount++;
-      }
-      if (startDate && endDate && isWithinInterval(lessonStart, { start: startDate, end: endDate })) {
-        customCount++;
-      }
-    }
-  });
+      lessons.forEach(lesson => {
+        const lessonStart = new Date(lesson.start);
+        if ((selectedStudent === "all" || lesson.studentId === selectedStudent) &&
+            isWithinInterval(lessonStart, range)) {
+          count++;
+        }
+      });
 
-  return {
-    weekly: weeklyCount,
-    monthly: monthlyCount,
-    yearly: yearlyCount,
-    ...(startDate && endDate ? { custom: customCount } : {})
-  };
+      result[period] = count;
+    });
+
+    return result as PeriodHours;
+  }, [lessons, selectedDate, selectedStudent, customRange]);
 };
 
-export const calculatePeriodEarnings = (
+export const useCalculatePeriodEarnings = (
   lessons: Lesson[],
   selectedDate: Date,
   selectedStudent: string,
   students: { id: string; price: number; }[],
-  startDate?: Date,
-  endDate?: Date
+  customRange?: DateRange
 ): PeriodEarnings => {
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
-  
-  const monthStart = startOfMonth(selectedDate);
-  const monthEnd = endOfMonth(selectedDate);
-  
-  const yearStart = startOfYear(selectedDate);
-  const yearEnd = endOfYear(selectedDate);
+  return useMemo(() => {
+    const periods: Period[] = ['weekly', 'monthly', 'yearly'];
+    if (customRange) periods.push('custom');
 
-  let weeklyEarnings = 0;
-  let monthlyEarnings = 0;
-  let yearlyEarnings = 0;
-  let customEarnings = 0;
+    const result: Partial<PeriodEarnings> = {};
 
-  lessons.forEach((lesson) => {
-    const lessonStart = new Date(lesson.start);
-    
-    if (selectedStudent === "all" || lesson.studentId === selectedStudent) {
-      const student = students.find(s => s.id === lesson.studentId);
-      const price = student?.price || 0;
+    periods.forEach(period => {
+      const range = getPeriodRange(period, selectedDate, customRange);
+      let earnings = 0;
 
-      if (isWithinInterval(lessonStart, { start: weekStart, end: weekEnd })) {
-        weeklyEarnings += price;
-      }
-      if (isWithinInterval(lessonStart, { start: monthStart, end: monthEnd })) {
-        monthlyEarnings += price;
-      }
-      if (isWithinInterval(lessonStart, { start: yearStart, end: yearEnd })) {
-        yearlyEarnings += price;
-      }
-      if (startDate && endDate && isWithinInterval(lessonStart, { start: startDate, end: endDate })) {
-        customEarnings += price;
-      }
-    }
-  });
+      lessons.forEach(lesson => {
+        const lessonStart = new Date(lesson.start);
+        if ((selectedStudent === "all" || lesson.studentId === selectedStudent) &&
+            isWithinInterval(lessonStart, range)) {
+          const student = students.find(s => s.id === lesson.studentId);
+          earnings += student?.price || 0;
+        }
+      });
 
-  return {
-    weekly: Math.round(weeklyEarnings),
-    monthly: Math.round(monthlyEarnings),
-    yearly: Math.round(yearlyEarnings),
-    ...(startDate && endDate ? { custom: Math.round(customEarnings) } : {})
-  };
+      result[period] = Math.round(earnings);
+    });
+
+    return result as PeriodEarnings;
+  }, [lessons, selectedDate, selectedStudent, students, customRange]);
 };
 
-export const getFilteredLessons = (
+export const useFilteredLessons = (
   lessons: Lesson[],
   selectedDate: Date,
   selectedStudent: string,
-  selectedPeriod: "weekly" | "monthly" | "yearly" | "custom",
-  startDate?: Date,
-  endDate?: Date
+  selectedPeriod: Period,
+  customRange?: DateRange
 ): Lesson[] => {
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
-  
-  const monthStart = startOfMonth(selectedDate);
-  const monthEnd = endOfMonth(selectedDate);
-  
-  const yearStart = startOfYear(selectedDate);
-  const yearEnd = endOfYear(selectedDate);
+  return useMemo(() => {
+    try {
+      const range = getPeriodRange(selectedPeriod, selectedDate, customRange);
 
-  return lessons
-    .filter((lesson) => {
-      // Tarihi string ise Date objesine çevir
-      const lessonStart = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
-      
-      // Öğrenci filtresi
-      if (selectedStudent !== "all" && lesson.studentId !== selectedStudent) {
-        return false;
-      }
-
-      // Tarih aralığı filtresi
-      let periodStart: Date;
-      let periodEnd: Date;
-
-      switch (selectedPeriod) {
-        case "weekly":
-          periodStart = weekStart;
-          periodEnd = weekEnd;
-          break;
-        case "monthly":
-          periodStart = monthStart;
-          periodEnd = monthEnd;
-          break;
-        case "yearly":
-          periodStart = yearStart;
-          periodEnd = yearEnd;
-          break;
-        case "custom":
-          if (!startDate || !endDate) return false;
-          periodStart = startDate;
-          periodEnd = endDate;
-          break;
-        default:
-          return false;
-      }
-
-      return isWithinInterval(lessonStart, { 
-        start: periodStart, 
-        end: periodEnd 
-      });
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.start);
-      const dateB = new Date(b.start);
-      return dateA.getTime() - dateB.getTime();
-    });
+      return lessons
+        .filter(lesson => {
+          const lessonStart = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
+          
+          return (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
+                 isWithinInterval(lessonStart, range);
+        })
+        .sort((a, b) => {
+          const dateA = new Date(a.start);
+          const dateB = new Date(b.start);
+          return dateA.getTime() - dateB.getTime();
+        });
+    } catch (error) {
+      console.error('Error filtering lessons:', error);
+      return [];
+    }
+  }, [lessons, selectedDate, selectedStudent, selectedPeriod, customRange]);
 };
