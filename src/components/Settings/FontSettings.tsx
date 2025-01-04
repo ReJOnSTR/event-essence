@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const fontSizes = {
+export const fontSizes = {
   small: {
     base: "14px",
     heading: "18px"
@@ -15,7 +15,7 @@ const fontSizes = {
   }
 };
 
-const fontFamilies = [
+export const fontFamilies = [
   { id: "inter", name: "Inter", value: "Inter, sans-serif" },
   { id: "roboto", name: "Roboto", value: "Roboto, sans-serif" },
   { id: "system", name: "Sistem Yazı Tipi", value: "system-ui, sans-serif" }

@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
-import { FontSettings } from "./FontSettings";
+import { FontSettings, fontSizes, fontFamilies } from "./FontSettings";
 import { ThemeOptions } from "./ThemeOptions";
 
 export default function ThemeSettings() {
@@ -32,7 +28,6 @@ export default function ThemeSettings() {
       }
     };
 
-    // Sadece tema değiştiğinde uygula
     if (localStorage.getItem("theme") !== currentTheme) {
       applyTheme(currentTheme);
       localStorage.setItem("theme", currentTheme);
@@ -47,7 +42,6 @@ export default function ThemeSettings() {
   }, [currentTheme, applyTheme]);
 
   useEffect(() => {
-    // Font ayarlarını güncelle
     document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
     document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
     localStorage.setItem("fontSize", fontSize);
