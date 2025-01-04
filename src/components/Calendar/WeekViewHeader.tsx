@@ -19,7 +19,6 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
       <div className="bg-background w-16" />
       {weekDays.map((day, index) => {
         const holiday = isHoliday(day);
-        const isCurrentDay = isToday(day);
         return (
           <motion.div
             key={day.toString()}
@@ -32,19 +31,12 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
             }}
             className={cn(
               "bg-background p-2 text-center relative min-h-[60px] md:min-h-[80px] flex flex-col justify-between",
-              isCurrentDay && "text-[#1a73e8]"
+              isToday(day) && "text-[#1a73e8]"
             )}
           >
             <div>
               <div className="font-medium text-sm md:text-base">
-                {isCurrentDay ? (
-                  <span>
-                    <span className="text-[#1a73e8]">bugün</span>{" "}
-                    {format(day, isMobile ? "EEE" : "EEEE", { locale: tr })}
-                  </span>
-                ) : (
-                  format(day, isMobile ? "EEE" : "EEEE", { locale: tr })
-                )}
+                {format(day, isMobile ? "EEE" : "EEEE", { locale: tr })}
               </div>
               <div className="text-xs md:text-sm text-muted-foreground">
                 {format(day, "d MMM", { locale: tr })}
