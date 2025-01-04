@@ -41,7 +41,6 @@ const AnimatedRoutes = () => {
   const location = useLocation();
   
   useEffect(() => {
-    // Tema ayarını localStorage'dan al veya varsayılan olarak 'light' kullan
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
@@ -55,7 +54,7 @@ const AnimatedRoutes = () => {
         exit="exit"
         variants={pageVariants}
         transition={pageTransition}
-        className="w-full h-screen"
+        className="w-full h-full"
       >
         <Routes location={location}>
           <Route path="/calendar" element={<CalendarPage />} />
@@ -74,7 +73,7 @@ const App = () => (
     <TooltipProvider>
       <SidebarProvider>
         <BrowserRouter>
-          <div className="min-h-screen flex w-full bg-background">
+          <div className="min-h-screen flex w-full overflow-hidden bg-background">
             <Toaster />
             <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
             <AnimatedRoutes />
