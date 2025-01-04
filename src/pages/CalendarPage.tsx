@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
@@ -93,7 +93,7 @@ export default function CalendarPage() {
   };
 
   // Save lessons to localStorage
-  React.useEffect(() => {
+  useEffect(() => {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
 
@@ -113,6 +113,7 @@ export default function CalendarPage() {
                 setIsStudentDialogOpen(true);
               }}
               onAddStudent={() => setIsStudentDialogOpen(true)}
+              headerHeight={192} // Assuming a fixed height for the header
             />
           </SidebarContent>
         </Sidebar>
