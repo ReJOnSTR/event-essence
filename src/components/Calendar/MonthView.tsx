@@ -123,7 +123,7 @@ export default function MonthView({
           {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
             <div
               key={day}
-              className="bg-background p-1 text-xs font-medium text-muted-foreground text-center"
+              className="bg-background/80 p-1 text-xs font-medium text-muted-foreground text-center"
             >
               {day}
             </div>
@@ -136,7 +136,7 @@ export default function MonthView({
                 key={idx}
                 onClick={() => handleDateClick(day.date)}
                 className={cn(
-                  "min-h-[40px] p-1 bg-background cursor-pointer hover:bg-accent/50 transition-colors duration-150",
+                  "min-h-[40px] p-1 bg-background/80 cursor-pointer hover:bg-accent/50 transition-colors duration-150",
                   !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
                   isToday(day.date) && "bg-accent text-accent-foreground",
                   holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
@@ -173,7 +173,7 @@ export default function MonthView({
                 delay: index * 0.01,
                 ease: [0.23, 1, 0.32, 1]
               }}
-              className="bg-background p-2 text-sm font-medium text-muted-foreground text-center"
+              className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
             >
               {day}
             </motion.div>
@@ -196,7 +196,7 @@ export default function MonthView({
                     }}
                     onClick={() => handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] p-2 bg-background cursor-pointer transition-colors duration-150",
+                      "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
                       !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
                       isToday(day.date) && "bg-accent text-accent-foreground",
                       holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
