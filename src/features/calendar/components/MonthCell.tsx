@@ -13,7 +13,7 @@ interface MonthCellProps {
     lessons: CalendarEvent[];
   };
   idx: number;
-  holiday: any;
+  holiday: ReturnType<typeof isHoliday>;
   allowWorkOnHolidays: boolean;
   handleDateClick: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
@@ -44,8 +44,8 @@ export default function MonthCell({
           }}
           onClick={() => handleDateClick(day.date)}
           className={cn(
-            "min-h-[120px] p-2 bg-background cursor-pointer transition-colors duration-150",
-            !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
+            "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
+            !day.isCurrentMonth && "text-muted-foreground/50 bg-muted/30",
             isToday(day.date) && "bg-accent text-accent-foreground",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
@@ -53,7 +53,8 @@ export default function MonthCell({
           )}
         >
           <div className={cn(
-            "text-sm font-medium mb-1 text-foreground",
+            "text-sm font-medium mb-1",
+            !day.isCurrentMonth && "text-muted-foreground/50",
             isToday(day.date) && "text-accent-foreground"
           )}>
             {format(day.date, "d")}
