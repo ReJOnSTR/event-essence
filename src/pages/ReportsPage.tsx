@@ -4,11 +4,12 @@ import { ReportFilters } from "@/components/Reports/ReportFilters";
 import { StatsCards } from "@/components/Reports/StatsCards";
 import { LessonList } from "@/components/Reports/LessonList";
 import { PdfReport } from "@/components/Reports/PdfReport";
-import { useStudents } from "@/hooks/useStudents";
-import { useLessons } from "@/hooks/useLessons";
+import { useReportData } from "@/hooks/useReportData";
 import SideMenu from "@/components/Layout/SideMenu";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
 
 export default function ReportsPage() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
@@ -23,8 +24,23 @@ export default function ReportsPage() {
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState<string>("#000000");
   
-  const { students = [] } = useStudents();
-  const { lessons = [] } = useLessons();
+  const { lessons, students, isLoading, error } = useReportData(
+    selectedStudent,
+    selectedPeriod,
+    selectedDate,
+    startDate,
+    endDate
+  );
+
+  const { toast } = useToast();
+
+  if (error) {
+    toast({
+      variant: "destructive",
+      title: "Hata",
+      description: "Veriler yüklenirken bir hata oluştu."
+    });
+  }
 
   const handleEditStudent = (student: Student) => {
     setEditingStudent(student);
@@ -65,48 +81,56 @@ export default function ReportsPage() {
           </div>
 
           <div className="p-4 space-y-4 overflow-auto">
-            <ReportFilters
-              selectedStudent={selectedStudent}
-              setSelectedStudent={setSelectedStudent}
-              selectedPeriod={selectedPeriod}
-              setSelectedPeriod={setSelectedPeriod}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              startDate={startDate}
-              setStartDate={setStartDate}
-              endDate={endDate}
-              setEndDate={setEndDate}
-              students={students}
-            />
-            
-            <StatsCards
-              lessons={lessons}
-              students={students}
-              selectedDate={selectedDate}
-              selectedStudent={selectedStudent}
-              startDate={startDate}
-              endDate={endDate}
-            />
-            
-            <LessonList
-              lessons={lessons}
-              students={students}
-              selectedStudent={selectedStudent}
-              selectedPeriod={selectedPeriod}
-              selectedDate={selectedDate}
-              startDate={startDate}
-              endDate={endDate}
-            />
+            {isLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                <ReportFilters
+                  selectedStudent={selectedStudent}
+                  setSelectedStudent={setSelectedStudent}
+                  selectedPeriod={selectedPeriod}
+                  setSelectedPeriod={setSelectedPeriod}
+                  selectedDate={selectedDate}
+                  setSelectedDate={setSelectedDate}
+                  startDate={startDate}
+                  setStartDate={setStartDate}
+                  endDate={endDate}
+                  setEndDate={setEndDate}
+                  students={students}
+                />
+                
+                <StatsCards
+                  lessons={lessons}
+                  students={students}
+                  selectedDate={selectedDate}
+                  selectedStudent={selectedStudent}
+                  startDate={startDate}
+                  endDate={endDate}
+                />
+                
+                <LessonList
+                  lessons={lessons}
+                  students={students}
+                  selectedStudent={selectedStudent}
+                  selectedPeriod={selectedPeriod}
+                  selectedDate={selectedDate}
+                  startDate={startDate}
+                  endDate={endDate}
+                />
 
-            <PdfReport
-              lessons={lessons}
-              students={students}
-              selectedStudent={selectedStudent}
-              selectedPeriod={selectedPeriod}
-              selectedDate={selectedDate}
-              startDate={startDate}
-              endDate={endDate}
-            />
+                <PdfReport
+                  lessons={lessons}
+                  students={students}
+                  selectedStudent={selectedStudent}
+                  selectedPeriod={selectedPeriod}
+                  selectedDate={selectedDate}
+                  startDate={startDate}
+                  endDate={endDate}
+                />
+              </>
+            )}
           </div>
         </div>
 
