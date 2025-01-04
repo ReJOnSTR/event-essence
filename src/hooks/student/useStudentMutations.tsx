@@ -24,11 +24,15 @@ export function useStudentMutations() {
           .update(studentData)
           .eq('id', student.id)
           .select()
-          .single();
+          .maybeSingle();
         
         if (error) {
           console.error('Error updating student:', error);
           throw error;
+        }
+        
+        if (!data) {
+          throw new Error('Student not found');
         }
         
         console.log('Updated student:', data);
@@ -38,11 +42,15 @@ export function useStudentMutations() {
           .from('students')
           .insert(studentData)
           .select()
-          .single();
+          .maybeSingle();
         
         if (error) {
           console.error('Error inserting student:', error);
           throw error;
+        }
+        
+        if (!data) {
+          throw new Error('Failed to create student');
         }
         
         console.log('Inserted student:', data);

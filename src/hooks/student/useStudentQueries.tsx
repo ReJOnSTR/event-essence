@@ -21,12 +21,12 @@ export function useStudentQueries() {
       
       console.log('Fetched students:', data);
       
-      return data.map(student => ({
+      return data?.map(student => ({
         id: student.id,
         name: student.name,
         color: student.color || "#1a73e8",
         price: Number(student.price)
-      }));
+      })) || [];
     } catch (error) {
       console.error('Error loading students:', error);
       toast({
