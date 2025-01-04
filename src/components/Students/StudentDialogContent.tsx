@@ -6,8 +6,7 @@ import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useMemo, useState, useEffect } from "react";
 import debounce from "lodash/debounce";
-import { ChromePicker } from 'react-color';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SliderPicker } from 'react-color';
 
 interface StudentDialogContentProps {
   student?: Student;
@@ -109,7 +108,7 @@ export default function StudentDialogContent({
 
       <div className="space-y-2">
         <Label>Renk</Label>
-        <div className="relative">
+        <div className="relative space-y-2">
           <Button
             type="button"
             variant="outline"
@@ -125,16 +124,17 @@ export default function StudentDialogContent({
             </div>
           </Button>
           {isColorPickerOpen && (
-            <div className="absolute z-50 mt-2">
+            <div className="relative z-50">
               <div
                 className="fixed inset-0"
                 onClick={() => setIsColorPickerOpen(false)}
               />
-              <ChromePicker
-                color={studentColor}
-                onChange={handleColorChange}
-                disableAlpha={true}
-              />
+              <div className="absolute w-full">
+                <SliderPicker
+                  color={studentColor}
+                  onChange={handleColorChange}
+                />
+              </div>
             </div>
           )}
         </div>
