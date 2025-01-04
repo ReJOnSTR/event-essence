@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, LogIn, ChevronUp, ChevronDown } from "lucide-react";
+import { UserPlus, LogIn, ChevronDown } from "lucide-react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -31,17 +31,11 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ height: 32, opacity: 1 }}
+        initial={{ height: 32 }}
         animate={{ 
           height: isVisible ? "8.75rem" : "2rem",
-          opacity: 1
         }}
-        transition={{ 
-          type: "spring",
-          stiffness: 100,
-          damping: 20,
-          mass: 1
-        }}
+        transition={{ duration: 0.2 }}
         className="w-full bg-background border-b fixed top-0 z-50"
       >
         <div className="container mx-auto px-4 h-full relative">
@@ -49,14 +43,10 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
             {isVisible ? (
               <motion.div 
                 key="full"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ 
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 25
-                }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
                 className="py-6 flex flex-col items-center gap-4"
               >
                 <h2 className="text-2xl font-semibold">Hoş Geldiniz</h2>
@@ -77,25 +67,15 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ 
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 25
-                }}
+                transition={{ duration: 0.15 }}
                 className="h-8 flex items-center justify-center"
               />
             )}
           </AnimatePresence>
           <motion.div
             initial={false}
-            animate={{ 
-              rotate: isVisible ? 180 : 0
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 25
-            }}
+            animate={{ rotate: isVisible ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
           >
             <Button
               variant="ghost"
