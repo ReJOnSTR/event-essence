@@ -40,9 +40,9 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
   ];
 
   return (
-    <div className="w-full bg-background">
+    <div className="w-full">
       <Tabs value={currentView} className="w-full">
-        <TabsList className="inline-flex h-auto w-full justify-start gap-2 bg-transparent p-0 text-muted-foreground">
+        <TabsList className="inline-flex h-10 w-full justify-start rounded-lg bg-accent/50 p-1 text-muted-foreground shadow-sm">
           <AnimatePresence mode="wait">
             {views.map((view) => (
               <motion.div
@@ -51,31 +51,18 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="relative"
+                className="relative flex-1"
               >
                 <TabsTrigger 
                   value={view.id} 
                   onClick={() => onViewChange(view.id)}
                   className={`
-                    relative px-3 py-2 text-sm font-medium transition-all
-                    hover:text-foreground
-                    data-[state=active]:text-calendar-blue
-                    data-[state=active]:dark:text-calendar-blue-dark
+                    relative w-full rounded-md px-3 py-1.5 text-sm font-medium transition-all
+                    hover:bg-white/10 hover:text-foreground
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
                   `}
                 >
                   {view.label}
-                  {currentView === view.id && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute -bottom-[1px] left-0 right-0 h-0.5 rounded-full bg-calendar-blue dark:bg-calendar-blue-dark"
-                      initial={false}
-                      transition={{
-                        type: "spring",
-                        stiffness: 380,
-                        damping: 30
-                      }}
-                    />
-                  )}
                 </TabsTrigger>
               </motion.div>
             ))}
