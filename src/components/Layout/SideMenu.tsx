@@ -38,7 +38,7 @@ export default function SideMenu({
   ];
 
   return (
-    <div className="flex flex-col h-full bg-background w-full">
+    <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] bg-background w-full">
       {/* Main Navigation Menu */}
       <SidebarGroup>
         <SidebarMenu>
