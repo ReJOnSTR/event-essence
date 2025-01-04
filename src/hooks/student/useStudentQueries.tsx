@@ -1,57 +1,42 @@
 import { useQuery } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 export function useStudentQueries() {
   const { toast } = useToast();
 
-  const getStudents = async (): Promise<Student[]> => {
-    console.log('Fetching students...');
+  const getStudents = (): Student[] => {
     try {
-      const { data, error, status } = await supabase
-        .from('students')
-        .select('*')
-        .order('name');
+      const savedStudents = localStorage.getItem('students');
+      if (!savedStudents) return [];
       
-      if (error) {
-        console.error('Error fetching students:', error);
-        if (status === 0 || status === undefined) {
-          throw new Error('Network connection error. Please check your internet connection.');
-        }
-        throw error;
+      const parsedStudents = JSON.parse(savedStudents);
+      if (!Array.isArray(parsedStudents)) {
+        throw new Error('Invalid students data format');
       }
       
-      console.log('Fetched students:', data);
-      
-      return data?.map(student => ({
-        id: student.id,
-        name: student.name,
-        color: student.color || "#1a73e8",
-        price: Number(student.price)
-      })) || [];
-    } catch (error: any) {
+      return parsedStudents;
+    } catch (error) {
       console.error('Error loading students:', error);
       toast({
-        title: "Bağlantı Hatası",
-        description: error.message || "Öğrenci verileri yüklenirken bir hata oluştu.",
+        title: "Hata",
+        description: "Öğrenci verileri yüklenirken bir hata oluştu.",
         variant: "destructive"
       });
       return [];
     }
   };
 
-  const { data: students = [], isLoading, error, refetch } = useQuery({
+  const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
     queryFn: getStudents,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 1000 * 60,
+    gcTime: 1000 * 60 * 5,
   });
 
   return {
     students,
     isLoading,
-    error,
-    refetch
+    error
   };
 }
