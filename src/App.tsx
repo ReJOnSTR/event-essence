@@ -38,7 +38,7 @@ const pageTransition = {
   duration: 0.15
 };
 
-const AnimatedRoutes = () => {
+const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
   
   useEffect(() => {
@@ -56,9 +56,10 @@ const AnimatedRoutes = () => {
         variants={pageVariants}
         transition={pageTransition}
         className="w-full h-full"
+        style={{ marginTop: headerHeight }}
       >
         <Routes location={location}>
-          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
           <Route path="/students" element={<StudentsManagementPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
@@ -79,20 +80,7 @@ const App = () => {
           <BrowserRouter>
             <div className="min-h-screen flex w-full overflow-hidden bg-background">
               <AuthHeader onHeightChange={setHeaderHeight} />
-              <motion.div 
-                className="w-full"
-                animate={{ 
-                  marginTop: headerHeight 
-                }}
-                transition={{ 
-                  duration: 0.3,
-                  ease: "easeInOut"
-                }}
-              >
-                <Toaster />
-                <Sonner position="bottom-center" className="sm:bottom-4 bottom-0" expand />
-                <AnimatedRoutes />
-              </motion.div>
+              <AnimatedRoutes headerHeight={headerHeight} />
             </div>
           </BrowserRouter>
         </SidebarProvider>

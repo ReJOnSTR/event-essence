@@ -15,7 +15,11 @@ import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
 
-export default function CalendarPage() {
+interface CalendarPageProps {
+  headerHeight: number;
+}
+
+export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
     const savedLessons = localStorage.getItem('lessons');
     return savedLessons ? JSON.parse(savedLessons) : [];
@@ -101,7 +105,7 @@ export default function CalendarPage() {
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background font-sans">
         <Sidebar>
-          <SidebarContent className="p-4">
+          <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
             <SideMenu
               onEdit={(student) => {
                 setStudentDialogState({
