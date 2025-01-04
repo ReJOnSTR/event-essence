@@ -1,10 +1,7 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours, setMinutes } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
-import { CalendarEvent, DayCell, Student } from "@/types/calendar";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
-import LessonCard from "./LessonCard";
-import { getWorkingHours } from "@/utils/workingHours";
-import { isHoliday } from "@/utils/turkishHolidays";
 import { motion } from "framer-motion";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
@@ -31,9 +28,8 @@ export default function MonthView({
 }: MonthViewProps) {
   const { toast } = useToast();
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
-  const workingHours = getWorkingHours();
 
-  const getDaysInMonth = (currentDate: Date): DayCell[] => {
+  const getDaysInMonth = (currentDate: Date) => {
     const start = startOfMonth(currentDate);
     const end = endOfMonth(currentDate);
     const days = eachDayOfInterval({ start, end });
@@ -61,11 +57,6 @@ export default function MonthView({
   };
 
   const handleDateClick = (clickedDate: Date) => {
-    const holiday = isHoliday(clickedDate);
-    if (holiday && !allowWorkOnHolidays) {
-      return;
-    }
-
     const dayOfWeek = clickedDate.getDay();
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
     const workingHours = getWorkingHours();
@@ -86,62 +77,24 @@ export default function MonthView({
     if (!result.destination || !onEventUpdate) return;
 
     const [dayIndex] = result.destination.droppableId.split('-').map(Number);
-    const days = getDaysInMonth(date);
     const targetDay = days[dayIndex].date;
     const event = events.find(e => e.id === result.draggableId);
     
     if (!event) return;
 
-    // Ensure event.start is a Date object
     const eventStart = new Date(event.start);
     const eventEnd = new Date(event.end);
-
-    const dayOfWeek = format(targetDay, 'EEEE').toLowerCase() as keyof typeof workingHours;
-    const daySettings = workingHours[dayOfWeek];
-    const holiday = isHoliday(targetDay);
+    const duration = eventEnd.getTime() - eventStart.getTime();
     
+    const newStart = new Date(targetDay);
+    newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
+    const newEnd = new Date(newStart.getTime() + duration);
+
+    const holiday = isHoliday(targetDay);
     if (holiday && !allowWorkOnHolidays) {
       toast({
         title: "Tatil günü",
         description: `${holiday.name} nedeniyle bu gün tatildir.`,
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (!daySettings?.enabled) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Bu gün için çalışma saatleri kapalıdır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Keep the original hours and minutes
-    const originalHours = eventStart.getHours();
-    const originalMinutes = eventStart.getMinutes();
-    
-    // Create new date with original time
-    const newStart = new Date(targetDay);
-    newStart.setHours(originalHours, originalMinutes, 0);
-    
-    // Calculate duration and set end time
-    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
-    const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
-
-    // Check if the new time is within working hours
-    const [startHour, startMinute] = daySettings.start.split(':').map(Number);
-    const [endHour, endMinute] = daySettings.end.split(':').map(Number);
-    const workStart = new Date(targetDay);
-    workStart.setHours(startHour, startMinute, 0);
-    const workEnd = new Date(targetDay);
-    workEnd.setHours(endHour, endMinute, 0);
-
-    if (newStart < workStart || newEnd > workEnd) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Seçilen saat çalışma saatleri dışındadır.",
         variant: "destructive"
       });
       return;
