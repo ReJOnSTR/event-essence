@@ -41,35 +41,9 @@ const AnimatedRoutes = () => {
   const location = useLocation();
   
   useEffect(() => {
-    // Önce localStorage'dan kayıtlı temayı kontrol et
-    const savedTheme = localStorage.getItem('theme');
-    
-    if (savedTheme) {
-      // Eğer kullanıcı daha önce bir tema seçtiyse onu kullan
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    } else {
-      // Eğer kayıtlı tema yoksa, sistem temasını kontrol et
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const systemTheme = prefersDark ? 'dark' : 'light';
-      
-      // Sistem temasını ayarla ve localStorage'a kaydet
-      document.documentElement.setAttribute('data-theme', systemTheme);
-      localStorage.setItem('theme', systemTheme);
-    }
-    
-    // Sistem teması değişikliklerini dinle
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleThemeChange = (e: MediaQueryListEvent) => {
-      // Sadece localStorage'da kayıtlı tema yoksa sistem temasını uygula
-      if (!localStorage.getItem('theme')) {
-        const newTheme = e.matches ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleThemeChange);
-    return () => mediaQuery.removeEventListener('change', handleThemeChange);
+    // Tema ayarını localStorage'dan al veya varsayılan olarak 'light' kullan
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
   return (
