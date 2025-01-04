@@ -1,4 +1,4 @@
-import { Lesson, Period, DateRange } from "@/types/calendar";
+import { Lesson, Period, DateRange, Student } from "@/types/calendar";
 import { 
   startOfWeek, 
   endOfWeek, 
@@ -42,7 +42,7 @@ const getPeriodRange = (period: Period, selectedDate: Date, customRange?: DateRa
         end: endOfYear(selectedDate)
       };
     case 'custom':
-      if (!customRange) {
+      if (!customRange?.start || !customRange?.end) {
         return {
           start: selectedDate,
           end: selectedDate
@@ -52,80 +52,74 @@ const getPeriodRange = (period: Period, selectedDate: Date, customRange?: DateRa
   }
 };
 
-export const useFilteredLessons = (
+const filterLessons = (
   lessons: Lesson[],
   selectedDate: Date,
   selectedStudent: string,
-  selectedPeriod: Period,
+  period: Period,
   customRange?: DateRange
 ): Lesson[] => {
+  const range = getPeriodRange(period, selectedDate, customRange);
+
+  return lessons
+    .filter(lesson => {
+      const lessonStart = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
+      return (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
+             isWithinInterval(lessonStart, range);
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.start);
+      const dateB = new Date(b.start);
+      return dateA.getTime() - dateB.getTime();
+    });
+};
+
+export const useCalculatePeriodStats = (
+  lessons: Lesson[],
+  selectedDate: Date,
+  selectedStudent: string,
+  students: Student[],
+  startDate?: Date,
+  endDate?: Date
+): { hours: PeriodHours; earnings: PeriodEarnings } => {
   return useMemo(() => {
-    const range = getPeriodRange(selectedPeriod, selectedDate, customRange);
+    const calculateStats = (filteredLessons: Lesson[]) => ({
+      hours: filteredLessons.length,
+      earnings: filteredLessons.reduce((total, lesson) => {
+        const student = students.find(s => s.id === lesson.studentId);
+        return total + (student?.price || 0);
+      }, 0)
+    });
 
-    return lessons
-      .filter(lesson => {
-        const lessonStart = lesson.start instanceof Date ? lesson.start : new Date(lesson.start);
-        return (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
-               isWithinInterval(lessonStart, range);
-      })
-      .sort((a, b) => {
-        const dateA = new Date(a.start);
-        const dateB = new Date(b.start);
-        return dateA.getTime() - dateB.getTime();
-      });
-  }, [lessons, selectedDate, selectedStudent, selectedPeriod, customRange]);
-};
+    const weeklyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'weekly');
+    const monthlyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'monthly');
+    const yearlyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'yearly');
+    const customLessons = filterLessons(
+      lessons,
+      selectedDate,
+      selectedStudent,
+      'custom',
+      startDate && endDate ? { start: startDate, end: endDate } : undefined
+    );
 
-export const useCalculatePeriodHours = (
-  lessons: Lesson[],
-  selectedDate: Date,
-  selectedStudent: string,
-  startDate?: Date,
-  endDate?: Date
-): PeriodHours => {
-  const weekly = useFilteredLessons(lessons, selectedDate, selectedStudent, 'weekly').length;
-  const monthly = useFilteredLessons(lessons, selectedDate, selectedStudent, 'monthly').length;
-  const yearly = useFilteredLessons(lessons, selectedDate, selectedStudent, 'yearly').length;
-  const custom = startDate && endDate ? 
-    useFilteredLessons(
-      lessons, 
-      selectedDate, 
-      selectedStudent, 
-      'custom', 
-      { start: startDate, end: endDate }
-    ).length : 0;
+    const weekly = calculateStats(weeklyLessons);
+    const monthly = calculateStats(monthlyLessons);
+    const yearly = calculateStats(yearlyLessons);
+    const custom = calculateStats(customLessons);
 
-  return { weekly, monthly, yearly, custom };
-};
-
-export const useCalculatePeriodEarnings = (
-  lessons: Lesson[],
-  selectedDate: Date,
-  selectedStudent: string,
-  students: { id: string; price: number; }[],
-  startDate?: Date,
-  endDate?: Date
-): PeriodEarnings => {
-  const calculateEarnings = (filteredLessons: Lesson[]) => {
-    return filteredLessons.reduce((total, lesson) => {
-      const student = students.find(s => s.id === lesson.studentId);
-      return total + (student?.price || 0);
-    }, 0);
-  };
-
-  const weekly = calculateEarnings(useFilteredLessons(lessons, selectedDate, selectedStudent, 'weekly'));
-  const monthly = calculateEarnings(useFilteredLessons(lessons, selectedDate, selectedStudent, 'monthly'));
-  const yearly = calculateEarnings(useFilteredLessons(lessons, selectedDate, selectedStudent, 'yearly'));
-  const custom = startDate && endDate ? 
-    calculateEarnings(
-      useFilteredLessons(
-        lessons, 
-        selectedDate, 
-        selectedStudent, 
-        'custom', 
-        { start: startDate, end: endDate }
-      )
-    ) : 0;
-
-  return { weekly, monthly, yearly, custom };
+    return {
+      hours: {
+        weekly: weekly.hours,
+        monthly: monthly.hours,
+        yearly: yearly.hours,
+        custom: custom.hours
+      },
+      earnings: {
+        weekly: weekly.earnings,
+        monthly: monthly.earnings,
+        yearly: yearly.earnings,
+        custom: custom.earnings
+      }
+    };
+  }, [lessons, selectedDate, selectedStudent, students, startDate, endDate]);
 };
