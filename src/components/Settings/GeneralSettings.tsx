@@ -1,21 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { getDefaultLessonDuration, setDefaultLessonDuration } from "@/utils/settings";
+import { useSettings } from "@/hooks/useThemeSettings";
 
 export default function GeneralSettings() {
-  const [defaultDuration, setDefaultDuration] = useState(() => getDefaultLessonDuration().toString());
   const { toast } = useToast();
+  const { defaultLessonDuration, setDefaultLessonDuration } = useSettings();
+  const [localDuration, setLocalDuration] = useState(defaultLessonDuration.toString());
+
+  useEffect(() => {
+    setLocalDuration(defaultLessonDuration.toString());
+  }, [defaultLessonDuration]);
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setDefaultDuration(value);
+    setLocalDuration(value);
     
-    const numericValue = parseInt(value);
-    if (numericValue > 0 && numericValue <= 60) {
+    const numericValue = value === '' ? 0 : Number(value);
+    if (numericValue >= 0 && numericValue <= 60) {
       setDefaultLessonDuration(numericValue);
       toast({
         title: "Ayarlar güncellendi",
@@ -27,7 +30,7 @@ export default function GeneralSettings() {
         description: "Ders süresi en fazla 60 dakika olabilir.",
         variant: "destructive"
       });
-      setDefaultDuration("60");
+      setLocalDuration("60");
       setDefaultLessonDuration(60);
     }
   };
@@ -39,21 +42,23 @@ export default function GeneralSettings() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="defaultDuration" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Varsayılan Ders Süresi (dakika)
-          </Label>
+          <label
+            htmlFor="defaultDuration"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Varsayılan Ders Süresi (Dakika)
+          </label>
           <Input
-            id="defaultDuration"
             type="number"
-            value={defaultDuration}
+            id="defaultDuration"
+            value={localDuration}
             onChange={handleDurationChange}
-            min="1"
+            min="0"
             max="60"
             className="max-w-[200px]"
           />
           <p className="text-sm text-muted-foreground">
-            Yeni ders eklerken otomatik olarak ayarlanacak süre (maksimum 60 dakika)
+            Yeni ders eklerken otomatik olarak ayarlanacak süre (0-60 dakika arası)
           </p>
         </div>
       </CardContent>
