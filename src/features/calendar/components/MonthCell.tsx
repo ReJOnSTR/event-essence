@@ -45,7 +45,7 @@ export default function MonthCell({
           onClick={() => handleDateClick(day.date)}
           className={cn(
             "min-h-[120px] p-2 bg-background cursor-pointer hover:bg-accent/50 transition-colors duration-150",
-            !day.isCurrentMonth && "bg-muted text-muted-foreground",
+            !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
             isToday(day.date) && "bg-primary/5",
             holiday && !allowWorkOnHolidays && "bg-destructive/10",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 dark:bg-yellow-400/10",
