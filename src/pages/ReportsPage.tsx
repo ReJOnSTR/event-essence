@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
-import { PageHeader } from "@/components/Layout/PageHeader";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import SideMenu from "@/components/Layout/SideMenu";
 import { ReportFilters } from "@/components/Reports/ReportFilters";
 import { StatsCards } from "@/components/Reports/StatsCards";
@@ -13,6 +12,7 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
 import { PdfReport } from "@/components/Reports/PdfReport";
+import { BackButton } from "@/components/ui/back-button";
 
 export default function Reports() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
@@ -104,11 +104,11 @@ export default function Reports() {
         </Sidebar>
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          <PageHeader 
-            title="Raporlar"
-            backTo="/"
-            backLabel="Takvime Dön"
-          />
+          <div className="flex items-center gap-4 p-4 border-b bg-white">
+            <SidebarTrigger />
+            <BackButton to="/" label="Takvime Dön" />
+            <h1 className="text-2xl font-semibold text-gray-900">Raporlar</h1>
+          </div>
 
           <div className="flex-1 overflow-auto p-4">
             <div className="space-y-4">

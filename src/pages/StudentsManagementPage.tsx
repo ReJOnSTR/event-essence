@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import { Student } from "@/types/calendar";
-import { Button } from "@/components/ui/button";
-import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
-import { PageHeader } from "@/components/Layout/PageHeader";
+import StudentDialog from "@/components/Students/StudentDialog";
 import SideMenu from "@/components/Layout/SideMenu";
 import StudentCard from "@/components/Students/StudentCard";
-import StudentDialog from "@/components/Students/StudentDialog";
-import { useStudents } from "@/hooks/useStudents";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { BackButton } from "@/components/ui/back-button";
+import { useStudents } from "@/hooks/useStudents";
 
 export default function StudentsManagementPage() {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
@@ -87,17 +87,17 @@ export default function StudentsManagementPage() {
         </Sidebar>
         
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
-          <PageHeader 
-            title="Öğrenciler"
-            backTo="/"
-            backLabel="Takvime Dön"
-            actions={
+          <div className="flex items-center gap-4 p-4 border-b bg-white">
+            <SidebarTrigger />
+            <BackButton to="/" label="Takvime Dön" />
+            <h1 className="text-2xl font-semibold text-gray-900">Öğrenciler</h1>
+            <div className="ml-auto">
               <Button onClick={() => handleOpenDialog()}>
                 <Plus className="h-4 w-4 mr-2" />
                 Öğrenci Ekle
               </Button>
-            }
-          />
+            </div>
+          </div>
           
           <div className="flex-1 overflow-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
