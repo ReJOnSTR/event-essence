@@ -127,7 +127,7 @@ export default function WeekViewTimeGrid({
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
                       snapshot.isDraggingOver && "bg-accent"
                     )}
-                    onClick={() => handleCellClick(day, hour)}
+                    onClick={() => onCellClick(day, hour)}
                   >
                     {events
                       .filter(
