@@ -18,7 +18,6 @@ import { AuthButtons, LoginButton } from "@/components/Auth/AuthButtons";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { Separator } from "@/components/ui/separator";
 
 interface SideMenuProps {
   onAddStudent?: () => void;
@@ -115,33 +114,30 @@ export default function SideMenu({
 
       <SidebarFooter className="mt-auto">
         {user ? (
-          <div className="border-t pt-4 space-y-4">
-            <div className="px-4">
-              <div className="flex items-center space-x-4 bg-accent/50 p-4 rounded-lg">
-                <Avatar className="h-10 w-10 border-2 border-primary/10">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback className="bg-primary/5 text-primary/70">
-                    {user.email?.substring(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {user.email}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    Öğretmen
-                  </p>
-                </div>
+          <div className="space-y-4 p-4 bg-muted/50 rounded-lg mx-2 mb-2">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-9 w-9 border-2 border-background">
+                <AvatarImage src="/placeholder.svg" />
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  {user.email?.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium leading-none mb-1 text-foreground">
+                  {user.email}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Öğretmen
+                </p>
               </div>
             </div>
             
-            <div className="px-2 flex items-center gap-2">
-              <Link to="/settings" className="flex-1">
+            <div className="flex flex-col gap-2">
+              <Link to="/settings" className="w-full">
                 <Button 
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  className="w-full justify-start"
-                  data-active={isActive("/settings")}
+                  className="w-full justify-start text-muted-foreground hover:text-foreground"
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Ayarlar
