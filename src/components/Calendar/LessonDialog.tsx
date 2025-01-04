@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval, isEqual } from "date-fns";
 import { Trash2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -16,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import LessonTimeInputs from "./LessonTimeInputs";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -224,26 +224,14 @@ export default function LessonDialog({
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="grid grid-cols-2 gap-4"
             >
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Başlangıç Saati</label>
-                <Input
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Bitiş Saati</label>
-                <Input
-                  type="time"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  required
-                />
-              </div>
+              <LessonTimeInputs
+                startTime={startTime}
+                endTime={endTime}
+                selectedDate={selectedDate}
+                onStartTimeChange={setStartTime}
+                onEndTimeChange={setEndTime}
+              />
             </motion.div>
             
             <motion.div
