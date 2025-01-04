@@ -35,7 +35,7 @@ export default function SideMenu({
   };
 
   const menuItems = [
-    { path: "/", icon: Calendar, label: "Takvim" },
+    { path: "/calendar", icon: Calendar, label: "Takvim" },
     { path: "/students", icon: Users, label: "Öğrenciler" },
     { path: "/reports", icon: FileBarChart, label: "Raporlar" },
   ];
@@ -52,30 +52,35 @@ export default function SideMenu({
         ease: "easeInOut"
       }}
     >
-      <SidebarGroup className="space-y-2">
-        {menuItems.map((item) => (
-          <Link 
-            key={item.path} 
-            to={item.path} 
-            className="block"
-            onClick={(e) => {
-              e.preventDefault();
-              window.history.pushState({}, '', item.path);
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
-          >
-            <SidebarMenuButton 
-              className="w-full hover:bg-secondary rounded-md transition-colors"
-              data-active={isActive(item.path)}
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </SidebarMenuButton>
-          </Link>
-        ))}
+      {/* Main Navigation Menu */}
+      <SidebarGroup className="pt-2">
+        <SidebarMenu>
+          {menuItems.map((item) => (
+            <SidebarMenuItem key={item.path}>
+              <Link 
+                to={item.path} 
+                className="block"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', item.path);
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+              >
+                <SidebarMenuButton 
+                  className="w-full hover:bg-secondary rounded-md transition-colors"
+                  data-active={isActive(item.path)}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
       </SidebarGroup>
 
-      <SidebarGroup className="mt-6">
+      {/* Students Section */}
+      <SidebarGroup className="mt-6 flex-1">
         <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
         <SidebarGroupContent className="mt-2">
           <SidebarMenu>
@@ -111,6 +116,7 @@ export default function SideMenu({
         </SidebarGroupContent>
       </SidebarGroup>
 
+      {/* Footer */}
       <SidebarFooter className="mt-auto">
         <div className="border-t pt-4">
           <div className="flex items-center justify-between px-2">
