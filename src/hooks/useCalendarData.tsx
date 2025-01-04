@@ -30,11 +30,13 @@ export function useCalendarData() {
           id: lesson.id,
           title: lesson.title,
           description: lesson.description || undefined,
+          // Convert UTC dates from database to local timezone
           start: new Date(lesson.start_time),
           end: new Date(lesson.end_time),
           studentId: lesson.student_id || undefined
         }));
 
+        console.log('Loaded lessons:', formattedLessons);
         setLessons(formattedLessons);
       } catch (error) {
         console.error('Dersler yüklenirken hata:', error);
@@ -51,6 +53,9 @@ export function useCalendarData() {
 
   const handleSaveLesson = async (lessonData: Omit<CalendarEvent, "id">) => {
     try {
+      console.log('Saving lesson with data:', lessonData);
+      
+      // Convert local dates to UTC for database storage
       const { data, error } = await supabase
         .from('lessons')
         .insert([{
@@ -75,6 +80,7 @@ export function useCalendarData() {
           studentId: data.student_id || undefined
         };
 
+        console.log('Created new lesson:', newLesson);
         setLessons(prev => [...prev, newLesson]);
         
         toast({
@@ -94,6 +100,8 @@ export function useCalendarData() {
 
   const handleUpdateLesson = async (lessonId: string, lessonData: Omit<CalendarEvent, "id">) => {
     try {
+      console.log('Updating lesson:', lessonId, 'with data:', lessonData);
+      
       const { data, error } = await supabase
         .from('lessons')
         .update({
@@ -121,6 +129,7 @@ export function useCalendarData() {
           } : lesson
         ));
 
+        console.log('Updated lesson successfully');
         toast({
           title: "Başarılı",
           description: "Ders başarıyla güncellendi.",
@@ -138,6 +147,8 @@ export function useCalendarData() {
 
   const handleDeleteLesson = async (lessonId: string) => {
     try {
+      console.log('Deleting lesson:', lessonId);
+      
       const { error } = await supabase
         .from('lessons')
         .delete()
