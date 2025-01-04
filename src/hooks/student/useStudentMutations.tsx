@@ -7,8 +7,9 @@ export function useStudentMutations() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { mutate: saveStudent } = useMutation({
+  const { mutate: saveStudent, isPending: isSaving } = useMutation({
     mutationFn: async (student: Student) => {
+      console.log('Saving student:', student);
       if (student.id) {
         const { error } = await supabase
           .from('students')
@@ -20,7 +21,10 @@ export function useStudentMutations() {
           })
           .eq('id', student.id);
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating student:', error);
+          throw error;
+        }
       } else {
         const { error } = await supabase
           .from('students')
@@ -30,7 +34,10 @@ export function useStudentMutations() {
             price: student.price
           });
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error inserting student:', error);
+          throw error;
+        }
       }
     },
     onSuccess: () => {
@@ -40,7 +47,8 @@ export function useStudentMutations() {
         description: "Öğrenci bilgileri başarıyla kaydedildi.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Mutation error:', error);
       toast({
         title: "Hata",
         description: "Öğrenci kaydedilirken bir hata oluştu.",
@@ -49,14 +57,18 @@ export function useStudentMutations() {
     }
   });
 
-  const { mutate: deleteStudent } = useMutation({
+  const { mutate: deleteStudent, isPending: isDeleting } = useMutation({
     mutationFn: async (studentId: string) => {
+      console.log('Deleting student:', studentId);
       const { error } = await supabase
         .from('students')
         .delete()
         .eq('id', studentId);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting student:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -65,7 +77,8 @@ export function useStudentMutations() {
         description: "Öğrenci başarıyla silindi.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Delete error:', error);
       toast({
         title: "Hata",
         description: "Öğrenci silinirken bir hata oluştu.",
@@ -76,6 +89,8 @@ export function useStudentMutations() {
 
   return {
     saveStudent,
-    deleteStudent
+    deleteStudent,
+    isSaving,
+    isDeleting
   };
 }

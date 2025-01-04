@@ -13,12 +13,15 @@ export function useStudentQueries() {
         .select('*')
         .order('name');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching students:', error);
+        throw error;
+      }
       
       return data.map(student => ({
         id: student.id,
         name: student.name,
-        color: student.color || undefined,
+        color: student.color || "#1a73e8",
         price: Number(student.price)
       }));
     } catch (error) {
@@ -32,7 +35,7 @@ export function useStudentQueries() {
     }
   };
 
-  const { data: students = [], isLoading, error } = useQuery({
+  const { data: students = [], isLoading, error, refetch } = useQuery({
     queryKey: ['students'],
     queryFn: getStudents,
   });
@@ -40,6 +43,7 @@ export function useStudentQueries() {
   return {
     students,
     isLoading,
-    error
+    error,
+    refetch
   };
 }
