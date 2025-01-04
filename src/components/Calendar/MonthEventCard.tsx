@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -24,26 +24,13 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
   return (
     <Draggable draggableId={event.id} index={index}>
       {(provided, snapshot) => (
-        <motion.div
+        <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          initial={{ scale: 1, opacity: 1 }}
-          animate={{ 
-            scale: snapshot.isDragging ? 1.02 : 1,
-            opacity: snapshot.isDragging ? 0.9 : 1,
-            boxShadow: snapshot.isDragging 
-              ? "0 8px 20px rgba(0,0,0,0.12)" 
-              : "0 2px 4px rgba(0,0,0,0.05)"
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 300,
-            damping: 25
-          }}
           className={cn(
             "p-2 rounded mb-1.5 cursor-pointer transition-all duration-200",
-            snapshot.isDragging ? "shadow-lg" : "shadow-sm hover:brightness-95"
+            snapshot.isDragging ? "shadow-lg opacity-90 scale-[1.02]" : "shadow-sm hover:brightness-95"
           )}
           style={{ 
             backgroundColor: student?.color || "#039be5",
@@ -54,23 +41,20 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
           }}
           onClick={handleClick}
         >
-          <AnimatePresence>
-            <motion.div 
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col gap-1"
-            >
-              <span className="font-medium text-[13px] leading-tight md:text-sm text-white">
-                {student?.name || "İsimsiz Öğrenci"}
-              </span>
-              <span className="text-[12px] md:text-xs text-white/90">
-                {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
-              </span>
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col gap-1"
+          >
+            <span className="font-medium text-[13px] leading-tight md:text-sm text-white">
+              {student?.name || "İsimsiz Öğrenci"}
+            </span>
+            <span className="text-[12px] md:text-xs text-white/90">
+              {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
+            </span>
+          </motion.div>
+        </div>
       )}
     </Draggable>
   );
