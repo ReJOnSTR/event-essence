@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { checkLessonConflict } from "@/utils/lessonConflicts";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -92,6 +93,12 @@ export default function MonthView({
     newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
     const newEnd = new Date(newStart.getTime() + duration);
 
+    const updatedEvent = {
+      ...event,
+      start: newStart,
+      end: newEnd
+    };
+
     const holiday = isHoliday(targetDay);
     if (holiday && !allowWorkOnHolidays) {
       toast({
@@ -102,11 +109,17 @@ export default function MonthView({
       return;
     }
 
-    onEventUpdate({
-      ...event,
-      start: newStart,
-      end: newEnd
-    });
+    // Check for conflicts
+    if (checkLessonConflict(updatedEvent, events, event.id)) {
+      toast({
+        title: "Çakışma tespit edildi",
+        description: "Bu gün ve saatte başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onEventUpdate(updatedEvent);
 
     toast({
       title: "Ders taşındı",

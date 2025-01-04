@@ -5,6 +5,7 @@ import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { useDayView } from "@/hooks/useDayView";
+import { checkLessonConflict } from "@/utils/lessonConflicts";
 import DayHeader from "./DayHeader";
 import DayTimeSlot from "./DayTimeSlot";
 import { TimeIndicator } from "./TimeIndicator";
@@ -62,11 +63,23 @@ export default function DayView({
     newStart.setHours(hour, minute);
     const newEnd = new Date(newStart.getTime() + duration);
 
-    onEventUpdate({
+    const updatedEvent = {
       ...event,
       start: newStart,
       end: newEnd
-    });
+    };
+
+    // Check for conflicts
+    if (checkLessonConflict(updatedEvent, events, event.id)) {
+      toast({
+        title: "Çakışma tespit edildi",
+        description: "Bu zaman diliminde başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onEventUpdate(updatedEvent);
 
     toast({
       title: "Ders taşındı",
