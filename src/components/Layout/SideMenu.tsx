@@ -52,7 +52,8 @@ export default function SideMenu({
         ease: "easeInOut"
       }}
     >
-      <SidebarGroup className="space-y-2">
+      {/* Main Navigation Menu */}
+      <SidebarGroup className="space-y-2 pt-2">
         {menuItems.map((item) => (
           <Link 
             key={item.path} 
@@ -75,7 +76,8 @@ export default function SideMenu({
         ))}
       </SidebarGroup>
 
-      <SidebarGroup className="mt-6">
+      {/* Students Section */}
+      <SidebarGroup className="mt-6 flex-1">
         <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
         <SidebarGroupContent className="mt-2">
           <SidebarMenu>
@@ -111,6 +113,7 @@ export default function SideMenu({
         </SidebarGroupContent>
       </SidebarGroup>
 
+      {/* Footer */}
       <SidebarFooter className="mt-auto">
         <div className="border-t pt-4">
           <div className="flex items-center justify-between px-2">
