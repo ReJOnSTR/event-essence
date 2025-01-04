@@ -105,8 +105,8 @@ export default function CalendarPage() {
     }
   };
 
-  const handleDeleteLesson = (lesson: CalendarEvent) => {
-    setLessons(lessons.filter(l => l.id !== lesson.id));
+  const handleDeleteLesson = (lessonId: string) => {
+    setLessons(lessons.filter(l => l.id !== lessonId));
     toast({
       title: "Ders silindi",
       description: "Dersiniz başarıyla silindi.",
