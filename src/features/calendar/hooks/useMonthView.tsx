@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import { startOfMonth, endOfMonth, eachDayOfInterval, addDays, format } from "date-fns";
+import { startOfMonth, endOfMonth, eachDayOfInterval, addDays } from "date-fns";
 import { CalendarEvent, DayCell } from "@/types/calendar";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 
@@ -37,7 +37,7 @@ export function useMonthView(date: Date, events: CalendarEvent[]) {
     }));
   }, [events]);
 
-  const handleDateClick = useCallback((clickedDate: Date): Date | null => {
+  const handleDateClick = useCallback((clickedDate: Date) => {
     const holiday = isHoliday(clickedDate);
     if (holiday && !allowWorkOnHolidays) {
       toast({
@@ -45,24 +45,25 @@ export function useMonthView(date: Date, events: CalendarEvent[]) {
         description: `${holiday.name} nedeniyle bu gün tatildir.`,
         variant: "destructive"
       });
-      return null;
+      return;
     }
 
     const dayOfWeek = clickedDate.getDay();
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const workingHours = getWorkingHours();
     const daySettings = workingHours[days[dayOfWeek]];
     
     if (!daySettings?.enabled) {
       toast({
         title: "Çalışma saatleri dışında",
-        description: `${format(clickedDate, 'EEEE', { locale: tr })} günü çalışma saatleri kapalıdır.`,
+        description: "Bu gün için çalışma saatleri kapalıdır.",
         variant: "destructive"
       });
-      return null;
+      return;
     }
 
     return clickedDate;
-  }, [allowWorkOnHolidays, workingHours, toast]);
+  }, [allowWorkOnHolidays, toast]);
 
   return {
     getDaysInMonth,

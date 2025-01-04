@@ -14,7 +14,7 @@ interface MonthCellProps {
     lessons: CalendarEvent[];
   };
   idx: number;
-  holiday: ReturnType<typeof isHoliday>;
+  holiday: any;
   allowWorkOnHolidays: boolean;
   handleDateClick: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
