@@ -23,7 +23,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
 
   useEffect(() => {
     // Report height changes to parent component
-    onHeightChange?.(isVisible ? 128 : (isPartiallyOpen ? 32 : 0)); // 8rem = 128px, 2rem = 32px
+    onHeightChange?.(isVisible ? 128 : (isPartiallyOpen ? 32 : 0));
   }, [isVisible, isPartiallyOpen, onHeightChange]);
 
   useEffect(() => {
@@ -70,46 +70,63 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
           }}
           exit={{ y: -100, opacity: 0 }}
           transition={{ 
-            duration: 0.3,
             type: "spring",
             stiffness: 260,
-            damping: 20
+            damping: 20,
+            mass: 0.8,
+            velocity: 2
           }}
           className="w-full bg-background border-b fixed top-0 z-50"
           onMouseEnter={handleMouseEnter}
         >
           <div className="container mx-auto px-4">
-            {isVisible ? (
-              <div className="py-4 flex flex-col items-center gap-4">
-                <h2 className="text-xl font-semibold">Hoş Geldiniz</h2>
-                <div className="flex gap-4">
-                  <Button className="w-32">
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Kayıt Ol
-                  </Button>
-                  <Button variant="outline" className="w-32">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Giriş Yap
-                  </Button>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  className="absolute top-2 right-4 text-sm"
-                  onClick={handleHide}
+            <AnimatePresence mode="wait">
+              {isVisible ? (
+                <motion.div 
+                  className="py-4 flex flex-col items-center gap-4"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 25
+                  }}
                 >
-                  Gizle
-                </Button>
-              </div>
-            ) : (
-              <div 
-                className="h-8 flex items-center justify-center cursor-pointer"
-                onClick={handleClickMinimized}
-              >
-                <span className="text-sm text-muted-foreground">
-                  Giriş yapmak için tıklayın
-                </span>
-              </div>
-            )}
+                  <h2 className="text-xl font-semibold">Hoş Geldiniz</h2>
+                  <div className="flex gap-4">
+                    <Button className="w-32">
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Kayıt Ol
+                    </Button>
+                    <Button variant="outline" className="w-32">
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Giriş Yap
+                    </Button>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    className="absolute top-2 right-4 text-sm"
+                    onClick={handleHide}
+                  >
+                    Gizle
+                  </Button>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  className="h-8 flex items-center justify-center cursor-pointer"
+                  onClick={handleClickMinimized}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <span className="text-sm text-muted-foreground">
+                    Giriş yapmak için tıklayın
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
       )}
