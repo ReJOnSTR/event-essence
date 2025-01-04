@@ -1,145 +1,105 @@
-import { FileBarChart, DollarSign } from "lucide-react";
-import { format } from "date-fns";
-import { tr } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PeriodHours, PeriodEarnings } from "@/utils/reportCalculations";
-import { cn } from "@/lib/utils";
+import { Student } from "@/types/calendar";
+import { Lesson } from "@/types/calendar";
+import { 
+  useCalculatePeriodHours,
+  useCalculatePeriodEarnings,
+  PeriodHours,
+  PeriodEarnings
+} from "@/utils/reportCalculations";
 
 interface StatsCardsProps {
-  hours: PeriodHours;
-  earnings: PeriodEarnings;
+  lessons: Lesson[];
+  students: Student[];
   selectedDate: Date;
+  selectedStudent: string;
   startDate?: Date;
   endDate?: Date;
-  selectedPeriod: "weekly" | "monthly" | "yearly" | "custom";
 }
 
-export function StatsCards({ 
-  hours, 
-  earnings, 
+export default function StatsCards({
+  lessons,
+  students,
   selectedDate,
+  selectedStudent,
   startDate,
   endDate,
-  selectedPeriod
 }: StatsCardsProps) {
-  const cardClassName = "min-w-[240px] flex-1";
-  const headerClassName = "flex flex-row items-center justify-between space-y-0 pb-2";
-  const titleClassName = "text-sm font-medium";
-  const contentClassName = "pt-0";
-  const valueClassName = "text-xl sm:text-2xl font-bold";
-  const subtextClassName = "text-xs text-muted-foreground mt-1";
+  const hours: PeriodHours = useCalculatePeriodHours(
+    lessons,
+    selectedDate,
+    selectedStudent,
+    startDate,
+    endDate
+  );
 
-  if (selectedPeriod === "custom" && startDate && endDate) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-        <Card className={cardClassName}>
-          <CardHeader className={headerClassName}>
-            <CardTitle className={titleClassName}>Seçili Tarih Aralığı Ders Sayısı</CardTitle>
-            <FileBarChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className={contentClassName}>
-            <div className={valueClassName}>{hours.custom} Ders</div>
-            <p className={subtextClassName}>
-              {format(startDate, "d MMMM yyyy", { locale: tr })} - {format(endDate, "d MMMM yyyy", { locale: tr })}
-            </p>
-          </CardContent>
-        </Card>
+  const earnings: PeriodEarnings = useCalculatePeriodEarnings(
+    lessons,
+    selectedDate,
+    selectedStudent,
+    students,
+    startDate,
+    endDate
+  );
 
-        <Card className={cardClassName}>
-          <CardHeader className={headerClassName}>
-            <CardTitle className={titleClassName}>Seçili Tarih Aralığı Kazanç</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className={contentClassName}>
-            <div className={valueClassName}>{earnings.custom?.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
-            <p className={subtextClassName}>
-              {format(startDate, "d MMMM yyyy", { locale: tr })} - {format(endDate, "d MMMM yyyy", { locale: tr })}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('tr-TR', {
+      style: 'currency',
+      currency: 'TRY'
+    });
+  };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-      <Card className={cardClassName}>
-        <CardHeader className={headerClassName}>
-          <CardTitle className={titleClassName}>Haftalık Ders Sayısı</CardTitle>
-          <FileBarChart className="h-4 w-4 text-muted-foreground" />
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Bu Hafta</CardTitle>
         </CardHeader>
-        <CardContent className={contentClassName}>
-          <div className={valueClassName}>{hours.weekly} Ders</div>
-          <p className={subtextClassName}>
-            {format(selectedDate, "'Hafta' w", { locale: tr })}
+        <CardContent>
+          <div className="text-2xl font-bold">{hours.weekly} Saat</div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {formatCurrency(earnings.weekly)}
           </p>
         </CardContent>
       </Card>
 
-      <Card className={cardClassName}>
-        <CardHeader className={headerClassName}>
-          <CardTitle className={titleClassName}>Aylık Ders Sayısı</CardTitle>
-          <FileBarChart className="h-4 w-4 text-muted-foreground" />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Bu Ay</CardTitle>
         </CardHeader>
-        <CardContent className={contentClassName}>
-          <div className={valueClassName}>{hours.monthly} Ders</div>
-          <p className={subtextClassName}>
-            {format(selectedDate, "MMMM yyyy", { locale: tr })}
+        <CardContent>
+          <div className="text-2xl font-bold">{hours.monthly} Saat</div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {formatCurrency(earnings.monthly)}
           </p>
         </CardContent>
       </Card>
 
-      <Card className={cardClassName}>
-        <CardHeader className={headerClassName}>
-          <CardTitle className={titleClassName}>Yıllık Ders Sayısı</CardTitle>
-          <FileBarChart className="h-4 w-4 text-muted-foreground" />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Bu Yıl</CardTitle>
         </CardHeader>
-        <CardContent className={contentClassName}>
-          <div className={valueClassName}>{hours.yearly} Ders</div>
-          <p className={subtextClassName}>
-            {format(selectedDate, "yyyy", { locale: tr })}
+        <CardContent>
+          <div className="text-2xl font-bold">{hours.yearly} Saat</div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {formatCurrency(earnings.yearly)}
           </p>
         </CardContent>
       </Card>
 
-      <Card className={cardClassName}>
-        <CardHeader className={headerClassName}>
-          <CardTitle className={titleClassName}>Haftalık Kazanç</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent className={contentClassName}>
-          <div className={valueClassName}>{earnings.weekly.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
-          <p className={subtextClassName}>
-            {format(selectedDate, "'Hafta' w", { locale: tr })}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className={cardClassName}>
-        <CardHeader className={headerClassName}>
-          <CardTitle className={titleClassName}>Aylık Kazanç</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent className={contentClassName}>
-          <div className={valueClassName}>{earnings.monthly.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
-          <p className={subtextClassName}>
-            {format(selectedDate, "MMMM yyyy", { locale: tr })}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className={cardClassName}>
-        <CardHeader className={headerClassName}>
-          <CardTitle className={titleClassName}>Yıllık Kazanç</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent className={contentClassName}>
-          <div className={valueClassName}>{earnings.yearly.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
-          <p className={subtextClassName}>
-            {format(selectedDate, "yyyy", { locale: tr })}
-          </p>
-        </CardContent>
-      </Card>
+      {startDate && endDate && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Seçili Dönem</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{hours.custom || 0} Saat</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {formatCurrency(earnings.custom || 0)}
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
