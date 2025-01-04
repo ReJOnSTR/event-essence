@@ -43,6 +43,7 @@ export default function SideMenu({
   return (
     <motion.div 
       className="flex flex-col h-full bg-background w-full"
+      initial={false}
       animate={{ 
         marginTop: headerHeight 
       }}

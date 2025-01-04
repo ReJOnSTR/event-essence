@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, LogIn } from "lucide-react";
+import { UserPlus, LogIn, ChevronUp } from "lucide-react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -104,13 +104,6 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
                       Giriş Yap
                     </Button>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    className="absolute top-2 right-4 text-sm"
-                    onClick={handleHide}
-                  >
-                    Gizle
-                  </Button>
                 </motion.div>
               ) : (
                 <motion.div 
@@ -128,6 +121,24 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Hide Button */}
+          <motion.div 
+            className="absolute left-1/2 -bottom-4 -translate-x-1/2 z-50"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-full border shadow-md bg-background"
+              onClick={handleHide}
+            >
+              <ChevronUp className="h-4 w-4" />
+            </Button>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
