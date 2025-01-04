@@ -17,8 +17,8 @@ export default function StudentCard({ student, onClick }: StudentCardProps) {
     >
       <Card 
         className={cn(
-          "flex flex-col cursor-pointer transition-all hover:ring-2 hover:ring-primary",
-          "transform hover:shadow-lg"
+          "flex flex-col cursor-pointer transition-all",
+          "transform hover:scale-[1.02]"
         )}
         onClick={() => onClick(student)}
       >
