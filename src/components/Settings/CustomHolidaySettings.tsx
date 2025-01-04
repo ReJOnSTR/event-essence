@@ -7,6 +7,7 @@ import { Gift } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { useToast } from "@/components/ui/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function CustomHolidaySettings() {
   const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
@@ -48,39 +49,59 @@ export default function CustomHolidaySettings() {
         <CardTitle className="text-base font-semibold">Özel Tatil Günleri</CardTitle>
         <Gift className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-sm text-muted-foreground">
-          Takvimde özel tatil günü olarak işaretlemek istediğiniz günleri seçin.
-        </div>
-        
-        {selectedDates.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {selectedDates.map((date, index) => (
-              <Badge key={index} variant="secondary">
-                {format(date, "d MMMM yyyy", { locale: tr })}
-              </Badge>
-            ))}
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              Takvimde özel tatil günü olarak işaretlemek istediğiniz günleri seçin.
+            </div>
+
+            <Calendar
+              mode="multiple"
+              selected={selectedDates}
+              onSelect={handleSelect}
+              className="rounded-md border"
+              locale={tr}
+            />
+
+            {selectedDates.length > 0 && (
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={clearHolidays}
+                className="w-full"
+              >
+                Tüm Özel Tatilleri Temizle
+              </Button>
+            )}
           </div>
-        )}
 
-        <Calendar
-          mode="multiple"
-          selected={selectedDates}
-          onSelect={handleSelect}
-          className="rounded-md border"
-          locale={tr}
-        />
-
-        {selectedDates.length > 0 && (
-          <Button 
-            variant="destructive" 
-            size="sm"
-            onClick={clearHolidays}
-            className="w-full"
-          >
-            Tüm Özel Tatilleri Temizle
-          </Button>
-        )}
+          <div className="space-y-4">
+            <div className="text-sm font-medium">Seçilen Tatil Günleri</div>
+            {selectedDates.length === 0 ? (
+              <div className="text-sm text-muted-foreground">
+                Henüz seçili tatil günü bulunmamaktadır.
+              </div>
+            ) : (
+              <ScrollArea className="h-[400px] rounded-md border p-4">
+                <div className="space-y-2">
+                  {selectedDates
+                    .sort((a, b) => a.getTime() - b.getTime())
+                    .map((date, index) => (
+                      <div 
+                        key={index}
+                        className="flex items-center space-x-2 text-sm"
+                      >
+                        <Badge variant="secondary">
+                          {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
+                        </Badge>
+                      </div>
+                    ))}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
