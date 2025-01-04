@@ -1,4 +1,4 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, setHours, isToday } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { CalendarEvent, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
@@ -8,7 +8,6 @@ import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { checkLessonConflict } from "@/utils/lessonConflicts";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -98,22 +97,6 @@ export default function MonthView({
       toast({
         title: "Tatil günü",
         description: `${holiday.name} nedeniyle bu gün tatildir.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Check for conflicts
-    const hasConflict = checkLessonConflict(
-      { ...event, start: newStart, end: newEnd },
-      events,
-      event.id
-    );
-
-    if (hasConflict) {
-      toast({
-        title: "Çakışma tespit edildi",
-        description: "Bu zaman diliminde başka bir ders bulunuyor.",
         variant: "destructive"
       });
       return;
