@@ -11,13 +11,6 @@ import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import { ClipboardPaste, Plus } from "lucide-react";
 
 interface DayViewProps {
   date: Date;
@@ -25,10 +18,6 @@ interface DayViewProps {
   onDateSelect: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   onEventUpdate?: (event: CalendarEvent) => void;
-  onEventCopy?: (event: CalendarEvent) => void;
-  onEventPaste?: () => void;
-  onEventDelete?: (lessonId: string) => void;
-  canPaste?: boolean;
   students?: Student[];
 }
 
@@ -38,10 +27,6 @@ export default function DayView({
   onDateSelect, 
   onEventClick,
   onEventUpdate,
-  onEventCopy,
-  onEventPaste,
-  onEventDelete,
-  canPaste,
   students 
 }: DayViewProps) {
   const { toast } = useToast();
@@ -179,57 +164,30 @@ export default function DayView({
               </div>
               <Droppable droppableId={`${hour}:0`}>
                 {(provided, snapshot) => (
-                  <ContextMenu>
-                    <ContextMenuTrigger>
-                      <div 
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={cn(
-                          "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer relative",
-                          snapshot.isDraggingOver && "bg-blue-50",
-                          (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
-                          "bg-gray-100 cursor-not-allowed"
-                        )}
-                        onClick={() => handleHourClick(hour, 0)}
-                      >
-                        {dayEvents
-                          .filter(event => new Date(event.start).getHours() === hour)
-                          .map((event, index) => (
-                            <LessonCard 
-                              key={event.id} 
-                              event={event} 
-                              onClick={onEventClick}
-                              onDelete={() => onEventDelete?.(event.id)}
-                              onCopy={onEventCopy}
-                              onPaste={onEventPaste}
-                              canPaste={canPaste}
-                              students={students}
-                              index={index}
-                            />
-                          ))}
-                        {provided.placeholder}
-                      </div>
-                    </ContextMenuTrigger>
-                    <ContextMenuContent>
-                      <ContextMenuItem 
-                        onClick={() => {
-                          const eventDate = new Date(date);
-                          eventDate.setHours(hour, 0);
-                          onDateSelect(eventDate);
-                        }}
-                        className="gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Ders Ekle
-                      </ContextMenuItem>
-                      {canPaste && (
-                        <ContextMenuItem onClick={onEventPaste} className="gap-2">
-                          <ClipboardPaste className="h-4 w-4" />
-                          Yapıştır
-                        </ContextMenuItem>
-                      )}
-                    </ContextMenuContent>
-                  </ContextMenu>
+                  <div 
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={cn(
+                      "col-span-11 min-h-[60px] border-t border-gray-200 cursor-pointer relative",
+                      snapshot.isDraggingOver && "bg-blue-50",
+                      (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
+                      "bg-gray-100 cursor-not-allowed"
+                    )}
+                    onClick={() => handleHourClick(hour, 0)}
+                  >
+                    {dayEvents
+                      .filter(event => new Date(event.start).getHours() === hour)
+                      .map((event, index) => (
+                        <LessonCard 
+                          key={event.id} 
+                          event={event} 
+                          onClick={onEventClick}
+                          students={students}
+                          index={index}
+                        />
+                      ))}
+                    {provided.placeholder}
+                  </div>
                 )}
               </Droppable>
             </motion.div>

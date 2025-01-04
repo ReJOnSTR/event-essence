@@ -16,7 +16,6 @@ import { useCalendarStore, type ViewType } from "@/store/calendarStore";
 import SideMenu from "@/components/Layout/SideMenu";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
-import { differenceInMinutes } from "date-fns";
 
 export default function CalendarPage() {
   const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
@@ -34,8 +33,6 @@ export default function CalendarPage() {
   const [studentColor, setStudentColor] = useState("#1a73e8");
   const { toast } = useToast();
   const { students, saveStudent, deleteStudent } = useStudents();
-
-  const [copiedLesson, setCopiedLesson] = useState<CalendarEvent | null>(null);
 
   // Dersleri localStorage'a kaydetme
   useEffect(() => {
@@ -106,36 +103,11 @@ export default function CalendarPage() {
   };
 
   const handleDeleteLesson = (lessonId: string) => {
-    setLessons(lessons.filter(l => l.id !== lessonId));
+    setLessons(lessons.filter(lesson => lesson.id !== lessonId));
     toast({
       title: "Ders silindi",
       description: "Dersiniz başarıyla silindi.",
     });
-  };
-
-  const handleCopyLesson = (lesson: CalendarEvent) => {
-    setCopiedLesson(lesson);
-  };
-
-  const handlePasteLesson = (date: Date) => {
-    if (copiedLesson) {
-      const duration = differenceInMinutes(copiedLesson.end, copiedLesson.start);
-      const newStart = new Date(date);
-      const newEnd = new Date(newStart.getTime() + duration * 60000);
-
-      const newLesson: CalendarEvent = {
-        ...copiedLesson,
-        id: crypto.randomUUID(),
-        start: newStart,
-        end: newEnd,
-      };
-
-      setLessons([...lessons, newLesson]);
-      toast({
-        title: "Ders yapıştırıldı",
-        description: "Ders başarıyla yapıştırıldı.",
-      });
-    }
   };
 
   const handleEditStudent = (student: Student) => {
@@ -210,10 +182,6 @@ export default function CalendarPage() {
       onDateSelect: handleDateSelect,
       onEventClick: handleLessonClick,
       onEventUpdate: handleEventUpdate,
-      onEventCopy: handleCopyLesson,
-      onEventPaste: () => handlePasteLesson(selectedDate),
-      onEventDelete: handleDeleteLesson,
-      canPaste: !!copiedLesson,
       students: students,
     };
 
