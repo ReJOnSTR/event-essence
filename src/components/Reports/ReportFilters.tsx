@@ -96,11 +96,13 @@ export function ReportFilters({
               date={startDate}
               setDate={setStartDate}
               placeholder="Başlangıç Tarihi"
+              locale="tr"
             />
             <DatePicker
               date={endDate}
               setDate={setEndDate}
               placeholder="Bitiş Tarihi"
+              locale="tr"
             />
           </>
         ) : (
@@ -108,6 +110,7 @@ export function ReportFilters({
             <DatePicker
               date={selectedDate}
               setDate={setSelectedDate}
+              locale="tr"
             />
           </div>
         )}
