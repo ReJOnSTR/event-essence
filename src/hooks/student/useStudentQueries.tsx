@@ -9,13 +9,16 @@ export function useStudentQueries() {
   const getStudents = async (): Promise<Student[]> => {
     console.log('Fetching students...');
     try {
-      const { data, error } = await supabase
+      const { data, error, status } = await supabase
         .from('students')
         .select('*')
         .order('name');
       
       if (error) {
         console.error('Error fetching students:', error);
+        if (status === 0 || status === undefined) {
+          throw new Error('Network connection error. Please check your internet connection.');
+        }
         throw error;
       }
       
@@ -27,11 +30,11 @@ export function useStudentQueries() {
         color: student.color || "#1a73e8",
         price: Number(student.price)
       })) || [];
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading students:', error);
       toast({
-        title: "Hata",
-        description: "Öğrenci verileri yüklenirken bir hata oluştu.",
+        title: "Bağlantı Hatası",
+        description: error.message || "Öğrenci verileri yüklenirken bir hata oluştu.",
         variant: "destructive"
       });
       return [];
@@ -41,6 +44,8 @@ export function useStudentQueries() {
   const { data: students = [], isLoading, error, refetch } = useQuery({
     queryKey: ['students'],
     queryFn: getStudents,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   return {

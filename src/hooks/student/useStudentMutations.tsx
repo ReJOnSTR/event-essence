@@ -21,7 +21,7 @@ export function useStudentMutations() {
       try {
         if (student.id) {
           // First check if student exists
-          const { data: existingStudent, error: checkError } = await supabase
+          const { data: existingStudent, error: checkError, status } = await supabase
             .from('students')
             .select()
             .eq('id', student.id)
@@ -29,12 +29,15 @@ export function useStudentMutations() {
           
           if (checkError) {
             console.error('Error checking student:', checkError);
+            if (status === 0 || status === undefined) {
+              throw new Error('Network connection error. Please check your internet connection.');
+            }
             throw checkError;
           }
 
           if (!existingStudent) {
             console.error('Student not found:', student.id);
-            throw new Error('Student not found');
+            throw new Error('Öğrenci bulunamadı veya silinmiş olabilir.');
           }
 
           // Update existing student
@@ -70,11 +73,14 @@ export function useStudentMutations() {
         }
       } catch (error: any) {
         console.error('Operation failed:', error);
-        // Provide a more specific error message based on the operation
-        const errorMessage = student.id 
-          ? 'Failed to update student: Student may have been deleted'
-          : 'Failed to create student';
-        throw new Error(errorMessage);
+        if (error.message?.includes('Network connection error')) {
+          throw error;
+        }
+        throw new Error(
+          student.id 
+            ? 'Öğrenci güncellenirken bir hata oluştu. Lütfen tekrar deneyin.'
+            : 'Öğrenci eklenirken bir hata oluştu. Lütfen tekrar deneyin.'
+        );
       }
     },
     onSuccess: () => {
@@ -100,7 +106,7 @@ export function useStudentMutations() {
       
       try {
         // First check if student exists
-        const { data: existingStudent, error: checkError } = await supabase
+        const { data: existingStudent, error: checkError, status } = await supabase
           .from('students')
           .select()
           .eq('id', studentId)
@@ -108,11 +114,14 @@ export function useStudentMutations() {
         
         if (checkError) {
           console.error('Error checking student:', checkError);
+          if (status === 0 || status === undefined) {
+            throw new Error('Network connection error. Please check your internet connection.');
+          }
           throw checkError;
         }
 
         if (!existingStudent) {
-          throw new Error('Student not found or already deleted');
+          throw new Error('Öğrenci bulunamadı veya zaten silinmiş.');
         }
 
         const { error } = await supabase
@@ -128,7 +137,7 @@ export function useStudentMutations() {
         console.log('Successfully deleted student:', studentId);
       } catch (error: any) {
         console.error('Delete operation failed:', error);
-        throw new Error(error.message || 'Failed to delete student');
+        throw new Error(error.message || 'Öğrenci silinirken bir hata oluştu.');
       }
     },
     onSuccess: () => {
