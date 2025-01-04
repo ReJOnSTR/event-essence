@@ -7,6 +7,7 @@ import { format, isFuture, compareAsc } from "date-fns";
 import { tr } from "date-fns/locale";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface SearchDialogProps {
   isOpen: boolean;
@@ -26,8 +27,8 @@ export default function SearchDialog({
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredLessons, setFilteredLessons] = useState<CalendarEvent[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
+  const navigate = useNavigate();
 
-  // Update filtered results whenever search term, lessons, or students change
   useEffect(() => {
     if (!searchTerm) {
       setFilteredLessons([]);
@@ -83,6 +84,11 @@ export default function SearchDialog({
     onClose();
   };
 
+  const handleStudentClick = (student: Student) => {
+    navigate('/students');
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -121,6 +127,7 @@ export default function SearchDialog({
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="p-2 hover:bg-accent rounded-md cursor-pointer"
+                          onClick={() => handleStudentClick(student)}
                         >
                           <div className="flex items-center gap-2">
                             <div
