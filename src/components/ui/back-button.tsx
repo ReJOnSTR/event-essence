@@ -9,16 +9,12 @@ interface BackButtonProps {
   className?: string;
 }
 
-export function BackButton({ to, label = "Geri Dön", className }: BackButtonProps) {
+export function BackButton({ label = "Geri Dön", className }: BackButtonProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleBack = () => {
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
-      navigate(to || "/");
-    }
+    navigate("/");
   };
 
   // Don't show back button on home page
