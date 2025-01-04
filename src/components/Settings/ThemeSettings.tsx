@@ -4,7 +4,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Theme = {
@@ -19,7 +18,7 @@ const themes: Theme[] = [
   {
     id: "system",
     name: "Sistem Teması",
-    class: "",
+    class: "system",
     preview: "bg-background",
     description: "Sistem ayarlarınızı takip eder"
   },
@@ -76,8 +75,9 @@ export default function ThemeSettings() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Remove all theme classes
-    document.documentElement.classList.remove(...themes.map(t => t.class));
+    // Remove all theme classes, filtering out empty strings
+    const themeClasses = themes.map(t => t.class).filter(Boolean);
+    document.documentElement.classList.remove(...themeClasses);
     
     if (currentTheme === "system") {
       // Sistem temasını takip et
