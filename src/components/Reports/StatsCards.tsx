@@ -91,10 +91,10 @@ export function StatsCards({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {(startDate && endDate && hours.custom) || 0} Saat
+            {hours.custom} Saat
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {formatCurrency((startDate && endDate && earnings.custom) || 0)}
+            {formatCurrency(earnings.custom)}
           </p>
         </CardContent>
       </Card>
