@@ -42,21 +42,15 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [onHeightChange, navigate]);
+  }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -94,9 +88,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
         });
-        
-        // Navigate to login page
-        navigate("/login");
       }
     } catch (error) {
       console.error('Unexpected error during logout:', error);
@@ -177,7 +168,11 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           ) : (
             <Button 
               variant="default" 
-              onClick={() => navigate("/login")}
+              onClick={() => {
+                const returnUrl = window.location.pathname;
+                localStorage.setItem('returnUrl', returnUrl);
+                navigate("/calendar");
+              }}
               className="gap-2"
             >
               <User className="h-4 w-4" />

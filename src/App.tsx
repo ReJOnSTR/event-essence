@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
@@ -18,11 +18,11 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
-import LoginPage from "./pages/LoginPage";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const pageVariants = {
   initial: {
@@ -64,7 +64,6 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         }}
       >
         <Routes location={location}>
-          <Route path="/login" element={<LoginPage />} />
           <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
           <Route path="/students" element={<StudentsManagementPage />} />
           <Route path="/reports" element={<ReportsPage />} />
