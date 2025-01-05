@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -21,16 +20,6 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useState } from "react";
-
-// Create a single QueryClient instance
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: 1,
-    },
-  },
-});
 
 const pageVariants = {
   initial: {
@@ -104,27 +93,25 @@ const App = () => {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <TooltipProvider>
-          <SidebarProvider defaultOpen={true}>
-            <BrowserRouter>
-              <div className="min-h-screen flex w-full overflow-hidden bg-background">
-                <Sidebar>
-                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                    <SideMenu />
-                  </SidebarContent>
-                  <SidebarRail />
-                </Sidebar>
-                <div className="flex-1 flex flex-col">
-                  <AuthHeader onHeightChange={setHeaderHeight} />
-                  <AnimatedRoutes headerHeight={headerHeight} />
-                </div>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <TooltipProvider>
+        <SidebarProvider defaultOpen={true}>
+          <BrowserRouter>
+            <div className="min-h-screen flex w-full overflow-hidden bg-background">
+              <Sidebar>
+                <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                  <SideMenu />
+                </SidebarContent>
+                <SidebarRail />
+              </Sidebar>
+              <div className="flex-1 flex flex-col">
+                <AuthHeader onHeightChange={setHeaderHeight} />
+                <AnimatedRoutes headerHeight={headerHeight} />
               </div>
-            </BrowserRouter>
-          </SidebarProvider>
-        </TooltipProvider>
-      </ThemeProvider>
+            </div>
+          </BrowserRouter>
+        </SidebarProvider>
+      </TooltipProvider>
       <StudentDialog
         isOpen={isDialogOpen}
         onClose={closeDialog}
@@ -140,7 +127,7 @@ const App = () => {
       />
       <Toaster />
       <Sonner />
-    </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 
