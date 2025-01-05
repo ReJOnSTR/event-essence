@@ -1,3 +1,4 @@
+import React from 'react';
 import { useSession } from "@supabase/auth-helpers-react";
 import { useToast } from "@/components/ui/use-toast";
 import { CalendarEvent } from "@/types/calendar";

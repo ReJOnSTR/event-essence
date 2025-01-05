@@ -130,6 +130,9 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
               currentView={currentView}
               selectedDate={selectedDate}
               lessons={lessons}
+              onDateSelect={handleDateSelect}
+              onEventClick={handleLessonClick}
+              onEventUpdate={handleEventUpdate}
               students={students}
             />
           </CalendarInteractionHandler>
