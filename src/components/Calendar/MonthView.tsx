@@ -1,13 +1,14 @@
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours } from "date-fns";
-import { tr } from 'date-fns/locale';
+import { format, isSameMonth, isSameDay, isToday } from "date-fns";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
-import { getWorkingHours } from "@/utils/workingHours";
+import MonthHeader from "./MonthHeader";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { isDayEnabled } from "@/utils/workingHoursUtils";
+import { useMonthView } from "@/features/calendar/hooks/useMonthView";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -29,50 +30,21 @@ export default function MonthView({
   students
 }: MonthViewProps) {
   const { toast } = useToast();
+  const { getDaysInMonth } = useMonthView(date, events);
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
-
-  const getDaysInMonth = (currentDate: Date) => {
-    const start = startOfMonth(currentDate);
-    const end = endOfMonth(currentDate);
-    const days = eachDayOfInterval({ start, end });
-    
-    let startDay = start.getDay() - 1;
-    if (startDay === -1) startDay = 6;
-    
-    const prefixDays = Array.from({ length: startDay }, (_, i) => 
-      addDays(start, -(startDay - i))
-    );
-    
-    const endDay = end.getDay() - 1;
-    const suffixDays = Array.from({ length: endDay === -1 ? 0 : 6 - endDay }, (_, i) =>
-      addDays(end, i + 1)
-    );
-    
-    return [...prefixDays, ...days, ...suffixDays].map(dayDate => ({
-      date: dayDate,
-      isCurrentMonth: isSameMonth(dayDate, currentDate),
-      lessons: events.filter(event => {
-        const eventStart = new Date(event.start);
-        return isSameDay(eventStart, dayDate);
-      })
-    }));
-  };
+  const days = getDaysInMonth(date);
+  const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
   const handleDateClick = (clickedDate: Date) => {
-    const dayOfWeek = clickedDate.getDay();
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-    const workingHours = getWorkingHours();
-    const daySettings = workingHours[days[dayOfWeek]];
-    
-    if (daySettings.enabled && daySettings.start) {
-      const [hours, minutes] = daySettings.start.split(':').map(Number);
-      const dateWithWorkingHours = new Date(clickedDate);
-      dateWithWorkingHours.setHours(hours, minutes, 0);
-      onDateSelect(dateWithWorkingHours);
-    } else {
-      const dateWithDefaultHour = setHours(clickedDate, 9);
-      onDateSelect(dateWithDefaultHour);
+    if (!isDayEnabled(clickedDate)) {
+      toast({
+        title: "Çalışma saati kapalı",
+        description: "Bu gün çalışmaya kapalıdır.",
+        variant: "destructive"
+      });
+      return;
     }
+    onDateSelect(clickedDate);
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -80,8 +52,17 @@ export default function MonthView({
 
     const [dayIndex] = result.destination.droppableId.split('-').map(Number);
     const targetDay = days[dayIndex].date;
+
+    if (!isDayEnabled(targetDay)) {
+      toast({
+        title: "Çalışma saati kapalı",
+        description: "Bu gün çalışmaya kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const event = events.find(e => e.id === result.draggableId);
-    
     if (!event) return;
 
     const eventStart = new Date(event.start);
@@ -114,23 +95,14 @@ export default function MonthView({
     });
   };
 
-  const days = getDaysInMonth(date);
-
   if (isYearView) {
     return (
       <div className="w-full mx-auto">
         <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-          {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => (
-            <div
-              key={day}
-              className="bg-background/80 p-1 text-xs font-medium text-muted-foreground text-center"
-            >
-              {day}
-            </div>
-          ))}
-          
+          <MonthHeader weekDays={weekDays} />
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);
+            const dayEnabled = isDayEnabled(day.date);
             return (
               <div
                 key={idx}
@@ -140,7 +112,8 @@ export default function MonthView({
                   !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
                   isToday(day.date) && "bg-accent text-accent-foreground",
                   holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-                  holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
+                  holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
+                  !dayEnabled && "bg-muted/50 text-muted-foreground cursor-not-allowed"
                 )}
               >
                 <div className="text-xs font-medium">
@@ -163,24 +136,10 @@ export default function MonthView({
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
       >
         <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-          {["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day, index) => (
-            <motion.div
-              key={day}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.15,
-                delay: index * 0.01,
-                ease: [0.23, 1, 0.32, 1]
-              }}
-              className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
-            >
-              {day}
-            </motion.div>
-          ))}
-          
+          <MonthHeader weekDays={weekDays} />
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);
+            const dayEnabled = isDayEnabled(day.date);
             return (
               <Droppable droppableId={`${idx}`} key={idx}>
                 {(provided, snapshot) => (
@@ -201,7 +160,8 @@ export default function MonthView({
                       isToday(day.date) && "bg-accent text-accent-foreground",
                       holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
                       holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-                      snapshot.isDraggingOver && "bg-accent/50"
+                      snapshot.isDraggingOver && "bg-accent/50",
+                      !dayEnabled && "bg-muted/50 text-muted-foreground cursor-not-allowed"
                     )}
                   >
                     <div className={cn(
@@ -216,6 +176,11 @@ export default function MonthView({
                         )}>
                           {holiday.name}
                           {allowWorkOnHolidays && " (Çalışmaya Açık)"}
+                        </div>
+                      )}
+                      {!dayEnabled && (
+                        <div className="text-xs text-muted-foreground truncate">
+                          Çalışmaya Kapalı
                         </div>
                       )}
                     </div>
