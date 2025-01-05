@@ -1,22 +1,13 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual, addMinutes } from "date-fns";
-import { Trash2 } from "lucide-react";
+import { format, isWithinInterval, isEqual } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { getWorkingHours } from "@/utils/workingHours";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import LessonTimeInputs from "./LessonTimeInputs";
+import LessonDialogHeader from "./LessonDialogHeader";
+import LessonDialogForm from "./LessonDialogForm";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -63,27 +54,23 @@ export default function LessonDialog({
           const currentHours = selectedDate.getHours();
           const currentMinutes = selectedDate.getMinutes();
 
-          // If current time is before working hours, use working hours start time
           if (currentHours < parseInt(startHour)) {
             initialStartTime = daySettings.start;
           } else {
-            // Use current time
             initialStartTime = `${currentHours.toString().padStart(2, '0')}:${currentMinutes.toString().padStart(2, '0')}`;
           }
         } else {
-          // Default to 09:00 if no working hours set
           initialStartTime = "09:00";
         }
 
         setStartTime(initialStartTime);
         
-        // Calculate end time based on start time and default duration
         const [hours, minutes] = initialStartTime.split(':').map(Number);
         const startDate = new Date(selectedDate);
         startDate.setHours(hours, minutes, 0, 0);
         
         const defaultDuration = getDefaultLessonDuration();
-        const endDate = addMinutes(startDate, defaultDuration);
+        const endDate = new Date(startDate.getTime() + defaultDuration * 60000);
         
         setEndTime(format(endDate, 'HH:mm'));
         setDescription("");
@@ -161,15 +148,6 @@ export default function LessonDialog({
       end,
       studentId: selectedStudentId,
     });
-    
-    onClose();
-  };
-
-  const handleDelete = () => {
-    if (event && onDelete) {
-      onDelete(event.id);
-      onClose();
-    }
   };
 
   return (
@@ -180,104 +158,28 @@ export default function LessonDialog({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
+          className="p-6"
         >
-          <DialogHeader>
-            <DialogTitle>{event ? "Dersi Düzenle" : "Ders Ekle"}</DialogTitle>
-            <DialogDescription>
-              Ders detaylarını buradan düzenleyebilirsiniz.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className="space-y-2"
-            >
-              <label className="text-sm font-medium">Öğrenci</label>
-              <Select
-                value={selectedStudentId}
-                onValueChange={setSelectedStudentId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Öğrenci seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  <AnimatePresence>
-                    {students.map((student, index) => (
-                      <motion.div
-                        key={student.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <SelectItem value={student.id}>
-                          {student.name}
-                        </SelectItem>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </SelectContent>
-              </Select>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-2"
-            >
-              <label className="text-sm font-medium">Açıklama</label>
-              <Textarea
-                value={description}
-                onChange={handleDescriptionChange}
-                placeholder="Ders açıklaması"
-                maxLength={500}
-              />
-              <div className="text-xs text-muted-foreground">
-                {description.length}/100 karakter
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <LessonTimeInputs
-                startTime={startTime}
-                endTime={endTime}
-                selectedDate={selectedDate}
-                onStartTimeChange={setStartTime}
-                onEndTimeChange={setEndTime}
-              />
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="flex justify-between"
-            >
-              {event && onDelete && (
-                <Button 
-                  type="button" 
-                  variant="destructive" 
-                  onClick={handleDelete}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Sil
-                </Button>
-              )}
-              <div className="flex gap-2 ml-auto">
-                <Button type="button" variant="outline" onClick={onClose}>
-                  İptal
-                </Button>
-                <Button type="submit">Kaydet</Button>
-              </div>
-            </motion.div>
-          </form>
+          <LessonDialogHeader 
+            isEditing={!!event}
+            selectedDate={selectedDate}
+          />
+          
+          <LessonDialogForm
+            description={description}
+            onDescriptionChange={handleDescriptionChange}
+            startTime={startTime}
+            endTime={endTime}
+            selectedDate={selectedDate}
+            setStartTime={setStartTime}
+            setEndTime={setEndTime}
+            selectedStudentId={selectedStudentId}
+            setSelectedStudentId={setSelectedStudentId}
+            students={students}
+            onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
+            onClose={onClose}
+            onSubmit={handleSubmit}
+          />
         </motion.div>
       </DialogContent>
     </Dialog>
