@@ -1,5 +1,5 @@
 import { Plus, FileBarChart, Calendar, Users } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
   SidebarMenu, 
@@ -16,7 +16,6 @@ import { useToast } from "@/components/ui/use-toast";
 export default function SideMenu() {
   const { students } = useStudents();
   const location = useLocation();
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const isActive = (path: string) => {
@@ -24,13 +23,11 @@ export default function SideMenu() {
   };
 
   const handleStudentClick = (student: Student) => {
-    navigate('/students');
     // Öğrenci düzenleme modalını açmak için bir event yayınlayalım
     window.dispatchEvent(new CustomEvent('editStudent', { detail: student }));
   };
 
   const handleAddStudent = () => {
-    navigate('/students');
     // Yeni öğrenci ekleme modalını açmak için bir event yayınlayalım
     window.dispatchEvent(new CustomEvent('addStudent'));
   };
