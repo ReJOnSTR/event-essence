@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { User, Phone, Clock, Mail, Lock } from "lucide-react";
 import { SubjectSelect } from "./SubjectSelect";
+import { cn } from "@/lib/utils";
 
 interface RegisterFormProps {
   onToggleForm: () => void;
