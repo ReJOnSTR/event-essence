@@ -10,7 +10,7 @@ import {
   SidebarContent,
   SidebarRail
 } from "@/components/ui/sidebar";
-import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { SessionContextProvider, useSessionContext } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
@@ -23,6 +23,7 @@ import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useToast } from "@/components/ui/use-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +55,29 @@ const pageTransition = {
   duration: 0.3
 };
 
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, isLoading } = useSessionContext();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !session) {
+      toast({
+        title: "Oturum Hatası",
+        description: "Lütfen giriş yapın",
+        duration: 3000,
+      });
+      navigate('/');
+    }
+  }, [session, isLoading, navigate, toast]);
+
+  if (isLoading) {
+    return <div>Yükleniyor...</div>;
+  }
+
+  return session ? <>{children}</> : null;
+};
+
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
   
@@ -73,10 +97,26 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         }}
       >
         <Routes location={location}>
-          <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/calendar" element={
+            <ProtectedRoute>
+              <CalendarPage headerHeight={headerHeight} />
+            </ProtectedRoute>
+          } />
+          <Route path="/students" element={
+            <ProtectedRoute>
+              <StudentsManagementPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/reports" element={
+            <ProtectedRoute>
+              <ReportsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          } />
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
       </motion.div>
@@ -113,7 +153,7 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SessionContextProvider supabaseClient={supabase} initialSession={null}>
+      <SessionContextProvider supabaseClient={supabase}>
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
           <TooltipProvider>
             <SidebarProvider defaultOpen={true}>
