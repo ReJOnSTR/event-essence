@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useCalendarStore } from "@/store/calendarStore";
+import React, { useState } from "react";
+import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -20,6 +20,7 @@ interface CalendarPageProps {
 export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent } = useStudents();
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
   const session = useSession();
 
@@ -33,7 +34,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const {
     isDialogOpen,
     selectedLesson,
-    selectedDate,
+    selectedDate: dialogSelectedDate,
     handleDateSelect,
     handleLessonClick,
     handleCloseDialog,
@@ -58,7 +59,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     };
     
     saveStudent(studentData);
-    setIsStudentDialogOpen(false);
+    setIsDialogOpen(false);
   };
 
   // Save lessons to localStorage
@@ -74,7 +75,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
           <Button 
             size="sm"
             onClick={() => {
-              setSelectedLesson(undefined);
               setIsDialogOpen(true);
             }}
           >
@@ -88,7 +88,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       <CalendarPageHeader
         date={selectedDate}
         currentView={currentView}
-        onViewChange={(view) => setCurrentView(view)}
+        onViewChange={(view: ViewType) => setCurrentView(view)}
         onPrevious={handleNavigationClick('prev', currentView)}
         onNext={handleNavigationClick('next', currentView)}
         onToday={handleTodayClick}
@@ -113,7 +113,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         onClose={handleCloseDialog}
         onSave={handleSaveLesson}
         onDelete={handleDeleteLesson}
-        selectedDate={selectedDate}
+        selectedDate={dialogSelectedDate}
         event={selectedLesson}
         events={lessons}
         students={students}
