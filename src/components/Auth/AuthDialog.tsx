@@ -29,15 +29,12 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     };
   }, [onClose, toast]);
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog 
-      open={isOpen} 
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
-      <DialogContent className="sm:max-w-[425px] bg-background border-border">
-        <DialogTitle className="text-xl font-semibold mb-4 text-foreground">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogTitle className="text-xl font-semibold mb-4">
           Hesap
         </DialogTitle>
         <Auth
@@ -49,27 +46,15 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 colors: {
                   brand: 'hsl(var(--primary))',
                   brandAccent: 'hsl(var(--primary-foreground))',
-                  brandButtonText: 'hsl(var(--background))',
-                  defaultButtonBackground: 'hsl(var(--secondary))',
-                  defaultButtonBackgroundHover: 'hsl(var(--accent))',
-                  defaultButtonBorder: 'hsl(var(--border))',
-                  defaultButtonText: 'hsl(var(--foreground))',
-                  dividerBackground: 'hsl(var(--border))',
-                  inputBackground: 'hsl(var(--background))',
-                  inputBorder: 'hsl(var(--border))',
-                  inputBorderHover: 'hsl(var(--ring))',
-                  inputBorderFocus: 'hsl(var(--ring))',
-                  inputText: 'hsl(var(--foreground))',
-                  inputLabelText: 'hsl(var(--muted-foreground))',
-                  inputPlaceholder: 'hsl(var(--muted-foreground))',
+                  brandButtonText: 'white',
                 }
               }
             },
             className: {
               container: 'w-full',
-              button: 'w-full px-4 py-2 rounded-md transition-colors',
+              button: 'w-full px-4 py-2 rounded-md',
               label: 'text-sm font-medium',
-              input: 'w-full px-3 py-2 rounded-md border transition-colors',
+              input: 'w-full px-3 py-2 rounded-md border',
               loader: 'border-primary',
             },
           }}

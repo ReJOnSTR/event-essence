@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, ReactNode } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,39 +20,25 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthDialog } from "./AuthDialog";
 import { useToast } from "../ui/use-toast";
-import { Session } from "@supabase/supabase-js";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
-  children?: ReactNode;
   onSearchChange: (searchTerm: string) => void;
 }
 
-function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProps) {
+function AuthHeader({ onHeightChange, onSearchChange }: AuthHeaderProps) {
   const [notifications] = useState(2);
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
+  const { session } = useSessionContext();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     onHeightChange?.(64);
-
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-    };
-
-    getInitialSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
   }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
@@ -88,7 +74,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
       >
         <div className="h-16 px-4 flex items-center justify-between max-w-[2000px] mx-auto">
           <div className="flex items-center space-x-4">
-            {children}
             <h1 className="text-xl font-semibold">EventEssence</h1>
           </div>
 
