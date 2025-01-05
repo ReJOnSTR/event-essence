@@ -93,6 +93,15 @@ export default function LoginPage() {
             theme="default"
             providers={[]}
             redirectTo={window.location.origin}
+            options={{
+              emailRedirectTo: window.location.origin,
+              metaData: {
+                full_name: undefined,
+                phone_number: undefined,
+                teaching_subjects: undefined,
+                years_of_experience: undefined
+              }
+            }}
             localization={{
               variables: {
                 sign_up: {
@@ -102,7 +111,7 @@ export default function LoginPage() {
                   loading_button_label: "Hesap oluşturuluyor...",
                   social_provider_text: "{{provider}} ile devam et",
                   link_text: "Hesabınız yok mu? Hemen oluşturun",
-                  confirmation_text: "Email adresinizi kontrol edin"
+                  confirmation_text: "Email adresinizi kontrol edin",
                 },
                 sign_in: {
                   email_label: "Email Adresi",
@@ -113,6 +122,31 @@ export default function LoginPage() {
                   link_text: "Zaten hesabınız var mı? Giriş yapın"
                 }
               }
+            }}
+            view="sign_up"
+            additionalData={{
+              full_name: {
+                label: "Ad Soyad",
+                type: "text",
+                required: true,
+              },
+              phone_number: {
+                label: "Telefon Numarası",
+                type: "tel",
+                required: true,
+              },
+              teaching_subjects: {
+                label: "Öğrettiğiniz Dersler",
+                type: "text",
+                required: true,
+                placeholder: "Matematik, Fizik, vb.",
+              },
+              years_of_experience: {
+                label: "Deneyim Yılı",
+                type: "number",
+                required: true,
+                min: 0,
+              },
             }}
           />
         </CardContent>
