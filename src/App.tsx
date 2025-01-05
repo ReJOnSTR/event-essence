@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
-import { AuthHeader } from "@/components/Auth/AuthHeader";
+import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
 import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";

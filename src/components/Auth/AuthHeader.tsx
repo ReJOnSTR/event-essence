@@ -27,7 +27,7 @@ interface AuthHeaderProps {
   onSearchChange: (searchTerm: string) => void;
 }
 
-function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProps) {
+export default function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProps) {
   const [notifications] = useState(2);
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,21 +42,15 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [onHeightChange, navigate]);
+  }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -189,5 +183,3 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     </div>
   );
 }
-
-export default AuthHeader;
