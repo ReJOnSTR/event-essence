@@ -2,7 +2,6 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "../ui/use-toast";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -10,21 +9,10 @@ interface AuthDialogProps {
 }
 
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
-  const { toast } = useToast();
-
-  const showErrorToast = (message: string) => {
-    toast({
-      title: "Hata",
-      description: message,
-      variant: "destructive",
-      duration: 3000,
-    });
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-background border-border">
-        <DialogTitle className="text-xl font-semibold mb-4 text-foreground">
+      <DialogContent className="sm:max-w-[425px] bg-background">
+        <DialogTitle className="text-xl font-semibold mb-4">
           Hesap
         </DialogTitle>
         <Auth
@@ -35,40 +23,19 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
               default: {
                 colors: {
                   brand: 'hsl(var(--primary))',
-                  brandAccent: 'hsl(var(--primary-foreground))',
-                  brandButtonText: 'hsl(var(--background))',
-                  defaultButtonBackground: 'hsl(var(--secondary))',
-                  defaultButtonBackgroundHover: 'hsl(var(--accent))',
-                  defaultButtonBorder: 'hsl(var(--border))',
-                  defaultButtonText: 'hsl(var(--foreground))',
-                  dividerBackground: 'hsl(var(--border))',
-                  inputBackground: 'hsl(var(--background))',
-                  inputBorder: 'hsl(var(--border))',
-                  inputBorderHover: 'hsl(var(--ring))',
-                  inputBorderFocus: 'hsl(var(--ring))',
-                  inputText: 'hsl(var(--foreground))',
-                  inputLabelText: 'hsl(var(--muted-foreground))',
-                  inputPlaceholder: 'hsl(var(--muted-foreground))',
-                },
-                space: {
-                  spaceSmall: '4px',
-                  spaceMedium: '8px',
-                  spaceLarge: '16px',
-                },
-                fonts: {
-                  bodyFontFamily: `var(--font-sans)`,
-                  buttonFontFamily: `var(--font-sans)`,
-                  inputFontFamily: `var(--font-sans)`,
-                  labelFontFamily: `var(--font-sans)`,
-                },
-                borderWidths: {
-                  buttonBorderWidth: '1px',
-                  inputBorderWidth: '1px',
-                },
-                radii: {
-                  borderRadiusButton: 'var(--radius)',
-                  buttonBorderRadius: 'var(--radius)',
-                  inputBorderRadius: 'var(--radius)',
+                  brandAccent: 'hsl(var(--primary))',
+                  brandButtonText: 'white',
+                  defaultButtonBackground: 'white',
+                  defaultButtonBackgroundHover: '#eee',
+                  defaultButtonBorder: 'lightgray',
+                  defaultButtonText: 'gray',
+                  dividerBackground: '#eee',
+                  inputBackground: 'transparent',
+                  inputBorder: 'lightgray',
+                  inputBorderHover: 'gray',
+                  inputBorderFocus: 'gray',
+                  inputText: 'black',
+                  inputPlaceholder: 'darkgray',
                 },
               },
             },
