@@ -20,6 +20,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthDialog } from "./AuthDialog";
 import { useToast } from "../ui/use-toast";
+import { Session } from "@supabase/supabase-js";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -33,15 +34,21 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const [user, setUser] = useState(supabase.auth.getSession());
+  const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     onHeightChange?.(64);
 
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session);
+      setSession(session);
     });
 
     return () => subscription.unsubscribe();
@@ -124,7 +131,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              {user ? (
+              {session ? (
                 <>
                   <DropdownMenuItem className="gap-2" onClick={handleLogout}>
                     <LogOut className="h-4 w-4" />
