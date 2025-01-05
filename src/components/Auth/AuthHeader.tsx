@@ -20,7 +20,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthDialog } from "./AuthDialog";
 import { useToast } from "../ui/use-toast";
-import { Session } from "@supabase/supabase-js";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -34,24 +34,12 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
+  const { session } = useSessionContext();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     onHeightChange?.(64);
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
   }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {

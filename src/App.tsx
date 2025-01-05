@@ -10,7 +10,7 @@ import {
   SidebarContent,
   SidebarRail
 } from "@/components/ui/sidebar";
-import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { SessionContextProvider, useSessionContext } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
@@ -21,7 +21,8 @@ import SettingsPage from "./pages/SettingsPage";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "./components/ui/use-toast";
 
 const pageVariants = {
   initial: {
@@ -44,32 +45,97 @@ const pageTransition = {
   duration: 0.3
 };
 
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  headerHeight: number;
+}
+
+const ProtectedRoute = ({ children, headerHeight }: ProtectedRouteProps) => {
+  const { session, isLoading } = useSessionContext();
+  const location = useLocation();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!isLoading && !session) {
+      toast({
+        title: "Oturum gerekli",
+        description: "Bu sayfayı görüntülemek için giriş yapmanız gerekiyor.",
+        variant: "destructive",
+      });
+    }
+  }, [session, isLoading, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  return (
+    <motion.div
+      key={location.pathname}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="w-full h-full"
+      style={{ 
+        marginTop: headerHeight,
+        transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
   
   return (
     <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageVariants}
-        transition={pageTransition}
-        className="w-full h-full"
-        style={{ 
-          marginTop: headerHeight,
-          transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
-        }}
-      >
-        <Routes location={location}>
-          <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/" element={<Navigate to="/calendar" replace />} />
-        </Routes>
-      </motion.div>
+      <Routes location={location}>
+        <Route 
+          path="/calendar" 
+          element={
+            <ProtectedRoute headerHeight={headerHeight}>
+              <CalendarPage headerHeight={headerHeight} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/students" 
+          element={
+            <ProtectedRoute headerHeight={headerHeight}>
+              <StudentsManagementPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/reports" 
+          element={
+            <ProtectedRoute headerHeight={headerHeight}>
+              <ReportsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/settings" 
+          element={
+            <ProtectedRoute headerHeight={headerHeight}>
+              <SettingsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/" element={<Navigate to="/calendar" replace />} />
+      </Routes>
     </AnimatePresence>
   );
 };
