@@ -25,7 +25,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
   
   const { currentView, setCurrentView } = useCalendarStore();
-  const { students } = useStudents();
+  const { students, saveStudent, deleteStudent } = useStudents();
   const { lessons, saveLesson, deleteLesson } = useLessons();
   const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
@@ -145,31 +145,13 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
             price: studentPrice,
             color: studentColor,
           });
-          toast({
-            title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
-            description: selectedStudent 
-              ? "Öğrenci bilgileri başarıyla güncellendi."
-              : "Yeni öğrenci başarıyla eklendi.",
-          });
           setIsStudentDialogOpen(false);
         }}
-        onDelete={() => {
-          const { selectedStudent } = studentDialogState;
-          if (selectedStudent) {
-            deleteStudent(selectedStudent.id);
-            const updatedLessons = lessons.map(lesson => 
-              lesson.studentId === selectedStudent.id 
-                ? { ...lesson, studentId: undefined }
-                : lesson
-            );
-            setLessons(updatedLessons);
-            toast({
-              title: "Öğrenci silindi",
-              description: "Öğrenci başarıyla silindi.",
-            });
-            setIsStudentDialogOpen(false);
+        onDelete={studentDialogState.selectedStudent ? () => {
+          if (studentDialogState.selectedStudent) {
+            deleteStudent(studentDialogState.selectedStudent.id);
           }
-        }}
+        } : undefined}
         student={studentDialogState.selectedStudent}
         studentName={studentDialogState.studentName}
         setStudentName={(name) => setStudentDialogState(prev => ({ ...prev, studentName: name }))}
