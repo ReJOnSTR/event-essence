@@ -4,7 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import { 
+  SidebarProvider, 
+  Sidebar, 
+  SidebarContent,
+  SidebarTrigger,
+  SidebarRail
+} from "@/components/ui/sidebar";
 import { AuthHeader } from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
 import CalendarPage from "./pages/CalendarPage";
@@ -84,9 +90,12 @@ const App = () => {
                 <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
                   <SideMenu />
                 </SidebarContent>
+                <SidebarRail />
               </Sidebar>
               <div className="flex-1 flex flex-col">
-                <AuthHeader onHeightChange={setHeaderHeight} />
+                <AuthHeader onHeightChange={setHeaderHeight}>
+                  <SidebarTrigger className="mr-2" />
+                </AuthHeader>
                 <AnimatedRoutes headerHeight={headerHeight} />
               </div>
             </div>
