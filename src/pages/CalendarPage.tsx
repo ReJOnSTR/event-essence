@@ -22,31 +22,21 @@ interface CalendarPageProps {
 
 export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [isStudentDialogOpen, setIsStudentDialogOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
   
   const { currentView, setCurrentView } = useCalendarStore();
-  const { students, saveStudent, deleteStudent } = useStudents();
+  const { students } = useStudents();
   const { lessons, saveLesson, deleteLesson } = useLessons();
   const { toast } = useToast();
   const { session } = useSessionContext();
   const navigate = useNavigate();
-  const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
-
-  // Student dialog state
-  const [studentDialogState, setStudentDialogState] = React.useState({
-    selectedStudent: undefined,
-    studentName: "",
-    studentPrice: 0,
-    studentColor: "#1a73e8"
-  });
 
   const handleDateSelect = (date: Date) => {
     if (!session) {
       toast({
-        title: "Erişim Engellendi",
-        description: "Ders eklemek için giriş yapmalısınız.",
+        title: "Giriş Gerekli",
+        description: "Ders eklemek için lütfen giriş yapın.",
         variant: "destructive"
       });
       navigate('/login');
@@ -60,8 +50,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const handleLessonClick = (lesson: CalendarEvent) => {
     if (!session) {
       toast({
-        title: "Erişim Engellendi",
-        description: "Dersleri düzenlemek için giriş yapmalısınız.",
+        title: "Giriş Gerekli",
+        description: "Dersleri düzenlemek için lütfen giriş yapın.",
         variant: "destructive"
       });
       navigate('/login');
@@ -73,6 +63,16 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   };
 
   const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
+    if (!session) {
+      toast({
+        title: "Giriş Gerekli",
+        description: "Ders kaydetmek için lütfen giriş yapın.",
+        variant: "destructive"
+      });
+      navigate('/login');
+      return;
+    }
+    
     const lessonToSave = selectedLesson
       ? { ...lessonData, id: selectedLesson.id }
       : { ...lessonData, id: crypto.randomUUID() };
@@ -83,6 +83,15 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   };
 
   const handleDeleteLesson = (lessonId: string) => {
+    if (!session) {
+      toast({
+        title: "Giriş Gerekli",
+        description: "Ders silmek için lütfen giriş yapın.",
+        variant: "destructive"
+      });
+      navigate('/login');
+      return;
+    }
     deleteLesson(lessonId);
     setIsDialogOpen(false);
     setSelectedLesson(undefined);
@@ -91,8 +100,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
     if (!session) {
       toast({
-        title: "Erişim Engellendi",
-        description: "Dersleri düzenlemek için giriş yapmalısınız.",
+        title: "Giriş Gerekli",
+        description: "Dersleri düzenlemek için lütfen giriş yapın.",
         variant: "destructive"
       });
       navigate('/login');
@@ -100,6 +109,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     }
     saveLesson(updatedEvent);
   };
+
+  const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -113,8 +124,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
                 onClick={() => {
                   if (!session) {
                     toast({
-                      title: "Erişim Engellendi",
-                      description: "Ders eklemek için giriş yapmalısınız.",
+                      title: "Giriş Gerekli",
+                      description: "Ders eklemek için lütfen giriş yapın.",
                       variant: "destructive"
                     });
                     navigate('/login');
@@ -157,56 +168,19 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       </div>
       
       {session && (
-        <>
-          <LessonDialog
-            isOpen={isDialogOpen}
-            onClose={() => {
-              setIsDialogOpen(false);
-              setSelectedLesson(undefined);
-            }}
-            onSave={handleSaveLesson}
-            onDelete={handleDeleteLesson}
-            selectedDate={selectedDate}
-            event={selectedLesson}
-            events={lessons}
-            students={students}
-          />
-
-          <StudentDialog
-            isOpen={isStudentDialogOpen}
-            onClose={() => {
-              setIsStudentDialogOpen(false);
-              setStudentDialogState({
-                selectedStudent: undefined,
-                studentName: "",
-                studentPrice: 0,
-                studentColor: "#1a73e8"
-              });
-            }}
-            onSave={() => {
-              const { selectedStudent, studentName, studentPrice, studentColor } = studentDialogState;
-              saveStudent({
-                id: selectedStudent?.id || crypto.randomUUID(),
-                name: studentName,
-                price: studentPrice,
-                color: studentColor,
-              });
-              setIsStudentDialogOpen(false);
-            }}
-            onDelete={studentDialogState.selectedStudent ? () => {
-              if (studentDialogState.selectedStudent) {
-                deleteStudent(studentDialogState.selectedStudent.id);
-              }
-            } : undefined}
-            student={studentDialogState.selectedStudent}
-            studentName={studentDialogState.studentName}
-            setStudentName={(name) => setStudentDialogState(prev => ({ ...prev, studentName: name }))}
-            studentPrice={studentDialogState.studentPrice}
-            setStudentPrice={(price) => setStudentDialogState(prev => ({ ...prev, studentPrice: price }))}
-            studentColor={studentDialogState.studentColor}
-            setStudentColor={(color) => setStudentDialogState(prev => ({ ...prev, studentColor: color }))}
-          />
-        </>
+        <LessonDialog
+          isOpen={isDialogOpen}
+          onClose={() => {
+            setIsDialogOpen(false);
+            setSelectedLesson(undefined);
+          }}
+          onSave={handleSaveLesson}
+          onDelete={handleDeleteLesson}
+          selectedDate={selectedDate}
+          event={selectedLesson}
+          events={lessons}
+          students={students}
+        />
       )}
     </div>
   );
