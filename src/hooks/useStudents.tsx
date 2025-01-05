@@ -56,14 +56,11 @@ export function useStudents() {
     },
     onMutate: async (newStudent) => {
       await queryClient.cancelQueries({ queryKey: ['students'] });
-
       const previousStudents = queryClient.getQueryData(['students']);
-
       queryClient.setQueryData(['students'], (old: Student[] = []) => {
         const filtered = old.filter(student => student.id !== newStudent.id);
         return [...filtered, newStudent];
       });
-
       return { previousStudents };
     },
     onError: (err, newStudent, context) => {
@@ -96,13 +93,10 @@ export function useStudents() {
     },
     onMutate: async (deletedStudentId) => {
       await queryClient.cancelQueries({ queryKey: ['students'] });
-
       const previousStudents = queryClient.getQueryData(['students']);
-
       queryClient.setQueryData(['students'], (old: Student[] = []) => 
         old.filter(student => student.id !== deletedStudentId)
       );
-
       return { previousStudents };
     },
     onError: (err, deletedStudentId, context) => {
