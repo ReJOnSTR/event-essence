@@ -2,15 +2,16 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
+import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
+import { getDefaultLessonDuration } from "@/utils/settings";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
-import { useEffect, useRef } from "react";
 
 interface DayViewProps {
   date: Date;
@@ -30,49 +31,6 @@ export default function DayView({
   students 
 }: DayViewProps) {
   const { toast } = useToast();
-  const resizeObserverRef = useRef<ResizeObserver | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    // Cleanup previous observer
-    if (resizeObserverRef.current) {
-      resizeObserverRef.current.disconnect();
-    }
-
-    // Create new observer with debounced callback
-    let timeout: NodeJS.Timeout;
-    resizeObserverRef.current = new ResizeObserver((entries) => {
-      // Clear previous timeout
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      
-      // Debounce the resize handling
-      timeout = setTimeout(() => {
-        for (const entry of entries) {
-          if (entry.target === containerRef.current) {
-            // Handle resize if needed
-          }
-        }
-      }, 100); // 100ms debounce
-    });
-
-    // Start observing
-    if (containerRef.current) {
-      resizeObserverRef.current.observe(containerRef.current);
-    }
-
-    // Cleanup
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-      if (resizeObserverRef.current) {
-        resizeObserverRef.current.disconnect();
-      }
-    };
-  }, []);
-
   const workingHours = getWorkingHours();
   const holiday = isHoliday(date);
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
@@ -182,7 +140,6 @@ export default function DayView({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <motion.div 
-        ref={containerRef}
         className="w-full"
         initial={{ opacity: 0, y: 2 }}
         animate={{ opacity: 1, y: 0 }}
