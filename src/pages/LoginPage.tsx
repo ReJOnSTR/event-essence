@@ -93,32 +93,7 @@ export default function LoginPage() {
             theme="default"
             providers={[]}
             redirectTo={window.location.origin}
-            options={{
-              emailRedirectTo: window.location.origin,
-              signUpFields: {
-                full_name: {
-                  required: true,
-                  label: "Ad Soyad",
-                  placeholder: "Adınız ve soyadınız"
-                },
-                phone_number: {
-                  required: true,
-                  label: "Telefon Numarası",
-                  placeholder: "5XX XXX XX XX"
-                },
-                teaching_subjects: {
-                  required: true,
-                  label: "Verdiğiniz Dersler",
-                  placeholder: "Matematik, Fizik, vb."
-                },
-                years_of_experience: {
-                  required: true,
-                  label: "Öğretmenlik Deneyimi (Yıl)",
-                  placeholder: "Deneyim yılınız",
-                  type: "number"
-                }
-              }
-            }}
+            view="sign_up"
             localization={{
               variables: {
                 sign_up: {
