@@ -43,24 +43,26 @@ export function useLessons() {
   });
 
   const { mutate: saveLesson } = useMutation({
-    mutationFn: async (lesson: Omit<Lesson, 'id' | 'user_id'>): Promise<Lesson> => {
+    mutationFn: async (lesson: Omit<Lesson, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Lesson> => {
       if (!session?.user.id) {
         throw new Error('User not authenticated');
       }
 
       const lessonData = {
-        ...lesson,
-        user_id: session.user.id,
+        title: lesson.title,
+        description: lesson.description,
         start_time: lesson.start.toISOString(),
-        end_time: lesson.end.toISOString()
+        end_time: lesson.end.toISOString(),
+        student_id: lesson.student_id,
+        user_id: session.user.id
       };
 
-      if (lesson.id) {
+      if ('id' in lesson) {
         // Update existing lesson
         const { data, error } = await supabase
           .from('lessons')
           .update(lessonData)
-          .eq('id', lesson.id)
+          .eq('id', (lesson as Lesson).id)
           .eq('user_id', session.user.id)
           .select()
           .single();

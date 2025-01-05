@@ -39,22 +39,24 @@ export function useStudents() {
   });
 
   const { mutate: saveStudent } = useMutation({
-    mutationFn: async (student: Omit<Student, 'id' | 'user_id'>): Promise<Student> => {
+    mutationFn: async (student: Omit<Student, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Student> => {
       if (!session?.user.id) {
         throw new Error('User not authenticated');
       }
 
       const studentData = {
-        ...student,
+        name: student.name,
+        price: student.price,
+        color: student.color,
         user_id: session.user.id
       };
 
-      if (student.id) {
+      if ('id' in student) {
         // Update existing student
         const { data, error } = await supabase
           .from('students')
           .update(studentData)
-          .eq('id', student.id)
+          .eq('id', (student as Student).id)
           .eq('user_id', session.user.id)
           .select()
           .single();

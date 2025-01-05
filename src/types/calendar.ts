@@ -3,15 +3,24 @@ export interface Student {
   name: string;
   color?: string;
   price: number;
+  user_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Lesson {
   id: string;
   title: string;
   description?: string;
+  start_time: string;
+  end_time: string;
+  student_id: string;
+  user_id: string;
+  created_at?: string;
+  updated_at?: string;
+  // Frontend-only properties
   start: Date;
   end: Date;
-  studentId?: string;
 }
 
 export interface DayCell {

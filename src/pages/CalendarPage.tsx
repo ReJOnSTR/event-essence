@@ -69,6 +69,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       const newLesson: CalendarEvent = {
         ...lessonData,
         id: crypto.randomUUID(),
+        start_time: lessonData.start.toISOString(),
+        end_time: lessonData.end.toISOString(),
       };
       setLessons([...lessons, newLesson]);
       toast({
