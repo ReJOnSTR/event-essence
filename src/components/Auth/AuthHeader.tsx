@@ -32,7 +32,7 @@ interface AuthHeaderProps {
   children?: ReactNode;
 }
 
-export function AuthHeader({ onHeightChange, children }: AuthHeaderProps) {
+function AuthHeader({ onHeightChange, children }: AuthHeaderProps) {
   const [notifications] = useState(2);
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,9 +41,16 @@ export function AuthHeader({ onHeightChange, children }: AuthHeaderProps) {
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
   const navigate = useNavigate();
 
-  // Mock data - gerçek uygulamada bu veriler props olarak gelmeli
-  const [lessons] = useState<CalendarEvent[]>([]);
-  const [students] = useState<Student[]>([]);
+  // Mock data yerine gerçek verileri localStorage'dan alalım
+  const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
+    const savedLessons = localStorage.getItem('lessons');
+    return savedLessons ? JSON.parse(savedLessons) : [];
+  });
+
+  const [students, setStudents] = useState<Student[]>(() => {
+    const savedStudents = localStorage.getItem('students');
+    return savedStudents ? JSON.parse(savedStudents) : [];
+  });
 
   useEffect(() => {
     onHeightChange?.(64);
@@ -62,7 +69,7 @@ export function AuthHeader({ onHeightChange, children }: AuthHeaderProps) {
     const matchingLessons = lessons.filter((lesson) => {
       const student = students.find((s) => s.id === lesson.studentId);
       return (
-        lesson.title.toLowerCase().includes(searchTermLower) ||
+        lesson.title?.toLowerCase().includes(searchTermLower) ||
         lesson.description?.toLowerCase().includes(searchTermLower) ||
         format(new Date(lesson.start), "d MMMM yyyy", { locale: tr })
           .toLowerCase()
@@ -93,14 +100,34 @@ export function AuthHeader({ onHeightChange, children }: AuthHeaderProps) {
     setFilteredStudents(matchingStudents);
   }, [searchTerm, lessons, students]);
 
+  // localStorage'daki değişiklikleri dinle
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedLessons = localStorage.getItem('lessons');
+      const savedStudents = localStorage.getItem('students');
+      
+      if (savedLessons) {
+        setLessons(JSON.parse(savedLessons));
+      }
+      if (savedStudents) {
+        setStudents(JSON.parse(savedStudents));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const handleSelectDate = (date: Date) => {
     navigate('/calendar', { state: { selectedDate: date } });
     setIsSearchOpen(false);
+    setSearchTerm("");
   };
 
   const handleStudentClick = (student: Student) => {
     navigate('/students');
     setIsSearchOpen(false);
+    setSearchTerm("");
   };
 
   return (
@@ -252,7 +279,7 @@ export function AuthHeader({ onHeightChange, children }: AuthHeaderProps) {
                               className={`p-2 hover:bg-accent rounded-md cursor-pointer ${
                                 isFutureLesson ? 'border-l-2 border-green-500' : ''
                               }`}
-                              onClick={() => handleSelectDate(lesson.start)}
+                              onClick={() => handleSelectDate(lessonDate)}
                             >
                               <div className="space-y-1">
                                 <div className="flex items-center justify-between">
@@ -295,3 +322,5 @@ export function AuthHeader({ onHeightChange, children }: AuthHeaderProps) {
     </div>
   );
 }
+
+export default AuthHeader;

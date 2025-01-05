@@ -10,7 +10,7 @@ import {
   SidebarContent,
   SidebarRail
 } from "@/components/ui/sidebar";
-import { AuthHeader } from "@/components/Auth/AuthHeader";
+import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
 import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
