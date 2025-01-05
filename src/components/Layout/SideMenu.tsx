@@ -12,11 +12,19 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStudents } from "@/hooks/useStudents";
 import { useStudentStore } from "@/store/studentStore";
+import { SearchResults } from "@/components/Search/SearchResults";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { format, isFuture, compareAsc } from "date-fns";
 
 export default function SideMenu() {
   const { students } = useStudents();
   const location = useLocation();
+  const navigate = useNavigate();
   const { openDialog, setSelectedStudent } = useStudentStore();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredLessons, setFilteredLessons] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -29,6 +37,61 @@ export default function SideMenu() {
   const handleAddStudent = () => {
     openDialog();
   };
+
+  const handleDateSelect = (date: Date) => {
+    navigate('/calendar', { state: { selectedDate: date } });
+  };
+
+  // Get lessons from localStorage
+  const [lessons, setLessons] = useState(() => {
+    const savedLessons = localStorage.getItem('lessons');
+    return savedLessons ? JSON.parse(savedLessons) : [];
+  });
+
+  // Update search results when searchTerm changes
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredLessons([]);
+      setFilteredStudents([]);
+      return;
+    }
+
+    const searchTermLower = searchTerm.toLowerCase();
+
+    // Filter lessons
+    const matchingLessons = lessons.filter((lesson) => {
+      const student = students.find((s) => s.id === lesson.studentId);
+      return (
+        lesson.title?.toLowerCase().includes(searchTermLower) ||
+        lesson.description?.toLowerCase().includes(searchTermLower) ||
+        format(new Date(lesson.start), "d MMMM yyyy")
+          .toLowerCase()
+          .includes(searchTermLower) ||
+        student?.name.toLowerCase().includes(searchTermLower)
+      );
+    });
+
+    // Sort lessons
+    const sortedLessons = [...matchingLessons].sort((a, b) => {
+      const dateA = new Date(a.start);
+      const dateB = new Date(b.start);
+      
+      if (isFuture(dateA) && isFuture(dateB)) {
+        return compareAsc(dateA, dateB);
+      }
+      if (isFuture(dateA)) return -1;
+      if (isFuture(dateB)) return 1;
+      return compareAsc(dateB, dateA);
+    });
+
+    // Filter students
+    const matchingStudents = students.filter((student) =>
+      student.name.toLowerCase().includes(searchTermLower)
+    );
+
+    setFilteredLessons(sortedLessons);
+    setFilteredStudents(matchingStudents);
+  }, [searchTerm, lessons, students]);
 
   const menuItems = [
     { path: "/calendar", icon: Calendar, label: "Takvim" },
@@ -91,6 +154,22 @@ export default function SideMenu() {
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
+
+      {searchTerm && (
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupLabel className="px-2">Arama Sonuçları</SidebarGroupLabel>
+          <SidebarGroupContent className="mt-2">
+            <SearchResults
+              searchTerm={searchTerm}
+              filteredLessons={filteredLessons}
+              filteredStudents={filteredStudents}
+              students={students}
+              onStudentClick={handleStudentClick}
+              onDateSelect={handleDateSelect}
+            />
+          </SidebarGroupContent>
+        </SidebarGroup>
+      )}
     </div>
   );
 }

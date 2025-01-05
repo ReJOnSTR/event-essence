@@ -74,6 +74,7 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
 
 const App = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
   const { 
     isDialogOpen, 
     closeDialog, 
@@ -107,12 +108,15 @@ const App = () => {
             <div className="min-h-screen flex w-full overflow-hidden bg-background">
               <Sidebar>
                 <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                  <SideMenu />
+                  <SideMenu searchTerm={searchTerm} />
                 </SidebarContent>
                 <SidebarRail />
               </Sidebar>
               <div className="flex-1 flex flex-col">
-                <AuthHeader onHeightChange={setHeaderHeight} />
+                <AuthHeader 
+                  onHeightChange={setHeaderHeight} 
+                  onSearchChange={setSearchTerm}
+                />
                 <AnimatedRoutes headerHeight={headerHeight} />
               </div>
             </div>
