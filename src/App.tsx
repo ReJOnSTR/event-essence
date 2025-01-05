@@ -4,8 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { AuthHeader } from "@/components/Auth/AuthHeader";
+import SideMenu from "@/components/Layout/SideMenu";
 import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -76,15 +77,24 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={true}>
           <BrowserRouter>
             <div className="min-h-screen flex w-full overflow-hidden bg-background">
-              <AuthHeader onHeightChange={setHeaderHeight} />
-              <AnimatedRoutes headerHeight={headerHeight} />
+              <Sidebar>
+                <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                  <SideMenu />
+                </SidebarContent>
+              </Sidebar>
+              <div className="flex-1 flex flex-col">
+                <AuthHeader onHeightChange={setHeaderHeight} />
+                <AnimatedRoutes headerHeight={headerHeight} />
+              </div>
             </div>
           </BrowserRouter>
         </SidebarProvider>
       </TooltipProvider>
+      <Toaster />
+      <Sonner />
     </QueryClientProvider>
   );
 };
