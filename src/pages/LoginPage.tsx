@@ -22,6 +22,9 @@ export default function LoginPage() {
       if (event === 'SIGNED_IN' && session) {
         navigate('/');
       }
+      if (event === 'USER_REGISTRATION_ERROR') {
+        toast.error('Bu email adresi zaten kayıtlı. Lütfen giriş yapın.');
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -64,13 +67,6 @@ export default function LoginPage() {
                   button_label: 'Kayıt Ol',
                 },
               },
-            }}
-            onError={(error) => {
-              if (error.message.includes('User already registered')) {
-                toast.error('Bu email adresi zaten kayıtlı. Lütfen giriş yapın.');
-              } else {
-                toast.error('Bir hata oluştu: ' + error.message);
-              }
             }}
           />
         </div>
