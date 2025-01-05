@@ -14,7 +14,7 @@ import {
   Settings,
   HelpCircle,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,8 +33,10 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
   const [session, setSession] = useState<Session | null>(null);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     onHeightChange?.(64);
@@ -42,21 +44,15 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [onHeightChange, navigate]);
+  }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -94,9 +90,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
         });
-        
-        // Navigate to login page
-        navigate("/login");
       }
     } catch (error) {
       console.error('Unexpected error during logout:', error);
@@ -106,6 +99,25 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         duration: 2000,
       });
     }
+  };
+
+  const handleLoginClick = () => {
+    if (location.pathname !== '/login') {
+      navigate('/login');
+    }
+  };
+
+  const handleAuthAction = () => {
+    if (!session) {
+      toast({
+        title: "Giriş Gerekli",
+        description: "Bu işlemi gerçekleştirmek için giriş yapmanız gerekmektedir.",
+        duration: 3000,
+      });
+      handleLoginClick();
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -177,7 +189,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           ) : (
             <Button 
               variant="default" 
-              onClick={() => navigate("/login")}
+              onClick={handleLoginClick}
               className="gap-2"
             >
               <User className="h-4 w-4" />
@@ -190,4 +202,5 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   );
 }
 
-export default AuthHeader;
+export { AuthHeader };
+export type { AuthHeaderProps };

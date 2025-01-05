@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
@@ -46,12 +46,9 @@ const pageTransition = {
 };
 
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
-  const location = useLocation();
-  
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={location.pathname}
         initial="initial"
         animate="animate"
         exit="exit"
@@ -63,7 +60,7 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
           transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
         }}
       >
-        <Routes location={location}>
+        <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
           <Route path="/students" element={<StudentsManagementPage />} />
