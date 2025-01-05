@@ -30,7 +30,6 @@ export default function MonthView({
 }: MonthViewProps) {
   const { toast } = useToast();
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
-  const workingHours = getWorkingHours();
 
   const getDaysInMonth = (currentDate: Date) => {
     const start = startOfMonth(currentDate);
@@ -62,26 +61,8 @@ export default function MonthView({
   const handleDateClick = (clickedDate: Date) => {
     const dayOfWeek = clickedDate.getDay();
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const workingHours = getWorkingHours();
     const daySettings = workingHours[days[dayOfWeek]];
-
-    if (!daySettings?.enabled) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Bu gün için çalışma saatleri kapalıdır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const holiday = isHoliday(clickedDate);
-    if (holiday && !allowWorkOnHolidays) {
-      toast({
-        title: "Resmi Tatil",
-        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
-        variant: "destructive"
-      });
-      return;
-    }
     
     if (daySettings.enabled && daySettings.start) {
       const [hours, minutes] = daySettings.start.split(':').map(Number);
@@ -102,19 +83,6 @@ export default function MonthView({
     const event = events.find(e => e.id === result.draggableId);
     
     if (!event) return;
-
-    const dayOfWeek = targetDay.getDay();
-    const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-    const daySettings = workingHours[weekDays[dayOfWeek]];
-
-    if (!daySettings?.enabled) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Bu gün için çalışma saatleri kapalıdır.",
-        variant: "destructive"
-      });
-      return;
-    }
 
     const eventStart = new Date(event.start);
     const eventEnd = new Date(event.end);
@@ -148,15 +116,6 @@ export default function MonthView({
 
   const days = getDaysInMonth(date);
 
-  const isDateDisabled = (date: Date) => {
-    const dayOfWeek = date.getDay();
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-    const daySettings = workingHours[days[dayOfWeek]];
-    const holiday = isHoliday(date);
-
-    return (!daySettings?.enabled || (holiday && !allowWorkOnHolidays));
-  };
-
   if (isYearView) {
     return (
       <div className="w-full mx-auto">
@@ -172,18 +131,16 @@ export default function MonthView({
           
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);
-            const isDisabled = isDateDisabled(day.date);
             return (
               <div
                 key={idx}
-                onClick={() => !isDisabled && handleDateClick(day.date)}
+                onClick={() => handleDateClick(day.date)}
                 className={cn(
-                  "min-h-[40px] p-1 bg-background/80 transition-colors duration-150",
+                  "min-h-[40px] p-1 bg-background/80 cursor-pointer hover:bg-accent/50 transition-colors duration-150",
                   !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
                   isToday(day.date) && "bg-accent text-accent-foreground",
                   holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-                  holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-                  isDisabled ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-accent/50"
+                  holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500"
                 )}
               >
                 <div className="text-xs font-medium">
@@ -224,7 +181,6 @@ export default function MonthView({
           
           {days.map((day, idx) => {
             const holiday = isHoliday(day.date);
-            const isDisabled = isDateDisabled(day.date);
             return (
               <Droppable droppableId={`${idx}`} key={idx}>
                 {(provided, snapshot) => (
@@ -238,15 +194,14 @@ export default function MonthView({
                       delay: idx * 0.01,
                       ease: [0.23, 1, 0.32, 1]
                     }}
-                    onClick={() => !isDisabled && handleDateClick(day.date)}
+                    onClick={() => handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
+                      "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
                       !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
                       isToday(day.date) && "bg-accent text-accent-foreground",
                       holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
                       holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-                      snapshot.isDraggingOver && "bg-accent/50",
-                      isDisabled ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-accent/50"
+                      snapshot.isDraggingOver && "bg-accent/50"
                     )}
                   >
                     <div className={cn(
@@ -261,11 +216,6 @@ export default function MonthView({
                         )}>
                           {holiday.name}
                           {allowWorkOnHolidays && " (Çalışmaya Açık)"}
-                        </div>
-                      )}
-                      {!holiday && !workingHours[['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][day.date.getDay()]]?.enabled && (
-                        <div className="text-xs text-muted-foreground truncate">
-                          Çalışma Saatleri Kapalı
                         </div>
                       )}
                     </div>
