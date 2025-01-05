@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,9 +12,12 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] bg-background">
-        <DialogTitle className="text-xl font-semibold mb-4">
+        <DialogTitle className="text-xl font-semibold mb-2">
           Hesap
         </DialogTitle>
+        <DialogDescription className="mb-4 text-muted-foreground">
+          Hesabınıza giriş yapın veya yeni bir hesap oluşturun.
+        </DialogDescription>
         <Auth
           supabaseClient={supabase}
           appearance={{
