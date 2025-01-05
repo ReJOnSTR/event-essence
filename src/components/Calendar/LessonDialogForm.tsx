@@ -44,19 +44,18 @@ export default function LessonDialogForm({
   onSubmit
 }: LessonDialogFormProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4 mt-4">
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
-        className="space-y-2"
       >
-        <label className="text-sm font-medium">Öğrenci</label>
+        <label className="text-sm font-medium block mb-2">Öğrenci</label>
         <Select
           value={selectedStudentId}
           onValueChange={setSelectedStudentId}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Öğrenci seçin" />
           </SelectTrigger>
           <SelectContent>
@@ -82,16 +81,16 @@ export default function LessonDialogForm({
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-2"
       >
-        <label className="text-sm font-medium">Açıklama</label>
+        <label className="text-sm font-medium block mb-2">Açıklama</label>
         <Textarea
           value={description}
           onChange={onDescriptionChange}
           placeholder="Ders açıklaması"
+          className="min-h-[100px] w-full"
           maxLength={500}
         />
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-muted-foreground mt-1">
           {description.length}/100 karakter
         </div>
       </motion.div>
@@ -114,7 +113,7 @@ export default function LessonDialogForm({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="flex justify-between"
+        className="flex justify-between pt-4"
       >
         {onDelete && (
           <Button 
@@ -127,11 +126,13 @@ export default function LessonDialogForm({
             Sil
           </Button>
         )}
-        <div className="flex gap-2 ml-auto">
+        <div className={`flex gap-2 ${!onDelete ? 'w-full justify-end' : ''}`}>
           <Button type="button" variant="outline" onClick={onClose}>
             İptal
           </Button>
-          <Button type="submit">Kaydet</Button>
+          <Button type="submit">
+            Kaydet
+          </Button>
         </div>
       </motion.div>
     </form>
