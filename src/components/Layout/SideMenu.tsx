@@ -1,5 +1,5 @@
 import { Plus, FileBarChart, Calendar, Users } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
   SidebarMenu, 
@@ -11,48 +11,44 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStudents } from "@/hooks/useStudents";
+import { useToast } from "@/components/ui/use-toast";
 
-interface SideMenuProps {
-  onAddStudent?: () => void;
-  onEdit?: (student: Student) => void;
-}
-
-export default function SideMenu({ 
-  onAddStudent,
-  onEdit,
-}: SideMenuProps) {
+export default function SideMenu() {
   const { students } = useStudents();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
+  const handleStudentClick = (student: Student) => {
+    navigate('/students');
+    // Öğrenci düzenleme modalını açmak için bir event yayınlayalım
+    window.dispatchEvent(new CustomEvent('editStudent', { detail: student }));
+  };
+
+  const handleAddStudent = () => {
+    navigate('/students');
+    // Yeni öğrenci ekleme modalını açmak için bir event yayınlayalım
+    window.dispatchEvent(new CustomEvent('addStudent'));
+  };
+
   const menuItems = [
-    { path: "/", icon: Calendar, label: "Takvim" },
+    { path: "/calendar", icon: Calendar, label: "Takvim" },
     { path: "/students", icon: Users, label: "Öğrenciler" },
     { path: "/reports", icon: FileBarChart, label: "Raporlar" },
   ];
 
   return (
-    <div 
-      className="flex flex-col h-full bg-background w-full"
-      style={{
-        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s cubic-bezier(0.4, 0, 0.2, 1), height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        willChange: 'transform, margin, height'
-      }}
-    >
+    <div className="flex flex-col h-full bg-background w-full">
       <SidebarGroup className="space-y-2">
         {menuItems.map((item) => (
           <Link 
             key={item.path} 
-            to={item.path} 
+            to={item.path}
             className="block"
-            onClick={(e) => {
-              e.preventDefault();
-              window.history.pushState({}, '', item.path);
-              window.dispatchEvent(new PopStateEvent('popstate'));
-            }}
           >
             <SidebarMenuButton 
               className="w-full hover:bg-secondary rounded-md transition-colors"
@@ -71,7 +67,7 @@ export default function SideMenu({
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton 
-                onClick={onAddStudent}
+                onClick={handleAddStudent}
                 className="w-full hover:bg-secondary rounded-md transition-colors"
               >
                 <Plus className="h-4 w-4" />
@@ -83,7 +79,7 @@ export default function SideMenu({
               {students.map((student) => (
                 <SidebarMenuItem key={student.id}>
                   <SidebarMenuButton 
-                    onClick={() => onEdit?.(student)}
+                    onClick={() => handleStudentClick(student)}
                     className="w-full hover:bg-secondary rounded-md transition-colors group"
                   >
                     <div

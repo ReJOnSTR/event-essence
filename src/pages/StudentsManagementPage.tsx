@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStudents } from "@/hooks/useStudents";
 import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
@@ -14,6 +14,35 @@ export default function StudentsManagementPage() {
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#1a73e8");
   const { students, saveStudent, deleteStudent } = useStudents();
+
+  useEffect(() => {
+    // Öğrenci düzenleme event listener'ı
+    const handleEditStudent = (event: CustomEvent<Student>) => {
+      const student = event.detail;
+      setSelectedStudent(student);
+      setStudentName(student.name);
+      setStudentPrice(student.price);
+      setStudentColor(student.color || "#1a73e8");
+      setIsDialogOpen(true);
+    };
+
+    // Yeni öğrenci ekleme event listener'ı
+    const handleAddStudent = () => {
+      setSelectedStudent(undefined);
+      setStudentName("");
+      setStudentPrice(0);
+      setStudentColor("#1a73e8");
+      setIsDialogOpen(true);
+    };
+
+    window.addEventListener('editStudent', handleEditStudent as EventListener);
+    window.addEventListener('addStudent', handleAddStudent);
+
+    return () => {
+      window.removeEventListener('editStudent', handleEditStudent as EventListener);
+      window.removeEventListener('addStudent', handleAddStudent);
+    };
+  }, []);
 
   const handleEditStudent = (student: Student) => {
     setSelectedStudent(student);
