@@ -59,23 +59,20 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                   brandAccent: '#1557b0',
                 }
               }
-            },
-            // Handle errors through the appearance callbacks
-            callbacks: {
-              onError: (error) => {
-                console.error('Auth error:', error);
-                toast({
-                  title: "Hata",
-                  description: error.message,
-                  variant: "destructive",
-                  duration: 3000,
-                });
-              }
             }
           }}
           theme="light"
           providers={[]}
           redirectTo={window.location.origin}
+          onError={(error) => {
+            console.error('Auth error:', error);
+            toast({
+              title: "Hata",
+              description: error.message,
+              variant: "destructive",
+              duration: 3000,
+            });
+          }}
           localization={{
             variables: {
               sign_up: {
