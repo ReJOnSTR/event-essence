@@ -3,13 +3,17 @@ import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useStudentStore } from "@/store/studentStore";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 
 export function useStudents() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { closeDialog } = useStudentStore();
+  const { session } = useSessionContext();
 
   const getStudents = async (): Promise<Student[]> => {
+    if (!session) return [];
+    
     try {
       const { data, error } = await supabase
         .from('students')
@@ -34,12 +38,15 @@ export function useStudents() {
   };
 
   const { data: students = [], isLoading, error } = useQuery({
-    queryKey: ['students'],
+    queryKey: ['students', session?.user?.id],
     queryFn: getStudents,
+    enabled: !!session,
   });
 
   const { mutate: saveStudent } = useMutation({
     mutationFn: async (student: Student) => {
+      if (!session) throw new Error("Oturum bulunamadı");
+
       const { data, error } = await supabase
         .from('students')
         .upsert({
@@ -54,39 +61,27 @@ export function useStudents() {
       if (error) throw error;
       return data;
     },
-    onMutate: async (newStudent) => {
-      await queryClient.cancelQueries({ queryKey: ['students'] });
-
-      const previousStudents = queryClient.getQueryData(['students']);
-
-      queryClient.setQueryData(['students'], (old: Student[] = []) => {
-        const filtered = old.filter(student => student.id !== newStudent.id);
-        return [...filtered, newStudent];
-      });
-
-      return { previousStudents };
-    },
-    onError: (err, newStudent, context) => {
-      queryClient.setQueryData(['students'], context?.previousStudents);
-      toast({
-        title: "Hata",
-        description: "Öğrenci kaydedilirken bir hata oluştu.",
-        variant: "destructive"
-      });
-    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
       toast({
         title: "Başarılı",
         description: "Öğrenci bilgileri başarıyla kaydedildi.",
       });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-    },
+    onError: (error) => {
+      console.error('Error saving student:', error);
+      toast({
+        title: "Hata",
+        description: "Öğrenci kaydedilirken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
   });
 
   const { mutate: deleteStudent } = useMutation({
     mutationFn: async (studentId: string) => {
+      if (!session) throw new Error("Oturum bulunamadı");
+
       const { error } = await supabase
         .from('students')
         .delete()
@@ -94,35 +89,22 @@ export function useStudents() {
 
       if (error) throw error;
     },
-    onMutate: async (deletedStudentId) => {
-      await queryClient.cancelQueries({ queryKey: ['students'] });
-
-      const previousStudents = queryClient.getQueryData(['students']);
-
-      queryClient.setQueryData(['students'], (old: Student[] = []) => 
-        old.filter(student => student.id !== deletedStudentId)
-      );
-
-      return { previousStudents };
-    },
-    onError: (err, deletedStudentId, context) => {
-      queryClient.setQueryData(['students'], context?.previousStudents);
-      toast({
-        title: "Hata",
-        description: "Öğrenci silinirken bir hata oluştu.",
-        variant: "destructive"
-      });
-    },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
       closeDialog();
       toast({
         title: "Başarılı",
         description: "Öğrenci başarıyla silindi.",
       });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-    },
+    onError: (error) => {
+      console.error('Error deleting student:', error);
+      toast({
+        title: "Hata",
+        description: "Öğrenci silinirken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
   });
 
   return {
