@@ -7,6 +7,8 @@ import {
   startOfYear, 
   endOfYear, 
   isWithinInterval,
+  differenceInHours,
+  differenceInMinutes
 } from "date-fns";
 import { useMemo } from "react";
 
@@ -50,6 +52,11 @@ const getPeriodRange = (period: Period, selectedDate: Date, customRange?: DateRa
       }
       return customRange;
   }
+};
+
+const calculateLessonDuration = (start: Date, end: Date): number => {
+  const diffMinutes = differenceInMinutes(end, start);
+  return diffMinutes / 60;
 };
 
 export const filterLessons = (
@@ -96,13 +103,27 @@ export const useCalculatePeriodStats = (
   endDate?: Date
 ): { hours: PeriodHours; earnings: PeriodEarnings } => {
   return useMemo(() => {
-    const calculateStats = (filteredLessons: Lesson[]) => ({
-      hours: filteredLessons.length,
-      earnings: filteredLessons.reduce((total, lesson) => {
+    const calculateStats = (filteredLessons: Lesson[]) => {
+      let totalHours = 0;
+      let totalEarnings = 0;
+
+      filteredLessons.forEach(lesson => {
+        const lessonStart = new Date(lesson.start);
+        const lessonEnd = new Date(lesson.end);
+        const duration = calculateLessonDuration(lessonStart, lessonEnd);
+        
         const student = students.find(s => s.id === lesson.studentId);
-        return total + (student?.price || 0);
-      }, 0)
-    });
+        if (student) {
+          totalHours += duration;
+          totalEarnings += student.price;
+        }
+      });
+
+      return {
+        hours: totalHours,
+        earnings: totalEarnings
+      };
+    };
 
     const weeklyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'weekly');
     const monthlyLessons = filterLessons(lessons, selectedDate, selectedStudent, 'monthly');
@@ -122,10 +143,10 @@ export const useCalculatePeriodStats = (
 
     return {
       hours: {
-        weekly: weekly.hours,
-        monthly: monthly.hours,
-        yearly: yearly.hours,
-        custom: custom.hours
+        weekly: Number(weekly.hours.toFixed(1)),
+        monthly: Number(monthly.hours.toFixed(1)),
+        yearly: Number(yearly.hours.toFixed(1)),
+        custom: Number(custom.hours.toFixed(1))
       },
       earnings: {
         weekly: weekly.earnings,
