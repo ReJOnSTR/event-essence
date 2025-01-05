@@ -2,7 +2,6 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createClient } from '@supabase/supabase-js';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
@@ -60,17 +59,15 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <QueryClientProvider client={queryClient}>
           <SessionContextProvider supabaseClient={supabase}>
-            <AuthWrapper>
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<CalendarPage headerHeight={64} />} />
-                  <Route path="students" element={<StudentsPage />} />
-                  <Route path="settings" element={<SettingsPage />} />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Route>
-              </Routes>
-            </AuthWrapper>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={<AuthWrapper><Layout /></AuthWrapper>}>
+                <Route index element={<CalendarPage headerHeight={64} />} />
+                <Route path="students" element={<StudentsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
+            </Routes>
             <Toaster />
           </SessionContextProvider>
         </QueryClientProvider>
