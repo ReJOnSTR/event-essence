@@ -19,26 +19,26 @@ export default {
     },
     extend: {
       colors: {
-        // Google Calendar renkleri - Material Design 3'e uygun
+        // Takvim renkleri - Siyah Beyaz tema
         "calendar-blue": {
-          DEFAULT: "#1F6FEB", // GitHub Blue
-          dark: "#2F81F7"    // GitHub Blue Light
+          DEFAULT: "#2C2C2C", // Koyu Gri
+          dark: "#E0E0E0"    // Açık Gri
         },
         "calendar-hover": {
-          DEFAULT: "#1a5dcc", // Koyu GitHub Blue
-          dark: "#1F6FEB"    // GitHub Blue
+          DEFAULT: "#1A1A1A", // Daha Koyu Gri
+          dark: "#F5F5F5"    // Daha Açık Gri
         },
         "calendar-gray": {
-          DEFAULT: "#57606A", // GitHub Gray
-          dark: "#8B949E"    // GitHub Gray Light
+          DEFAULT: "#666666", // Orta Gri
+          dark: "#999999"    // Orta Açık Gri
         },
         "calendar-border": {
-          DEFAULT: "#D0D7DE", // GitHub Border
-          dark: "#30363D"    // GitHub Border Dark
+          DEFAULT: "#DDDDDD", // Açık Gri Border
+          dark: "#333333"    // Koyu Gri Border
         },
         "calendar-event": {
-          DEFAULT: "#1F6FEB", // GitHub Blue
-          dark: "#2F81F7"    // GitHub Blue Light
+          DEFAULT: "#2C2C2C", // Koyu Gri
+          dark: "#E0E0E0"    // Açık Gri
         },
         // Diğer renkler
         border: "hsl(var(--border))",
