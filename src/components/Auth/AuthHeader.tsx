@@ -45,10 +45,13 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [onHeightChange]);
+  }, [onHeightChange, navigate]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -60,13 +63,34 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Başarıyla çıkış yapıldı",
-        duration: 2000,
-      });
-      navigate("/login");
+      // First clear the session from local storage
+      localStorage.removeItem('supabase.auth.token');
+      
+      // Then sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        toast({
+          title: "Çıkış yapılırken bir hata oluştu",
+          description: error.message,
+          variant: "destructive",
+          duration: 2000,
+        });
+      } else {
+        // Clear session state
+        setSession(null);
+        
+        toast({
+          title: "Başarıyla çıkış yapıldı",
+          duration: 2000,
+        });
+        
+        // Navigate to login page
+        navigate("/login");
+      }
     } catch (error) {
+      console.error('Unexpected error during logout:', error);
       toast({
         title: "Çıkış yapılırken bir hata oluştu",
         variant: "destructive",
