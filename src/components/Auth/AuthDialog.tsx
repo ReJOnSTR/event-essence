@@ -93,8 +93,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 loading_button_label: "Kayıt olunuyor...",
                 social_provider_text: "{{provider}} ile devam et",
                 link_text: "Hesabınız yok mu? Hemen kayıt olun",
-                confirmation_text: "Email adresinizi kontrol edin",
-                password_validation: "Şifreniz en az 6 karakter olmalıdır"
+                confirmation_text: "Email adresinizi kontrol edin"
               },
               sign_in: {
                 email_label: "Email Adresi",
@@ -102,8 +101,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 button_label: "Giriş Yap",
                 loading_button_label: "Giriş yapılıyor...",
                 social_provider_text: "{{provider}} ile devam et",
-                link_text: "Zaten hesabınız var mı? Giriş yapın",
-                password_validation: "Şifreniz en az 6 karakter olmalıdır"
+                link_text: "Zaten hesabınız var mı? Giriş yapın"
               },
               forgotten_password: {
                 email_label: "Email Adresi",
