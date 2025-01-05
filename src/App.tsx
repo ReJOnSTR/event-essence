@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
 import CalendarPage from "./pages/CalendarPage";
@@ -74,6 +75,17 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   );
 };
 
+// QueryClient yapılandırması
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 dakika
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 const App = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,46 +115,48 @@ const App = () => {
   };
 
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <TooltipProvider>
-          <SidebarProvider defaultOpen={true}>
-            <BrowserRouter>
-              <div className="min-h-screen flex w-full overflow-hidden bg-background">
-                <Sidebar>
-                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                    <SideMenu searchTerm={searchTerm} />
-                  </SidebarContent>
-                  <SidebarRail />
-                </Sidebar>
-                <div className="flex-1 flex flex-col">
-                  <AuthHeader 
-                    onHeightChange={setHeaderHeight} 
-                    onSearchChange={setSearchTerm}
-                  />
-                  <AnimatedRoutes headerHeight={headerHeight} />
+    <QueryClientProvider client={queryClient}>
+      <SessionContextProvider supabaseClient={supabase}>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+          <TooltipProvider>
+            <SidebarProvider defaultOpen={true}>
+              <BrowserRouter>
+                <div className="min-h-screen flex w-full overflow-hidden bg-background">
+                  <Sidebar>
+                    <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                      <SideMenu searchTerm={searchTerm} />
+                    </SidebarContent>
+                    <SidebarRail />
+                  </Sidebar>
+                  <div className="flex-1 flex flex-col">
+                    <AuthHeader 
+                      onHeightChange={setHeaderHeight} 
+                      onSearchChange={setSearchTerm}
+                    />
+                    <AnimatedRoutes headerHeight={headerHeight} />
+                  </div>
                 </div>
-              </div>
-            </BrowserRouter>
-          </SidebarProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-      <StudentDialog
-        isOpen={isDialogOpen}
-        onClose={closeDialog}
-        onSave={handleSaveStudent}
-        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
-        student={selectedStudent}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        studentPrice={studentPrice}
-        setStudentPrice={setStudentPrice}
-        studentColor={studentColor}
-        setStudentColor={setStudentColor}
-      />
-      <Toaster />
-      <Sonner />
-    </SessionContextProvider>
+              </BrowserRouter>
+            </SidebarProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+        <StudentDialog
+          isOpen={isDialogOpen}
+          onClose={closeDialog}
+          onSave={handleSaveStudent}
+          onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+          student={selectedStudent}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
+        />
+        <Toaster />
+        <Sonner />
+      </SessionContextProvider>
+    </QueryClientProvider>
   );
 };
 

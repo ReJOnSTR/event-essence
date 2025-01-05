@@ -3,6 +3,9 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "../ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -11,15 +14,41 @@ interface AuthDialogProps {
 
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const showErrorToast = (message: string) => {
-    toast({
-      title: "Hata",
-      description: message,
-      variant: "destructive",
-      duration: 3000,
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN") {
+        // Tüm query'leri invalidate et ve yeni verileri çek
+        await queryClient.invalidateQueries();
+        
+        toast({
+          title: "Giriş Başarılı",
+          description: "Hoş geldiniz!",
+          duration: 3000,
+        });
+        
+        onClose();
+        navigate("/calendar");
+      } else if (event === "SIGNED_OUT") {
+        // Cache'i temizle
+        queryClient.clear();
+        
+        toast({
+          title: "Çıkış Yapıldı",
+          description: "Güvenli bir şekilde çıkış yaptınız.",
+          duration: 3000,
+        });
+        
+        navigate("/calendar");
+      }
     });
-  };
+
+    return () => subscription.unsubscribe();
+  }, [navigate, onClose, queryClient, toast]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
