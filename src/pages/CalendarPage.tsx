@@ -3,15 +3,14 @@ import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
 import { CalendarEvent } from "@/types/calendar";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import StudentDialog from "@/components/Students/StudentDialog";
-import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
 import { PageHeader } from "@/components/Layout/PageHeader";
+import { CalendarActions } from "@/components/Calendar/CalendarActions";
+import { CalendarInteractionHandler } from "@/components/Calendar/CalendarInteractionHandler";
 
 interface CalendarPageProps {
   headerHeight: number;
@@ -101,20 +100,14 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
       <PageHeader title="Takvim">
-        <div className="flex items-center gap-1 md:gap-2">
-          <WeeklySchedulePdf lessons={lessons} students={students} />
-          <Button 
-            size="sm"
-            onClick={() => {
-              setSelectedLesson(undefined);
-              setIsDialogOpen(true);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-1 md:mr-2" />
-            <span className="hidden md:inline">Ders Ekle</span>
-            <span className="md:hidden">Ekle</span>
-          </Button>
-        </div>
+        <CalendarActions
+          lessons={lessons}
+          students={students}
+          onAddLesson={() => {
+            setSelectedLesson(undefined);
+            setIsDialogOpen(true);
+          }}
+        />
       </PageHeader>
 
       <CalendarPageHeader
@@ -128,15 +121,18 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       
       <div className="flex-1 overflow-auto bg-background">
         <div className="p-2 md:p-4">
-          <CalendarContent
-            currentView={currentView}
-            selectedDate={selectedDate}
-            lessons={lessons}
+          <CalendarInteractionHandler
             onDateSelect={handleDateSelect}
             onEventClick={handleLessonClick}
             onEventUpdate={handleEventUpdate}
-            students={students}
-          />
+          >
+            <CalendarContent
+              currentView={currentView}
+              selectedDate={selectedDate}
+              lessons={lessons}
+              students={students}
+            />
+          </CalendarInteractionHandler>
         </div>
       </div>
       
@@ -173,12 +169,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
             price: studentPrice,
             color: studentColor,
           });
-          toast({
-            title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
-            description: selectedStudent 
-              ? "Öğrenci bilgileri başarıyla güncellendi."
-              : "Yeni öğrenci başarıyla eklendi.",
-          });
           setIsStudentDialogOpen(false);
         }}
         onDelete={() => {
@@ -191,10 +181,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
                 : lesson
             );
             setLessons(updatedLessons);
-            toast({
-              title: "Öğrenci silindi",
-              description: "Öğrenci başarıyla silindi.",
-            });
             setIsStudentDialogOpen(false);
           }
         }}
