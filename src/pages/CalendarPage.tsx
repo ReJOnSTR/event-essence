@@ -2,10 +2,10 @@ import React from "react";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, LogIn } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import StudentDialog from "@/components/Students/StudentDialog";
@@ -15,6 +15,13 @@ import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavi
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface CalendarPageProps {
   headerHeight: number;
@@ -22,6 +29,7 @@ interface CalendarPageProps {
 
 export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = React.useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
@@ -34,21 +42,9 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const { session } = useSessionContext();
   const navigate = useNavigate();
 
-  // Student dialog state
-  const [studentDialogState, setStudentDialogState] = React.useState({
-    selectedStudent: undefined,
-    studentName: "",
-    studentPrice: 0,
-    studentColor: "#1a73e8"
-  });
-
   const handleDateSelect = (date: Date) => {
     if (!session) {
-      toast({
-        title: "Giriş Gerekli",
-        description: "Ders eklemek için lütfen giriş yapın.",
-        variant: "destructive"
-      });
+      setIsLoginDialogOpen(true);
       return;
     }
     setSelectedDate(date);
@@ -58,16 +54,17 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
 
   const handleLessonClick = (lesson: CalendarEvent) => {
     if (!session) {
-      toast({
-        title: "Giriş Gerekli",
-        description: "Dersleri düzenlemek için lütfen giriş yapın.",
-        variant: "destructive"
-      });
+      setIsLoginDialogOpen(true);
       return;
     }
     setSelectedLesson(lesson);
     setSelectedDate(lesson.start);
     setIsDialogOpen(true);
+  };
+
+  const handleLoginClick = () => {
+    navigate('/login');
+    setIsLoginDialogOpen(false);
   };
 
   const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
@@ -112,11 +109,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
                 size="sm"
                 onClick={() => {
                   if (!session) {
-                    toast({
-                      title: "Giriş Gerekli",
-                      description: "Ders eklemek için lütfen giriş yapın.",
-                      variant: "destructive"
-                    });
+                    setIsLoginDialogOpen(true);
                     return;
                   }
                   setSelectedLesson(undefined);
@@ -175,38 +168,33 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
             isOpen={isStudentDialogOpen}
             onClose={() => {
               setIsStudentDialogOpen(false);
-              setStudentDialogState({
-                selectedStudent: undefined,
-                studentName: "",
-                studentPrice: 0,
-                studentColor: "#1a73e8"
-              });
             }}
-            onSave={() => {
-              const { selectedStudent, studentName, studentPrice, studentColor } = studentDialogState;
-              saveStudent({
-                id: selectedStudent?.id || crypto.randomUUID(),
-                name: studentName,
-                price: studentPrice,
-                color: studentColor,
-              });
-              setIsStudentDialogOpen(false);
-            }}
-            onDelete={studentDialogState.selectedStudent ? () => {
-              if (studentDialogState.selectedStudent) {
-                deleteStudent(studentDialogState.selectedStudent.id);
-              }
-            } : undefined}
-            student={studentDialogState.selectedStudent}
-            studentName={studentDialogState.studentName}
-            setStudentName={(name) => setStudentDialogState(prev => ({ ...prev, studentName: name }))}
-            studentPrice={studentDialogState.studentPrice}
-            setStudentPrice={(price) => setStudentDialogState(prev => ({ ...prev, studentPrice: price }))}
-            studentColor={studentDialogState.studentColor}
-            setStudentColor={(color) => setStudentDialogState(prev => ({ ...prev, studentColor: color }))}
+            onSave={saveStudent}
+            onDelete={deleteStudent}
           />
         </>
       )}
+
+      <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Giriş Yapmanız Gerekiyor</DialogTitle>
+            <DialogDescription className="pt-2">
+              Ders eklemek ve düzenlemek için lütfen giriş yapın. Giriş yaparak tüm özelliklere erişebilirsiniz.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center pt-4">
+            <Button 
+              onClick={handleLoginClick}
+              className="w-full sm:w-auto"
+              size="lg"
+            >
+              <LogIn className="mr-2 h-5 w-5" />
+              Giriş Yap
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
