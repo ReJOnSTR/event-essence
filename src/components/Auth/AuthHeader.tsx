@@ -62,17 +62,20 @@ export default function AuthHeader({ onHeightChange, children, onSearchChange }:
 
   const handleLogout = async () => {
     try {
-      // Clear all Supabase related items from localStorage
+      // First clear all Supabase related items from localStorage
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('supabase.auth.')) {
           localStorage.removeItem(key);
         }
       });
       
-      // Sign out from Supabase
+      // Then attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
-      if (error) {
+      // Even if there's an error, we want to clear the session state and redirect
+      setSession(null);
+      
+      if (error && error.message !== 'session_not_found') {
         console.error('Logout error:', error);
         toast({
           title: "Çıkış yapılırken bir hata oluştu",
@@ -81,17 +84,15 @@ export default function AuthHeader({ onHeightChange, children, onSearchChange }:
           duration: 2000,
         });
       } else {
-        // Clear session state
-        setSession(null);
-        
         toast({
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
         });
-        
-        // Navigate to login page
-        navigate("/login");
       }
+      
+      // Navigate to login page
+      navigate("/login");
+      
     } catch (error) {
       console.error('Unexpected error during logout:', error);
       toast({
