@@ -16,19 +16,19 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { toast } = useToast();
   const hasShownToast = useRef(false);
 
-  // Close dialog and show toast when user is logged in
   useEffect(() => {
-    if (session && !hasShownToast.current) {
+    // Sadece dialog açıkken ve oturum varsa toast göster
+    if (isOpen && session && !hasShownToast.current) {
       onClose();
       toast({
         title: "Başarıyla giriş yapıldı",
         description: `Hoş geldiniz, ${session.user.email}`,
-        duration: 3000,
+        duration: 2000,
       });
       hasShownToast.current = true;
     }
     
-    // Reset the ref when the dialog is closed
+    // Dialog kapandığında ref'i sıfırla
     if (!isOpen) {
       hasShownToast.current = false;
     }
