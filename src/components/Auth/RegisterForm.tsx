@@ -167,6 +167,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
           error={errors.firstName}
           icon={<User />}
           maxLength={50}
+          minLength={2}
           required
           isValid={validFields.firstName}
         />
@@ -182,6 +183,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
           error={errors.lastName}
           icon={<User />}
           maxLength={50}
+          minLength={2}
           required
           isValid={validFields.lastName}
         />
@@ -211,6 +213,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
         onChange={handleInputChange}
         error={errors.password}
         icon={<Lock />}
+        minLength={8}
         required
         isValid={validFields.password}
       />

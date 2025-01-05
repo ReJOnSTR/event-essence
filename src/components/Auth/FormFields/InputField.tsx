@@ -15,6 +15,7 @@ interface InputFieldProps {
   error?: string;
   icon?: React.ReactNode;
   maxLength?: number;
+  minLength?: number;
   required?: boolean;
   pattern?: string;
   isValid?: boolean;
@@ -31,10 +32,14 @@ export function InputField({
   error,
   icon,
   maxLength,
+  minLength,
   required,
   pattern,
   isValid,
 }: InputFieldProps) {
+  const showCharCount = maxLength && type === 'text';
+  const charCount = value.length;
+
   return (
     <div className="space-y-2">
       <Label htmlFor={id} className="flex items-center gap-1">
@@ -50,6 +55,7 @@ export function InputField({
           value={value}
           onChange={onChange}
           maxLength={maxLength}
+          minLength={minLength}
           pattern={pattern}
           className={cn(
             "pl-10",
@@ -66,6 +72,15 @@ export function InputField({
           <Check className="absolute right-3 top-2.5 h-5 w-5 text-green-500" />
         )}
       </div>
+      {showCharCount && (
+        <p className={cn(
+          "text-xs text-muted-foreground",
+          charCount > (maxLength - 10) && "text-yellow-600",
+          charCount === maxLength && "text-destructive"
+        )}>
+          {charCount}/{maxLength} karakter
+        </p>
+      )}
       {error && (
         <p className="text-sm text-destructive">{error}</p>
       )}

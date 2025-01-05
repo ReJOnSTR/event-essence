@@ -55,6 +55,9 @@ export const FIELD_RULES: Record<string, ValidationRule> = {
 };
 
 export const validatePassword = (password: string) => {
+  if (!password) {
+    return "Şifre alanı zorunludur";
+  }
   if (password.length < PASSWORD_RULES.minLength) {
     return `Şifre en az ${PASSWORD_RULES.minLength} karakter olmalıdır`;
   }
