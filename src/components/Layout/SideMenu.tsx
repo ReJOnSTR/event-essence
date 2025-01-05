@@ -16,6 +16,8 @@ import { SearchResults } from "@/components/Search/SearchResults";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, isFuture, compareAsc } from "date-fns";
+import { useSessionContext } from '@supabase/auth-helpers-react';
+import LoginRequiredDialog from "@/components/Auth/LoginRequiredDialog";
 
 interface SideMenuProps {
   searchTerm: string;
@@ -28,6 +30,8 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
   const { openDialog, setSelectedStudent } = useStudentStore();
   const [filteredLessons, setFilteredLessons] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+  const { session } = useSessionContext();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -38,6 +42,10 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
   };
 
   const handleAddStudent = () => {
+    if (!session) {
+      setIsLoginDialogOpen(true);
+      return;
+    }
     openDialog();
   };
 
@@ -173,6 +181,11 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
           </SidebarGroupContent>
         </SidebarGroup>
       )}
+
+      <LoginRequiredDialog 
+        isOpen={isLoginDialogOpen} 
+        onClose={() => setIsLoginDialogOpen(false)} 
+      />
     </div>
   );
 }

@@ -1,75 +1,39 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useStudents } from "@/hooks/useStudents";
 import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
 import { PageHeader } from "@/components/Layout/PageHeader";
+import { useSessionContext } from '@supabase/auth-helpers-react';
+import LoginRequiredDialog from "@/components/Auth/LoginRequiredDialog";
+import { useStudentDialog } from "@/features/students/hooks/useStudentDialog";
 
 export default function StudentsManagementPage() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | undefined>();
-  const [studentName, setStudentName] = useState("");
-  const [studentPrice, setStudentPrice] = useState(0);
-  const [studentColor, setStudentColor] = useState("#1a73e8");
-  const { students, saveStudent, deleteStudent } = useStudents();
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+  const { session } = useSessionContext();
+  const { students } = useStudents();
+  const studentDialog = useStudentDialog();
 
-  useEffect(() => {
-    // Öğrenci düzenleme event listener'ı
-    const handleEditStudent = (event: CustomEvent<Student>) => {
-      const student = event.detail;
-      setSelectedStudent(student);
-      setStudentName(student.name);
-      setStudentPrice(student.price);
-      setStudentColor(student.color || "#1a73e8");
-      setIsDialogOpen(true);
-    };
-
-    // Yeni öğrenci ekleme event listener'ı
-    const handleAddStudent = () => {
-      setSelectedStudent(undefined);
-      setStudentName("");
-      setStudentPrice(0);
-      setStudentColor("#1a73e8");
-      setIsDialogOpen(true);
-    };
-
-    window.addEventListener('editStudent', handleEditStudent as EventListener);
-    window.addEventListener('addStudent', handleAddStudent);
-
-    return () => {
-      window.removeEventListener('editStudent', handleEditStudent as EventListener);
-      window.removeEventListener('addStudent', handleAddStudent);
-    };
-  }, []);
+  const handleAddStudent = () => {
+    if (!session) {
+      setIsLoginDialogOpen(true);
+      return;
+    }
+    studentDialog.setIsOpen(true);
+  };
 
   const handleEditStudent = (student: Student) => {
-    setSelectedStudent(student);
-    setStudentName(student.name);
-    setStudentPrice(student.price);
-    setStudentColor(student.color || "#1a73e8");
-    setIsDialogOpen(true);
-  };
-
-  const handleSaveStudent = () => {
-    const studentData: Student = {
-      id: selectedStudent?.id || crypto.randomUUID(),
-      name: studentName,
-      price: studentPrice,
-      color: studentColor,
-    };
-    
-    saveStudent(studentData);
-    handleCloseDialog();
-  };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedStudent(undefined);
-    setStudentName("");
-    setStudentPrice(0);
-    setStudentColor("#1a73e8");
+    if (!session) {
+      setIsLoginDialogOpen(true);
+      return;
+    }
+    studentDialog.setSelectedStudent(student);
+    studentDialog.setStudentName(student.name);
+    studentDialog.setStudentPrice(student.price);
+    studentDialog.setStudentColor(student.color || "#1a73e8");
+    studentDialog.setIsOpen(true);
   };
 
   return (
@@ -77,7 +41,7 @@ export default function StudentsManagementPage() {
       <PageHeader 
         title="Öğrenci Yönetimi"
         actions={
-          <Button onClick={() => setIsDialogOpen(true)}>
+          <Button onClick={handleAddStudent}>
             <Plus className="h-4 w-4 mr-2" />
             Öğrenci Ekle
           </Button>
@@ -95,17 +59,22 @@ export default function StudentsManagementPage() {
       </div>
 
       <StudentDialog
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
-        onSave={handleSaveStudent}
-        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
-        student={selectedStudent}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        studentPrice={studentPrice}
-        setStudentPrice={setStudentPrice}
-        studentColor={studentColor}
-        setStudentColor={setStudentColor}
+        isOpen={studentDialog.isOpen}
+        onClose={studentDialog.handleClose}
+        onSave={studentDialog.handleSave}
+        onDelete={studentDialog.selectedStudent ? () => studentDialog.handleDelete() : undefined}
+        student={studentDialog.selectedStudent}
+        studentName={studentDialog.studentName}
+        setStudentName={studentDialog.setStudentName}
+        studentPrice={studentDialog.studentPrice}
+        setStudentPrice={studentDialog.setStudentPrice}
+        studentColor={studentDialog.studentColor}
+        setStudentColor={studentDialog.setStudentColor}
+      />
+
+      <LoginRequiredDialog 
+        isOpen={isLoginDialogOpen} 
+        onClose={() => setIsLoginDialogOpen(false)} 
       />
     </div>
   );
