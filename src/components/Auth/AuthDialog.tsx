@@ -3,6 +3,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "../ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface AuthDialogProps {
 
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const showErrorToast = (message: string) => {
     toast({
@@ -83,6 +85,8 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
           theme="default"
           providers={[]}
           redirectTo={window.location.origin}
+          onlyThirdPartyProviders={false}
+          magicLink={false}
           localization={{
             variables: {
               sign_up: {

@@ -47,8 +47,14 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) {
+        // Oturum açıldığında sayfayı yenile
+        window.location.reload();
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -70,6 +76,8 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         duration: 2000,
       });
       navigate("/calendar");
+      // Çıkış yapıldığında sayfayı yenile
+      window.location.reload();
     } catch (error) {
       toast({
         title: "Çıkış yapılırken bir hata oluştu",
