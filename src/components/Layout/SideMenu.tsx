@@ -6,8 +6,7 @@ import {
   SidebarMenuItem,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenuButton
+  SidebarGroupLabel
 } from "@/components/ui/sidebar";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
@@ -32,31 +31,27 @@ export default function SideMenu() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton asChild>
-          <Link
-            to="/"
-            className={`flex items-center space-x-2 ${
-              isActive("/") ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <Calendar className="h-4 w-4" />
-            <span>Takvim</span>
-          </Link>
-        </SidebarMenuButton>
+        <Link
+          to="/"
+          className={`flex items-center space-x-2 ${
+            isActive("/") ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <Calendar className="h-4 w-4" />
+          <span>Takvim</span>
+        </Link>
       </SidebarMenuItem>
 
       <SidebarMenuItem>
-        <SidebarMenuButton asChild>
-          <Link
-            to="/reports"
-            className={`flex items-center space-x-2 ${
-              isActive("/reports") ? "text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <FileBarChart className="h-4 w-4" />
-            <span>Raporlar</span>
-          </Link>
-        </SidebarMenuButton>
+        <Link
+          to="/reports"
+          className={`flex items-center space-x-2 ${
+            isActive("/reports") ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <FileBarChart className="h-4 w-4" />
+          <span>Raporlar</span>
+        </Link>
       </SidebarMenuItem>
 
       <SidebarGroup>
@@ -79,19 +74,18 @@ export default function SideMenu() {
             </div>
           ) : (
             students.map((student) => (
-              <SidebarMenuItem key={student.id}>
-                <SidebarMenuButton
-                  onClick={() => handleStudentClick(student)}
-                  className="w-full"
-                >
-                  <div className="flex items-center space-x-2">
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: student.color }}
-                    />
-                    <span>{student.name}</span>
-                  </div>
-                </SidebarMenuButton>
+              <SidebarMenuItem
+                key={student.id}
+                onClick={() => handleStudentClick(student)}
+                className="cursor-pointer"
+              >
+                <div className="flex items-center space-x-2">
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: student.color }}
+                  />
+                  <span>{student.name}</span>
+                </div>
               </SidebarMenuItem>
             ))
           )}
