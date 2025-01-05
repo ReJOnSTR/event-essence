@@ -34,32 +34,35 @@ export function useStudents() {
   });
 
   const { mutate: saveStudent } = useMutation({
-    mutationFn: async (studentData: Omit<Student, 'user_id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (studentData: Omit<Student, 'created_at' | 'updated_at'>) => {
       if (!session?.user) {
         throw new Error('Not authenticated');
       }
 
-      const student = {
-        ...studentData,
-        user_id: session.user.id,
-      };
-
-      if (student.id) {
+      if (studentData.id) {
         const { error } = await supabase
           .from('students')
-          .update(student)
-          .eq('id', student.id);
+          .update({
+            name: studentData.name,
+            price: studentData.price,
+            color: studentData.color,
+            user_id: session.user.id,
+          })
+          .eq('id', studentData.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('students')
-          .insert([student]);
+          .insert([{
+            ...studentData,
+            user_id: session.user.id,
+          }]);
 
         if (error) throw error;
       }
 
-      return student;
+      return studentData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });

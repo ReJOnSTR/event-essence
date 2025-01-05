@@ -18,7 +18,6 @@ export default function StudentsManagementPage() {
   const { session } = useSessionContext();
 
   useEffect(() => {
-    // Öğrenci düzenleme event listener'ı
     const handleEditStudent = (event: CustomEvent<Student>) => {
       const student = event.detail;
       setSelectedStudent(student);
@@ -28,7 +27,6 @@ export default function StudentsManagementPage() {
       setIsDialogOpen(true);
     };
 
-    // Yeni öğrenci ekleme event listener'ı
     const handleAddStudent = () => {
       setSelectedStudent(undefined);
       setStudentName("");
@@ -57,8 +55,7 @@ export default function StudentsManagementPage() {
   const handleSaveStudent = () => {
     if (!session?.user?.id) return;
 
-    const now = new Date().toISOString();
-    const studentData: Omit<Student, 'created_at' | 'updated_at'> = {
+    const studentData = {
       id: selectedStudent?.id || crypto.randomUUID(),
       name: studentName,
       price: studentPrice,
@@ -76,6 +73,13 @@ export default function StudentsManagementPage() {
     setStudentName("");
     setStudentPrice(0);
     setStudentColor("#1a73e8");
+  };
+
+  const handleDeleteStudent = () => {
+    if (selectedStudent) {
+      deleteStudent(selectedStudent.id);
+      handleCloseDialog();
+    }
   };
 
   return (
@@ -104,7 +108,7 @@ export default function StudentsManagementPage() {
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
         onSave={handleSaveStudent}
-        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+        onDelete={selectedStudent ? handleDeleteStudent : undefined}
         student={selectedStudent}
         studentName={studentName}
         setStudentName={setStudentName}
