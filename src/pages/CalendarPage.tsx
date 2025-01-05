@@ -102,6 +102,19 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
 
+  const handleSaveStudent = () => {
+    if (!session?.user?.id) return;
+    
+    const studentData = {
+      name: studentDialogState.studentName,
+      price: studentDialogState.studentPrice,
+      color: studentDialogState.studentColor,
+    };
+    
+    saveStudent(studentData);
+    setIsStudentDialogOpen(false);
+  };
+
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
       <PageHeader title="Takvim">
