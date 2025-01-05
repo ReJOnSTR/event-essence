@@ -13,23 +13,29 @@ export function useStudents() {
 
   const getStudents = async (): Promise<Student[]> => {
     if (!session) {
+      console.log("No session found, returning empty array");
       return [];
     }
 
     try {
+      console.log("Fetching students for user:", session.user.id);
       const { data, error } = await supabase
         .from('students')
         .select('*')
         .order('name');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching students:', error);
+        throw error;
+      }
       
+      console.log("Fetched students:", data);
       return data.map(student => ({
         ...student,
         price: Number(student.price)
       }));
     } catch (error) {
-      console.error('Error loading students:', error);
+      console.error('Error in getStudents:', error);
       toast({
         title: "Hata",
         description: "Öğrenci verileri yüklenirken bir hata oluştu.",
@@ -48,8 +54,12 @@ export function useStudents() {
   const { mutate: saveStudent } = useMutation({
     mutationFn: async (student: Student) => {
       if (!session) {
+        console.error("No session found while trying to save student");
         throw new Error("Oturum açmanız gerekiyor");
       }
+
+      console.log("Saving student:", student);
+      console.log("Current session user:", session.user.id);
 
       const { data, error } = await supabase
         .from('students')
@@ -65,8 +75,15 @@ export function useStudents() {
 
       if (error) {
         console.error('Error saving student:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw error;
       }
+
+      console.log("Save successful, returned data:", data);
       return data;
     },
     onMutate: async (newStudent) => {
@@ -79,14 +96,16 @@ export function useStudents() {
       return { previousStudents };
     },
     onError: (err, newStudent, context) => {
+      console.error("Mutation error:", err);
       queryClient.setQueryData(['students'], context?.previousStudents);
       toast({
         title: "Hata",
-        description: "Öğrenci kaydedilirken bir hata oluştu.",
+        description: "Öğrenci kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.",
         variant: "destructive"
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Student saved successfully:", data);
       toast({
         title: "Başarılı",
         description: "Öğrenci bilgileri başarıyla kaydedildi.",
@@ -100,16 +119,21 @@ export function useStudents() {
   const { mutate: deleteStudent } = useMutation({
     mutationFn: async (studentId: string) => {
       if (!session) {
+        console.error("No session found while trying to delete student");
         throw new Error("Oturum açmanız gerekiyor");
       }
 
+      console.log("Deleting student:", studentId);
       const { error } = await supabase
         .from('students')
         .delete()
         .eq('id', studentId)
         .eq('user_id', session.user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting student:', error);
+        throw error;
+      }
     },
     onMutate: async (deletedStudentId) => {
       await queryClient.cancelQueries({ queryKey: ['students'] });
@@ -120,10 +144,11 @@ export function useStudents() {
       return { previousStudents };
     },
     onError: (err, deletedStudentId, context) => {
+      console.error("Delete error:", err);
       queryClient.setQueryData(['students'], context?.previousStudents);
       toast({
         title: "Hata",
-        description: "Öğrenci silinirken bir hata oluştu.",
+        description: "Öğrenci silinirken bir hata oluştu. Lütfen tekrar deneyin.",
         variant: "destructive"
       });
     },

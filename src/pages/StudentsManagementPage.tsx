@@ -47,6 +47,7 @@ export default function StudentsManagementPage() {
   }, []);
 
   const handleEditStudent = (student: Student) => {
+    console.log("Editing student:", student);
     setSelectedStudent(student);
     setStudentName(student.name);
     setStudentPrice(student.price);
@@ -63,6 +64,13 @@ export default function StudentsManagementPage() {
       });
       return;
     }
+
+    console.log("Saving student with data:", {
+      name: studentName,
+      price: studentPrice,
+      color: studentColor,
+      id: selectedStudent?.id
+    });
 
     const studentData: Student = {
       id: selectedStudent?.id || crypto.randomUUID(),
