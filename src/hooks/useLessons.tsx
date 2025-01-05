@@ -1,98 +1,91 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { validateDate } from "@/utils/dateUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@supabase/auth-helpers-react";
 
 export function useLessons() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const session = useSession();
 
-  // Get lessons from localStorage with validation
-  const getLessons = (): Lesson[] => {
-    try {
-      const savedLessons = localStorage.getItem('lessons');
-      if (!savedLessons) return [];
-      
-      const parsedLessons = JSON.parse(savedLessons);
-      if (!Array.isArray(parsedLessons)) {
-        throw new Error('Invalid lessons data format');
-      }
+  const getLessons = async (): Promise<Lesson[]> => {
+    if (!session?.user.id) {
+      throw new Error('User not authenticated');
+    }
 
-      // Validate and transform dates
-      return parsedLessons.map(lesson => ({
-        ...lesson,
-        start: new Date(lesson.start),
-        end: new Date(lesson.end)
-      })).filter(lesson => 
-        validateDate(lesson.start) && 
-        validateDate(lesson.end) &&
-        lesson.id &&
-        typeof lesson.title === 'string'
-      );
-    } catch (error) {
+    const { data, error } = await supabase
+      .from('lessons')
+      .select('*, student:students(*)')
+      .eq('user_id', session.user.id);
+
+    if (error) {
       console.error('Error loading lessons:', error);
       toast({
         title: "Hata",
         description: "Ders verileri yüklenirken bir hata oluştu.",
         variant: "destructive"
       });
-      return [];
-    }
-  };
-
-  // Save lessons to localStorage with validation
-  const saveLessons = async (lessons: Lesson[]): Promise<Lesson[]> => {
-    try {
-      if (!Array.isArray(lessons)) {
-        throw new Error('Invalid lessons data');
-      }
-
-      // Validate each lesson object
-      lessons.forEach(lesson => {
-        if (!lesson.id || !lesson.title || !validateDate(lesson.start) || !validateDate(lesson.end)) {
-          throw new Error('Invalid lesson data format');
-        }
-      });
-
-      localStorage.setItem('lessons', JSON.stringify(lessons));
-      return lessons;
-    } catch (error) {
-      console.error('Error saving lessons:', error);
-      toast({
-        title: "Hata",
-        description: "Ders verileri kaydedilirken bir hata oluştu.",
-        variant: "destructive"
-      });
       throw error;
     }
+
+    return data.map(lesson => ({
+      ...lesson,
+      start: new Date(lesson.start_time),
+      end: new Date(lesson.end_time)
+    })) || [];
   };
 
-  // Query for fetching lessons with memoization
   const { data: lessons = [], isLoading, error } = useQuery({
-    queryKey: ['lessons'],
+    queryKey: ['lessons', session?.user.id],
     queryFn: getLessons,
-    staleTime: 1000 * 60, // Cache for 1 minute
-    gcTime: 1000 * 60 * 5, // Keep unused data for 5 minutes
+    enabled: !!session?.user.id
   });
 
-  // Mutation for adding/updating a lesson
   const { mutate: saveLesson } = useMutation({
-    mutationFn: async (lesson: Lesson): Promise<Lesson[]> => {
-      const currentLessons = getLessons();
-      const existingIndex = currentLessons.findIndex(l => l.id === lesson.id);
-      
-      let updatedLessons;
-      if (existingIndex >= 0) {
-        updatedLessons = [
-          ...currentLessons.slice(0, existingIndex),
-          lesson,
-          ...currentLessons.slice(existingIndex + 1)
-        ];
-      } else {
-        updatedLessons = [...currentLessons, { ...lesson, id: crypto.randomUUID() }];
+    mutationFn: async (lesson: Omit<Lesson, 'id' | 'user_id'>): Promise<Lesson> => {
+      if (!session?.user.id) {
+        throw new Error('User not authenticated');
       }
-      
-      return saveLessons(updatedLessons);
+
+      const lessonData = {
+        ...lesson,
+        user_id: session.user.id,
+        start_time: lesson.start.toISOString(),
+        end_time: lesson.end.toISOString()
+      };
+
+      if (lesson.id) {
+        // Update existing lesson
+        const { data, error } = await supabase
+          .from('lessons')
+          .update(lessonData)
+          .eq('id', lesson.id)
+          .eq('user_id', session.user.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return {
+          ...data,
+          start: new Date(data.start_time),
+          end: new Date(data.end_time)
+        };
+      } else {
+        // Insert new lesson
+        const { data, error } = await supabase
+          .from('lessons')
+          .insert([lessonData])
+          .select()
+          .single();
+
+        if (error) throw error;
+        return {
+          ...data,
+          start: new Date(data.start_time),
+          end: new Date(data.end_time)
+        };
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
@@ -102,6 +95,7 @@ export function useLessons() {
       });
     },
     onError: (error) => {
+      console.error('Error saving lesson:', error);
       toast({
         title: "Hata",
         description: "Ders kaydedilirken bir hata oluştu.",
@@ -110,12 +104,19 @@ export function useLessons() {
     }
   });
 
-  // Mutation for deleting a lesson
   const { mutate: deleteLesson } = useMutation({
-    mutationFn: async (lessonId: string): Promise<Lesson[]> => {
-      const currentLessons = getLessons();
-      const updatedLessons = currentLessons.filter(l => l.id !== lessonId);
-      return saveLessons(updatedLessons);
+    mutationFn: async (lessonId: string): Promise<void> => {
+      if (!session?.user.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const { error } = await supabase
+        .from('lessons')
+        .delete()
+        .eq('id', lessonId)
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
@@ -125,6 +126,7 @@ export function useLessons() {
       });
     },
     onError: (error) => {
+      console.error('Error deleting lesson:', error);
       toast({
         title: "Hata",
         description: "Ders silinirken bir hata oluştu.",
