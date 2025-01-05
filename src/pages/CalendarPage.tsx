@@ -12,6 +12,7 @@ import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
 import { PageHeader } from "@/components/Layout/PageHeader";
+import { useSession } from "@supabase/auth-helpers-react";
 
 interface CalendarPageProps {
   headerHeight: number;
@@ -32,6 +33,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const { students, saveStudent, deleteStudent } = useStudents();
   const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
+  const session = useSession();
 
   // Student dialog state
   const [studentDialogState, setStudentDialogState] = useState({
@@ -169,12 +171,15 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         }}
         onSave={() => {
           const { selectedStudent, studentName, studentPrice, studentColor } = studentDialogState;
+          if (!session?.user?.id) return;
+          
           saveStudent({
-            id: selectedStudent?.id || crypto.randomUUID(),
             name: studentName,
             price: studentPrice,
             color: studentColor,
+            user_id: session.user.id
           });
+          
           toast({
             title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
             description: selectedStudent 
@@ -188,8 +193,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
           if (selectedStudent) {
             deleteStudent(selectedStudent.id);
             const updatedLessons = lessons.map(lesson => 
-              lesson.studentId === selectedStudent.id 
-                ? { ...lesson, studentId: undefined }
+              lesson.student_id === selectedStudent.id 
+                ? { ...lesson, student_id: undefined }
                 : lesson
             );
             setLessons(updatedLessons);

@@ -157,9 +157,12 @@ export default function LessonDialog({
     onSave({
       title: student ? `${student.name} Dersi` : "Ders",
       description,
-      start,
-      end,
+      start_time: start.toISOString(),
+      end_time: end.toISOString(),
       student_id: selectedStudentId,
+      user_id: '', // This will be set in the hook
+      start,
+      end
     });
     
     onClose();

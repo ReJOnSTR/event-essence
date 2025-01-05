@@ -97,7 +97,7 @@ export function SearchResults({
               </h3>
               <div className="space-y-2">
                 {filteredLessons.map((lesson) => {
-                  const student = students.find((s) => s.id === lesson.studentId);
+                  const student = students.find((s) => s.id === lesson.student_id);
                   const lessonDate = new Date(lesson.start);
                   
                   return (
@@ -137,8 +137,8 @@ export function SearchResults({
                         </div>
                       </Card>
                     </motion.div>
-                  )}
-                )}
+                  );
+                })}
               </div>
             </div>
           )}

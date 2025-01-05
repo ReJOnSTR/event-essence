@@ -1,11 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useStudents } from "@/hooks/useStudents";
 import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
 import { PageHeader } from "@/components/Layout/PageHeader";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useSession } from "@supabase/auth-helpers-react";
 
 export default function StudentsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -14,6 +15,7 @@ export default function StudentsManagementPage() {
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#1a73e8");
   const { students, saveStudent, deleteStudent } = useStudents();
+  const session = useSession();
 
   useEffect(() => {
     // Öğrenci düzenleme event listener'ı
