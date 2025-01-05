@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface LoginFormProps {
   onToggleForm: () => void;
@@ -17,6 +18,24 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
     email: '',
     password: '',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email alanı zorunludur";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Geçerli bir email adresi giriniz";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Şifre alanı zorunludur";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -24,10 +43,19 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -72,11 +100,13 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
             placeholder="ornek@email.com"
             value={formData.email}
             onChange={handleInputChange}
-            required
-            className="pl-10"
+            className={cn("pl-10", errors.email && "border-destructive")}
           />
           <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
         </div>
+        {errors.email && (
+          <p className="text-sm text-destructive">{errors.email}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -89,12 +119,13 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
             placeholder="••••••••"
             value={formData.password}
             onChange={handleInputChange}
-            required
-            minLength={6}
-            className="pl-10"
+            className={cn("pl-10", errors.password && "border-destructive")}
           />
           <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
         </div>
+        {errors.password && (
+          <p className="text-sm text-destructive">{errors.password}</p>
+        )}
       </div>
 
       <Button 
