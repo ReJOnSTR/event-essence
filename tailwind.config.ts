@@ -19,26 +19,26 @@ export default {
     },
     extend: {
       colors: {
-        // Takvim renkleri - Siyah Beyaz tema
+        // Takvim renkleri - Özel tema
         "calendar-blue": {
-          DEFAULT: "#2C2C2C", // Koyu Gri
-          dark: "#E0E0E0"    // Açık Gri
+          DEFAULT: "#14213d", // Koyu lacivert
+          dark: "#e5e5e5"    // Açık gri
         },
         "calendar-hover": {
-          DEFAULT: "#1A1A1A", // Daha Koyu Gri
-          dark: "#F5F5F5"    // Daha Açık Gri
+          DEFAULT: "#000000", // Siyah
+          dark: "#ffffff"    // Beyaz
         },
         "calendar-gray": {
-          DEFAULT: "#666666", // Orta Gri
-          dark: "#999999"    // Orta Açık Gri
+          DEFAULT: "#14213d", // Koyu lacivert
+          dark: "#e5e5e5"    // Açık gri
         },
         "calendar-border": {
-          DEFAULT: "#DDDDDD", // Açık Gri Border
-          dark: "#333333"    // Koyu Gri Border
+          DEFAULT: "#e5e5e5", // Açık gri
+          dark: "#14213d"    // Koyu lacivert
         },
         "calendar-event": {
-          DEFAULT: "#2C2C2C", // Koyu Gri
-          dark: "#E0E0E0"    // Açık Gri
+          DEFAULT: "#fca311", // Turuncu
+          dark: "#fca311"    // Turuncu (aynı)
         },
         // Diğer renkler
         border: "hsl(var(--border))",
