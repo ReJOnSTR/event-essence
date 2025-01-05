@@ -3,7 +3,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "../ui/use-toast";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 
 interface AuthDialogProps {
@@ -14,18 +14,25 @@ interface AuthDialogProps {
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { session } = useSessionContext();
   const { toast } = useToast();
+  const hasShownToast = useRef(false);
 
-  // Close dialog when user is logged in
+  // Close dialog and show toast when user is logged in
   useEffect(() => {
-    if (session) {
+    if (session && !hasShownToast.current) {
       onClose();
       toast({
         title: "Başarıyla giriş yapıldı",
         description: `Hoş geldiniz, ${session.user.email}`,
         duration: 3000,
       });
+      hasShownToast.current = true;
     }
-  }, [session, onClose, toast]);
+    
+    // Reset the ref when the dialog is closed
+    if (!isOpen) {
+      hasShownToast.current = false;
+    }
+  }, [session, onClose, toast, isOpen]);
 
   return (
     <Dialog open={isOpen && !session} onOpenChange={onClose}>
