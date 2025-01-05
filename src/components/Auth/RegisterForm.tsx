@@ -1,108 +1,101 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { User, Phone, Clock, Mail, Lock } from "lucide-react";
+import { User, Phone, Mail, Lock } from "lucide-react";
 import { SubjectSelect } from "./SubjectSelect";
-import { cn } from "@/lib/utils";
+import { InputField } from "./FormFields/InputField";
+import { validatePassword, FIELD_RULES } from "./validation/registerValidation";
 
 interface RegisterFormProps {
   onToggleForm: () => void;
 }
 
-const PASSWORD_RULES = {
-  minLength: 8,
-  requireUppercase: true,
-  requireLowercase: true,
-  requireNumber: true,
-  requireSpecial: true,
-};
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  teachingSubjects: string[];
+}
 
 export function RegisterForm({ onToggleForm }: RegisterFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     phoneNumber: '',
-    teachingSubjects: [] as string[],
-    yearsOfExperience: '',
+    teachingSubjects: [],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [validFields, setValidFields] = useState<Record<string, boolean>>({});
 
-  const validatePassword = (password: string) => {
-    if (password.length < PASSWORD_RULES.minLength) {
-      return `Şifre en az ${PASSWORD_RULES.minLength} karakter olmalıdır`;
+  const validateField = (name: string, value: string | string[]) => {
+    const rules = FIELD_RULES[name as keyof typeof FIELD_RULES];
+    if (!rules) return "";
+
+    if (rules.required && (!value || (Array.isArray(value) && value.length === 0))) {
+      return "Bu alan zorunludur";
     }
-    if (PASSWORD_RULES.requireUppercase && !/[A-Z]/.test(password)) {
-      return "Şifre en az bir büyük harf içermelidir";
+
+    if (typeof value === "string") {
+      if (rules.minLength && value.length < rules.minLength) {
+        return `En az ${rules.minLength} karakter giriniz`;
+      }
+      if (rules.maxLength && value.length > rules.maxLength) {
+        return `En fazla ${rules.maxLength} karakter girebilirsiniz`;
+      }
+      if (rules.pattern && !rules.pattern.test(value)) {
+        if (name === "email") {
+          return "Geçerli bir email adresi giriniz";
+        }
+        if (name === "phoneNumber") {
+          return "Geçerli bir telefon numarası giriniz (05XX XXX XX XX)";
+        }
+      }
     }
-    if (PASSWORD_RULES.requireLowercase && !/[a-z]/.test(password)) {
-      return "Şifre en az bir küçük harf içermelidir";
+
+    if (Array.isArray(value) && rules.minItems && value.length < rules.minItems) {
+      return "En az bir ders seçmelisiniz";
     }
-    if (PASSWORD_RULES.requireNumber && !/\d/.test(password)) {
-      return "Şifre en az bir rakam içermelidir";
-    }
-    if (PASSWORD_RULES.requireSpecial && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      return "Şifre en az bir özel karakter içermelidir";
-    }
+
     return "";
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "Ad alanı zorunludur";
-    }
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Soyad alanı zorunludur";
-    }
-    if (!formData.email.trim()) {
-      newErrors.email = "Email alanı zorunludur";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Geçerli bir email adresi giriniz";
-    }
-
-    const passwordError = validatePassword(formData.password);
-    if (passwordError) {
-      newErrors.password = passwordError;
-    }
-
-    if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = "Telefon numarası zorunludur";
-    } else if (!/^05[0-9]{9}$/.test(formData.phoneNumber.replace(/\s/g, ''))) {
-      newErrors.phoneNumber = "Geçerli bir telefon numarası giriniz (05XX XXX XX XX)";
-    }
-
-    if (formData.teachingSubjects.length === 0) {
-      newErrors.teachingSubjects = "En az bir ders seçmelisiniz";
-    }
-
-    if (!formData.yearsOfExperience) {
-      newErrors.yearsOfExperience = "Deneyim yılı zorunludur";
-    } else if (parseInt(formData.yearsOfExperience) < 0) {
-      newErrors.yearsOfExperience = "Deneyim yılı 0'dan küçük olamaz";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    const error = name === "password" 
+      ? validatePassword(value)
+      : validateField(name, value);
+    
+    setErrors(prev => ({ ...prev, [name]: error }));
+    setValidFields(prev => ({ ...prev, [name]: !error && value.length > 0 }));
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+
+    Object.keys(formData).forEach(key => {
+      const value = formData[key as keyof FormData];
+      const error = key === "password" 
+        ? validatePassword(value as string)
+        : validateField(key, value);
+      
+      if (error) {
+        newErrors[key] = error;
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,7 +116,6 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
             full_name: `${formData.firstName} ${formData.lastName}`,
             phone_number: formData.phoneNumber,
             teaching_subjects: formData.teachingSubjects,
-            years_of_experience: parseInt(formData.yearsOfExperience)
           }
         }
       });
@@ -155,134 +147,91 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="firstName">Ad</Label>
-          <div className="relative">
-            <Input
-              id="firstName"
-              name="firstName"
-              type="text"
-              placeholder="Ad"
-              value={formData.firstName}
-              onChange={handleInputChange}
-              className={cn("pl-10", errors.firstName && "border-destructive")}
-            />
-            <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-          </div>
-          {errors.firstName && (
-            <p className="text-sm text-destructive">{errors.firstName}</p>
-          )}
-        </div>
+        <InputField
+          id="firstName"
+          name="firstName"
+          type="text"
+          label="Ad"
+          placeholder="Ad"
+          value={formData.firstName}
+          onChange={handleInputChange}
+          error={errors.firstName}
+          icon={<User />}
+          maxLength={FIELD_RULES.firstName.maxLength}
+          required
+          isValid={validFields.firstName}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="lastName">Soyad</Label>
-          <div className="relative">
-            <Input
-              id="lastName"
-              name="lastName"
-              type="text"
-              placeholder="Soyad"
-              value={formData.lastName}
-              onChange={handleInputChange}
-              className={cn("pl-10", errors.lastName && "border-destructive")}
-            />
-            <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-          </div>
-          {errors.lastName && (
-            <p className="text-sm text-destructive">{errors.lastName}</p>
-          )}
-        </div>
+        <InputField
+          id="lastName"
+          name="lastName"
+          type="text"
+          label="Soyad"
+          placeholder="Soyad"
+          value={formData.lastName}
+          onChange={handleInputChange}
+          error={errors.lastName}
+          icon={<User />}
+          maxLength={FIELD_RULES.lastName.maxLength}
+          required
+          isValid={validFields.lastName}
+        />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email Adresi</Label>
-        <div className="relative">
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="ornek@email.com"
-            value={formData.email}
-            onChange={handleInputChange}
-            className={cn("pl-10", errors.email && "border-destructive")}
-          />
-          <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-        </div>
-        {errors.email && (
-          <p className="text-sm text-destructive">{errors.email}</p>
-        )}
-      </div>
+      <InputField
+        id="email"
+        name="email"
+        type="email"
+        label="Email Adresi"
+        placeholder="ornek@email.com"
+        value={formData.email}
+        onChange={handleInputChange}
+        error={errors.email}
+        icon={<Mail />}
+        required
+        isValid={validFields.email}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Şifre</Label>
-        <div className="relative">
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleInputChange}
-            className={cn("pl-10", errors.password && "border-destructive")}
-          />
-          <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-        </div>
-        {errors.password && (
-          <p className="text-sm text-destructive">{errors.password}</p>
-        )}
-      </div>
+      <InputField
+        id="password"
+        name="password"
+        type="password"
+        label="Şifre"
+        placeholder="••••••••"
+        value={formData.password}
+        onChange={handleInputChange}
+        error={errors.password}
+        icon={<Lock />}
+        required
+        isValid={validFields.password}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="phoneNumber">Telefon Numarası</Label>
-        <div className="relative">
-          <Input
-            id="phoneNumber"
-            name="phoneNumber"
-            type="tel"
-            placeholder="05XX XXX XX XX"
-            value={formData.phoneNumber}
-            onChange={handleInputChange}
-            className={cn("pl-10", errors.phoneNumber && "border-destructive")}
-          />
-          <Phone className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-        </div>
-        {errors.phoneNumber && (
-          <p className="text-sm text-destructive">{errors.phoneNumber}</p>
-        )}
-      </div>
+      <InputField
+        id="phoneNumber"
+        name="phoneNumber"
+        type="tel"
+        label="Telefon Numarası"
+        placeholder="05XX XXX XX XX"
+        value={formData.phoneNumber}
+        onChange={handleInputChange}
+        error={errors.phoneNumber}
+        icon={<Phone />}
+        required
+        isValid={validFields.phoneNumber}
+      />
 
       <div className="space-y-2">
         <SubjectSelect
           selectedSubjects={formData.teachingSubjects}
           onChange={(subjects) => {
             setFormData(prev => ({ ...prev, teachingSubjects: subjects }));
-            if (errors.teachingSubjects) {
-              setErrors(prev => ({ ...prev, teachingSubjects: '' }));
-            }
+            const error = validateField('teachingSubjects', subjects);
+            setErrors(prev => ({ ...prev, teachingSubjects: error }));
+            setValidFields(prev => ({ ...prev, teachingSubjects: !error }));
           }}
         />
         {errors.teachingSubjects && (
           <p className="text-sm text-destructive">{errors.teachingSubjects}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="yearsOfExperience">Deneyim Yılı</Label>
-        <div className="relative">
-          <Input
-            id="yearsOfExperience"
-            name="yearsOfExperience"
-            type="number"
-            min="0"
-            placeholder="3"
-            value={formData.yearsOfExperience}
-            onChange={handleInputChange}
-            className={cn("pl-10", errors.yearsOfExperience && "border-destructive")}
-          />
-          <Clock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-        </div>
-        {errors.yearsOfExperience && (
-          <p className="text-sm text-destructive">{errors.yearsOfExperience}</p>
         )}
       </div>
 
