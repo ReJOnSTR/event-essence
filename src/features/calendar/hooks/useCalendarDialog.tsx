@@ -4,17 +4,17 @@ import { CalendarEvent } from "@/types/calendar";
 export const useCalendarDialog = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dialogSelectedDate, setDialogSelectedDate] = useState(new Date());
 
   const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
+    setDialogSelectedDate(date);
     setSelectedLesson(undefined);
     setIsDialogOpen(true);
   };
 
   const handleLessonClick = (lesson: CalendarEvent) => {
     setSelectedLesson(lesson);
-    setSelectedDate(lesson.start);
+    setDialogSelectedDate(lesson.start);
     setIsDialogOpen(true);
   };
 
@@ -26,7 +26,7 @@ export const useCalendarDialog = () => {
   return {
     isDialogOpen,
     selectedLesson,
-    selectedDate,
+    dialogSelectedDate,
     handleDateSelect,
     handleLessonClick,
     handleCloseDialog,
