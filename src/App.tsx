@@ -22,6 +22,9 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useState } from "react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const pageVariants = {
   initial: {
@@ -103,46 +106,48 @@ const App = () => {
   };
 
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <TooltipProvider>
-          <SidebarProvider defaultOpen={true}>
-            <BrowserRouter>
-              <div className="min-h-screen flex w-full overflow-hidden bg-background">
-                <Sidebar>
-                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                    <SideMenu searchTerm={searchTerm} />
-                  </SidebarContent>
-                  <SidebarRail />
-                </Sidebar>
-                <div className="flex-1 flex flex-col">
-                  <AuthHeader 
-                    onHeightChange={setHeaderHeight} 
-                    onSearchChange={setSearchTerm}
-                  />
-                  <AnimatedRoutes headerHeight={headerHeight} />
+    <QueryClientProvider client={queryClient}>
+      <SessionContextProvider supabaseClient={supabase}>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+          <TooltipProvider>
+            <SidebarProvider defaultOpen={true}>
+              <BrowserRouter>
+                <div className="min-h-screen flex w-full overflow-hidden bg-background">
+                  <Sidebar>
+                    <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                      <SideMenu searchTerm={searchTerm} />
+                    </SidebarContent>
+                    <SidebarRail />
+                  </Sidebar>
+                  <div className="flex-1 flex flex-col">
+                    <AuthHeader 
+                      onHeightChange={setHeaderHeight} 
+                      onSearchChange={setSearchTerm}
+                    />
+                    <AnimatedRoutes headerHeight={headerHeight} />
+                  </div>
                 </div>
-              </div>
-            </BrowserRouter>
-          </SidebarProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-      <StudentDialog
-        isOpen={isDialogOpen}
-        onClose={closeDialog}
-        onSave={handleSaveStudent}
-        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
-        student={selectedStudent}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        studentPrice={studentPrice}
-        setStudentPrice={setStudentPrice}
-        studentColor={studentColor}
-        setStudentColor={setStudentColor}
-      />
-      <Toaster />
-      <Sonner />
-    </SessionContextProvider>
+              </BrowserRouter>
+            </SidebarProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+        <StudentDialog
+          isOpen={isDialogOpen}
+          onClose={closeDialog}
+          onSave={handleSaveStudent}
+          onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+          student={selectedStudent}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
+        />
+        <Toaster />
+        <Sonner />
+      </SessionContextProvider>
+    </QueryClientProvider>
   );
 };
 
