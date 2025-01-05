@@ -9,26 +9,13 @@ interface ViewSelectorProps {
 }
 
 const tabVariants = {
-  initial: { opacity: 0, y: -4 },
-  animate: { opacity: 1, y: 0 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
   hover: { 
     scale: 1.02,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.15 }
   },
   tap: { scale: 0.98 }
-};
-
-const activeIndicatorVariants = {
-  initial: { opacity: 0, scale: 0.8 },
-  animate: { 
-    opacity: 1, 
-    scale: 1,
-    transition: {
-      type: "spring",
-      stiffness: 500,
-      damping: 30
-    }
-  }
 };
 
 export default function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
@@ -36,13 +23,13 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, type: "spring", stiffness: 500, damping: 30 }}
-      className="w-full bg-background/80 backdrop-blur-sm rounded-lg shadow-sm sticky top-0 z-10 border border-border/50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      className="w-full bg-background rounded-lg shadow-sm sticky top-0 z-10"
     >
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 p-1 gap-1 h-auto bg-transparent">
+        <TabsList className="grid w-full grid-cols-4 bg-muted/50">
           {["day", "week", "month", "year"].map((view, index) => (
             <motion.div
               key={view}
@@ -58,29 +45,17 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
                 value={view} 
                 onClick={() => onViewChange(view)}
                 className={cn(
-                  "w-full relative py-2.5 text-sm font-medium transition-all",
-                  "data-[state=active]:text-primary-foreground",
-                  "data-[state=active]:shadow-none",
-                  "hover:text-primary-foreground/90",
-                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  "disabled:pointer-events-none disabled:opacity-50"
+                  "w-full relative py-2 text-sm font-medium transition-all",
+                  "data-[state=active]:bg-accent",
+                  "data-[state=active]:text-accent-foreground",
+                  "hover:text-accent-foreground/90",
+                  "focus-visible:ring-0"
                 )}
               >
                 {view === "day" && (isMobile ? "Gün" : "Günlük")}
                 {view === "week" && (isMobile ? "Hafta" : "Haftalık")}
                 {view === "month" && (isMobile ? "Ay" : "Aylık")}
                 {view === "year" && (isMobile ? "Yıl" : "Yıllık")}
-                
-                {currentView === view && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute inset-0 bg-calendar-blue dark:bg-calendar-blue-dark rounded-md"
-                    variants={activeIndicatorVariants}
-                    initial="initial"
-                    animate="animate"
-                    style={{ zIndex: -1 }}
-                  />
-                )}
               </TabsTrigger>
             </motion.div>
           ))}
