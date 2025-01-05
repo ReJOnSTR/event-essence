@@ -19,26 +19,26 @@ export default {
     },
     extend: {
       colors: {
-        // Google Calendar renkleri - Material Design'a uygun
+        // Google Calendar renkleri - Material Design 3'e uygun
         "calendar-blue": {
-          DEFAULT: "#1a73e8", // Google Blue 600
-          dark: "#4285f4"    // Google Blue 500
+          DEFAULT: "#1F6FEB", // GitHub Blue
+          dark: "#2F81F7"    // GitHub Blue Light
         },
         "calendar-hover": {
-          DEFAULT: "#1557b0", // Google Blue 700
-          dark: "#1a73e8"    // Google Blue 600
+          DEFAULT: "#1a5dcc", // Koyu GitHub Blue
+          dark: "#1F6FEB"    // GitHub Blue
         },
         "calendar-gray": {
-          DEFAULT: "#5f6368", // Google Gray 600
-          dark: "#9aa0a6"    // Google Gray 500
+          DEFAULT: "#57606A", // GitHub Gray
+          dark: "#8B949E"    // GitHub Gray Light
         },
         "calendar-border": {
-          DEFAULT: "#dadce0", // Google Gray 200
-          dark: "#3c4043"    // Google Gray 800
+          DEFAULT: "#D0D7DE", // GitHub Border
+          dark: "#30363D"    // GitHub Border Dark
         },
         "calendar-event": {
-          DEFAULT: "#1a73e8", // Google Blue 600
-          dark: "#4285f4"    // Google Blue 500
+          DEFAULT: "#1F6FEB", // GitHub Blue
+          dark: "#2F81F7"    // GitHub Blue Light
         },
         // Diğer renkler
         border: "hsl(var(--border))",
