@@ -2,7 +2,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -10,19 +9,7 @@ interface AuthDialogProps {
 }
 
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
-  // Dialog kapandığında cleanup yapalım
-  useEffect(() => {
-    if (!isOpen) {
-      const cleanup = setTimeout(() => {
-        // Dialog kapandıktan sonra overlay'i temizle
-        const overlay = document.querySelector('[role="presentation"]');
-        if (overlay) {
-          overlay.remove();
-        }
-      }, 300);
-      return () => clearTimeout(cleanup);
-    }
-  }, [isOpen]);
+  if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
