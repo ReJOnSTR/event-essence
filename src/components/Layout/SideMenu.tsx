@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { format, isFuture, compareAsc } from "date-fns";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import LoginRequiredDialog from "@/components/Auth/LoginRequiredDialog";
+import { useLessons } from "@/hooks/useLessons";
 
 interface SideMenuProps {
   searchTerm: string;
@@ -25,6 +26,7 @@ interface SideMenuProps {
 
 export default function SideMenu({ searchTerm }: SideMenuProps) {
   const { students } = useStudents();
+  const { lessons } = useLessons();
   const location = useLocation();
   const navigate = useNavigate();
   const { openDialog, setSelectedStudent } = useStudentStore();
@@ -53,12 +55,6 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
     navigate('/calendar', { state: { selectedDate: date } });
   };
 
-  // Get lessons from localStorage
-  const [lessons, setLessons] = useState(() => {
-    const savedLessons = localStorage.getItem('lessons');
-    return savedLessons ? JSON.parse(savedLessons) : [];
-  });
-
   // Update search results when searchTerm changes
   useEffect(() => {
     if (!searchTerm) {
@@ -70,17 +66,19 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
     const searchTermLower = searchTerm.toLowerCase();
 
     // Filter lessons
-    const matchingLessons = lessons.filter((lesson) => {
-      const student = students.find((s) => s.id === lesson.studentId);
+    const matchingLessons = lessons?.filter((lesson) => {
+      const student = students?.find((s) => s.id === lesson.studentId);
+      const lessonDate = new Date(lesson.start);
+      
       return (
         lesson.title?.toLowerCase().includes(searchTermLower) ||
         lesson.description?.toLowerCase().includes(searchTermLower) ||
-        format(new Date(lesson.start), "d MMMM yyyy")
+        format(lessonDate, "d MMMM yyyy")
           .toLowerCase()
           .includes(searchTermLower) ||
         student?.name.toLowerCase().includes(searchTermLower)
       );
-    });
+    }) || [];
 
     // Sort lessons
     const sortedLessons = [...matchingLessons].sort((a, b) => {
@@ -96,9 +94,9 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
     });
 
     // Filter students
-    const matchingStudents = students.filter((student) =>
+    const matchingStudents = students?.filter((student) =>
       student.name.toLowerCase().includes(searchTermLower)
-    );
+    ) || [];
 
     setFilteredLessons(sortedLessons);
     setFilteredStudents(matchingStudents);
@@ -145,7 +143,7 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
             </SidebarMenuItem>
 
             <ScrollArea className="h-[200px] px-1">
-              {students.map((student) => (
+              {students?.map((student) => (
                 <SidebarMenuItem key={student.id}>
                   <SidebarMenuButton 
                     onClick={() => handleStudentClick(student)}
@@ -174,7 +172,7 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
               searchTerm={searchTerm}
               filteredLessons={filteredLessons}
               filteredStudents={filteredStudents}
-              students={students}
+              students={students || []}
               onStudentClick={handleStudentClick}
               onDateSelect={handleDateSelect}
             />
