@@ -3,7 +3,7 @@ import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarEvent } from "@/types/calendar";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
@@ -33,6 +33,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
+  const [selectedStudent, setSelectedStudent] = React.useState<Student | undefined>();
   
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent, deleteStudent } = useStudents();
@@ -96,6 +97,20 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       return;
     }
     saveLesson(updatedEvent);
+  };
+
+  const handleSaveStudent = (student: Student) => {
+    saveStudent(student);
+    setIsStudentDialogOpen(false);
+    setSelectedStudent(undefined);
+  };
+
+  const handleDeleteStudent = () => {
+    if (selectedStudent) {
+      deleteStudent(selectedStudent.id);
+      setIsStudentDialogOpen(false);
+      setSelectedStudent(undefined);
+    }
   };
 
   return (
@@ -168,9 +183,10 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
             isOpen={isStudentDialogOpen}
             onClose={() => {
               setIsStudentDialogOpen(false);
+              setSelectedStudent(undefined);
             }}
-            onSave={saveStudent}
-            onDelete={deleteStudent}
+            onSave={handleSaveStudent}
+            onDelete={handleDeleteStudent}
           />
         </>
       )}
