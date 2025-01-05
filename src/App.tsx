@@ -11,7 +11,9 @@ import {
   SidebarRail
 } from "@/components/ui/sidebar";
 import AuthHeader from "@/components/Auth/AuthHeader";
+import AuthGuard from "@/components/Auth/AuthGuard";
 import SideMenu from "@/components/Layout/SideMenu";
+import LoginPage from "./pages/LoginPage";
 import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
@@ -61,10 +63,13 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         }}
       >
         <Routes location={location}>
-          <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<AuthGuard><ProtectedLayout /></AuthGuard>}>
+            <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
+            <Route path="/students" element={<StudentsManagementPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Route>
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
       </motion.div>
@@ -72,9 +77,41 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   );
 };
 
-const App = () => {
+const ProtectedLayout = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+
+  return (
+    <>
+      <AuthHeader 
+        onHeightChange={setHeaderHeight} 
+        onSearchChange={setSearchTerm}
+      />
+      <div className="flex-1 flex flex-col">
+        <SidebarProvider defaultOpen={true}>
+          <div className="min-h-screen flex w-full overflow-hidden bg-background">
+            <Sidebar>
+              <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                <SideMenu searchTerm={searchTerm} />
+              </SidebarContent>
+              <SidebarRail />
+            </Sidebar>
+            <div className="flex-1">
+              <Routes>
+                <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
+                <Route path="/students" element={<StudentsManagementPage />} />
+                <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Routes>
+            </div>
+          </div>
+        </SidebarProvider>
+      </div>
+    </>
+  );
+};
+
+const App = () => {
   const { 
     isDialogOpen, 
     closeDialog, 
@@ -103,25 +140,9 @@ const App = () => {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <TooltipProvider>
-        <SidebarProvider defaultOpen={true}>
-          <BrowserRouter>
-            <div className="min-h-screen flex w-full overflow-hidden bg-background">
-              <Sidebar>
-                <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                  <SideMenu searchTerm={searchTerm} />
-                </SidebarContent>
-                <SidebarRail />
-              </Sidebar>
-              <div className="flex-1 flex flex-col">
-                <AuthHeader 
-                  onHeightChange={setHeaderHeight} 
-                  onSearchChange={setSearchTerm}
-                />
-                <AnimatedRoutes headerHeight={headerHeight} />
-              </div>
-            </div>
-          </BrowserRouter>
-        </SidebarProvider>
+        <BrowserRouter>
+          <AnimatedRoutes headerHeight={0} />
+        </BrowserRouter>
       </TooltipProvider>
       <StudentDialog
         isOpen={isDialogOpen}
