@@ -93,15 +93,6 @@ export default function LoginPage() {
             theme="default"
             providers={[]}
             redirectTo={window.location.origin}
-            options={{
-              emailRedirectTo: window.location.origin,
-              metaData: {
-                full_name: undefined,
-                phone_number: undefined,
-                teaching_subjects: undefined,
-                years_of_experience: undefined
-              }
-            }}
             localization={{
               variables: {
                 sign_up: {
@@ -124,30 +115,36 @@ export default function LoginPage() {
               }
             }}
             view="sign_up"
-            additionalData={{
-              full_name: {
-                label: "Ad Soyad",
-                type: "text",
+            magicLink={false}
+            showLinks={true}
+            additionalData={[
+              {
+                key: 'full_name',
+                label: 'Ad Soyad',
+                type: 'text',
                 required: true,
               },
-              phone_number: {
-                label: "Telefon Numarası",
-                type: "tel",
+              {
+                key: 'phone_number',
+                label: 'Telefon Numarası',
+                type: 'tel',
                 required: true,
               },
-              teaching_subjects: {
-                label: "Öğrettiğiniz Dersler",
-                type: "text",
+              {
+                key: 'teaching_subjects',
+                label: 'Öğrettiğiniz Dersler',
+                type: 'text',
                 required: true,
-                placeholder: "Matematik, Fizik, vb.",
+                placeholder: 'Matematik, Fizik, vb.',
               },
-              years_of_experience: {
-                label: "Deneyim Yılı",
-                type: "number",
+              {
+                key: 'years_of_experience',
+                label: 'Deneyim Yılı',
+                type: 'number',
                 required: true,
                 min: 0,
               },
-            }}
+            ]}
           />
         </CardContent>
       </Card>
