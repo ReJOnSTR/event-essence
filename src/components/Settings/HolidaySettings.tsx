@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 // İlk kurulumda localStorage'a varsayılan değeri kaydet
 if (localStorage.getItem('allowWorkOnHolidays') === null) {
-  localStorage.setItem('allowWorkOnHolidays', 'true');
+  localStorage.setItem('allowWorkOnHolidays', 'false');
 }
 
 export function HolidaySettings() {
@@ -17,7 +17,7 @@ export function HolidaySettings() {
   });
   
   const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    return localStorage.getItem('allowWorkOnHolidays') !== 'false'; // varsayılan olarak true
+    return localStorage.getItem('allowWorkOnHolidays') === 'true'; // varsayılan olarak false
   });
 
   const { toast } = useToast();
