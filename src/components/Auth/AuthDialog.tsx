@@ -28,13 +28,13 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
 
     // Auth state değişikliklerini dinle
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
-      if (event === "USER_DELETED") {
+      if (event === 'user_deleted') {
         toast({
           title: "Hata",
           description: "Kullanıcı hesabı bulunamadı.",
           variant: "destructive",
         });
-      } else if (event === "PASSWORD_RECOVERY") {
+      } else if (event === 'password_recovery') {
         toast({
           title: "Bilgi",
           description: "Şifre sıfırlama bağlantısı gönderildi.",
