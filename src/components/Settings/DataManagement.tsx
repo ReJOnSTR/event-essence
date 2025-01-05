@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Download, Upload, Trash2 } from "lucide-react";
 import { downloadProjectData, uploadProjectData } from "@/utils/dataManagement";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,8 +27,8 @@ export default function DataManagement() {
     
     if (success) {
       toast({
-        title: "Veriler içe aktarıldı",
-        description: "Tüm veriler başarıyla yüklendi.",
+        title: "Ayarlar içe aktarıldı",
+        description: "Tüm ayarlar başarıyla yüklendi.",
       });
     } else {
       toast({
@@ -40,25 +41,50 @@ export default function DataManagement() {
     event.target.value = ''; // Reset input
   };
 
-  const handleExport = () => {
-    downloadProjectData();
+  const handleExport = async () => {
+    await downloadProjectData();
     toast({
-      title: "Veriler dışa aktarıldı",
-      description: "Tüm veriler başarıyla indirildi.",
+      title: "Ayarlar dışa aktarıldı",
+      description: "Tüm ayarlar başarıyla indirildi.",
     });
   };
 
-  const handleDelete = () => {
-    // Clear local storage
-    localStorage.clear();
-    
-    toast({
-      title: "Veriler silindi",
-      description: "Tüm veriler başarıyla silindi.",
-    });
+  const handleDelete = async () => {
+    try {
+      // Delete all lessons
+      const { error: lessonsError } = await supabase
+        .from('lessons')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (lessonsError) throw lessonsError;
 
-    // Reload the page to reset the app state
-    window.location.reload();
+      // Delete all students
+      const { error: studentsError } = await supabase
+        .from('students')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (studentsError) throw studentsError;
+
+      // Clear local storage settings
+      localStorage.clear();
+      
+      toast({
+        title: "Veriler silindi",
+        description: "Tüm veriler başarıyla silindi.",
+      });
+
+      // Reload the page to reset the app state
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting data:', error);
+      toast({
+        title: "Hata",
+        description: "Veriler silinirken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -73,14 +99,14 @@ export default function DataManagement() {
             onClick={handleExport}
           >
             <Download className="h-4 w-4 mr-2" />
-            Tüm Verileri İndir
+            Ayarları İndir
           </Button>
           <Button
             variant="outline"
             onClick={() => document.getElementById('import-project-file')?.click()}
           >
             <Upload className="h-4 w-4 mr-2" />
-            Tüm Verileri Yükle
+            Ayarları Yükle
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
