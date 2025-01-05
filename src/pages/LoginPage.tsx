@@ -1,13 +1,25 @@
-import { Auth } from "@supabase/auth-ui-react";
-import { supabase } from "@/integrations/supabase/client";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, User, Phone, BookOpen, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    fullName: '',
+    phoneNumber: '',
+    teachingSubjects: '',
+    yearsOfExperience: '',
+  });
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -23,6 +35,56 @@ export default function LoginPage() {
     };
   }, [navigate]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            phone_number: formData.phoneNumber,
+            teaching_subjects: formData.teachingSubjects,
+            years_of_experience: parseInt(formData.yearsOfExperience) || 0
+          }
+        }
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Kayıt başarısız",
+          description: error.message
+        });
+      } else if (data) {
+        toast({
+          title: "Kayıt başarılı",
+          description: "Email adresinizi kontrol edin ve hesabınızı doğrulayın."
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        variant: "destructive",
+        title: "Bir hata oluştu",
+        description: "Lütfen daha sonra tekrar deneyin."
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 bg-gradient-to-b from-background to-muted/20">
       <Card className="w-full max-w-md">
@@ -32,120 +94,130 @@ export default function LoginPage() {
             <CardTitle className="text-3xl font-bold text-primary">Ders Takvimi</CardTitle>
           </div>
           <CardDescription className="text-center text-lg">
-            Öğretmen hesabınıza giriş yapın veya yeni hesap oluşturun
+            Öğretmen hesabı oluşturun
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: 'hsl(var(--primary))',
-                    brandAccent: 'hsl(var(--primary-foreground))',
-                    brandButtonText: 'hsl(var(--background))',
-                    defaultButtonBackground: 'hsl(var(--secondary))',
-                    defaultButtonBackgroundHover: 'hsl(var(--accent))',
-                    defaultButtonBorder: 'hsl(var(--border))',
-                    defaultButtonText: 'hsl(var(--foreground))',
-                    dividerBackground: 'hsl(var(--border))',
-                    inputBackground: 'hsl(var(--background))',
-                    inputBorder: 'hsl(var(--border))',
-                    inputBorderHover: 'hsl(var(--ring))',
-                    inputBorderFocus: 'hsl(var(--ring))',
-                    inputText: 'hsl(var(--foreground))',
-                    inputLabelText: 'hsl(var(--muted-foreground))',
-                    inputPlaceholder: 'hsl(var(--muted-foreground))',
-                  },
-                  space: {
-                    spaceSmall: '0.75rem',
-                    spaceMedium: '1.5rem',
-                    spaceLarge: '2rem',
-                  },
-                  fonts: {
-                    bodyFontFamily: `var(--font-sans)`,
-                    buttonFontFamily: `var(--font-sans)`,
-                    inputFontFamily: `var(--font-sans)`,
-                    labelFontFamily: `var(--font-sans)`,
-                  },
-                  borderWidths: {
-                    buttonBorderWidth: '1px',
-                    inputBorderWidth: '1px',
-                  },
-                  radii: {
-                    borderRadiusButton: 'var(--radius)',
-                    buttonBorderRadius: 'var(--radius)',
-                    inputBorderRadius: 'var(--radius)',
-                  },
-                },
-              },
-              className: {
-                container: 'w-full space-y-4',
-                button: 'w-full px-4 py-2.5 rounded-md transition-colors font-medium',
-                label: 'text-sm font-medium mb-1.5 block',
-                input: 'w-full px-3 py-2 rounded-md border transition-colors text-base',
-                loader: 'border-primary',
-                anchor: 'text-primary hover:text-primary/80 transition-colors font-medium',
-              },
-            }}
-            theme="default"
-            providers={[]}
-            redirectTo={window.location.origin}
-            localization={{
-              variables: {
-                sign_up: {
-                  email_label: "Email Adresi",
-                  password_label: "Şifre",
-                  button_label: "Hesap Oluştur",
-                  loading_button_label: "Hesap oluşturuluyor...",
-                  social_provider_text: "{{provider}} ile devam et",
-                  link_text: "Hesabınız yok mu? Hemen oluşturun",
-                  confirmation_text: "Email adresinizi kontrol edin",
-                },
-                sign_in: {
-                  email_label: "Email Adresi",
-                  password_label: "Şifre",
-                  button_label: "Giriş Yap",
-                  loading_button_label: "Giriş yapılıyor...",
-                  social_provider_text: "{{provider}} ile devam et",
-                  link_text: "Zaten hesabınız var mı? Giriş yapın"
-                }
-              }
-            }}
-            view="sign_up"
-            magicLink={false}
-            showLinks={true}
-            additionalData={[
-              {
-                key: 'full_name',
-                label: 'Ad Soyad',
-                type: 'text',
-                required: true,
-              },
-              {
-                key: 'phone_number',
-                label: 'Telefon Numarası',
-                type: 'tel',
-                required: true,
-              },
-              {
-                key: 'teaching_subjects',
-                label: 'Öğrettiğiniz Dersler',
-                type: 'text',
-                required: true,
-                placeholder: 'Matematik, Fizik, vb.',
-              },
-              {
-                key: 'years_of_experience',
-                label: 'Deneyim Yılı',
-                type: 'number',
-                required: true,
-                min: 0,
-              },
-            ]}
-          />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Adresi</Label>
+              <div className="relative">
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="ornek@email.com"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Şifre</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  minLength={6}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Ad Soyad</Label>
+              <div className="relative">
+                <Input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  placeholder="Ad Soyad"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  required
+                  className="pl-10"
+                />
+                <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">Telefon Numarası</Label>
+              <div className="relative">
+                <Input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  type="tel"
+                  placeholder="05XX XXX XX XX"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  required
+                  className="pl-10"
+                />
+                <Phone className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="teachingSubjects">Öğrettiğiniz Dersler</Label>
+              <div className="relative">
+                <Input
+                  id="teachingSubjects"
+                  name="teachingSubjects"
+                  type="text"
+                  placeholder="Matematik, Fizik, vb."
+                  value={formData.teachingSubjects}
+                  onChange={handleInputChange}
+                  required
+                  className="pl-10"
+                />
+                <BookOpen className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="yearsOfExperience">Deneyim Yılı</Label>
+              <div className="relative">
+                <Input
+                  id="yearsOfExperience"
+                  name="yearsOfExperience"
+                  type="number"
+                  min="0"
+                  placeholder="3"
+                  value={formData.yearsOfExperience}
+                  onChange={handleInputChange}
+                  required
+                  className="pl-10"
+                />
+                <Clock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
+            </Button>
+
+            <p className="text-center text-sm text-muted-foreground">
+              Zaten hesabınız var mı?{" "}
+              <Button 
+                variant="link" 
+                className="p-0 h-auto font-normal"
+                onClick={() => navigate("/login?mode=signin")}
+              >
+                Giriş yapın
+              </Button>
+            </p>
+          </form>
         </CardContent>
       </Card>
     </div>
