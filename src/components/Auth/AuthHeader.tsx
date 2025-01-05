@@ -129,21 +129,13 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
                 )}
               </Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <Link to="/settings" className="w-full">
-                    <DropdownMenuItem>
-                      <Settings className="h-4 w-4 mr-2" />
-                      <span>Ayarlar</span>
-                    </DropdownMenuItem>
-                  </Link>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate('/settings')}
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
