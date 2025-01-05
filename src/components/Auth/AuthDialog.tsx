@@ -2,9 +2,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
-import { useSessionContext } from "@supabase/auth-helpers-react";
+import { useToast } from "../ui/use-toast";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -13,13 +11,15 @@ interface AuthDialogProps {
 
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { toast } = useToast();
-  const { session } = useSessionContext();
 
-  useEffect(() => {
-    if (session) {
-      onClose();
-    }
-  }, [session, onClose]);
+  const showErrorToast = (message: string) => {
+    toast({
+      title: "Hata",
+      description: message,
+      variant: "destructive",
+      duration: 3000,
+    });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

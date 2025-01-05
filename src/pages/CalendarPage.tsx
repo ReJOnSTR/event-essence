@@ -14,7 +14,11 @@ import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
 import { PageHeader } from "@/components/Layout/PageHeader";
 
-export default function CalendarPage() {
+interface CalendarPageProps {
+  headerHeight: number;
+}
+
+export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isStudentDialogOpen, setIsStudentDialogOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
