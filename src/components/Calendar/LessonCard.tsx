@@ -21,8 +21,8 @@ export default function LessonCard({
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
   const durationInMinutes = differenceInMinutes(event.end, event.start);
-  const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40); // Minimum height of 40px
-  const student = students?.find(s => s.id === event.studentId);
+  const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40);
+  const student = students?.find(s => s.id === event.student_id);
   const isCompact = heightInPixels <= 40;
 
   const style = {

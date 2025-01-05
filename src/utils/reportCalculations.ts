@@ -71,7 +71,7 @@ export const filterLessons = (
   return lessons
     .filter(lesson => {
       const lessonStart = new Date(lesson.start);
-      return (selectedStudent === "all" || lesson.studentId === selectedStudent) &&
+      return (selectedStudent === "all" || lesson.student_id === selectedStudent) &&
              isWithinInterval(lessonStart, { start: range.start, end: range.end });
     })
     .sort((a, b) => {
@@ -112,7 +112,7 @@ export const useCalculatePeriodStats = (
         const lessonEnd = new Date(lesson.end);
         const duration = calculateLessonDuration(lessonStart, lessonEnd);
         
-        const student = students.find(s => s.id === lesson.studentId);
+        const student = students.find(s => s.id === lesson.student_id);
         if (student) {
           totalHours += duration;
           totalEarnings += student.price;

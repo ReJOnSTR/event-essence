@@ -53,11 +53,13 @@ export default function StudentsManagementPage() {
   };
 
   const handleSaveStudent = () => {
-    const studentData: Student = {
-      id: selectedStudent?.id || crypto.randomUUID(),
+    if (!session?.user?.id) return;
+    
+    const studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'> = {
       name: studentName,
       price: studentPrice,
       color: studentColor,
+      user_id: session.user.id
     };
     
     saveStudent(studentData);

@@ -22,7 +22,7 @@ export const calculatePdfStats = (
 
   const totalHours = filteredLessons.length;
   const totalEarnings = filteredLessons.reduce((total, lesson) => {
-    const student = students.find(s => s.id === lesson.studentId);
+    const student = students.find(s => s.id === lesson.student_id);
     return total + (student?.price || 0);
   }, 0);
 
@@ -34,7 +34,7 @@ export const createTableBody = (
   students: Student[]
 ) => {
   return lessons.map(lesson => {
-    const student = students.find(s => s.id === lesson.studentId);
+    const student = students.find(s => s.id === lesson.student_id);
     return [
       { text: format(new Date(lesson.start), 'd MMMM yyyy', { locale: tr }), style: 'tableCell' },
       { text: `${format(new Date(lesson.start), 'HH:mm')} - ${format(new Date(lesson.end), 'HH:mm')}`, style: 'tableCell' },
