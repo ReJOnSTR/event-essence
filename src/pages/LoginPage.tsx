@@ -93,6 +93,15 @@ export default function LoginPage() {
             theme="default"
             providers={[]}
             redirectTo={window.location.origin}
+            options={{
+              emailRedirectTo: window.location.origin,
+              metaData: {
+                full_name: undefined,
+                phone_number: undefined,
+                teaching_subjects: undefined,
+                years_of_experience: undefined,
+              },
+            }}
             localization={{
               variables: {
                 sign_up: {
@@ -105,6 +114,14 @@ export default function LoginPage() {
                   confirmation_text: "Email adresinizi kontrol edin",
                   email_input_placeholder: "ornek@email.com",
                   password_input_placeholder: "Şifrenizi girin",
+                  full_name_label: "Ad Soyad",
+                  full_name_placeholder: "Adınız ve soyadınız",
+                  phone_label: "Telefon Numarası",
+                  phone_placeholder: "5XX XXX XX XX",
+                  subjects_label: "Verdiğiniz Dersler",
+                  subjects_placeholder: "Matematik, Fizik, vb.",
+                  experience_label: "Öğretmenlik Deneyimi (Yıl)",
+                  experience_placeholder: "Deneyim yılınız",
                 },
                 sign_in: {
                   email_label: "Email Adresi",

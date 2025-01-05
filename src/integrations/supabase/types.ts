@@ -59,18 +59,30 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          full_name: string | null
           id: string
+          phone_number: string | null
+          teaching_subjects: string[] | null
           updated_at: string
+          years_of_experience: number | null
         }
         Insert: {
           created_at?: string
+          full_name?: string | null
           id: string
+          phone_number?: string | null
+          teaching_subjects?: string[] | null
           updated_at?: string
+          years_of_experience?: number | null
         }
         Update: {
           created_at?: string
+          full_name?: string | null
           id?: string
+          phone_number?: string | null
+          teaching_subjects?: string[] | null
           updated_at?: string
+          years_of_experience?: number | null
         }
         Relationships: []
       }
