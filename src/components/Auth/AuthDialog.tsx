@@ -16,11 +16,15 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') {
+        // Dialog'u kapat ve toast göster
         onClose();
         toast({
           title: "Başarıyla giriş yapıldı",
           duration: 2000,
         });
+        
+        // Sayfayı yenile
+        window.location.reload();
       }
     });
 
@@ -30,10 +34,24 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   }, [onClose, toast]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) onClose();
-    }}>
-      <DialogContent className="sm:max-w-[425px] bg-background border-border overflow-hidden">
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open) {
+          // Dialog kapanırken temiz bir şekilde state'i sıfırla
+          setTimeout(() => {
+            onClose();
+          }, 0);
+        }
+      }}
+    >
+      <DialogContent 
+        className="sm:max-w-[425px] bg-background border-border overflow-hidden"
+        onPointerDownOutside={(e) => {
+          // Dialog dışına tıklamaları engelle
+          e.preventDefault();
+        }}
+      >
         <DialogTitle className="text-xl font-semibold mb-4 text-foreground">
           Hesap
         </DialogTitle>
