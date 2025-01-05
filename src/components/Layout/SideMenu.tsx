@@ -22,13 +22,29 @@ export default function SideMenu() {
     return location.pathname === path;
   };
 
+  const isStudentsPage = location.pathname === "/students";
+
   const handleStudentClick = (student: Student) => {
-    // Öğrenci düzenleme modalını açmak için bir event yayınlayalım
+    if (!isStudentsPage) {
+      toast({
+        title: "Uyarı",
+        description: "Öğrenci düzenlemek için öğrenciler sayfasına gidin.",
+        variant: "destructive"
+      });
+      return;
+    }
     window.dispatchEvent(new CustomEvent('editStudent', { detail: student }));
   };
 
   const handleAddStudent = () => {
-    // Yeni öğrenci ekleme modalını açmak için bir event yayınlayalım
+    if (!isStudentsPage) {
+      toast({
+        title: "Uyarı",
+        description: "Öğrenci eklemek için öğrenciler sayfasına gidin.",
+        variant: "destructive"
+      });
+      return;
+    }
     window.dispatchEvent(new CustomEvent('addStudent'));
   };
 
@@ -65,7 +81,11 @@ export default function SideMenu() {
             <SidebarMenuItem>
               <SidebarMenuButton 
                 onClick={handleAddStudent}
-                className="w-full hover:bg-secondary rounded-md transition-colors"
+                className={`w-full rounded-md transition-colors ${
+                  isStudentsPage 
+                    ? "hover:bg-secondary cursor-pointer" 
+                    : "opacity-50 cursor-not-allowed"
+                }`}
               >
                 <Plus className="h-4 w-4" />
                 <span>Öğrenci Ekle</span>
@@ -77,7 +97,11 @@ export default function SideMenu() {
                 <SidebarMenuItem key={student.id}>
                   <SidebarMenuButton 
                     onClick={() => handleStudentClick(student)}
-                    className="w-full hover:bg-secondary rounded-md transition-colors group"
+                    className={`w-full rounded-md transition-colors group ${
+                      isStudentsPage 
+                        ? "hover:bg-secondary cursor-pointer" 
+                        : "opacity-50 cursor-not-allowed"
+                    }`}
                   >
                     <div
                       className="h-2 w-2 rounded-full"
