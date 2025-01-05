@@ -1,23 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useStudents() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Get students from localStorage with error handling
-  const getStudents = (): Student[] => {
+  // Get students from Supabase
+  const getStudents = async (): Promise<Student[]> => {
     try {
-      const savedStudents = localStorage.getItem('students');
-      if (!savedStudents) return [];
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .order('name');
       
-      const parsedStudents = JSON.parse(savedStudents);
-      if (!Array.isArray(parsedStudents)) {
-        throw new Error('Invalid students data format');
-      }
+      if (error) throw error;
       
-      return parsedStudents;
+      return data.map(student => ({
+        ...student,
+        price: Number(student.price)
+      }));
     } catch (error) {
       console.error('Error loading students:', error);
       toast({
@@ -29,59 +32,28 @@ export function useStudents() {
     }
   };
 
-  // Save students to localStorage with validation
-  const saveStudents = async (students: Student[]): Promise<Student[]> => {
-    try {
-      if (!Array.isArray(students)) {
-        throw new Error('Invalid students data');
-      }
-      
-      // Validate each student object
-      students.forEach(student => {
-        if (!student.id || !student.name || typeof student.price !== 'number') {
-          throw new Error('Invalid student data format');
-        }
-      });
-
-      localStorage.setItem('students', JSON.stringify(students));
-      return students;
-    } catch (error) {
-      console.error('Error saving students:', error);
-      toast({
-        title: "Hata",
-        description: "Öğrenci verileri kaydedilirken bir hata oluştu.",
-        variant: "destructive"
-      });
-      throw error;
-    }
-  };
-
-  // Query for fetching students with memoization
+  // Query for fetching students
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
     queryFn: getStudents,
-    staleTime: 1000 * 60, // Cache for 1 minute
-    gcTime: 1000 * 60 * 5, // Keep unused data for 5 minutes
   });
 
   // Mutation for adding/updating a student
   const { mutate: saveStudent } = useMutation({
-    mutationFn: async (student: Student): Promise<Student[]> => {
-      const currentStudents = getStudents();
-      const existingIndex = currentStudents.findIndex(s => s.id === student.id);
-      
-      let updatedStudents;
-      if (existingIndex >= 0) {
-        updatedStudents = [
-          ...currentStudents.slice(0, existingIndex),
-          student,
-          ...currentStudents.slice(existingIndex + 1)
-        ];
-      } else {
-        updatedStudents = [...currentStudents, { ...student, id: crypto.randomUUID() }];
-      }
-      
-      return saveStudents(updatedStudents);
+    mutationFn: async (student: Student) => {
+      const { data, error } = await supabase
+        .from('students')
+        .upsert({
+          id: student.id,
+          name: student.name,
+          price: student.price,
+          color: student.color
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -91,6 +63,7 @@ export function useStudents() {
       });
     },
     onError: (error) => {
+      console.error('Error saving student:', error);
       toast({
         title: "Hata",
         description: "Öğrenci kaydedilirken bir hata oluştu.",
@@ -101,10 +74,13 @@ export function useStudents() {
 
   // Mutation for deleting a student
   const { mutate: deleteStudent } = useMutation({
-    mutationFn: async (studentId: string): Promise<Student[]> => {
-      const currentStudents = getStudents();
-      const updatedStudents = currentStudents.filter(s => s.id !== studentId);
-      return saveStudents(updatedStudents);
+    mutationFn: async (studentId: string) => {
+      const { error } = await supabase
+        .from('students')
+        .delete()
+        .eq('id', studentId);
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -114,6 +90,7 @@ export function useStudents() {
       });
     },
     onError: (error) => {
+      console.error('Error deleting student:', error);
       toast({
         title: "Hata",
         description: "Öğrenci silinirken bir hata oluştu.",
