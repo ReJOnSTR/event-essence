@@ -64,6 +64,13 @@ export default function StudentDialog({
   studentColor,
   setStudentColor,
 }: StudentDialogProps) {
+  const handleSave = () => {
+    if (!studentName.trim()) {
+      return;
+    }
+    onSave();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] overflow-hidden p-0">
@@ -106,7 +113,7 @@ export default function StudentDialog({
                   <Button variant="outline" onClick={onClose}>
                     İptal
                   </Button>
-                  <Button onClick={onSave}>
+                  <Button onClick={handleSave} disabled={!studentName.trim()}>
                     {student ? "Güncelle" : "Ekle"}
                   </Button>
                 </motion.div>

@@ -23,12 +23,10 @@ export default function SideMenu() {
   };
 
   const handleStudentClick = (student: Student) => {
-    // Öğrenci düzenleme modalını açmak için bir event yayınlayalım
     window.dispatchEvent(new CustomEvent('editStudent', { detail: student }));
   };
 
   const handleAddStudent = () => {
-    // Yeni öğrenci ekleme modalını açmak için bir event yayınlayalım
     window.dispatchEvent(new CustomEvent('addStudent'));
   };
 
