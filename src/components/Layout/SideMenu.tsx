@@ -11,25 +11,23 @@ import {
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStudents } from "@/hooks/useStudents";
-import { useToast } from "@/components/ui/use-toast";
+import { useStudentStore } from "@/store/studentStore";
 
 export default function SideMenu() {
   const { students } = useStudents();
   const location = useLocation();
-  const { toast } = useToast();
+  const { openDialog, setSelectedStudent } = useStudentStore();
 
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   const handleStudentClick = (student: Student) => {
-    // Öğrenci düzenleme modalını açmak için bir event yayınlayalım
-    window.dispatchEvent(new CustomEvent('editStudent', { detail: student }));
+    setSelectedStudent(student);
   };
 
   const handleAddStudent = () => {
-    // Yeni öğrenci ekleme modalını açmak için bir event yayınlayalım
-    window.dispatchEvent(new CustomEvent('addStudent'));
+    openDialog();
   };
 
   const menuItems = [

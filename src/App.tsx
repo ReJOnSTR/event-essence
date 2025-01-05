@@ -17,7 +17,10 @@ import CalendarPage from "./pages/CalendarPage";
 import StudentsManagementPage from "./pages/StudentsManagementPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
-import { useEffect, useState } from "react";
+import StudentDialog from "@/components/Students/StudentDialog";
+import { useStudentStore } from "@/store/studentStore";
+import { useStudents } from "@/hooks/useStudents";
+import { useState } from "react";
 
 // Create a single QueryClient instance
 const queryClient = new QueryClient({
@@ -82,6 +85,23 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
 
 const App = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
+  const { isDialogOpen, closeDialog, selectedStudent } = useStudentStore();
+  const { saveStudent, deleteStudent } = useStudents();
+  const [studentName, setStudentName] = useState("");
+  const [studentPrice, setStudentPrice] = useState(0);
+  const [studentColor, setStudentColor] = useState("#1a73e8");
+
+  const handleSaveStudent = () => {
+    const studentData = {
+      id: selectedStudent?.id || crypto.randomUUID(),
+      name: studentName,
+      price: studentPrice,
+      color: studentColor,
+    };
+    
+    saveStudent(studentData);
+    closeDialog();
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -105,6 +125,19 @@ const App = () => {
           </SidebarProvider>
         </TooltipProvider>
       </ThemeProvider>
+      <StudentDialog
+        isOpen={isDialogOpen}
+        onClose={closeDialog}
+        onSave={handleSaveStudent}
+        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+        student={selectedStudent}
+        studentName={studentName}
+        setStudentName={setStudentName}
+        studentPrice={studentPrice}
+        setStudentPrice={setStudentPrice}
+        studentColor={studentColor}
+        setStudentColor={setStudentColor}
+      />
       <Toaster />
       <Sonner />
     </QueryClientProvider>
