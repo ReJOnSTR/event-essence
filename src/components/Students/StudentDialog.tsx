@@ -71,6 +71,13 @@ export default function StudentDialog({
     onSave();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] overflow-hidden p-0">
@@ -82,6 +89,7 @@ export default function StudentDialog({
               animate="visible"
               exit="exit"
               className="p-6"
+              onKeyDown={handleKeyDown}
             >
               <DialogHeader>
                 <DialogTitle>

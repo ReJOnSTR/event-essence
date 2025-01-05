@@ -172,6 +172,13 @@ export default function LessonDialog({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as any);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] overflow-hidden">
@@ -180,6 +187,7 @@ export default function LessonDialog({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
+          onKeyDown={handleKeyDown}
         >
           <DialogHeader>
             <DialogTitle>{event ? "Dersi Düzenle" : "Ders Ekle"}</DialogTitle>
