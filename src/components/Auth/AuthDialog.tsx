@@ -4,6 +4,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "../ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -14,14 +15,17 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const showErrorToast = (message: string) => {
-    toast({
-      title: "Hata",
-      description: message,
-      variant: "destructive",
-      duration: 3000,
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        onClose(); // Dialog'u kapat
+        navigate('/calendar');
+        window.location.reload();
+      }
     });
-  };
+
+    return () => subscription.unsubscribe();
+  }, [onClose, navigate]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
