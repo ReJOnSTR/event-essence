@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
@@ -21,8 +23,23 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent } = useStudents();
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
+  const navigate = useNavigate();
   const session = useSession();
+  const { toast } = useToast();
+
+  // Check for authentication
+  useEffect(() => {
+    if (!session) {
+      toast({
+        title: "Oturum Hatası",
+        description: "Lütfen önce giriş yapın",
+        variant: "destructive"
+      });
+      navigate('/login');
+    }
+  }, [session, navigate, toast]);
+
+  const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
   const {
     lessons,
@@ -34,7 +51,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const {
     isDialogOpen,
     selectedLesson,
-    selectedDate: dialogSelectedDate,
+    dialogSelectedDate,
     handleDateSelect,
     handleLessonClick,
     handleCloseDialog,
@@ -49,8 +66,16 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     studentColor: "#1a73e8"
   });
 
-  const handleSaveStudent = () => {
-    if (!session?.user?.id) return;
+  const handleSaveStudent = async () => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Hata",
+        description: "Oturum açmanız gerekiyor",
+        variant: "destructive"
+      });
+      navigate('/login');
+      return;
+    }
     
     const studentData = {
       name: studentDialogState.studentName,
@@ -58,14 +83,27 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       color: studentDialogState.studentColor,
     };
     
-    saveStudent(studentData);
-    setIsDialogOpen(false);
+    try {
+      await saveStudent(studentData);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('Error saving student:', error);
+      toast({
+        title: "Hata",
+        description: "Öğrenci kaydedilirken bir hata oluştu",
+        variant: "destructive"
+      });
+    }
   };
 
   // Save lessons to localStorage
   React.useEffect(() => {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -88,7 +126,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       <CalendarPageHeader
         date={selectedDate}
         currentView={currentView}
-        onViewChange={(view: ViewType) => setCurrentView(view)}
+        onViewChange={setCurrentView}
         onPrevious={handleNavigationClick('prev', currentView)}
         onNext={handleNavigationClick('next', currentView)}
         onToday={handleTodayClick}
