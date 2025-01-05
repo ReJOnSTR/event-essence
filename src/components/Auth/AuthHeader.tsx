@@ -21,7 +21,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthDialog } from "./AuthDialog";
 import { useToast } from "../ui/use-toast";
 import { Session } from "@supabase/supabase-js";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -38,7 +37,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     onHeightChange?.(64);
@@ -51,14 +49,10 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
-        // Clear all queries when user logs out
-        queryClient.clear();
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [onHeightChange, queryClient]);
+  }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -77,7 +71,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
       });
       navigate("/calendar");
     } catch (error) {
-      console.error('Logout error:', error);
       toast({
         title: "Çıkış yapılırken bir hata oluştu",
         variant: "destructive",
@@ -134,9 +127,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {session ? session.user.email : 'Hesap'}
-                </span>
+                <span className="hidden sm:inline">Hesap</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

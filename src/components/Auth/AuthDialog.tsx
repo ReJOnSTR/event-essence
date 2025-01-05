@@ -3,8 +3,6 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "../ui/use-toast";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -13,34 +11,15 @@ interface AuthDialogProps {
 
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { toast } = useToast();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        toast({
-          title: "Başarılı",
-          description: "Giriş başarıyla yapıldı",
-          duration: 3000,
-        });
-        onClose();
-        navigate('/calendar');
-      } else if (event === 'SIGNED_OUT') {
-        toast({
-          title: "Başarılı",
-          description: "Çıkış başarıyla yapıldı",
-          duration: 3000,
-        });
-        navigate('/calendar');
-      } else if (event === 'USER_UPDATED') {
-        console.log('User updated:', session);
-      }
+  const showErrorToast = (message: string) => {
+    toast({
+      title: "Hata",
+      description: message,
+      variant: "destructive",
+      duration: 3000,
     });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, onClose, toast]);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -58,11 +37,6 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                   brand: '#1a73e8',
                   brandAccent: '#1557b0',
                 }
-              }
-            },
-            style: {
-              button: {
-                borderRadius: '6px',
               }
             }
           }}
