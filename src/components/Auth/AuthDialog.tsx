@@ -24,8 +24,8 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] bg-background border-border">
-        <DialogTitle className="text-2xl font-semibold mb-6 text-center text-foreground">
-          Öğretmen Hesabı
+        <DialogTitle className="text-xl font-semibold mb-4 text-foreground">
+          Hesap
         </DialogTitle>
         <Auth
           supabaseClient={supabase}
@@ -36,13 +36,13 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 colors: {
                   brand: 'hsl(var(--primary))',
                   brandAccent: 'hsl(var(--primary-foreground))',
-                  brandButtonText: 'white',
+                  brandButtonText: 'hsl(var(--background))',
                   defaultButtonBackground: 'hsl(var(--secondary))',
                   defaultButtonBackgroundHover: 'hsl(var(--accent))',
                   defaultButtonBorder: 'hsl(var(--border))',
                   defaultButtonText: 'hsl(var(--foreground))',
                   dividerBackground: 'hsl(var(--border))',
-                  inputBackground: 'transparent',
+                  inputBackground: 'hsl(var(--background))',
                   inputBorder: 'hsl(var(--border))',
                   inputBorderHover: 'hsl(var(--ring))',
                   inputBorderFocus: 'hsl(var(--ring))',
@@ -73,12 +73,11 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
               },
             },
             className: {
-              container: 'w-full space-y-4',
-              button: 'w-full px-4 py-2.5 rounded-md transition-colors font-medium',
-              label: 'text-sm font-medium mb-1.5 block',
-              input: 'w-full px-3 py-2 rounded-md border bg-background transition-colors focus:outline-none focus:ring-2 focus:ring-primary',
+              container: 'w-full',
+              button: 'w-full px-4 py-2 rounded-md transition-colors',
+              label: 'text-sm font-medium',
+              input: 'w-full px-3 py-2 rounded-md border transition-colors',
               loader: 'border-primary',
-              anchor: 'text-sm text-primary hover:text-primary/80 transition-colors',
             },
           }}
           theme="default"
@@ -87,29 +86,21 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
           localization={{
             variables: {
               sign_up: {
-                email_label: "Email Adresi",
+                email_label: "Email",
                 password_label: "Şifre",
                 button_label: "Kayıt Ol",
                 loading_button_label: "Kayıt olunuyor...",
                 social_provider_text: "{{provider}} ile devam et",
-                link_text: "Hesabınız yok mu? Hemen kayıt olun",
+                link_text: "Hesabınız yok mu? Kayıt olun",
                 confirmation_text: "Email adresinizi kontrol edin"
               },
               sign_in: {
-                email_label: "Email Adresi",
+                email_label: "Email",
                 password_label: "Şifre",
                 button_label: "Giriş Yap",
                 loading_button_label: "Giriş yapılıyor...",
                 social_provider_text: "{{provider}} ile devam et",
                 link_text: "Zaten hesabınız var mı? Giriş yapın"
-              },
-              forgotten_password: {
-                email_label: "Email Adresi",
-                password_label: "Yeni Şifre",
-                button_label: "Şifremi Sıfırla",
-                loading_button_label: "Sıfırlama linki gönderiliyor...",
-                link_text: "Şifrenizi mi unuttunuz?",
-                confirmation_text: "Şifre sıfırlama linkini email adresinize gönderdik"
               }
             }
           }}
