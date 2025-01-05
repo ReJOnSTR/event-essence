@@ -4,11 +4,10 @@ import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
 import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import StudentDialog from "@/components/Students/StudentDialog";
-import SearchDialog from "@/components/Calendar/SearchDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
@@ -28,7 +27,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent, deleteStudent } = useStudents();
@@ -104,14 +102,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
       <PageHeader title="Özel Ders Takip">
         <div className="flex items-center gap-1 md:gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setIsSearchOpen(true)}
-          >
-            <Search className="h-4 w-4" />
-            <span className="hidden md:inline ml-2">Ara</span>
-          </Button>
           <WeeklySchedulePdf lessons={lessons} students={students} />
           <Button 
             size="sm"
@@ -215,17 +205,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         setStudentPrice={(price) => setStudentDialogState(prev => ({ ...prev, studentPrice: price }))}
         studentColor={studentDialogState.studentColor}
         setStudentColor={(color) => setStudentDialogState(prev => ({ ...prev, studentColor: color }))}
-      />
-
-      <SearchDialog
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        onSelectDate={(date) => {
-          setSelectedDate(date);
-          setCurrentView('day');
-        }}
-        lessons={lessons}
-        students={students}
       />
     </div>
   );
