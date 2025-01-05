@@ -20,7 +20,6 @@ export type Database = {
           student_id: string | null
           title: string
           updated_at: string | null
-          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -32,7 +31,6 @@ export type Database = {
           student_id?: string | null
           title: string
           updated_at?: string | null
-          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -44,7 +42,6 @@ export type Database = {
           student_id?: string | null
           title?: string
           updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -82,7 +79,6 @@ export type Database = {
           name: string
           price: number
           updated_at: string | null
-          user_id: string | null
         }
         Insert: {
           color?: string | null
@@ -91,7 +87,6 @@ export type Database = {
           name: string
           price?: number
           updated_at?: string | null
-          user_id?: string | null
         }
         Update: {
           color?: string | null
@@ -100,7 +95,6 @@ export type Database = {
           name?: string
           price?: number
           updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: []
       }

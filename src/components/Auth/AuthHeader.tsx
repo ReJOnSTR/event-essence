@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,25 +20,38 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthDialog } from "./AuthDialog";
 import { useToast } from "../ui/use-toast";
-import { useSessionContext } from '@supabase/auth-helpers-react';
+import { Session } from "@supabase/supabase-js";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
+  children?: ReactNode;
   onSearchChange: (searchTerm: string) => void;
 }
 
-function AuthHeader({ onHeightChange, onSearchChange }: AuthHeaderProps) {
+function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProps) {
   const [notifications] = useState(2);
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const { session } = useSessionContext();
+  const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     onHeightChange?.(64);
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
@@ -73,6 +86,7 @@ function AuthHeader({ onHeightChange, onSearchChange }: AuthHeaderProps) {
     >
       <div className="h-16 px-4 flex items-center justify-between max-w-[2000px] mx-auto">
         <div className="flex items-center space-x-4">
+          {children}
           <h1 className="text-xl font-semibold">EventEssence</h1>
         </div>
 
@@ -84,42 +98,36 @@ function AuthHeader({ onHeightChange, onSearchChange }: AuthHeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
-          {session && (
-            <>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                {notifications > 0 && (
-                  <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </Button>
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+            {notifications > 0 && (
+              <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">
+                {notifications}
+              </span>
+            )}
+          </Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <Link to="/settings" className="w-full">
-                    <DropdownMenuItem>
-                      <Settings className="h-4 w-4 mr-2" />
-                      <span>Ayarlar</span>
-                    </DropdownMenuItem>
-                  </Link>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <Link to="/settings" className="w-full">
+                <DropdownMenuItem>
+                  <Settings className="h-4 w-4 mr-2" />
+                  <span>Ayarlar</span>
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {session ? session.user.email : 'Hesap'}
-                </span>
+                <span className="hidden sm:inline">Hesap</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

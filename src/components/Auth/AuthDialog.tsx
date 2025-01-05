@@ -3,8 +3,6 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "../ui/use-toast";
-import { useEffect, useRef } from "react";
-import { useSessionContext } from '@supabase/auth-helpers-react';
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -12,30 +10,19 @@ interface AuthDialogProps {
 }
 
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
-  const { session } = useSessionContext();
   const { toast } = useToast();
-  const hasShownToast = useRef(false);
 
-  useEffect(() => {
-    // Sadece dialog açıkken ve oturum varsa toast göster
-    if (isOpen && session && !hasShownToast.current) {
-      onClose();
-      toast({
-        title: "Başarıyla giriş yapıldı",
-        description: `Hoş geldiniz, ${session.user.email}`,
-        duration: 2000,
-      });
-      hasShownToast.current = true;
-    }
-    
-    // Dialog kapandığında ref'i sıfırla
-    if (!isOpen) {
-      hasShownToast.current = false;
-    }
-  }, [session, onClose, toast, isOpen]);
+  const showErrorToast = (message: string) => {
+    toast({
+      title: "Hata",
+      description: message,
+      variant: "destructive",
+      duration: 3000,
+    });
+  };
 
   return (
-    <Dialog open={isOpen && !session} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogTitle className="text-xl font-semibold mb-4">
           Hesap
