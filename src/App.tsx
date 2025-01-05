@@ -1,32 +1,21 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { 
-  SidebarProvider, 
-  Sidebar, 
-  SidebarContent,
-  SidebarRail
-} from "@/components/ui/sidebar";
-import AuthHeader from "@/components/Auth/AuthHeader";
-import SideMenu from "@/components/Layout/SideMenu";
-import CalendarPage from "./pages/CalendarPage";
-import StudentsManagementPage from "./pages/StudentsManagementPage";
-import ReportsPage from "./pages/ReportsPage";
-import SettingsPage from "./pages/SettingsPage";
-import StudentDialog from "@/components/Students/StudentDialog";
-import { useStudentStore } from "@/store/studentStore";
-import { useStudents } from "@/hooks/useStudents";
-import { useState, useEffect } from "react";
+import { createClient } from '@supabase/supabase-js';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
-import { Session } from "@supabase/supabase-js";
-import { SessionContextProvider } from "@supabase/auth-helpers-react";
-import LoginPage from "./pages/LoginPage";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Layout from "@/components/Layout";
+import CalendarPage from "@/pages/CalendarPage";
+import StudentsPage from "@/pages/StudentsPage";
+import LoginPage from "@/pages/LoginPage";
+import SettingsPage from "@/pages/SettingsPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 
-// Create a client
+// Create a new QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -36,46 +25,25 @@ const queryClient = new QueryClient({
   },
 });
 
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    x: -10,
-  },
-  animate: {
-    opacity: 1,
-    x: 0,
-  },
-  exit: {
-    opacity: 0,
-    x: 10,
-  }
-};
-
-const pageTransition = {
-  type: "tween",
-  ease: [0.25, 0.1, 0.25, 1],
-  duration: 0.3
-};
-
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+// Auth wrapper component to handle session checks
+function AuthWrapper({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
       if (!session) {
+        console.log('No session found, redirecting to login');
         navigate('/login');
       }
     });
 
+    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
       if (!session) {
+        console.log('Session ended, redirecting to login');
         navigate('/login');
       }
     });
@@ -83,144 +51,32 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  return <>{children}</>;
+}
 
-  return session ? <>{children}</> : null;
-};
-
-const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
-  const location = useLocation();
-  
+function App() {
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageVariants}
-        transition={pageTransition}
-        className="w-full h-full"
-        style={{ 
-          marginTop: headerHeight,
-          transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
-        }}
-      >
-        <Routes location={location}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route 
-            path="/calendar" 
-            element={
-              <ProtectedRoute>
-                <CalendarPage headerHeight={headerHeight} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/students" 
-            element={
-              <ProtectedRoute>
-                <StudentsManagementPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/reports" 
-            element={
-              <ProtectedRoute>
-                <ReportsPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/settings" 
-            element={
-              <ProtectedRoute>
-                <SettingsPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/" element={<Navigate to="/calendar" replace />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
+    <BrowserRouter>
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <QueryClientProvider client={queryClient}>
+          <SessionContextProvider supabaseClient={supabase}>
+            <AuthWrapper>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<CalendarPage headerHeight={64} />} />
+                  <Route path="students" element={<StudentsPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Route>
+              </Routes>
+            </AuthWrapper>
+            <Toaster />
+          </SessionContextProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
-};
-
-const App = () => {
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const { 
-    isDialogOpen, 
-    closeDialog, 
-    selectedStudent,
-    studentName,
-    studentPrice,
-    studentColor,
-    setStudentName,
-    setStudentPrice,
-    setStudentColor 
-  } = useStudentStore();
-  const { saveStudent, deleteStudent } = useStudents();
-
-  const handleSaveStudent = () => {
-    const studentData = {
-      id: selectedStudent?.id || crypto.randomUUID(),
-      name: studentName,
-      price: studentPrice,
-      color: studentColor,
-    };
-    
-    saveStudent(studentData);
-    closeDialog();
-  };
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <SessionContextProvider supabaseClient={supabase}>
-        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-          <TooltipProvider>
-            <SidebarProvider defaultOpen={true}>
-              <BrowserRouter>
-                <div className="min-h-screen flex w-full overflow-hidden bg-background">
-                  <Sidebar>
-                    <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                      <SideMenu searchTerm={searchTerm} />
-                    </SidebarContent>
-                    <SidebarRail />
-                  </Sidebar>
-                  <div className="flex-1 flex flex-col">
-                    <AuthHeader 
-                      onHeightChange={setHeaderHeight} 
-                      onSearchChange={setSearchTerm}
-                    />
-                    <AnimatedRoutes headerHeight={headerHeight} />
-                  </div>
-                </div>
-              </BrowserRouter>
-            </SidebarProvider>
-          </TooltipProvider>
-        </ThemeProvider>
-        <StudentDialog
-          isOpen={isDialogOpen}
-          onClose={closeDialog}
-          onSave={handleSaveStudent}
-          onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
-          student={selectedStudent}
-          studentName={studentName}
-          setStudentName={setStudentName}
-          studentPrice={studentPrice}
-          setStudentPrice={setStudentPrice}
-          studentColor={studentColor}
-          setStudentColor={setStudentColor}
-        />
-        <Toaster />
-        <Sonner />
-      </SessionContextProvider>
-    </QueryClientProvider>
-  );
-};
+}
 
 export default App;
