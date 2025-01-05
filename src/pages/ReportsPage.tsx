@@ -7,6 +7,7 @@ import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
 import { Student } from "@/types/calendar";
 import StudentDialog from "@/components/Students/StudentDialog";
+import { PageHeader } from "@/components/Layout/PageHeader";
 
 export default function ReportsPage() {
   const [selectedStudent, setSelectedStudent] = useState<string>("all");
@@ -38,11 +39,7 @@ export default function ReportsPage() {
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
-      <div className="flex items-center gap-2 md:gap-4 p-2 md:p-4 border-b bg-background">
-        <h1 className="text-lg md:text-2xl font-semibold text-foreground truncate">
-          Raporlar
-        </h1>
-      </div>
+      <PageHeader title="Raporlar" />
 
       <div className="p-4 space-y-4 overflow-auto">
         <ReportFilters

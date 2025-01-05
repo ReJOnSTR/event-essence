@@ -5,6 +5,7 @@ import { useStudents } from "@/hooks/useStudents";
 import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
+import { PageHeader } from "@/components/Layout/PageHeader";
 
 export default function StudentsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,17 +45,15 @@ export default function StudentsManagementPage() {
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
-      <div className="flex items-center gap-2 md:gap-4 p-2 md:p-4 border-b bg-background">
-        <h1 className="text-lg md:text-2xl font-semibold text-foreground truncate">
-          Öğrenci Yönetimi
-        </h1>
-        <div className="ml-auto">
+      <PageHeader 
+        title="Öğrenci Yönetimi"
+        actions={
           <Button onClick={() => setIsDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Öğrenci Ekle
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-auto">
         {students.map((student) => (

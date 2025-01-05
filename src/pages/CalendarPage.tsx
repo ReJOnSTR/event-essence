@@ -12,6 +12,7 @@ import SearchDialog from "@/components/Calendar/SearchDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
+import { PageHeader } from "@/components/Layout/PageHeader";
 
 interface CalendarPageProps {
   headerHeight: number;
@@ -101,11 +102,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
-      <div className="flex items-center gap-2 md:gap-4 p-2 md:p-4 border-b bg-background">
-        <h1 className="text-lg md:text-2xl font-semibold text-foreground truncate">
-          Özel Ders Takip
-        </h1>
-        <div className="ml-auto flex items-center gap-1 md:gap-2">
+      <PageHeader title="Özel Ders Takip">
+        <div className="flex items-center gap-1 md:gap-2">
           <Button
             size="sm"
             variant="outline"
@@ -127,7 +125,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
             <span className="md:hidden">Ekle</span>
           </Button>
         </div>
-      </div>
+      </PageHeader>
 
       <CalendarPageHeader
         date={selectedDate}

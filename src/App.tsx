@@ -8,7 +8,6 @@ import {
   SidebarProvider, 
   Sidebar, 
   SidebarContent,
-  SidebarTrigger,
   SidebarRail
 } from "@/components/ui/sidebar";
 import { AuthHeader } from "@/components/Auth/AuthHeader";
@@ -93,9 +92,7 @@ const App = () => {
                 <SidebarRail />
               </Sidebar>
               <div className="flex-1 flex flex-col">
-                <AuthHeader onHeightChange={setHeaderHeight}>
-                  <SidebarTrigger className="mr-2" />
-                </AuthHeader>
+                <AuthHeader onHeightChange={setHeaderHeight} />
                 <AnimatedRoutes headerHeight={headerHeight} />
               </div>
             </div>
