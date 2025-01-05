@@ -27,7 +27,7 @@ interface AuthHeaderProps {
   onSearchChange: (searchTerm: string) => void;
 }
 
-export default function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProps) {
+function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProps) {
   const [notifications] = useState(2);
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,15 +42,21 @@ export default function AuthHeader({ onHeightChange, children, onSearchChange }:
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [onHeightChange]);
+  }, [onHeightChange, navigate]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -62,20 +68,17 @@ export default function AuthHeader({ onHeightChange, children, onSearchChange }:
 
   const handleLogout = async () => {
     try {
-      // First clear all Supabase related items from localStorage
+      // Clear all Supabase related items from localStorage
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('supabase.auth.')) {
           localStorage.removeItem(key);
         }
       });
       
-      // Then attempt to sign out from Supabase
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
-      // Even if there's an error, we want to clear the session state and redirect
-      setSession(null);
-      
-      if (error && error.message !== 'session_not_found') {
+      if (error) {
         console.error('Logout error:', error);
         toast({
           title: "Çıkış yapılırken bir hata oluştu",
@@ -84,15 +87,17 @@ export default function AuthHeader({ onHeightChange, children, onSearchChange }:
           duration: 2000,
         });
       } else {
+        // Clear session state
+        setSession(null);
+        
         toast({
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
         });
+        
+        // Navigate to login page
+        navigate("/login");
       }
-      
-      // Navigate to login page
-      navigate("/login");
-      
     } catch (error) {
       console.error('Unexpected error during logout:', error);
       toast({
@@ -184,3 +189,5 @@ export default function AuthHeader({ onHeightChange, children, onSearchChange }:
     </div>
   );
 }
+
+export default AuthHeader;
