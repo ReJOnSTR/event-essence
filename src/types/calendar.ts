@@ -21,6 +21,9 @@ export interface Lesson {
   updated_at: string;
 }
 
+export type NewLesson = Omit<Lesson, 'id' | 'created_at' | 'updated_at'>;
+export type NewStudent = Omit<Student, 'id' | 'created_at' | 'updated_at'>;
+
 export interface DayCell {
   date: Date;
   isCurrentMonth: boolean;

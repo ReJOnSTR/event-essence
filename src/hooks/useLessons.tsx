@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { CalendarEvent } from "@/types/calendar";
+import { Lesson, NewLesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,7 @@ export function useLessons() {
   const navigate = useNavigate();
   const { session } = useSessionContext();
 
-  const getLessons = async (): Promise<CalendarEvent[]> => {
+  const getLessons = async (): Promise<Lesson[]> => {
     if (!session?.user) {
       navigate('/login');
       return [];
@@ -42,8 +42,11 @@ export function useLessons() {
       start: new Date(lesson.start_time),
       end: new Date(lesson.end_time),
       studentId: lesson.student_id,
-      student: lesson.student
-    })) || [];
+      student: lesson.student,
+      user_id: lesson.user_id,
+      created_at: lesson.created_at,
+      updated_at: lesson.updated_at
+    }));
   };
 
   const { data: lessons = [], isLoading, error } = useQuery({
@@ -53,7 +56,7 @@ export function useLessons() {
   });
 
   const { mutate: saveLesson } = useMutation({
-    mutationFn: async (lesson: CalendarEvent) => {
+    mutationFn: async (lesson: NewLesson) => {
       if (!session?.user) {
         throw new Error('User not authenticated');
       }
@@ -67,21 +70,11 @@ export function useLessons() {
         user_id: session.user.id
       };
 
-      if (lesson.id) {
-        const { error } = await supabase
-          .from('lessons')
-          .update(lessonData)
-          .eq('id', lesson.id);
+      const { error } = await supabase
+        .from('lessons')
+        .insert([lessonData]);
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('lessons')
-          .insert([lessonData]);
-
-        if (error) throw error;
-      }
-
+      if (error) throw error;
       return lesson;
     },
     onSuccess: () => {
