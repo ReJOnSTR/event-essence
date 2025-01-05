@@ -39,10 +39,15 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   useEffect(() => {
     onHeightChange?.(64);
 
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
     });
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!session) {
@@ -63,10 +68,14 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
 
   const handleLogout = async () => {
     try {
-      // First clear the session from local storage
-      localStorage.removeItem('supabase.auth.token');
+      // Clear all Supabase related items from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth.')) {
+          localStorage.removeItem(key);
+        }
+      });
       
-      // Then sign out from Supabase
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
