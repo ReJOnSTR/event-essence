@@ -6,7 +6,6 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
 import { PageHeader } from "@/components/Layout/PageHeader";
-import { useSessionContext } from "@supabase/auth-helpers-react";
 
 export default function StudentsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -15,9 +14,9 @@ export default function StudentsManagementPage() {
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#1a73e8");
   const { students, saveStudent, deleteStudent } = useStudents();
-  const { session } = useSessionContext();
 
   useEffect(() => {
+    // Öğrenci düzenleme event listener'ı
     const handleEditStudent = (event: CustomEvent<Student>) => {
       const student = event.detail;
       setSelectedStudent(student);
@@ -27,6 +26,7 @@ export default function StudentsManagementPage() {
       setIsDialogOpen(true);
     };
 
+    // Yeni öğrenci ekleme event listener'ı
     const handleAddStudent = () => {
       setSelectedStudent(undefined);
       setStudentName("");
@@ -53,14 +53,11 @@ export default function StudentsManagementPage() {
   };
 
   const handleSaveStudent = () => {
-    if (!session?.user?.id) return;
-
-    const studentData = {
+    const studentData: Student = {
       id: selectedStudent?.id || crypto.randomUUID(),
       name: studentName,
       price: studentPrice,
       color: studentColor,
-      user_id: session.user.id,
     };
     
     saveStudent(studentData);
@@ -73,13 +70,6 @@ export default function StudentsManagementPage() {
     setStudentName("");
     setStudentPrice(0);
     setStudentColor("#1a73e8");
-  };
-
-  const handleDeleteStudent = () => {
-    if (selectedStudent) {
-      deleteStudent(selectedStudent.id);
-      handleCloseDialog();
-    }
   };
 
   return (
@@ -108,7 +98,7 @@ export default function StudentsManagementPage() {
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
         onSave={handleSaveStudent}
-        onDelete={selectedStudent ? handleDeleteStudent : undefined}
+        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
         student={selectedStudent}
         studentName={studentName}
         setStudentName={setStudentName}

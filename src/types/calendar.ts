@@ -1,11 +1,8 @@
 export interface Student {
   id: string;
   name: string;
-  color: string;
+  color?: string;
   price: number;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface Lesson {
@@ -15,14 +12,7 @@ export interface Lesson {
   start: Date;
   end: Date;
   studentId?: string;
-  student?: Student;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
 }
-
-export type NewLesson = Omit<Lesson, 'id' | 'created_at' | 'updated_at'>;
-export type NewStudent = Omit<Student, 'id' | 'created_at' | 'updated_at'>;
 
 export interface DayCell {
   date: Date;

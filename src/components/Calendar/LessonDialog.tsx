@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { NewLesson, Lesson, Student } from "@/types/calendar";
+import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval, isEqual, addMinutes } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getDefaultLessonDuration } from "@/utils/settings";
 import { motion, AnimatePresence } from "framer-motion";
 import { getWorkingHours } from "@/utils/workingHours";
-import { useSessionContext } from "@supabase/auth-helpers-react";
 import {
   Select,
   SelectContent,
@@ -22,7 +21,7 @@ import LessonTimeInputs from "./LessonTimeInputs";
 interface LessonDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (lesson: NewLesson) => void;
+  onSave: (lesson: Omit<Lesson, "id">) => void;
   onDelete?: (lessonId: string) => void;
   selectedDate: Date;
   event?: Lesson;
@@ -45,7 +44,6 @@ export default function LessonDialog({
   const [endTime, setEndTime] = useState("10:00");
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const { toast } = useToast();
-  const { session } = useSessionContext();
 
   useEffect(() => {
     if (isOpen) {
@@ -127,15 +125,6 @@ export default function LessonDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!session?.user?.id) {
-      toast({
-        title: "Oturum Hatası",
-        description: "Lütfen giriş yapın.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!selectedStudentId) {
       toast({
         title: "Öğrenci Seçilmedi",
@@ -171,7 +160,6 @@ export default function LessonDialog({
       start,
       end,
       studentId: selectedStudentId,
-      user_id: session.user.id
     });
     
     onClose();

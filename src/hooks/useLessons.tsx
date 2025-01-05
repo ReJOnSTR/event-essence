@@ -1,31 +1,35 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Lesson, NewLesson } from "@/types/calendar";
+import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { useSessionContext } from "@supabase/auth-helpers-react";
+import { validateDate } from "@/utils/dateUtils";
 
 export function useLessons() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const navigate = useNavigate();
-  const { session } = useSessionContext();
 
-  const getLessons = async (): Promise<Lesson[]> => {
-    if (!session?.user) {
-      navigate('/login');
-      return [];
-    }
+  // Get lessons from localStorage with validation
+  const getLessons = (): Lesson[] => {
+    try {
+      const savedLessons = localStorage.getItem('lessons');
+      if (!savedLessons) return [];
+      
+      const parsedLessons = JSON.parse(savedLessons);
+      if (!Array.isArray(parsedLessons)) {
+        throw new Error('Invalid lessons data format');
+      }
 
-    const { data, error } = await supabase
-      .from('lessons')
-      .select(`
-        *,
-        student:students(*)
-      `)
-      .order('start_time', { ascending: true });
-
-    if (error) {
+      // Validate and transform dates
+      return parsedLessons.map(lesson => ({
+        ...lesson,
+        start: new Date(lesson.start),
+        end: new Date(lesson.end)
+      })).filter(lesson => 
+        validateDate(lesson.start) && 
+        validateDate(lesson.end) &&
+        lesson.id &&
+        typeof lesson.title === 'string'
+      );
+    } catch (error) {
       console.error('Error loading lessons:', error);
       toast({
         title: "Hata",
@@ -34,48 +38,61 @@ export function useLessons() {
       });
       return [];
     }
-
-    return data.map(lesson => ({
-      id: lesson.id,
-      title: lesson.title || '',
-      description: lesson.description || '',
-      start: new Date(lesson.start_time),
-      end: new Date(lesson.end_time),
-      studentId: lesson.student_id,
-      student: lesson.student,
-      user_id: lesson.user_id,
-      created_at: lesson.created_at,
-      updated_at: lesson.updated_at
-    }));
   };
 
+  // Save lessons to localStorage with validation
+  const saveLessons = async (lessons: Lesson[]): Promise<Lesson[]> => {
+    try {
+      if (!Array.isArray(lessons)) {
+        throw new Error('Invalid lessons data');
+      }
+
+      // Validate each lesson object
+      lessons.forEach(lesson => {
+        if (!lesson.id || !lesson.title || !validateDate(lesson.start) || !validateDate(lesson.end)) {
+          throw new Error('Invalid lesson data format');
+        }
+      });
+
+      localStorage.setItem('lessons', JSON.stringify(lessons));
+      return lessons;
+    } catch (error) {
+      console.error('Error saving lessons:', error);
+      toast({
+        title: "Hata",
+        description: "Ders verileri kaydedilirken bir hata oluştu.",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  // Query for fetching lessons with memoization
   const { data: lessons = [], isLoading, error } = useQuery({
     queryKey: ['lessons'],
     queryFn: getLessons,
-    enabled: !!session?.user
+    staleTime: 1000 * 60, // Cache for 1 minute
+    gcTime: 1000 * 60 * 5, // Keep unused data for 5 minutes
   });
 
+  // Mutation for adding/updating a lesson
   const { mutate: saveLesson } = useMutation({
-    mutationFn: async (lesson: NewLesson) => {
-      if (!session?.user) {
-        throw new Error('User not authenticated');
+    mutationFn: async (lesson: Lesson): Promise<Lesson[]> => {
+      const currentLessons = getLessons();
+      const existingIndex = currentLessons.findIndex(l => l.id === lesson.id);
+      
+      let updatedLessons;
+      if (existingIndex >= 0) {
+        updatedLessons = [
+          ...currentLessons.slice(0, existingIndex),
+          lesson,
+          ...currentLessons.slice(existingIndex + 1)
+        ];
+      } else {
+        updatedLessons = [...currentLessons, { ...lesson, id: crypto.randomUUID() }];
       }
-
-      const lessonData = {
-        title: lesson.title,
-        description: lesson.description,
-        start_time: lesson.start.toISOString(),
-        end_time: lesson.end.toISOString(),
-        student_id: lesson.studentId,
-        user_id: session.user.id
-      };
-
-      const { error } = await supabase
-        .from('lessons')
-        .insert([lessonData]);
-
-      if (error) throw error;
-      return lesson;
+      
+      return saveLessons(updatedLessons);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
@@ -85,7 +102,6 @@ export function useLessons() {
       });
     },
     onError: (error) => {
-      console.error('Error saving lesson:', error);
       toast({
         title: "Hata",
         description: "Ders kaydedilirken bir hata oluştu.",
@@ -94,19 +110,12 @@ export function useLessons() {
     }
   });
 
+  // Mutation for deleting a lesson
   const { mutate: deleteLesson } = useMutation({
-    mutationFn: async (lessonId: string) => {
-      if (!session?.user) {
-        throw new Error('User not authenticated');
-      }
-
-      const { error } = await supabase
-        .from('lessons')
-        .delete()
-        .eq('id', lessonId);
-
-      if (error) throw error;
-      return lessonId;
+    mutationFn: async (lessonId: string): Promise<Lesson[]> => {
+      const currentLessons = getLessons();
+      const updatedLessons = currentLessons.filter(l => l.id !== lessonId);
+      return saveLessons(updatedLessons);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
@@ -116,7 +125,6 @@ export function useLessons() {
       });
     },
     onError: (error) => {
-      console.error('Error deleting lesson:', error);
       toast({
         title: "Hata",
         description: "Ders silinirken bir hata oluştu.",
