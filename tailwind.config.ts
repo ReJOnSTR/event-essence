@@ -21,21 +21,21 @@ export default {
       colors: {
         // Ana renkler
         "primary": {
-          DEFAULT: "#9b87f5", // Ana mor
-          dark: "#6E59A5", // Koyu mor
-          light: "#D3E4FD", // Açık mor
+          DEFAULT: "#6366f1", // Indigo-500
+          dark: "#4338ca", // Indigo-700
+          light: "#a5b4fc", // Indigo-300
           foreground: "hsl(var(--primary-foreground))",
         },
         "secondary": {
-          DEFAULT: "#7E69AB", // İkincil mor
-          dark: "#4A3B7F", // Koyu ikincil mor
-          light: "#F2FCE2", // Açık ikincil mor
+          DEFAULT: "#8b5cf6", // Violet-500
+          dark: "#6d28d9", // Violet-700
+          light: "#c4b5fd", // Violet-300
           foreground: "hsl(var(--secondary-foreground))",
         },
         "accent": {
-          DEFAULT: "#8E9196", // Nötr gri
-          dark: "#1A1F2C", // Koyu gri
-          light: "#F1F1F1", // Açık gri
+          DEFAULT: "#64748b", // Slate-500
+          dark: "#334155", // Slate-700
+          light: "#cbd5e1", // Slate-300
           foreground: "hsl(var(--accent-foreground))",
         },
         // Google Calendar renkleri
