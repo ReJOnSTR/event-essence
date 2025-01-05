@@ -1,4 +1,4 @@
-import { Plus, FileBarChart, Calendar, Users } from "lucide-react";
+import { Plus, FileBarChart, Calendar, Users, Search as SearchIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -12,11 +12,17 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStudents } from "@/hooks/useStudents";
 import { useStudentStore } from "@/store/studentStore";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { StudentSearchResults } from "./StudentSearchResults";
 
 export default function SideMenu() {
   const { students } = useStudents();
   const location = useLocation();
   const { openDialog, setSelectedStudent } = useStudentStore();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -29,6 +35,16 @@ export default function SideMenu() {
   const handleAddStudent = () => {
     openDialog();
   };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setIsSearchOpen(query.length > 0);
+  };
+
+  const filteredStudents = students.filter(student =>
+    student.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const menuItems = [
     { path: "/calendar", icon: Calendar, label: "Takvim" },
@@ -59,6 +75,29 @@ export default function SideMenu() {
       <SidebarGroup className="mt-6">
         <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
         <SidebarGroupContent className="mt-2">
+          <Sheet open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+            <div className="space-y-2">
+              <div className="px-2">
+                <div className="relative">
+                  <SearchIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Öğrenci ara..."
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="pl-8"
+                  />
+                </div>
+              </div>
+              <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+                <StudentSearchResults 
+                  students={filteredStudents}
+                  onStudentClick={handleStudentClick}
+                  searchQuery={searchQuery}
+                />
+              </SheetContent>
+            </div>
+          </Sheet>
+
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton 
