@@ -12,13 +12,7 @@ interface AuthDialogProps {
 export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   const { toast } = useToast();
 
-  const handleAuthError = (error: Error) => {
-    let message = "Bir hata oluştu. Lütfen tekrar deneyin.";
-    
-    if (error.message.includes("user_already_exists")) {
-      message = "Bu e-posta adresi zaten kayıtlı. Lütfen giriş yapmayı deneyin.";
-    }
-
+  const showErrorToast = (message: string) => {
     toast({
       title: "Hata",
       description: message,
@@ -49,7 +43,27 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
           theme="light"
           providers={[]}
           redirectTo={window.location.origin}
-          onError={handleAuthError}
+          localization={{
+            variables: {
+              sign_up: {
+                email_label: "Email",
+                password_label: "Şifre",
+                button_label: "Kayıt Ol",
+                loading_button_label: "Kayıt olunuyor...",
+                social_provider_text: "{{provider}} ile devam et",
+                link_text: "Hesabınız yok mu? Kayıt olun",
+                confirmation_text: "Email adresinizi kontrol edin"
+              },
+              sign_in: {
+                email_label: "Email",
+                password_label: "Şifre",
+                button_label: "Giriş Yap",
+                loading_button_label: "Giriş yapılıyor...",
+                social_provider_text: "{{provider}} ile devam et",
+                link_text: "Zaten hesabınız var mı? Giriş yapın"
+              }
+            }
+          }}
         />
       </DialogContent>
     </Dialog>
