@@ -10,15 +10,17 @@ import {
 import { 
   Bell, 
   User,
-  LogOut,
+  LogIn,
+  UserPlus,
   Settings,
   HelpCircle,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { format, isFuture, compareAsc } from "date-fns";
+import { tr } from "date-fns/locale";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -31,23 +33,9 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
-  const { toast } = useToast();
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     onHeightChange?.(64);
-
-    // Mevcut oturumu kontrol et
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    // Oturum değişikliklerini dinle
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
   }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
@@ -55,42 +43,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     onSearchChange(value);
     if (value) {
       setOpen(true);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin
-        }
-      });
-      
-      if (error) throw error;
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Giriş başarısız",
-        description: "Google ile giriş yapılırken bir hata oluştu."
-      });
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      toast({
-        title: "Çıkış yapıldı",
-        description: "Başarıyla çıkış yaptınız."
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Çıkış başarısız",
-        description: "Çıkış yapılırken bir hata oluştu."
-      });
     }
   };
 
@@ -142,30 +94,18 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {user ? user.email : 'Hesap'}
-                </span>
+                <span className="hidden sm:inline">Hesap</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              {!user ? (
-                <DropdownMenuItem onClick={handleGoogleLogin} className="gap-2">
-                  <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="Google" />
-                  <span>Google ile Giriş Yap</span>
-                </DropdownMenuItem>
-              ) : (
-                <>
-                  <DropdownMenuItem className="gap-2">
-                    <User className="h-4 w-4" />
-                    <span>{user.email}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="gap-2">
-                    <LogOut className="h-4 w-4" />
-                    <span>Çıkış Yap</span>
-                  </DropdownMenuItem>
-                </>
-              )}
+              <DropdownMenuItem className="gap-2">
+                <LogIn className="h-4 w-4" />
+                <span>Giriş Yap</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2">
+                <UserPlus className="h-4 w-4" />
+                <span>Kayıt Ol</span>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2">
                 <HelpCircle className="h-4 w-4" />
