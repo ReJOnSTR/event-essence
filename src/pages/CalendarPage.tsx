@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCalendarStore, ViewType } from "@/store/calendarStore";
+import { useCalendarStore } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
@@ -27,17 +27,11 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const session = useSession();
   const { toast } = useToast();
 
-  // Check for authentication
   useEffect(() => {
     if (!session) {
-      toast({
-        title: "Oturum Hatası",
-        description: "Lütfen önce giriş yapın",
-        variant: "destructive"
-      });
       navigate('/login');
     }
-  }, [session, navigate, toast]);
+  }, [session, navigate]);
 
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
@@ -58,30 +52,16 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     setIsDialogOpen,
   } = useCalendarDialog();
 
-  // Student dialog state
-  const [studentDialogState, setStudentDialogState] = useState({
-    selectedStudent: undefined,
-    studentName: "",
-    studentPrice: 0,
-    studentColor: "#1a73e8"
-  });
-
-  const handleSaveStudent = async () => {
+  const handleSaveStudent = async (studentData: any) => {
     if (!session?.user?.id) {
       toast({
         title: "Hata",
-        description: "Oturum açmanız gerekiyor",
+        description: "Lütfen önce giriş yapın",
         variant: "destructive"
       });
       navigate('/login');
       return;
     }
-    
-    const studentData = {
-      name: studentDialogState.studentName,
-      price: studentDialogState.studentPrice,
-      color: studentDialogState.studentColor,
-    };
     
     try {
       await saveStudent(studentData);
@@ -95,11 +75,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       });
     }
   };
-
-  // Save lessons to localStorage
-  React.useEffect(() => {
-    localStorage.setItem('lessons', JSON.stringify(lessons));
-  }, [lessons]);
 
   if (!session) {
     return null;

@@ -3,30 +3,28 @@ import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@supabase/auth-helpers-react";
 
-const LoginPage = () => {
+export default function LoginPage() {
+  const session = useSession();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate('/calendar');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (session) {
+      navigate("/");
+    }
+  }, [session, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">EventEssence</h1>
-          <p className="mt-2 text-muted-foreground">
-            Giriş yapın veya hesap oluşturun
+      <div className="w-full max-w-md space-y-4">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold">Hoş Geldiniz</h1>
+          <p className="text-muted-foreground">
+            Devam etmek için lütfen giriş yapın
           </p>
         </div>
-        <div className="bg-card p-6 rounded-lg shadow-sm border">
+        <div className="bg-card p-6 rounded-lg shadow-sm">
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -34,8 +32,8 @@ const LoginPage = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: 'rgb(var(--primary))',
-                    brandAccent: 'rgb(var(--primary))',
+                    brand: '#000000',
+                    brandAccent: '#666666',
                   },
                 },
               },
@@ -44,12 +42,12 @@ const LoginPage = () => {
             localization={{
               variables: {
                 sign_in: {
-                  email_label: 'Email adresi',
+                  email_label: 'Email',
                   password_label: 'Şifre',
                   button_label: 'Giriş Yap',
                 },
                 sign_up: {
-                  email_label: 'Email adresi',
+                  email_label: 'Email',
                   password_label: 'Şifre',
                   button_label: 'Kayıt Ol',
                 },
@@ -60,6 +58,4 @@ const LoginPage = () => {
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
