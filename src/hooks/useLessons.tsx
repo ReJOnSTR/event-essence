@@ -7,7 +7,6 @@ export function useLessons() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  // Get lessons from Supabase
   const getLessons = async (): Promise<Lesson[]> => {
     try {
       const { data, error } = await supabase
@@ -36,13 +35,11 @@ export function useLessons() {
     }
   };
 
-  // Query for fetching lessons
   const { data: lessons = [], isLoading, error } = useQuery({
     queryKey: ['lessons'],
     queryFn: getLessons,
   });
 
-  // Mutation for adding/updating a lesson
   const { mutate: saveLesson } = useMutation({
     mutationFn: async (lesson: Lesson) => {
       const { data, error } = await supabase
@@ -61,24 +58,43 @@ export function useLessons() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
-      toast({
-        title: "Başarılı",
-        description: "Ders başarıyla kaydedildi.",
+    onMutate: async (newLesson) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['lessons'] });
+
+      // Snapshot the previous value
+      const previousLessons = queryClient.getQueryData(['lessons']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['lessons'], (old: Lesson[] = []) => {
+        const filtered = old.filter(lesson => lesson.id !== newLesson.id);
+        return [...filtered, newLesson];
       });
+
+      // Return a context object with the snapshotted value
+      return { previousLessons };
     },
-    onError: (error) => {
-      console.error('Error saving lesson:', error);
+    onError: (err, newLesson, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      queryClient.setQueryData(['lessons'], context?.previousLessons);
       toast({
         title: "Hata",
         description: "Ders kaydedilirken bir hata oluştu.",
         variant: "destructive"
       });
-    }
+    },
+    onSuccess: () => {
+      toast({
+        title: "Başarılı",
+        description: "Ders başarıyla kaydedildi.",
+      });
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure data consistency
+      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+    },
   });
 
-  // Mutation for deleting a lesson
   const { mutate: deleteLesson } = useMutation({
     mutationFn: async (lessonId: string) => {
       const { error } = await supabase
@@ -88,21 +104,34 @@ export function useLessons() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
-      toast({
-        title: "Başarılı",
-        description: "Ders başarıyla silindi.",
-      });
+    onMutate: async (deletedLessonId) => {
+      await queryClient.cancelQueries({ queryKey: ['lessons'] });
+
+      const previousLessons = queryClient.getQueryData(['lessons']);
+
+      queryClient.setQueryData(['lessons'], (old: Lesson[] = []) => 
+        old.filter(lesson => lesson.id !== deletedLessonId)
+      );
+
+      return { previousLessons };
     },
-    onError: (error) => {
-      console.error('Error deleting lesson:', error);
+    onError: (err, deletedLessonId, context) => {
+      queryClient.setQueryData(['lessons'], context?.previousLessons);
       toast({
         title: "Hata",
         description: "Ders silinirken bir hata oluştu.",
         variant: "destructive"
       });
-    }
+    },
+    onSuccess: () => {
+      toast({
+        title: "Başarılı",
+        description: "Ders başarıyla silindi.",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+    },
   });
 
   return {

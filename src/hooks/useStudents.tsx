@@ -9,7 +9,6 @@ export function useStudents() {
   const { toast } = useToast();
   const { closeDialog } = useStudentStore();
 
-  // Get students from Supabase
   const getStudents = async (): Promise<Student[]> => {
     try {
       const { data, error } = await supabase
@@ -34,13 +33,11 @@ export function useStudents() {
     }
   };
 
-  // Query for fetching students
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
     queryFn: getStudents,
   });
 
-  // Mutation for adding/updating a student
   const { mutate: saveStudent } = useMutation({
     mutationFn: async (student: Student) => {
       const { data, error } = await supabase
@@ -57,24 +54,37 @@ export function useStudents() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      toast({
-        title: "Başarılı",
-        description: "Öğrenci bilgileri başarıyla kaydedildi.",
+    onMutate: async (newStudent) => {
+      await queryClient.cancelQueries({ queryKey: ['students'] });
+
+      const previousStudents = queryClient.getQueryData(['students']);
+
+      queryClient.setQueryData(['students'], (old: Student[] = []) => {
+        const filtered = old.filter(student => student.id !== newStudent.id);
+        return [...filtered, newStudent];
       });
+
+      return { previousStudents };
     },
-    onError: (error) => {
-      console.error('Error saving student:', error);
+    onError: (err, newStudent, context) => {
+      queryClient.setQueryData(['students'], context?.previousStudents);
       toast({
         title: "Hata",
         description: "Öğrenci kaydedilirken bir hata oluştu.",
         variant: "destructive"
       });
-    }
+    },
+    onSuccess: () => {
+      toast({
+        title: "Başarılı",
+        description: "Öğrenci bilgileri başarıyla kaydedildi.",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
   });
 
-  // Mutation for deleting a student
   const { mutate: deleteStudent } = useMutation({
     mutationFn: async (studentId: string) => {
       const { error } = await supabase
@@ -84,22 +94,35 @@ export function useStudents() {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      closeDialog(); // Close the dialog after successful deletion
-      toast({
-        title: "Başarılı",
-        description: "Öğrenci başarıyla silindi.",
-      });
+    onMutate: async (deletedStudentId) => {
+      await queryClient.cancelQueries({ queryKey: ['students'] });
+
+      const previousStudents = queryClient.getQueryData(['students']);
+
+      queryClient.setQueryData(['students'], (old: Student[] = []) => 
+        old.filter(student => student.id !== deletedStudentId)
+      );
+
+      return { previousStudents };
     },
-    onError: (error) => {
-      console.error('Error deleting student:', error);
+    onError: (err, deletedStudentId, context) => {
+      queryClient.setQueryData(['students'], context?.previousStudents);
       toast({
         title: "Hata",
         description: "Öğrenci silinirken bir hata oluştu.",
         variant: "destructive"
       });
-    }
+    },
+    onSuccess: () => {
+      closeDialog();
+      toast({
+        title: "Başarılı",
+        description: "Öğrenci başarıyla silindi.",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
   });
 
   return {
