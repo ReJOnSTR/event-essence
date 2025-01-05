@@ -26,7 +26,7 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
+        "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm",
         snapshot?.isDragging ? "shadow-lg opacity-70" : ""
       )}
       style={{ 
