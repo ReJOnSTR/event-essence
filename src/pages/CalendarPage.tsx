@@ -100,7 +100,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
-      <PageHeader title="Özel Ders Takip">
+      <PageHeader title="Takvim">
         <div className="flex items-center gap-1 md:gap-2">
           <WeeklySchedulePdf lessons={lessons} students={students} />
           <Button 
