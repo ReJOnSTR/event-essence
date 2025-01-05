@@ -53,6 +53,11 @@ export function useStudents() {
   const { mutate: saveStudent } = useMutation({
     mutationFn: async (student: Student) => {
       if (!session?.user?.id) {
+        toast({
+          title: "Hata",
+          description: "Öğrenci eklemek için oturum açmanız gerekiyor.",
+          variant: "destructive"
+        });
         throw new Error('Oturum açmanız gerekiyor');
       }
 
@@ -76,14 +81,11 @@ export function useStudents() {
     },
     onMutate: async (newStudent) => {
       await queryClient.cancelQueries({ queryKey: ['students'] });
-
       const previousStudents = queryClient.getQueryData(['students']);
-
       queryClient.setQueryData(['students'], (old: Student[] = []) => {
         const filtered = old.filter(student => student.id !== newStudent.id);
         return [...filtered, newStudent];
       });
-
       return { previousStudents };
     },
     onError: (err, newStudent, context) => {
@@ -100,6 +102,7 @@ export function useStudents() {
         title: "Başarılı",
         description: "Öğrenci bilgileri başarıyla kaydedildi.",
       });
+      closeDialog();
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
@@ -109,6 +112,11 @@ export function useStudents() {
   const { mutate: deleteStudent } = useMutation({
     mutationFn: async (studentId: string) => {
       if (!session?.user?.id) {
+        toast({
+          title: "Hata",
+          description: "Öğrenci silmek için oturum açmanız gerekiyor.",
+          variant: "destructive"
+        });
         throw new Error('Oturum açmanız gerekiyor');
       }
 
@@ -125,13 +133,10 @@ export function useStudents() {
     },
     onMutate: async (deletedStudentId) => {
       await queryClient.cancelQueries({ queryKey: ['students'] });
-
       const previousStudents = queryClient.getQueryData(['students']);
-
       queryClient.setQueryData(['students'], (old: Student[] = []) => 
         old.filter(student => student.id !== deletedStudentId)
       );
-
       return { previousStudents };
     },
     onError: (err, deletedStudentId, context) => {
