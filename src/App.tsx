@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
@@ -23,6 +23,7 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useState } from "react";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 const pageVariants = {
   initial: {
@@ -43,6 +44,16 @@ const pageTransition = {
   type: "tween",
   ease: [0.25, 0.1, 0.25, 1],
   duration: 0.3
+};
+
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session } = useSessionContext();
+  
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
 };
 
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
@@ -66,9 +77,21 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         <Routes location={location}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/students" element={
+            <PrivateRoute>
+              <StudentsManagementPage />
+            </PrivateRoute>
+          } />
+          <Route path="/reports" element={
+            <PrivateRoute>
+              <ReportsPage />
+            </PrivateRoute>
+          } />
+          <Route path="/settings" element={
+            <PrivateRoute>
+              <SettingsPage />
+            </PrivateRoute>
+          } />
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
       </motion.div>
@@ -79,6 +102,7 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
 const App = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const { session } = useSessionContext();
   const { 
     isDialogOpen, 
     closeDialog, 
@@ -111,12 +135,14 @@ const App = () => {
           <SidebarProvider defaultOpen={true}>
             <BrowserRouter>
               <div className="min-h-screen flex w-full overflow-hidden bg-background">
-                <Sidebar>
-                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                    <SideMenu searchTerm={searchTerm} />
-                  </SidebarContent>
-                  <SidebarRail />
-                </Sidebar>
+                {session && (
+                  <Sidebar>
+                    <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                      <SideMenu searchTerm={searchTerm} />
+                    </SidebarContent>
+                    <SidebarRail />
+                  </Sidebar>
+                )}
                 <div className="flex-1 flex flex-col">
                   <AuthHeader 
                     onHeightChange={setHeaderHeight} 
@@ -129,19 +155,21 @@ const App = () => {
           </SidebarProvider>
         </TooltipProvider>
       </ThemeProvider>
-      <StudentDialog
-        isOpen={isDialogOpen}
-        onClose={closeDialog}
-        onSave={handleSaveStudent}
-        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
-        student={selectedStudent}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        studentPrice={studentPrice}
-        setStudentPrice={setStudentPrice}
-        studentColor={studentColor}
-        setStudentColor={setStudentColor}
-      />
+      {session && (
+        <StudentDialog
+          isOpen={isDialogOpen}
+          onClose={closeDialog}
+          onSave={handleSaveStudent}
+          onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+          student={selectedStudent}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
+        />
+      )}
       <Toaster />
       <Sonner />
     </SessionContextProvider>

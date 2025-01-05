@@ -13,13 +13,14 @@ import {
   LogOut,
   Settings,
   HelpCircle,
+  LogIn
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "../ui/use-toast";
-import { Session } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -32,31 +33,13 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
-  const [session, setSession] = useState<Session | null>(null);
+  const { session } = useSessionContext();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     onHeightChange?.(64);
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [onHeightChange, navigate]);
+  }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -87,16 +70,12 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           duration: 2000,
         });
       } else {
-        // Clear session state
-        setSession(null);
-        
         toast({
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
         });
         
-        // Navigate to login page
-        navigate("/login");
+        navigate("/calendar");
       }
     } catch (error) {
       console.error('Unexpected error during logout:', error);
@@ -119,12 +98,14 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           <h1 className="text-xl font-semibold">EventEssence</h1>
         </div>
 
-        <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
-          <SearchInput 
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-        </div>
+        {session && (
+          <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
+            <SearchInput 
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </div>
+        )}
 
         <div className="flex items-center space-x-4">
           {session ? (
@@ -180,7 +161,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
               onClick={() => navigate("/login")}
               className="gap-2"
             >
-              <User className="h-4 w-4" />
+              <LogIn className="h-4 w-4" />
               <span>Giriş Yap</span>
             </Button>
           )}
