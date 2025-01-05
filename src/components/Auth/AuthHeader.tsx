@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,9 +27,10 @@ import { Link } from "react-router-dom";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
+  children?: ReactNode;
 }
 
-export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
+export function AuthHeader({ onHeightChange, children }: AuthHeaderProps) {
   const [notifications] = useState(2);
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +46,7 @@ export function AuthHeader({ onHeightChange }: AuthHeaderProps) {
       <div className="h-16 px-4 flex items-center justify-between max-w-[2000px] mx-auto">
         {/* Sol taraf - Logo veya başlık */}
         <div className="flex items-center space-x-4">
+          {children}
           <h1 className="text-xl font-semibold">EventEssence</h1>
         </div>
 
