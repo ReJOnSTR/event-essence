@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "../ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 
@@ -24,6 +24,26 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
         duration: 3000,
       });
     }
+
+    // Auth state değişikliklerini dinle
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'USER_DELETED') {
+        toast({
+          title: "Hata",
+          description: "Kullanıcı hesabı bulunamadı.",
+          variant: "destructive",
+        });
+      } else if (event === 'PASSWORD_RECOVERY') {
+        toast({
+          title: "Bilgi",
+          description: "Şifre sıfırlama bağlantısı gönderildi.",
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [session, onClose, toast]);
 
   return (
@@ -65,9 +85,24 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 button_label: "Giriş Yap",
                 loading_button_label: "Giriş yapılıyor...",
                 social_provider_text: "{{provider}} ile devam et",
-                link_text: "Zaten hesabınız var mı? Giriş yapın"
+                link_text: "Zaten hesabınız var mı? Giriş yapın",
+                email_input_placeholder: "Email adresiniz",
+                password_input_placeholder: "Şifreniz",
+                error_message_for_email_input: "Geçerli bir email adresi giriniz",
+                error_message_for_password_input: "Şifrenizi giriniz"
               }
             }
+          }}
+          onError={(error) => {
+            console.error('Auth error:', error);
+            toast({
+              title: "Hata",
+              description: error.message === "Invalid login credentials" 
+                ? "Geçersiz email veya şifre" 
+                : "Bir hata oluştu. Lütfen tekrar deneyin.",
+              variant: "destructive",
+              duration: 3000,
+            });
           }}
         />
       </DialogContent>
