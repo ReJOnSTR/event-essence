@@ -1,14 +1,12 @@
-import { format, isSameMonth, isSameDay, isToday } from "date-fns";
 import { CalendarEvent, Student } from "@/types/calendar";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
-import { useToast } from "@/components/ui/use-toast";
-import MonthEventCard from "./MonthEventCard";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import { useToast } from "@/hooks/use-toast";
+import MonthDayCell from "./MonthDayCell";
 import MonthHeader from "./MonthHeader";
-import { isHoliday } from "@/utils/turkishHolidays";
-import { isDayEnabled } from "@/utils/workingHoursUtils";
 import { useMonthView } from "@/features/calendar/hooks/useMonthView";
+import { isDayEnabled } from "@/utils/workingHoursUtils";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -35,8 +33,8 @@ export default function MonthView({
   const days = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
-  const handleDateClick = (clickedDate: Date) => {
-    if (!isDayEnabled(clickedDate)) {
+  const handleDateSelect = (selectedDate: Date) => {
+    if (!isDayEnabled(selectedDate)) {
       toast({
         title: "Çalışma saati kapalı",
         description: "Bu gün çalışmaya kapalıdır.",
@@ -44,7 +42,7 @@ export default function MonthView({
       });
       return;
     }
-    onDateSelect(clickedDate);
+    onDateSelect(selectedDate);
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -101,12 +99,12 @@ export default function MonthView({
         <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
           <MonthHeader weekDays={weekDays} />
           {days.map((day, idx) => {
-            const holiday = isHoliday(day.date);
             const dayEnabled = isDayEnabled(day.date);
+            const holiday = isHoliday(day.date);
             return (
               <div
                 key={idx}
-                onClick={() => handleDateClick(day.date)}
+                onClick={() => handleDateSelect(day.date)}
                 className={cn(
                   "min-h-[40px] p-1 bg-background/80 cursor-pointer hover:bg-accent/50 transition-colors duration-150",
                   !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
@@ -118,6 +116,11 @@ export default function MonthView({
               >
                 <div className="text-xs font-medium">
                   {format(day.date, "d")}
+                  {!dayEnabled && (
+                    <div className="text-[10px] text-muted-foreground truncate">
+                      Kapalı
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -137,70 +140,17 @@ export default function MonthView({
       >
         <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
           <MonthHeader weekDays={weekDays} />
-          {days.map((day, idx) => {
-            const holiday = isHoliday(day.date);
-            const dayEnabled = isDayEnabled(day.date);
-            return (
-              <Droppable droppableId={`${idx}`} key={idx}>
-                {(provided, snapshot) => (
-                  <motion.div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.15,
-                      delay: idx * 0.01,
-                      ease: [0.23, 1, 0.32, 1]
-                    }}
-                    onClick={() => handleDateClick(day.date)}
-                    className={cn(
-                      "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
-                      !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
-                      isToday(day.date) && "bg-accent text-accent-foreground",
-                      holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-                      holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-                      snapshot.isDraggingOver && "bg-accent/50",
-                      !dayEnabled && "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                    )}
-                  >
-                    <div className={cn(
-                      "text-sm font-medium mb-1",
-                      isToday(day.date) && "text-accent-foreground"
-                    )}>
-                      {format(day.date, "d")}
-                      {holiday && (
-                        <div className={cn(
-                          "text-xs truncate",
-                          !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
-                        )}>
-                          {holiday.name}
-                          {allowWorkOnHolidays && " (Çalışmaya Açık)"}
-                        </div>
-                      )}
-                      {!dayEnabled && (
-                        <div className="text-xs text-muted-foreground truncate">
-                          Çalışmaya Kapalı
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      {day.lessons.map((event, index) => (
-                        <MonthEventCard
-                          key={event.id}
-                          event={event}
-                          students={students}
-                          index={index}
-                          onClick={onEventClick}
-                        />
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  </motion.div>
-                )}
-              </Droppable>
-            );
-          })}
+          {days.map((day, idx) => (
+            <MonthDayCell
+              key={idx}
+              day={day}
+              idx={idx}
+              onDateSelect={handleDateSelect}
+              onEventClick={onEventClick}
+              students={students}
+              allowWorkOnHolidays={allowWorkOnHolidays}
+            />
+          ))}
         </div>
       </motion.div>
     </DragDropContext>
