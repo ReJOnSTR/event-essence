@@ -6,7 +6,16 @@ import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useMemo, useState, useEffect } from "react";
 import debounce from "lodash/debounce";
-import { SliderPicker } from 'react-color';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+const STUDENT_COLORS = [
+  { value: "#4F46E5", label: "İndigo", className: "bg-indigo-600" },
+  { value: "#0EA5E9", label: "Mavi", className: "bg-sky-500" },
+  { value: "#10B981", label: "Yeşil", className: "bg-emerald-500" },
+  { value: "#F59E0B", label: "Turuncu", className: "bg-amber-500" },
+  { value: "#EC4899", label: "Pembe", className: "bg-pink-500" },
+  { value: "#8B5CF6", label: "Mor", className: "bg-violet-500" },
+];
 
 interface StudentDialogContentProps {
   student?: Student;
@@ -72,10 +81,6 @@ export default function StudentDialogContent({
     }
   };
 
-  const handleColorChange = (color: any) => {
-    setStudentColor(color.hex);
-  };
-
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -108,17 +113,30 @@ export default function StudentDialogContent({
 
       <div className="space-y-2">
         <Label>Renk</Label>
-        <div className="flex items-center gap-2 mb-2">
-          <div
-            className="w-4 h-4 rounded-full"
-            style={{ backgroundColor: studentColor }}
-          />
-          <span className="text-sm text-muted-foreground">Seçilen Renk</span>
-        </div>
-        <SliderPicker
-          color={studentColor}
-          onChange={handleColorChange}
-        />
+        <RadioGroup
+          value={studentColor}
+          onValueChange={setStudentColor}
+          className="grid grid-cols-3 gap-2"
+        >
+          {STUDENT_COLORS.map((color) => (
+            <div key={color.value} className="flex items-center space-x-2">
+              <RadioGroupItem
+                value={color.value}
+                id={color.value}
+                className="peer sr-only"
+              />
+              <Label
+                htmlFor={color.value}
+                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+              >
+                <div
+                  className={`w-6 h-6 rounded-full ${color.className}`}
+                />
+                <span className="mt-2 text-xs">{color.label}</span>
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
       </div>
 
       {student && onDelete && (
