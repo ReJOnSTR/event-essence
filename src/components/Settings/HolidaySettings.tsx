@@ -5,11 +5,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// İlk kurulumda localStorage'a varsayılan değeri kaydet
-if (localStorage.getItem('allowWorkOnHolidays') === null) {
-  localStorage.setItem('allowWorkOnHolidays', 'false');
-}
-
 export function HolidaySettings() {
   const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
     const savedHolidays = localStorage.getItem('holidays');
@@ -17,7 +12,7 @@ export function HolidaySettings() {
   });
   
   const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    return localStorage.getItem('allowWorkOnHolidays') === 'true'; // varsayılan olarak false
+    return localStorage.getItem('allowWorkOnHolidays') === 'true';
   });
 
   const { toast } = useToast();

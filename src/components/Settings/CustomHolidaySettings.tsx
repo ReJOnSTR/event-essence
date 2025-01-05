@@ -18,8 +18,7 @@ export default function CustomHolidaySettings() {
   });
 
   const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    const saved = localStorage.getItem('allowWorkOnHolidays');
-    return saved === null ? true : saved === 'true'; // Varsayılan değer true olarak değiştirildi
+    return localStorage.getItem('allowWorkOnHolidays') === 'true';
   });
 
   const { toast } = useToast();
