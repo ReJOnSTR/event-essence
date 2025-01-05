@@ -22,7 +22,7 @@ export default function LoginPage() {
       if (event === 'SIGNED_IN' && session) {
         navigate('/');
       }
-      if (event === 'USER_REGISTRATION_ERROR') {
+      if (event === 'SIGNED_UP' && !session) {
         toast.error('Bu email adresi zaten kayıtlı. Lütfen giriş yapın.');
       }
     });
