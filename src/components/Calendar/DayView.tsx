@@ -1,17 +1,15 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
+import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
-import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
-import { getDefaultLessonDuration } from "@/utils/settings";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
-import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
-import { checkLessonConflict } from "@/utils/lessonConflict";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import DroppableCell from "./DroppableCell";
 
 interface DayViewProps {
   date: Date;
@@ -51,9 +49,9 @@ export default function DayView({
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
-  const handleHourClick = (hour: number, minute: number) => {
+  const handleHourClick = (hour: number) => {
     const eventDate = new Date(date);
-    eventDate.setHours(hour, minute);
+    eventDate.setHours(hour, 0);
     
     if (holiday && !allowWorkOnHolidays) {
       toast({
@@ -73,57 +71,20 @@ export default function DayView({
       return;
     }
 
-    const currentTime = `${hour}:00`;
-    if (hour < startHour || hour >= endHour) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Seçilen saat çalışma saatleri dışındadır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     onDateSelect(eventDate);
   };
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
-    const [hourStr, minuteStr] = result.destination.droppableId.split(':');
-    const hour = parseInt(hourStr);
-    const minute = parseInt(minuteStr);
-
-    if (hour < startHour || hour >= endHour) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Seçilen saat çalışma saatleri dışındadır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+    const hour = parseInt(result.destination.droppableId);
     const event = events.find(e => e.id === result.draggableId);
     if (!event) return;
 
-    const duration = differenceInMinutes(event.end, event.start);
-    const newStart = setMinutes(setHours(date, hour), minute);
-    const newEnd = new Date(newStart.getTime() + duration * 60000);
-
-    // Çakışma kontrolü
-    const hasConflict = checkLessonConflict(
-      { start: newStart, end: newEnd },
-      events,
-      event.id
-    );
-
-    if (hasConflict) {
-      toast({
-        title: "Ders çakışması",
-        description: "Seçilen saatte başka bir ders bulunuyor.",
-        variant: "destructive"
-      });
-      return;
-    }
+    const newStart = new Date(date);
+    newStart.setHours(hour, 0, 0, 0);
+    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
+    const newEnd = new Date(newStart.getTime() + duration);
 
     onEventUpdate({
       ...event,
@@ -179,34 +140,27 @@ export default function DayView({
                 {`${hour.toString().padStart(2, '0')}:00`}
                 <TimeIndicator events={dayEvents} hour={hour} />
               </div>
-              <Droppable droppableId={`${hour}:0`}>
-                {(provided, snapshot) => (
-                  <div 
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={cn(
-                      "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
-                      snapshot.isDraggingOver && "bg-accent",
-                      (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
-                      "bg-muted cursor-not-allowed"
-                    )}
-                    onClick={() => handleHourClick(hour, 0)}
-                  >
-                    {dayEvents
-                      .filter(event => new Date(event.start).getHours() === hour)
-                      .map((event, index) => (
-                        <LessonCard 
-                          key={event.id} 
-                          event={event} 
-                          onClick={onEventClick}
-                          students={students}
-                          index={index}
-                        />
-                      ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
+              <DroppableCell
+                id={hour.toString()}
+                isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
+                events={events}
+                date={date}
+                hour={hour}
+                onCellClick={() => handleHourClick(hour)}
+                className="col-span-11"
+              >
+                {dayEvents
+                  .filter(event => new Date(event.start).getHours() === hour)
+                  .map((event, index) => (
+                    <LessonCard 
+                      key={event.id} 
+                      event={event} 
+                      onClick={onEventClick}
+                      students={students}
+                      index={index}
+                    />
+                  ))}
+              </DroppableCell>
             </motion.div>
           ))}
         </div>
