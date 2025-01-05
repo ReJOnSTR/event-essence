@@ -23,8 +23,8 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogTitle className="text-xl font-semibold mb-4">
+      <DialogContent className="sm:max-w-[425px] bg-background border-border">
+        <DialogTitle className="text-xl font-semibold mb-4 text-foreground">
           Hesap
         </DialogTitle>
         <Auth
@@ -34,13 +34,53 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
             variables: {
               default: {
                 colors: {
-                  brand: '#1a73e8',
-                  brandAccent: '#1557b0',
-                }
-              }
-            }
+                  brand: 'hsl(var(--primary))',
+                  brandAccent: 'hsl(var(--primary-foreground))',
+                  brandButtonText: 'hsl(var(--background))',
+                  defaultButtonBackground: 'hsl(var(--secondary))',
+                  defaultButtonBackgroundHover: 'hsl(var(--accent))',
+                  defaultButtonBorder: 'hsl(var(--border))',
+                  defaultButtonText: 'hsl(var(--foreground))',
+                  dividerBackground: 'hsl(var(--border))',
+                  inputBackground: 'hsl(var(--background))',
+                  inputBorder: 'hsl(var(--border))',
+                  inputBorderHover: 'hsl(var(--ring))',
+                  inputBorderFocus: 'hsl(var(--ring))',
+                  inputText: 'hsl(var(--foreground))',
+                  inputLabelText: 'hsl(var(--muted-foreground))',
+                  inputPlaceholder: 'hsl(var(--muted-foreground))',
+                },
+                space: {
+                  spaceSmall: '4px',
+                  spaceMedium: '8px',
+                  spaceLarge: '16px',
+                },
+                fonts: {
+                  bodyFontFamily: `var(--font-sans)`,
+                  buttonFontFamily: `var(--font-sans)`,
+                  inputFontFamily: `var(--font-sans)`,
+                  labelFontFamily: `var(--font-sans)`,
+                },
+                borderWidths: {
+                  buttonBorderWidth: '1px',
+                  inputBorderWidth: '1px',
+                },
+                radii: {
+                  borderRadiusButton: 'var(--radius)',
+                  buttonBorderRadius: 'var(--radius)',
+                  inputBorderRadius: 'var(--radius)',
+                },
+              },
+            },
+            className: {
+              container: 'w-full',
+              button: 'w-full px-4 py-2 rounded-md transition-colors',
+              label: 'text-sm font-medium',
+              input: 'w-full px-3 py-2 rounded-md border transition-colors',
+              loader: 'border-primary',
+            },
           }}
-          theme="light"
+          theme="default"
           providers={[]}
           redirectTo={window.location.origin}
           localization={{
