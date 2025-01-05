@@ -59,20 +59,16 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                   brandAccent: '#1557b0',
                 }
               }
+            },
+            style: {
+              button: {
+                borderRadius: '6px',
+              }
             }
           }}
           theme="light"
           providers={[]}
           redirectTo={window.location.origin}
-          onError={(error) => {
-            console.error('Auth error:', error);
-            toast({
-              title: "Hata",
-              description: error.message,
-              variant: "destructive",
-              duration: 3000,
-            });
-          }}
           localization={{
             variables: {
               sign_up: {
