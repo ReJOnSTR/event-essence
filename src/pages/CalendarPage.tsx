@@ -12,7 +12,6 @@ import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
 import { PageHeader } from "@/components/Layout/PageHeader";
-import AuthHeader from "@/components/Auth/AuthHeader";
 
 interface CalendarPageProps {
   headerHeight: number;
@@ -34,6 +33,14 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
+  // Student dialog state
+  const [studentDialogState, setStudentDialogState] = useState({
+    selectedStudent: undefined,
+    studentName: "",
+    studentPrice: 0,
+    studentColor: "#1a73e8"
+  });
+
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
     setSelectedLesson(undefined);
@@ -41,12 +48,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   };
 
   const handleLessonClick = (lesson: CalendarEvent) => {
-    setSelectedLesson(lesson);
-    setSelectedDate(lesson.start);
-    setIsDialogOpen(true);
-  };
-
-  const handleSearchSelect = (lesson: CalendarEvent) => {
     setSelectedLesson(lesson);
     setSelectedDate(lesson.start);
     setIsDialogOpen(true);
@@ -92,13 +93,13 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     setLessons(updatedLessons);
   };
 
+  // Save lessons to localStorage
   React.useEffect(() => {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
-      <AuthHeader lessons={lessons} onSearchSelect={handleSearchSelect} />
       <PageHeader title="Özel Ders Takip">
         <div className="flex items-center gap-1 md:gap-2">
           <WeeklySchedulePdf lessons={lessons} students={students} />
@@ -155,9 +156,55 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
 
       <StudentDialog
         isOpen={isStudentDialogOpen}
-        onClose={() => setIsStudentDialogOpen(false)}
-        onSave={saveStudent}
-        onDelete={deleteStudent}
+        onClose={() => {
+          setIsStudentDialogOpen(false);
+          setStudentDialogState({
+            selectedStudent: undefined,
+            studentName: "",
+            studentPrice: 0,
+            studentColor: "#1a73e8"
+          });
+        }}
+        onSave={() => {
+          const { selectedStudent, studentName, studentPrice, studentColor } = studentDialogState;
+          saveStudent({
+            id: selectedStudent?.id || crypto.randomUUID(),
+            name: studentName,
+            price: studentPrice,
+            color: studentColor,
+          });
+          toast({
+            title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
+            description: selectedStudent 
+              ? "Öğrenci bilgileri başarıyla güncellendi."
+              : "Yeni öğrenci başarıyla eklendi.",
+          });
+          setIsStudentDialogOpen(false);
+        }}
+        onDelete={() => {
+          const { selectedStudent } = studentDialogState;
+          if (selectedStudent) {
+            deleteStudent(selectedStudent.id);
+            const updatedLessons = lessons.map(lesson => 
+              lesson.studentId === selectedStudent.id 
+                ? { ...lesson, studentId: undefined }
+                : lesson
+            );
+            setLessons(updatedLessons);
+            toast({
+              title: "Öğrenci silindi",
+              description: "Öğrenci başarıyla silindi.",
+            });
+            setIsStudentDialogOpen(false);
+          }
+        }}
+        student={studentDialogState.selectedStudent}
+        studentName={studentDialogState.studentName}
+        setStudentName={(name) => setStudentDialogState(prev => ({ ...prev, studentName: name }))}
+        studentPrice={studentDialogState.studentPrice}
+        setStudentPrice={(price) => setStudentDialogState(prev => ({ ...prev, studentPrice: price }))}
+        studentColor={studentDialogState.studentColor}
+        setStudentColor={(color) => setStudentDialogState(prev => ({ ...prev, studentColor: color }))}
       />
     </div>
   );
