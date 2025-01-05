@@ -95,12 +95,29 @@ export default function LoginPage() {
             redirectTo={window.location.origin}
             options={{
               emailRedirectTo: window.location.origin,
-              metaData: {
-                full_name: undefined,
-                phone_number: undefined,
-                teaching_subjects: undefined,
-                years_of_experience: undefined,
-              },
+              signUpFields: {
+                full_name: {
+                  required: true,
+                  label: "Ad Soyad",
+                  placeholder: "Adınız ve soyadınız"
+                },
+                phone_number: {
+                  required: true,
+                  label: "Telefon Numarası",
+                  placeholder: "5XX XXX XX XX"
+                },
+                teaching_subjects: {
+                  required: true,
+                  label: "Verdiğiniz Dersler",
+                  placeholder: "Matematik, Fizik, vb."
+                },
+                years_of_experience: {
+                  required: true,
+                  label: "Öğretmenlik Deneyimi (Yıl)",
+                  placeholder: "Deneyim yılınız",
+                  type: "number"
+                }
+              }
             }}
             localization={{
               variables: {
@@ -113,15 +130,7 @@ export default function LoginPage() {
                   link_text: "Hesabınız yok mu? Kayıt olun",
                   confirmation_text: "Email adresinizi kontrol edin",
                   email_input_placeholder: "ornek@email.com",
-                  password_input_placeholder: "Şifrenizi girin",
-                  full_name_label: "Ad Soyad",
-                  full_name_placeholder: "Adınız ve soyadınız",
-                  phone_label: "Telefon Numarası",
-                  phone_placeholder: "5XX XXX XX XX",
-                  subjects_label: "Verdiğiniz Dersler",
-                  subjects_placeholder: "Matematik, Fizik, vb.",
-                  experience_label: "Öğretmenlik Deneyimi (Yıl)",
-                  experience_placeholder: "Deneyim yılınız",
+                  password_input_placeholder: "Şifrenizi girin"
                 },
                 sign_in: {
                   email_label: "Email Adresi",
@@ -131,7 +140,7 @@ export default function LoginPage() {
                   social_provider_text: "{{provider}} ile devam et",
                   link_text: "Zaten hesabınız var mı? Giriş yapın",
                   email_input_placeholder: "ornek@email.com",
-                  password_input_placeholder: "Şifrenizi girin",
+                  password_input_placeholder: "Şifrenizi girin"
                 }
               }
             }}
