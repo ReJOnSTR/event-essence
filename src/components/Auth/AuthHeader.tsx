@@ -19,7 +19,6 @@ import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
-import { useEffect } from "react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
