@@ -2,20 +2,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 
 export function useStudents() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const { session } = useSessionContext();
 
-  // Get students from Supabase with error handling
   const getStudents = async (): Promise<Student[]> => {
     if (!session?.user) {
-      navigate('/login');
-      return [];
+      throw new Error('Not authenticated');
     }
 
     const { data, error } = await supabase
@@ -25,49 +21,40 @@ export function useStudents() {
 
     if (error) {
       console.error('Error loading students:', error);
-      toast({
-        title: "Hata",
-        description: "Öğrenci verileri yüklenirken bir hata oluştu.",
-        variant: "destructive"
-      });
-      return [];
+      throw error;
     }
 
     return data || [];
   };
 
-  // Query for fetching students
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
     queryFn: getStudents,
     enabled: !!session?.user
   });
 
-  // Mutation for adding/updating a student
   const { mutate: saveStudent } = useMutation({
-    mutationFn: async (student: Student) => {
+    mutationFn: async (studentData: Omit<Student, 'user_id' | 'created_at' | 'updated_at'>) => {
       if (!session?.user) {
-        throw new Error('User not authenticated');
+        throw new Error('Not authenticated');
       }
 
-      const studentData = {
-        ...student,
-        user_id: session.user.id
+      const student = {
+        ...studentData,
+        user_id: session.user.id,
       };
 
       if (student.id) {
-        // Update existing student
         const { error } = await supabase
           .from('students')
-          .update(studentData)
+          .update(student)
           .eq('id', student.id);
 
         if (error) throw error;
       } else {
-        // Insert new student
         const { error } = await supabase
           .from('students')
-          .insert([studentData]);
+          .insert([student]);
 
         if (error) throw error;
       }
@@ -91,11 +78,10 @@ export function useStudents() {
     }
   });
 
-  // Mutation for deleting a student
   const { mutate: deleteStudent } = useMutation({
     mutationFn: async (studentId: string) => {
       if (!session?.user) {
-        throw new Error('User not authenticated');
+        throw new Error('Not authenticated');
       }
 
       const { error } = await supabase
