@@ -23,36 +23,13 @@ export default function SideMenu() {
   };
 
   const handleStudentClick = (student: Student) => {
-    try {
-      const event = new CustomEvent('editStudent', { 
-        detail: student,
-        bubbles: true,
-        cancelable: true 
-      });
-      document.dispatchEvent(event);
-    } catch (error) {
-      toast({
-        title: "Hata",
-        description: "Öğrenci düzenleme işlemi başlatılamadı.",
-        variant: "destructive"
-      });
-    }
+    // Öğrenci düzenleme modalını açmak için bir event yayınlayalım
+    window.dispatchEvent(new CustomEvent('editStudent', { detail: student }));
   };
 
   const handleAddStudent = () => {
-    try {
-      const event = new CustomEvent('addStudent', {
-        bubbles: true,
-        cancelable: true
-      });
-      document.dispatchEvent(event);
-    } catch (error) {
-      toast({
-        title: "Hata",
-        description: "Öğrenci ekleme işlemi başlatılamadı.",
-        variant: "destructive"
-      });
-    }
+    // Yeni öğrenci ekleme modalını açmak için bir event yayınlayalım
+    window.dispatchEvent(new CustomEvent('addStudent'));
   };
 
   const menuItems = [
