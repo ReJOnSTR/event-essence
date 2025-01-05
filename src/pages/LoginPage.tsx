@@ -24,7 +24,7 @@ export default function LoginPage() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4">
           <div className="flex items-center justify-center space-x-2">
@@ -98,11 +98,13 @@ export default function LoginPage() {
                 sign_up: {
                   email_label: "Email Adresi",
                   password_label: "Şifre",
-                  button_label: "Hesap Oluştur",
-                  loading_button_label: "Hesap oluşturuluyor...",
+                  button_label: "Kayıt Ol",
+                  loading_button_label: "Kayıt olunuyor...",
                   social_provider_text: "{{provider}} ile devam et",
-                  link_text: "Hesabınız yok mu? Hemen oluşturun",
-                  confirmation_text: "Email adresinizi kontrol edin"
+                  link_text: "Hesabınız yok mu? Kayıt olun",
+                  confirmation_text: "Email adresinizi kontrol edin",
+                  email_input_placeholder: "ornek@email.com",
+                  password_input_placeholder: "Şifrenizi girin",
                 },
                 sign_in: {
                   email_label: "Email Adresi",
@@ -110,7 +112,9 @@ export default function LoginPage() {
                   button_label: "Giriş Yap",
                   loading_button_label: "Giriş yapılıyor...",
                   social_provider_text: "{{provider}} ile devam et",
-                  link_text: "Zaten hesabınız var mı? Giriş yapın"
+                  link_text: "Zaten hesabınız var mı? Giriş yapın",
+                  email_input_placeholder: "ornek@email.com",
+                  password_input_placeholder: "Şifrenizi girin",
                 }
               }
             }}
