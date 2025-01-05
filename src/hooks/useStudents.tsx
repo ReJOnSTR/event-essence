@@ -3,18 +3,21 @@ import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
+import { useNavigate } from "react-router-dom";
 
 export function useStudents() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const session = useSession();
+  const navigate = useNavigate();
 
   // Query for fetching students
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
     queryFn: async () => {
       if (!session?.user) {
-        console.log('No session found, returning empty array');
+        console.log('No session found, redirecting to login');
+        navigate('/login');
         return [];
       }
       
@@ -43,6 +46,7 @@ export function useStudents() {
     mutationFn: async (student: Student) => {
       if (!session?.user) {
         console.error('No session found');
+        navigate('/login');
         throw new Error('Not authenticated');
       }
 

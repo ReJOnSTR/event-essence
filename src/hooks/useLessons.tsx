@@ -3,17 +3,23 @@ import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
+import { useNavigate } from "react-router-dom";
 
 export function useLessons() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const session = useSession();
+  const navigate = useNavigate();
 
   // Query for fetching lessons
   const { data: lessons = [], isLoading, error } = useQuery({
     queryKey: ['lessons'],
     queryFn: async () => {
-      if (!session?.user) return [];
+      if (!session?.user) {
+        console.log('No session found, redirecting to login');
+        navigate('/login');
+        return [];
+      }
 
       const { data, error } = await supabase
         .from('lessons')
@@ -46,7 +52,11 @@ export function useLessons() {
   // Mutation for adding/updating a lesson
   const { mutate: saveLesson } = useMutation({
     mutationFn: async (lesson: Lesson) => {
-      if (!session?.user) throw new Error('Not authenticated');
+      if (!session?.user) {
+        console.error('No session found');
+        navigate('/login');
+        throw new Error('Not authenticated');
+      }
 
       const lessonData = {
         title: lesson.title,
