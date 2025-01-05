@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -24,6 +25,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import LoginPage from "./pages/LoginPage";
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const pageVariants = {
   initial: {
@@ -167,46 +178,48 @@ const App = () => {
   };
 
   return (
-    <SessionContextProvider supabaseClient={supabase}>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <TooltipProvider>
-          <SidebarProvider defaultOpen={true}>
-            <BrowserRouter>
-              <div className="min-h-screen flex w-full overflow-hidden bg-background">
-                <Sidebar>
-                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                    <SideMenu searchTerm={searchTerm} />
-                  </SidebarContent>
-                  <SidebarRail />
-                </Sidebar>
-                <div className="flex-1 flex flex-col">
-                  <AuthHeader 
-                    onHeightChange={setHeaderHeight} 
-                    onSearchChange={setSearchTerm}
-                  />
-                  <AnimatedRoutes headerHeight={headerHeight} />
+    <QueryClientProvider client={queryClient}>
+      <SessionContextProvider supabaseClient={supabase}>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+          <TooltipProvider>
+            <SidebarProvider defaultOpen={true}>
+              <BrowserRouter>
+                <div className="min-h-screen flex w-full overflow-hidden bg-background">
+                  <Sidebar>
+                    <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                      <SideMenu searchTerm={searchTerm} />
+                    </SidebarContent>
+                    <SidebarRail />
+                  </Sidebar>
+                  <div className="flex-1 flex flex-col">
+                    <AuthHeader 
+                      onHeightChange={setHeaderHeight} 
+                      onSearchChange={setSearchTerm}
+                    />
+                    <AnimatedRoutes headerHeight={headerHeight} />
+                  </div>
                 </div>
-              </div>
-            </BrowserRouter>
-          </SidebarProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-      <StudentDialog
-        isOpen={isDialogOpen}
-        onClose={closeDialog}
-        onSave={handleSaveStudent}
-        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
-        student={selectedStudent}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        studentPrice={studentPrice}
-        setStudentPrice={setStudentPrice}
-        studentColor={studentColor}
-        setStudentColor={setStudentColor}
-      />
-      <Toaster />
-      <Sonner />
-    </SessionContextProvider>
+              </BrowserRouter>
+            </SidebarProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+        <StudentDialog
+          isOpen={isDialogOpen}
+          onClose={closeDialog}
+          onSave={handleSaveStudent}
+          onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+          student={selectedStudent}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
+        />
+        <Toaster />
+        <Sonner />
+      </SessionContextProvider>
+    </QueryClientProvider>
   );
 };
 
