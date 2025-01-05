@@ -3,7 +3,7 @@ import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarEvent, Student } from "@/types/calendar";
+import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
@@ -15,6 +15,7 @@ import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavi
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { useNavigate } from "react-router-dom";
+import { useStudentDialog } from "@/features/students/hooks/useStudentDialog";
 import {
   Dialog,
   DialogContent,
@@ -30,18 +31,17 @@ interface CalendarPageProps {
 export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = React.useState(false);
-  const [isStudentDialogOpen, setIsStudentDialogOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
-  const [selectedStudent, setSelectedStudent] = React.useState<Student | undefined>();
   
   const { currentView, setCurrentView } = useCalendarStore();
-  const { students, saveStudent, deleteStudent } = useStudents();
+  const { students } = useStudents();
   const { lessons, saveLesson, deleteLesson } = useLessons();
   const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
   const { session } = useSessionContext();
   const navigate = useNavigate();
+  const studentDialog = useStudentDialog();
 
   const handleDateSelect = (date: Date) => {
     if (!session) {
@@ -89,28 +89,10 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
 
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
     if (!session) {
-      toast({
-        title: "Giriş Gerekli",
-        description: "Dersleri düzenlemek için lütfen giriş yapın.",
-        variant: "destructive"
-      });
+      setIsLoginDialogOpen(true);
       return;
     }
     saveLesson(updatedEvent);
-  };
-
-  const handleSaveStudent = (student: Student) => {
-    saveStudent(student);
-    setIsStudentDialogOpen(false);
-    setSelectedStudent(undefined);
-  };
-
-  const handleDeleteStudent = () => {
-    if (selectedStudent) {
-      deleteStudent(selectedStudent.id);
-      setIsStudentDialogOpen(false);
-      setSelectedStudent(undefined);
-    }
   };
 
   return (
@@ -180,13 +162,17 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
           />
 
           <StudentDialog
-            isOpen={isStudentDialogOpen}
-            onClose={() => {
-              setIsStudentDialogOpen(false);
-              setSelectedStudent(undefined);
-            }}
-            onSave={handleSaveStudent}
-            onDelete={handleDeleteStudent}
+            isOpen={studentDialog.isOpen}
+            onClose={studentDialog.handleClose}
+            onSave={studentDialog.handleSave}
+            onDelete={studentDialog.handleDelete}
+            student={studentDialog.selectedStudent}
+            studentName={studentDialog.studentName}
+            setStudentName={studentDialog.setStudentName}
+            studentPrice={studentDialog.studentPrice}
+            setStudentPrice={studentDialog.setStudentPrice}
+            studentColor={studentDialog.studentColor}
+            setStudentColor={studentDialog.setStudentColor}
           />
         </>
       )}
