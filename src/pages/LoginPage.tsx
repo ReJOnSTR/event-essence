@@ -18,11 +18,11 @@ export default function LoginPage() {
 
   // Set up auth state change listener
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
         navigate('/');
       }
-      if (event === 'SIGNED_UP' && !session) {
+      if (event === 'USER_ALREADY_EXISTS') {
         toast.error('Bu email adresi zaten kayıtlı. Lütfen giriş yapın.');
       }
     });
