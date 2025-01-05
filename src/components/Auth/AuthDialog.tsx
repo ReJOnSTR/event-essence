@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { useSessionContext } from "@supabase/auth-helpers-react";
+import { AuthChangeEvent } from "@supabase/supabase-js";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -26,14 +27,14 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     }
 
     // Auth state değişikliklerini dinle
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "user_deleted") {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
+      if (event === "USER_DELETED") {
         toast({
           title: "Hata",
           description: "Kullanıcı hesabı bulunamadı.",
           variant: "destructive",
         });
-      } else if (event === "password_recovery") {
+      } else if (event === "PASSWORD_RECOVERY") {
         toast({
           title: "Bilgi",
           description: "Şifre sıfırlama bağlantısı gönderildi.",
@@ -90,17 +91,6 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 password_input_placeholder: "Şifreniz"
               }
             }
-          }}
-          onError={(error) => {
-            console.error('Auth error:', error);
-            toast({
-              title: "Hata",
-              description: error.message === "Invalid login credentials" 
-                ? "Geçersiz email veya şifre" 
-                : "Bir hata oluştu. Lütfen tekrar deneyin.",
-              variant: "destructive",
-              duration: 3000,
-            });
           }}
         />
       </DialogContent>
