@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { ThemeProvider } from "@/components/theme-provider";
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -18,7 +19,15 @@ import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { useEffect, useState } from "react";
 
-const queryClient = new QueryClient();
+// Create a single QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 const pageVariants = {
   initial: {
@@ -44,11 +53,6 @@ const pageTransition = {
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
   
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }, []);
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -81,24 +85,26 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <SidebarProvider defaultOpen={true}>
-          <BrowserRouter>
-            <div className="min-h-screen flex w-full overflow-hidden bg-background">
-              <Sidebar>
-                <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                  <SideMenu />
-                </SidebarContent>
-                <SidebarRail />
-              </Sidebar>
-              <div className="flex-1 flex flex-col">
-                <AuthHeader onHeightChange={setHeaderHeight} />
-                <AnimatedRoutes headerHeight={headerHeight} />
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <SidebarProvider defaultOpen={true}>
+            <BrowserRouter>
+              <div className="min-h-screen flex w-full overflow-hidden bg-background">
+                <Sidebar>
+                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                    <SideMenu />
+                  </SidebarContent>
+                  <SidebarRail />
+                </Sidebar>
+                <div className="flex-1 flex flex-col">
+                  <AuthHeader onHeightChange={setHeaderHeight} />
+                  <AnimatedRoutes headerHeight={headerHeight} />
+                </div>
               </div>
-            </div>
-          </BrowserRouter>
-        </SidebarProvider>
-      </TooltipProvider>
+            </BrowserRouter>
+          </SidebarProvider>
+        </TooltipProvider>
+      </ThemeProvider>
       <Toaster />
       <Sonner />
     </QueryClientProvider>
