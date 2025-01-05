@@ -5,6 +5,8 @@ import { LessonList } from "@/components/Reports/LessonList";
 import { PdfReport } from "@/components/Reports/PdfReport";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
+import { Student } from "@/types/calendar";
+import StudentDialog from "@/components/Students/StudentDialog";
 import { PageHeader } from "@/components/Layout/PageHeader";
 
 export default function ReportsPage() {
@@ -14,8 +16,26 @@ export default function ReportsPage() {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [studentName, setStudentName] = useState("");
+  const [studentPrice, setStudentPrice] = useState(0);
+  const [studentColor, setStudentColor] = useState<string>("#000000");
+  
   const { students = [] } = useStudents();
   const { lessons = [] } = useLessons();
+
+  const handleEditStudent = (student: Student) => {
+    setEditingStudent(student);
+    setStudentName(student.name);
+    setStudentPrice(student.price);
+    setStudentColor(student.color || "#000000");
+    setIsDialogOpen(true);
+  };
+
+  const handleSaveStudent = () => {
+    setIsDialogOpen(false);
+  };
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -65,6 +85,19 @@ export default function ReportsPage() {
           endDate={endDate}
         />
       </div>
+
+      <StudentDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSave={handleSaveStudent}
+        student={editingStudent || undefined}
+        studentName={studentName}
+        setStudentName={setStudentName}
+        studentPrice={studentPrice}
+        setStudentPrice={setStudentPrice}
+        studentColor={studentColor}
+        setStudentColor={setStudentColor}
+      />
     </div>
   );
 }
