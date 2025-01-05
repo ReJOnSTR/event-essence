@@ -10,6 +10,8 @@ import {
   SidebarContent,
   SidebarRail
 } from "@/components/ui/sidebar";
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { supabase } from "@/integrations/supabase/client";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
 import CalendarPage from "./pages/CalendarPage";
@@ -101,28 +103,30 @@ const App = () => {
   };
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <SidebarProvider defaultOpen={true}>
-          <BrowserRouter>
-            <div className="min-h-screen flex w-full overflow-hidden bg-background">
-              <Sidebar>
-                <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                  <SideMenu searchTerm={searchTerm} />
-                </SidebarContent>
-                <SidebarRail />
-              </Sidebar>
-              <div className="flex-1 flex flex-col">
-                <AuthHeader 
-                  onHeightChange={setHeaderHeight} 
-                  onSearchChange={setSearchTerm}
-                />
-                <AnimatedRoutes headerHeight={headerHeight} />
+    <SessionContextProvider supabaseClient={supabase}>
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <SidebarProvider defaultOpen={true}>
+            <BrowserRouter>
+              <div className="min-h-screen flex w-full overflow-hidden bg-background">
+                <Sidebar>
+                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                    <SideMenu searchTerm={searchTerm} />
+                  </SidebarContent>
+                  <SidebarRail />
+                </Sidebar>
+                <div className="flex-1 flex flex-col">
+                  <AuthHeader 
+                    onHeightChange={setHeaderHeight} 
+                    onSearchChange={setSearchTerm}
+                  />
+                  <AnimatedRoutes headerHeight={headerHeight} />
+                </div>
               </div>
-            </div>
-          </BrowserRouter>
-        </SidebarProvider>
-      </TooltipProvider>
+            </BrowserRouter>
+          </SidebarProvider>
+        </TooltipProvider>
+      </ThemeProvider>
       <StudentDialog
         isOpen={isDialogOpen}
         onClose={closeDialog}
@@ -138,7 +142,7 @@ const App = () => {
       />
       <Toaster />
       <Sonner />
-    </ThemeProvider>
+    </SessionContextProvider>
   );
 };
 

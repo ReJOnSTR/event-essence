@@ -10,17 +10,16 @@ import {
 import { 
   Bell, 
   User,
-  LogIn,
-  UserPlus,
+  LogOut,
   Settings,
   HelpCircle,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { format, isFuture, compareAsc } from "date-fns";
-import { tr } from "date-fns/locale";
-import { CalendarEvent, Student } from "@/types/calendar";
 import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
+import { supabase } from "@/integrations/supabase/client";
+import { AuthDialog } from "./AuthDialog";
+import { useToast } from "../ui/use-toast";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -33,9 +32,19 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const [user, setUser] = useState(supabase.auth.getSession());
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     onHeightChange?.(64);
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
@@ -43,6 +52,23 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     onSearchChange(value);
     if (value) {
       setOpen(true);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Başarıyla çıkış yapıldı",
+        duration: 2000,
+      });
+      navigate("/calendar");
+    } catch (error) {
+      toast({
+        title: "Çıkış yapılırken bir hata oluştu",
+        variant: "destructive",
+        duration: 2000,
+      });
     }
   };
 
@@ -98,14 +124,22 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem className="gap-2">
-                <LogIn className="h-4 w-4" />
-                <span>Giriş Yap</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2">
-                <UserPlus className="h-4 w-4" />
-                <span>Kayıt Ol</span>
-              </DropdownMenuItem>
+              {user ? (
+                <>
+                  <DropdownMenuItem className="gap-2" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4" />
+                    <span>Çıkış Yap</span>
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem 
+                  className="gap-2"
+                  onClick={() => setIsAuthDialogOpen(true)}
+                >
+                  <User className="h-4 w-4" />
+                  <span>Giriş Yap</span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2">
                 <HelpCircle className="h-4 w-4" />
@@ -115,6 +149,11 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           </DropdownMenu>
         </div>
       </div>
+
+      <AuthDialog 
+        isOpen={isAuthDialogOpen}
+        onClose={() => setIsAuthDialogOpen(false)}
+      />
     </div>
   );
 }
