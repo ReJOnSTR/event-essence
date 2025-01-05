@@ -26,14 +26,14 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     }
 
     // Auth state değişikliklerini dinle
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'USER_DELETED') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "user_deleted") {
         toast({
           title: "Hata",
           description: "Kullanıcı hesabı bulunamadı.",
           variant: "destructive",
         });
-      } else if (event === 'PASSWORD_RECOVERY') {
+      } else if (event === "password_recovery") {
         toast({
           title: "Bilgi",
           description: "Şifre sıfırlama bağlantısı gönderildi.",
@@ -87,9 +87,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 social_provider_text: "{{provider}} ile devam et",
                 link_text: "Zaten hesabınız var mı? Giriş yapın",
                 email_input_placeholder: "Email adresiniz",
-                password_input_placeholder: "Şifreniz",
-                error_message_for_email_input: "Geçerli bir email adresi giriniz",
-                error_message_for_password_input: "Şifrenizi giriniz"
+                password_input_placeholder: "Şifreniz"
               }
             }
           }}
