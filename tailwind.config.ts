@@ -19,26 +19,26 @@ export default {
     },
     extend: {
       colors: {
-        // Google Calendar renkleri
+        // Google Calendar renkleri - Material Design'a uygun
         "calendar-blue": {
-          DEFAULT: "#1a73e8",
-          dark: "#364c5b" // Karanlık temada istenen renk
+          DEFAULT: "#1a73e8", // Google Blue 600
+          dark: "#4285f4"    // Google Blue 500
         },
         "calendar-hover": {
-          DEFAULT: "#1557b0",
-          dark: "#3b82f6"
+          DEFAULT: "#1557b0", // Google Blue 700
+          dark: "#1a73e8"    // Google Blue 600
         },
         "calendar-gray": {
-          DEFAULT: "#70757a",
-          dark: "#9ca3af"
+          DEFAULT: "#5f6368", // Google Gray 600
+          dark: "#9aa0a6"    // Google Gray 500
         },
         "calendar-border": {
-          DEFAULT: "#dadce0",
-          dark: "#374151"
+          DEFAULT: "#dadce0", // Google Gray 200
+          dark: "#3c4043"    // Google Gray 800
         },
         "calendar-event": {
-          DEFAULT: "#039be5",
-          dark: "#38bdf8"
+          DEFAULT: "#1a73e8", // Google Blue 600
+          dark: "#4285f4"    // Google Blue 500
         },
         // Diğer renkler
         border: "hsl(var(--border))",
