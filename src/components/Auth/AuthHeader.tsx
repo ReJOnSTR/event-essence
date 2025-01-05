@@ -18,7 +18,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
-import { AuthDialog } from "./AuthDialog";
 import { useToast } from "../ui/use-toast";
 import { Session } from "@supabase/supabase-js";
 
@@ -33,7 +32,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -41,12 +39,10 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   useEffect(() => {
     onHeightChange?.(64);
 
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
@@ -69,7 +65,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         title: "Başarıyla çıkış yapıldı",
         duration: 2000,
       });
-      navigate("/calendar");
+      navigate("/login");
     } catch (error) {
       toast({
         title: "Çıkış yapılırken bir hata oluştu",
@@ -98,69 +94,65 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         </div>
 
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            {notifications > 0 && (
-              <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">
-                {notifications}
-              </span>
-            )}
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
+          {session ? (
+            <>
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                {notifications > 0 && (
+                  <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">
+                    {notifications}
+                  </span>
+                )}
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <Link to="/settings" className="w-full">
-                <DropdownMenuItem>
-                  <Settings className="h-4 w-4 mr-2" />
-                  <span>Ayarlar</span>
-                </DropdownMenuItem>
-              </Link>
-            </DropdownMenuContent>
-          </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Hesap</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {session ? (
-                <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <Link to="/settings" className="w-full">
+                    <DropdownMenuItem>
+                      <Settings className="h-4 w-4 mr-2" />
+                      <span>Ayarlar</span>
+                    </DropdownMenuItem>
+                  </Link>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">Hesap</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem className="gap-2" onClick={handleLogout}>
                     <LogOut className="h-4 w-4" />
                     <span>Çıkış Yap</span>
                   </DropdownMenuItem>
-                </>
-              ) : (
-                <DropdownMenuItem 
-                  className="gap-2"
-                  onClick={() => setIsAuthDialogOpen(true)}
-                >
-                  <User className="h-4 w-4" />
-                  <span>Giriş Yap</span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="gap-2">
-                <HelpCircle className="h-4 w-4" />
-                <span>Yardım</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="gap-2">
+                    <HelpCircle className="h-4 w-4" />
+                    <span>Yardım</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <Button 
+              variant="default" 
+              onClick={() => navigate("/login")}
+              className="gap-2"
+            >
+              <User className="h-4 w-4" />
+              <span>Giriş Yap</span>
+            </Button>
+          )}
         </div>
       </div>
-
-      <AuthDialog 
-        isOpen={isAuthDialogOpen}
-        onClose={() => setIsAuthDialogOpen(false)}
-      />
     </div>
   );
 }
