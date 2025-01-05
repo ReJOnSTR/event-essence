@@ -13,7 +13,10 @@ export function useStudents() {
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students'],
     queryFn: async () => {
-      if (!session?.user) return [];
+      if (!session?.user) {
+        console.log('No session found, returning empty array');
+        return [];
+      }
       
       const { data, error } = await supabase
         .from('students')
@@ -38,7 +41,10 @@ export function useStudents() {
   // Mutation for adding/updating a student
   const { mutate: saveStudent } = useMutation({
     mutationFn: async (student: Student) => {
-      if (!session?.user) throw new Error('Not authenticated');
+      if (!session?.user) {
+        console.error('No session found');
+        throw new Error('Not authenticated');
+      }
 
       const studentData = {
         ...student,
@@ -59,17 +65,28 @@ export function useStudents() {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating student:', error);
+          throw error;
+        }
         return data;
       } else {
         // Insert new student
         const { data, error } = await supabase
           .from('students')
-          .insert([studentData])
+          .insert([{
+            name: studentData.name,
+            price: studentData.price,
+            color: studentData.color,
+            user_id: session.user.id
+          }])
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error inserting student:', error);
+          throw error;
+        }
         return data;
       }
     },
