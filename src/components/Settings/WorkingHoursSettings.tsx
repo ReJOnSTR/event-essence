@@ -42,6 +42,10 @@ export default function WorkingHoursSettings() {
     };
     setWorkingHoursState(newHours);
     setWorkingHours(newHours);
+
+    // Update localStorage to ensure calendar views use the new settings
+    localStorage.setItem('workingHours', JSON.stringify(newHours));
+    
     toast({
       title: "Ayarlar güncellendi",
       description: "Çalışma saatleri başarıyla kaydedildi.",
@@ -55,6 +59,10 @@ export default function WorkingHoursSettings() {
     };
     setWorkingHoursState(newHours);
     setWorkingHours(newHours);
+    
+    // Update localStorage to ensure calendar views use the new settings
+    localStorage.setItem('workingHours', JSON.stringify(newHours));
+    
     toast({
       title: "Gün sıfırlandı",
       description: `${DAYS[day]} günü varsayılan ayarlara döndürüldü.`,
@@ -73,6 +81,10 @@ export default function WorkingHoursSettings() {
     };
     setWorkingHoursState(defaultHours);
     setWorkingHours(defaultHours);
+    
+    // Update localStorage to ensure calendar views use the new settings
+    localStorage.setItem('workingHours', JSON.stringify(defaultHours));
+    
     toast({
       title: "Tüm günler sıfırlandı",
       description: "Çalışma saatleri varsayılan ayarlara döndürüldü.",
