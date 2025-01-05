@@ -15,56 +15,63 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <SidebarProvider defaultOpen={true}>
-          <div className="min-h-screen flex w-full">
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/"
-                element={
-                  <AppLayout>
-                    <CalendarPage />
-                  </AppLayout>
-                }
-              />
-              <Route
-                path="/calendar"
-                element={
-                  <AppLayout>
-                    <CalendarPage />
-                  </AppLayout>
-                }
-              />
-              <Route
-                path="/students"
-                element={
-                  <AppLayout>
-                    <StudentsManagementPage />
-                  </AppLayout>
-                }
-              />
-              <Route
-                path="/reports"
-                element={
-                  <AppLayout>
-                    <ReportsPage />
-                  </AppLayout>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <AppLayout>
-                    <SettingsPage />
-                  </AppLayout>
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </div>
-          <Toaster />
-          <SonnerToaster position="bottom-right" />
-        </SidebarProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/*"
+            element={
+              <SidebarProvider defaultOpen={true}>
+                <div className="min-h-screen flex w-full">
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <AppLayout>
+                          <CalendarPage />
+                        </AppLayout>
+                      }
+                    />
+                    <Route
+                      path="/calendar"
+                      element={
+                        <AppLayout>
+                          <CalendarPage />
+                        </AppLayout>
+                      }
+                    />
+                    <Route
+                      path="/students"
+                      element={
+                        <AppLayout>
+                          <StudentsManagementPage />
+                        </AppLayout>
+                      }
+                    />
+                    <Route
+                      path="/reports"
+                      element={
+                        <AppLayout>
+                          <ReportsPage />
+                        </AppLayout>
+                      }
+                    />
+                    <Route
+                      path="/settings"
+                      element={
+                        <AppLayout>
+                          <SettingsPage />
+                        </AppLayout>
+                      }
+                    />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </div>
+                <Toaster />
+                <SonnerToaster position="bottom-right" />
+              </SidebarProvider>
+            }
+          />
+        </Routes>
       </ThemeProvider>
     </BrowserRouter>
   );

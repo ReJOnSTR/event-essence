@@ -16,10 +16,10 @@ import { useCalendarDialog } from "@/features/calendar/hooks/useCalendarDialog";
 import { useSession } from "@supabase/auth-helpers-react";
 
 interface CalendarPageProps {
-  headerHeight: number;
+  headerHeight?: number; // Made optional with ?
 }
 
-export default function CalendarPage({ headerHeight }: CalendarPageProps) {
+export default function CalendarPage({ headerHeight = 0 }: CalendarPageProps) { // Added default value
   const { currentView, setCurrentView } = useCalendarStore();
   const { students, saveStudent } = useStudents();
   const [selectedDate, setSelectedDate] = useState(new Date());
