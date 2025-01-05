@@ -1,167 +1,120 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual, addMinutes } from "date-fns";
-import { Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { getDefaultLessonDuration } from "@/utils/settings";
-import { motion, AnimatePresence } from "framer-motion";
-import { getWorkingHours } from "@/utils/workingHours";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import LessonTimeInputs from "./LessonTimeInputs";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import { format, differenceInMinutes } from "date-fns";
+import { tr } from 'date-fns/locale';
+import { useToast } from "@/components/ui/use-toast";
+import { getDefaultLessonDuration } from "@/utils/settings";
+import { checkLessonConflict } from "@/utils/lessonConflict";
+import { TimePicker } from "./TimePicker";
 
 interface LessonDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (lesson: Omit<Lesson, "id">) => void;
+  onSave: (lesson: Omit<CalendarEvent, "id">) => void;
   onDelete?: (lessonId: string) => void;
   selectedDate: Date;
-  event?: Lesson;
-  events: Lesson[];
-  students: Student[];
+  event?: CalendarEvent;
+  events: CalendarEvent[];
+  students?: Student[];
 }
 
 export default function LessonDialog({ 
   isOpen, 
   onClose, 
   onSave, 
-  onDelete,
-  selectedDate,
+  onDelete, 
+  selectedDate, 
   event,
   events,
-  students
+  students 
 }: LessonDialogProps) {
-  const [description, setDescription] = useState("");
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("10:00");
-  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const { toast } = useToast();
+  const [startTime, setStartTime] = useState(selectedDate);
+  const [endTime, setEndTime] = useState(() => {
+    const end = new Date(selectedDate);
+    end.setMinutes(end.getMinutes() + getDefaultLessonDuration());
+    return end;
+  });
+  const [selectedStudent, setSelectedStudent] = useState<string | undefined>(event?.studentId);
 
-  useEffect(() => {
-    if (isOpen) {
-      if (event) {
-        setDescription(event.description || "");
-        setStartTime(format(event.start, "HH:mm"));
-        setEndTime(format(event.end, "HH:mm"));
-        setSelectedStudentId(event.studentId || "");
-      } else {
-        const workingHours = getWorkingHours();
-        const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
-        const daySettings = workingHours[dayOfWeek];
-
-        let initialStartTime;
-        if (daySettings?.enabled) {
-          const [startHour] = daySettings.start.split(':');
-          const currentHours = selectedDate.getHours();
-          const currentMinutes = selectedDate.getMinutes();
-
-          // If current time is before working hours, use working hours start time
-          if (currentHours < parseInt(startHour)) {
-            initialStartTime = daySettings.start;
-          } else {
-            // Use current time
-            initialStartTime = `${currentHours.toString().padStart(2, '0')}:${currentMinutes.toString().padStart(2, '0')}`;
-          }
-        } else {
-          // Default to 09:00 if no working hours set
-          initialStartTime = "09:00";
-        }
-
-        setStartTime(initialStartTime);
-        
-        // Calculate end time based on start time and default duration
-        const [hours, minutes] = initialStartTime.split(':').map(Number);
-        const startDate = new Date(selectedDate);
-        startDate.setHours(hours, minutes, 0, 0);
-        
-        const defaultDuration = getDefaultLessonDuration();
-        const endDate = addMinutes(startDate, defaultDuration);
-        
-        setEndTime(format(endDate, 'HH:mm'));
-        setDescription("");
-        setSelectedStudentId("");
-      }
-    }
-  }, [isOpen, selectedDate, event]);
-
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    if (value.length <= 100) {
-      setDescription(value);
-    } else {
-      toast({
-        title: "Karakter Sınırı",
-        description: "Açıklama en fazla 100 karakter olabilir.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const checkLessonOverlap = (start: Date, end: Date) => {
-    return events.some(existingEvent => {
-      if (event && existingEvent.id === event.id) return false;
-      
-      if (isEqual(start, existingEvent.end) || isEqual(end, existingEvent.start)) {
-        return false;
-      }
-
-      return (
-        isWithinInterval(start, { start: existingEvent.start, end: existingEvent.end }) ||
-        isWithinInterval(end, { start: existingEvent.start, end: existingEvent.end }) ||
-        isWithinInterval(existingEvent.start, { start, end }) ||
-        isWithinInterval(existingEvent.end, { start, end })
-      );
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedStudentId) {
+  const validateForm = () => {
+    if (!selectedStudent) {
       toast({
         title: "Öğrenci Seçilmedi",
         description: "Lütfen bir öğrenci seçin.",
         variant: "destructive"
       });
-      return;
+      return false;
     }
 
-    const [startHours, startMinutes] = startTime.split(":").map(Number);
-    const [endHours, endMinutes] = endTime.split(":").map(Number);
-    
-    const start = new Date(selectedDate);
-    start.setHours(startHours, startMinutes);
-    
-    const end = new Date(selectedDate);
-    end.setHours(endHours, endMinutes);
-
-    if (checkLessonOverlap(start, end)) {
+    if (startTime >= endTime) {
       toast({
-        title: "Zaman Çakışması",
-        description: "Bu zaman aralığında başka bir ders bulunuyor.",
+        title: "Geçersiz Zaman Aralığı",
+        description: "Ders bitiş saati başlangıç saatinden sonra olmalıdır.",
         variant: "destructive"
       });
-      return;
+      return false;
     }
-    
-    const student = students.find(s => s.id === selectedStudentId);
-    
+
+    const duration = differenceInMinutes(endTime, startTime);
+    if (duration < 30) {
+      toast({
+        title: "Geçersiz Ders Süresi",
+        description: "Ders süresi en az 30 dakika olmalıdır.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (duration > 240) {
+      toast({
+        title: "Geçersiz Ders Süresi",
+        description: "Ders süresi en fazla 4 saat olabilir.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    const hasConflict = checkLessonConflict(
+      { start: startTime, end: endTime },
+      events,
+      event?.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders Çakışması",
+        description: "Seçilen zaman aralığında başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSave = () => {
+    if (!validateForm()) return;
+
     onSave({
-      title: student ? `${student.name} Dersi` : "Ders",
-      description,
-      start,
-      end,
-      studentId: selectedStudentId,
+      title: students?.find(s => s.id === selectedStudent)?.name || "İsimsiz Ders",
+      start: startTime,
+      end: endTime,
+      studentId: selectedStudent,
     });
-    
+
     onClose();
   };
 
@@ -174,111 +127,66 @@ export default function LessonDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <DialogHeader>
-            <DialogTitle>{event ? "Dersi Düzenle" : "Ders Ekle"}</DialogTitle>
-            <DialogDescription>
-              Ders detaylarını buradan düzenleyebilirsiniz.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className="space-y-2"
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {event ? "Dersi Düzenle" : "Yeni Ders"}
+          </DialogTitle>
+          <DialogDescription>
+            {format(selectedDate, "d MMMM yyyy, EEEE", { locale: tr })}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="student">Öğrenci</Label>
+            <Select
+              value={selectedStudent}
+              onValueChange={setSelectedStudent}
             >
-              <label className="text-sm font-medium">Öğrenci</label>
-              <Select
-                value={selectedStudentId}
-                onValueChange={setSelectedStudentId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Öğrenci seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  <AnimatePresence>
-                    {students.map((student, index) => (
-                      <motion.div
-                        key={student.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <SelectItem value={student.id}>
-                          {student.name}
-                        </SelectItem>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </SelectContent>
-              </Select>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-2"
+              <SelectTrigger>
+                <SelectValue placeholder="Öğrenci seçin" />
+              </SelectTrigger>
+              <SelectContent>
+                {students?.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Başlangıç Saati</Label>
+            <TimePicker date={startTime} onChange={setStartTime} />
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Bitiş Saati</Label>
+            <TimePicker date={endTime} onChange={setEndTime} />
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2">
+          {event && onDelete && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleDelete}
+              className="absolute left-4 text-destructive hover:text-destructive hover:bg-destructive/10"
             >
-              <label className="text-sm font-medium">Açıklama</label>
-              <Textarea
-                value={description}
-                onChange={handleDescriptionChange}
-                placeholder="Ders açıklaması"
-                maxLength={500}
-              />
-              <div className="text-xs text-muted-foreground">
-                {description.length}/100 karakter
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <LessonTimeInputs
-                startTime={startTime}
-                endTime={endTime}
-                selectedDate={selectedDate}
-                onStartTimeChange={setStartTime}
-                onEndTimeChange={setEndTime}
-              />
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="flex justify-between"
-            >
-              {event && onDelete && (
-                <Button 
-                  type="button" 
-                  variant="destructive" 
-                  onClick={handleDelete}
-                  className="flex items-center gap-2"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Sil
-                </Button>
-              )}
-              <div className="flex gap-2 ml-auto">
-                <Button type="button" variant="outline" onClick={onClose}>
-                  İptal
-                </Button>
-                <Button type="submit">Kaydet</Button>
-              </div>
-            </motion.div>
-          </form>
-        </motion.div>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Sil
+            </Button>
+          )}
+          <Button type="button" variant="outline" onClick={onClose}>
+            İptal
+          </Button>
+          <Button type="submit" onClick={handleSave}>
+            {event ? "Güncelle" : "Ekle"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
