@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
@@ -19,7 +19,11 @@ import SettingsPage from "./pages/SettingsPage";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
+import LoginPage from "./pages/LoginPage";
 
 const pageVariants = {
   initial: {
@@ -42,6 +46,39 @@ const pageTransition = {
   duration: 0.3
 };
 
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+      if (!session) {
+        navigate('/login');
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return session ? <>{children}</> : null;
+};
+
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
   
@@ -61,10 +98,39 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         }}
       >
         <Routes location={location}>
-          <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route 
+            path="/calendar" 
+            element={
+              <ProtectedRoute>
+                <CalendarPage headerHeight={headerHeight} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/students" 
+            element={
+              <ProtectedRoute>
+                <StudentsManagementPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/reports" 
+            element={
+              <ProtectedRoute>
+                <ReportsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
       </motion.div>
@@ -101,28 +167,30 @@ const App = () => {
   };
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <SidebarProvider defaultOpen={true}>
-          <BrowserRouter>
-            <div className="min-h-screen flex w-full overflow-hidden bg-background">
-              <Sidebar>
-                <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                  <SideMenu searchTerm={searchTerm} />
-                </SidebarContent>
-                <SidebarRail />
-              </Sidebar>
-              <div className="flex-1 flex flex-col">
-                <AuthHeader 
-                  onHeightChange={setHeaderHeight} 
-                  onSearchChange={setSearchTerm}
-                />
-                <AnimatedRoutes headerHeight={headerHeight} />
+    <SessionContextProvider supabaseClient={supabase}>
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <SidebarProvider defaultOpen={true}>
+            <BrowserRouter>
+              <div className="min-h-screen flex w-full overflow-hidden bg-background">
+                <Sidebar>
+                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                    <SideMenu searchTerm={searchTerm} />
+                  </SidebarContent>
+                  <SidebarRail />
+                </Sidebar>
+                <div className="flex-1 flex flex-col">
+                  <AuthHeader 
+                    onHeightChange={setHeaderHeight} 
+                    onSearchChange={setSearchTerm}
+                  />
+                  <AnimatedRoutes headerHeight={headerHeight} />
+                </div>
               </div>
-            </div>
-          </BrowserRouter>
-        </SidebarProvider>
-      </TooltipProvider>
+            </BrowserRouter>
+          </SidebarProvider>
+        </TooltipProvider>
+      </ThemeProvider>
       <StudentDialog
         isOpen={isDialogOpen}
         onClose={closeDialog}
@@ -138,7 +206,7 @@ const App = () => {
       />
       <Toaster />
       <Sonner />
-    </ThemeProvider>
+    </SessionContextProvider>
   );
 };
 

@@ -10,17 +10,15 @@ import {
 import { 
   Bell, 
   User,
-  LogIn,
-  UserPlus,
+  LogOut,
   Settings,
   HelpCircle,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { format, isFuture, compareAsc } from "date-fns";
-import { tr } from "date-fns/locale";
-import { CalendarEvent, Student } from "@/types/calendar";
 import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -33,6 +31,8 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     onHeightChange?.(64);
@@ -43,6 +43,23 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     onSearchChange(value);
     if (value) {
       setOpen(true);
+    }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Hata",
+        description: "Çıkış yapılırken bir hata oluştu.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Başarılı",
+        description: "Başarıyla çıkış yapıldı.",
+      });
+      navigate('/login');
     }
   };
 
@@ -98,13 +115,9 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem className="gap-2">
-                <LogIn className="h-4 w-4" />
-                <span>Giriş Yap</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2">
-                <UserPlus className="h-4 w-4" />
-                <span>Kayıt Ol</span>
+              <DropdownMenuItem onClick={handleLogout} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                <span>Çıkış Yap</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2">
