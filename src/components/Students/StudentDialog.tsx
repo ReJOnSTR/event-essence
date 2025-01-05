@@ -113,7 +113,11 @@ export default function StudentDialog({
                   <Button variant="outline" onClick={onClose}>
                     İptal
                   </Button>
-                  <Button onClick={handleSave} disabled={!studentName.trim()}>
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={!studentName.trim()}
+                    className="bg-primary hover:bg-primary/90"
+                  >
                     {student ? "Güncelle" : "Ekle"}
                   </Button>
                 </motion.div>
