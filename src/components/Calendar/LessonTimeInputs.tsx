@@ -22,12 +22,11 @@ export default function LessonTimeInputs({
   const dayOfWeek = format(selectedDate, 'EEEE', { locale: tr }).toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
 
-  // Çalışma saatlerini al
   const minTime = daySettings?.enabled ? daySettings.start : "09:00";
   const maxTime = daySettings?.enabled ? daySettings.end : "17:00";
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-6">
       <div className="space-y-2">
         <label className="text-sm font-medium">Başlangıç Saati</label>
         <Input
@@ -37,6 +36,7 @@ export default function LessonTimeInputs({
           min={minTime}
           max={maxTime}
           required
+          className="h-12 text-base"
         />
       </div>
       <div className="space-y-2">
@@ -48,6 +48,7 @@ export default function LessonTimeInputs({
           min={minTime}
           max={maxTime}
           required
+          className="h-12 text-base"
         />
       </div>
     </div>
