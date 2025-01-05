@@ -4,12 +4,9 @@ import { Student } from "@/types/calendar";
 import { 
   SidebarMenu, 
   SidebarMenuItem, 
-  SidebarMenuButton, 
-  SidebarGroup, 
-  SidebarGroupLabel,
-  SidebarGroupContent
+  SidebarSubMenu, 
+  SidebarSubMenuItem 
 } from "@/components/ui/sidebar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -32,67 +29,65 @@ export default function SideMenu() {
     window.dispatchEvent(new CustomEvent('addStudent'));
   };
 
-  const menuItems = [
-    { path: "/calendar", icon: Calendar, label: "Takvim" },
-    { path: "/students", icon: Users, label: "Öğrenciler" },
-    { path: "/reports", icon: FileBarChart, label: "Raporlar" },
-  ];
-
   return (
-    <div className="flex flex-col h-full bg-background w-full">
-      <SidebarGroup className="space-y-2">
-        {menuItems.map((item) => (
-          <Link 
-            key={item.path} 
-            to={item.path}
-            className="block"
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <Link
+          to="/"
+          className={`flex items-center space-x-2 ${
+            isActive("/") ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <Calendar className="h-4 w-4" />
+          <span>Takvim</span>
+        </Link>
+      </SidebarMenuItem>
+
+      <SidebarMenuItem>
+        <Link
+          to="/reports"
+          className={`flex items-center space-x-2 ${
+            isActive("/reports") ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          <FileBarChart className="h-4 w-4" />
+          <span>Raporlar</span>
+        </Link>
+      </SidebarMenuItem>
+
+      <SidebarSubMenu
+        icon={<Users className="h-4 w-4" />}
+        title="Öğrenciler"
+        action={
+          <button
+            onClick={handleAddStudent}
+            className="p-2 hover:bg-accent hover:text-accent-foreground rounded-md"
           >
-            <SidebarMenuButton 
-              className="w-full hover:bg-secondary rounded-md transition-colors"
-              data-active={isActive(item.path)}
+            <Plus className="h-4 w-4" />
+          </button>
+        }
+      >
+        {students.length === 0 ? (
+          <div className="px-4 py-2 text-sm text-muted-foreground">
+            Henüz öğrenci yok
+          </div>
+        ) : (
+          students.map((student) => (
+            <SidebarSubMenuItem
+              key={student.id}
+              onClick={() => handleStudentClick(student)}
             >
-              <item.icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </SidebarMenuButton>
-          </Link>
-        ))}
-      </SidebarGroup>
-
-      <SidebarGroup className="mt-6">
-        <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
-        <SidebarGroupContent className="mt-2">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                onClick={handleAddStudent}
-                className="w-full hover:bg-secondary rounded-md transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Öğrenci Ekle</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-
-            <ScrollArea className="h-[200px] px-1">
-              {students.map((student) => (
-                <SidebarMenuItem key={student.id}>
-                  <SidebarMenuButton 
-                    onClick={() => handleStudentClick(student)}
-                    className="w-full hover:bg-secondary rounded-md transition-colors group"
-                  >
-                    <div
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: student.color }}
-                    />
-                    <span className="truncate group-hover:text-secondary-foreground">
-                      {student.name}
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </ScrollArea>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </div>
+              <div className="flex items-center space-x-2">
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: student.color }}
+                />
+                <span>{student.name}</span>
+              </div>
+            </SidebarSubMenuItem>
+          ))
+        )}
+      </SidebarSubMenu>
+    </SidebarMenu>
   );
 }
