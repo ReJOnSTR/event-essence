@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { useSessionContext } from "@supabase/auth-helpers-react";
-import { AuthChangeEvent } from "@supabase/supabase-js";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -19,33 +18,8 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
   useEffect(() => {
     if (session) {
       onClose();
-      toast({
-        title: "Başarılı",
-        description: "Başarıyla giriş yaptınız.",
-        duration: 3000,
-      });
     }
-
-    // Auth state değişikliklerini dinle
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
-      if (event === 'user_deleted') {
-        toast({
-          title: "Hata",
-          description: "Kullanıcı hesabı bulunamadı.",
-          variant: "destructive",
-        });
-      } else if (event === 'password_recovery') {
-        toast({
-          title: "Bilgi",
-          description: "Şifre sıfırlama bağlantısı gönderildi.",
-        });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [session, onClose, toast]);
+  }, [session, onClose]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -86,9 +60,7 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
                 button_label: "Giriş Yap",
                 loading_button_label: "Giriş yapılıyor...",
                 social_provider_text: "{{provider}} ile devam et",
-                link_text: "Zaten hesabınız var mı? Giriş yapın",
-                email_input_placeholder: "Email adresiniz",
-                password_input_placeholder: "Şifreniz"
+                link_text: "Zaten hesabınız var mı? Giriş yapın"
               }
             }
           }}
