@@ -3,13 +3,19 @@ import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useStudentStore } from "@/store/studentStore";
+import { useSession } from "@supabase/auth-helpers-react";
 
 export function useStudents() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { closeDialog } = useStudentStore();
+  const session = useSession();
 
   const getStudents = async (): Promise<Student[]> => {
+    if (!session) {
+      return [];
+    }
+
     try {
       const { data, error } = await supabase
         .from('students')
@@ -34,19 +40,25 @@ export function useStudents() {
   };
 
   const { data: students = [], isLoading, error } = useQuery({
-    queryKey: ['students'],
+    queryKey: ['students', session?.user?.id],
     queryFn: getStudents,
+    enabled: !!session // Only run query when authenticated
   });
 
   const { mutate: saveStudent } = useMutation({
     mutationFn: async (student: Student) => {
+      if (!session) {
+        throw new Error("Oturum açmanız gerekiyor");
+      }
+
       const { data, error } = await supabase
         .from('students')
         .upsert({
           id: student.id,
           name: student.name,
           price: student.price,
-          color: student.color
+          color: student.color,
+          user_id: session.user.id // Explicitly set user_id
         })
         .select()
         .single();
@@ -84,10 +96,15 @@ export function useStudents() {
 
   const { mutate: deleteStudent } = useMutation({
     mutationFn: async (studentId: string) => {
+      if (!session) {
+        throw new Error("Oturum açmanız gerekiyor");
+      }
+
       const { error } = await supabase
         .from('students')
         .delete()
-        .eq('id', studentId);
+        .eq('id', studentId)
+        .eq('user_id', session.user.id); // Add user_id check for extra security
 
       if (error) throw error;
     },
