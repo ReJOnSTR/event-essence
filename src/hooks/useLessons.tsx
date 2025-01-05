@@ -2,19 +2,30 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from '@supabase/auth-helpers-react';
 
 export function useLessons() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const session = useSession();
 
   const getLessons = async (): Promise<Lesson[]> => {
+    if (!session?.user?.id) {
+      console.log('No authenticated user, returning empty lessons array');
+      return [];
+    }
+
     try {
       const { data, error } = await supabase
         .from('lessons')
         .select('*')
+        .eq('user_id', session.user.id)
         .order('start_time', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading lessons:', error);
+        throw error;
+      }
 
       return data.map(lesson => ({
         id: lesson.id,
@@ -36,12 +47,17 @@ export function useLessons() {
   };
 
   const { data: lessons = [], isLoading, error } = useQuery({
-    queryKey: ['lessons'],
+    queryKey: ['lessons', session?.user?.id],
     queryFn: getLessons,
+    enabled: !!session?.user?.id,
   });
 
   const { mutate: saveLesson } = useMutation({
     mutationFn: async (lesson: Lesson) => {
+      if (!session?.user?.id) {
+        throw new Error('Oturum açmanız gerekiyor');
+      }
+
       const { data, error } = await supabase
         .from('lessons')
         .upsert({
@@ -50,33 +66,32 @@ export function useLessons() {
           description: lesson.description,
           start_time: lesson.start.toISOString(),
           end_time: lesson.end.toISOString(),
-          student_id: lesson.studentId
+          student_id: lesson.studentId,
+          user_id: session.user.id
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving lesson:', error);
+        throw error;
+      }
       return data;
     },
     onMutate: async (newLesson) => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['lessons'] });
-
-      // Snapshot the previous value
       const previousLessons = queryClient.getQueryData(['lessons']);
 
-      // Optimistically update to the new value
       queryClient.setQueryData(['lessons'], (old: Lesson[] = []) => {
         const filtered = old.filter(lesson => lesson.id !== newLesson.id);
         return [...filtered, newLesson];
       });
 
-      // Return a context object with the snapshotted value
       return { previousLessons };
     },
     onError: (err, newLesson, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(['lessons'], context?.previousLessons);
+      console.error('Error in saveLesson mutation:', err);
       toast({
         title: "Hata",
         description: "Ders kaydedilirken bir hata oluştu.",
@@ -90,23 +105,29 @@ export function useLessons() {
       });
     },
     onSettled: () => {
-      // Always refetch after error or success to ensure data consistency
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
     },
   });
 
   const { mutate: deleteLesson } = useMutation({
     mutationFn: async (lessonId: string) => {
+      if (!session?.user?.id) {
+        throw new Error('Oturum açmanız gerekiyor');
+      }
+
       const { error } = await supabase
         .from('lessons')
         .delete()
-        .eq('id', lessonId);
+        .eq('id', lessonId)
+        .eq('user_id', session.user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting lesson:', error);
+        throw error;
+      }
     },
     onMutate: async (deletedLessonId) => {
       await queryClient.cancelQueries({ queryKey: ['lessons'] });
-
       const previousLessons = queryClient.getQueryData(['lessons']);
 
       queryClient.setQueryData(['lessons'], (old: Lesson[] = []) => 
@@ -117,6 +138,7 @@ export function useLessons() {
     },
     onError: (err, deletedLessonId, context) => {
       queryClient.setQueryData(['lessons'], context?.previousLessons);
+      console.error('Error in deleteLesson mutation:', err);
       toast({
         title: "Hata",
         description: "Ders silinirken bir hata oluştu.",
