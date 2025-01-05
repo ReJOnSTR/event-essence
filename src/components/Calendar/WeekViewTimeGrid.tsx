@@ -1,12 +1,13 @@
 import React from "react";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
-import DroppableCell from "./DroppableCell";
+import { checkLessonConflict } from "@/utils/lessonConflict";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -56,6 +57,18 @@ export default function WeekViewTimeGrid({
       return;
     }
 
+    const [startHour] = daySettings.start.split(':').map(Number);
+    const [endHour] = daySettings.end.split(':').map(Number);
+
+    if (hour < startHour || hour >= endHour) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     onCellClick(day, hour);
   };
 
@@ -90,10 +103,29 @@ export default function WeekViewTimeGrid({
       return;
     }
 
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+    
     const newStart = new Date(targetDay);
     newStart.setHours(hour, 0, 0, 0);
-    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
-    const newEnd = new Date(newStart.getTime() + duration);
+    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
+    const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
+
+    // Çakışma kontrolü
+    const hasConflict = checkLessonConflict(
+      { start: newStart, end: newEnd },
+      events,
+      event.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders çakışması",
+        description: "Seçilen saatte başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     onEventUpdate({
       ...event,
@@ -103,7 +135,7 @@ export default function WeekViewTimeGrid({
 
     toast({
       title: "Ders taşındı",
-      description: "Ders başarıyla yeni güne taşındı.",
+      description: "Ders başarıyla yeni saate taşındı.",
     });
   };
 
@@ -125,36 +157,43 @@ export default function WeekViewTimeGrid({
             const isHourDisabled = hour < startHour || hour >= endHour;
 
             return (
-              <DroppableCell
-                key={`${day}-${hour}`}
-                id={`${dayIndex}-${hour}`}
-                isDisabled={isWorkDisabled || isHourDisabled}
-                isDayEnabled={isDayEnabled}
-                events={events}
-                date={day}
-                hour={hour}
-                onCellClick={() => handleCellClick(day, hour)}
-              >
-                {events
-                  .filter(
-                    event =>
-                      format(new Date(event.start), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
-                      new Date(event.start).getHours() === hour
-                  )
-                  .map((event, index) => (
-                    <LessonCard 
-                      key={event.id} 
-                      event={{
-                        ...event,
-                        start: new Date(event.start),
-                        end: new Date(event.end)
-                      }}
-                      onClick={onEventClick}
-                      students={students}
-                      index={index}
-                    />
-                  ))}
-              </DroppableCell>
+              <Droppable droppableId={`${dayIndex}-${hour}`} key={`${day}-${hour}`}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={cn(
+                      "bg-background border-t border-border min-h-[60px] relative",
+                      isToday(day) && "bg-accent text-accent-foreground",
+                      (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
+                      !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
+                      snapshot.isDraggingOver && "bg-accent"
+                    )}
+                    onClick={() => handleCellClick(day, hour)}
+                  >
+                    {events
+                      .filter(
+                        event =>
+                          format(new Date(event.start), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
+                          new Date(event.start).getHours() === hour
+                      )
+                      .map((event, index) => (
+                        <LessonCard 
+                          key={event.id} 
+                          event={{
+                            ...event,
+                            start: new Date(event.start),
+                            end: new Date(event.end)
+                          }}
+                          onClick={onEventClick}
+                          students={students}
+                          index={index}
+                        />
+                      ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             );
           })}
         </React.Fragment>
