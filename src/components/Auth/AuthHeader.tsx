@@ -8,16 +8,19 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { 
+  Bell, 
   User,
-  LogOut,
+  LogIn,
+  UserPlus,
   Settings,
   HelpCircle,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { format, isFuture, compareAsc } from "date-fns";
+import { tr } from "date-fns/locale";
+import { CalendarEvent, Student } from "@/types/calendar";
 import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -26,11 +29,10 @@ interface AuthHeaderProps {
 }
 
 function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProps) {
+  const [notifications] = useState(2);
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     onHeightChange?.(64);
@@ -41,23 +43,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     onSearchChange(value);
     if (value) {
       setOpen(true);
-    }
-  };
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Hata",
-        description: "Çıkış yapılırken bir hata oluştu.",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Başarılı",
-        description: "Başarıyla çıkış yapıldı.",
-      });
-      navigate('/login');
     }
   };
 
@@ -80,6 +65,15 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         </div>
 
         <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+            {notifications > 0 && (
+              <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">
+                {notifications}
+              </span>
+            )}
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -104,9 +98,13 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={handleLogout} className="gap-2">
-                <LogOut className="h-4 w-4" />
-                <span>Çıkış Yap</span>
+              <DropdownMenuItem className="gap-2">
+                <LogIn className="h-4 w-4" />
+                <span>Giriş Yap</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2">
+                <UserPlus className="h-4 w-4" />
+                <span>Kayıt Ol</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2">

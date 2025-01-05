@@ -1,84 +1,102 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useCalendarStore } from "@/store/calendarStore";
+import React, { useState } from "react";
+import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
+import { useToast } from "@/components/ui/use-toast";
+import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
+import StudentDialog from "@/components/Students/StudentDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
 import { PageHeader } from "@/components/Layout/PageHeader";
-import { useCalendarEvents } from "@/features/calendar/hooks/useCalendarEvents";
-import { useCalendarDialog } from "@/features/calendar/hooks/useCalendarDialog";
-import { useSession } from "@supabase/auth-helpers-react";
 
 interface CalendarPageProps {
-  headerHeight?: number; // Made optional with ?
+  headerHeight: number;
 }
 
-export default function CalendarPage({ headerHeight = 0 }: CalendarPageProps) { // Added default value
-  const { currentView, setCurrentView } = useCalendarStore();
-  const { students, saveStudent } = useStudents();
+export default function CalendarPage({ headerHeight }: CalendarPageProps) {
+  const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
+    const savedLessons = localStorage.getItem('lessons');
+    return savedLessons ? JSON.parse(savedLessons) : [];
+  });
+  
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const navigate = useNavigate();
-  const session = useSession();
+  const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
+  
+  const { currentView, setCurrentView } = useCalendarStore();
+  const { students, saveStudent, deleteStudent } = useStudents();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (!session) {
-      navigate('/login');
-    }
-  }, [session, navigate]);
-
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
-  const {
-    lessons,
-    handleSaveLesson,
-    handleDeleteLesson,
-    handleEventUpdate,
-  } = useCalendarEvents();
+  // Student dialog state
+  const [studentDialogState, setStudentDialogState] = useState({
+    selectedStudent: undefined,
+    studentName: "",
+    studentPrice: 0,
+    studentColor: "#1a73e8"
+  });
 
-  const {
-    isDialogOpen,
-    selectedLesson,
-    dialogSelectedDate,
-    handleDateSelect,
-    handleLessonClick,
-    handleCloseDialog,
-    setIsDialogOpen,
-  } = useCalendarDialog();
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setSelectedLesson(undefined);
+    setIsDialogOpen(true);
+  };
 
-  const handleSaveStudent = async (studentData: any) => {
-    if (!session?.user?.id) {
+  const handleLessonClick = (lesson: CalendarEvent) => {
+    setSelectedLesson(lesson);
+    setSelectedDate(lesson.start);
+    setIsDialogOpen(true);
+  };
+
+  const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
+    if (selectedLesson) {
+      const updatedLessons = lessons.map(lesson => 
+        lesson.id === selectedLesson.id 
+          ? { ...lessonData, id: lesson.id }
+          : lesson
+      );
+      setLessons(updatedLessons);
       toast({
-        title: "Hata",
-        description: "Lütfen önce giriş yapın",
-        variant: "destructive"
+        title: "Ders güncellendi",
+        description: "Dersiniz başarıyla güncellendi.",
       });
-      navigate('/login');
-      return;
-    }
-    
-    try {
-      await saveStudent(studentData);
-      setIsDialogOpen(false);
-    } catch (error) {
-      console.error('Error saving student:', error);
+    } else {
+      const newLesson: CalendarEvent = {
+        ...lessonData,
+        id: crypto.randomUUID(),
+      };
+      setLessons([...lessons, newLesson]);
       toast({
-        title: "Hata",
-        description: "Öğrenci kaydedilirken bir hata oluştu",
-        variant: "destructive"
+        title: "Ders oluşturuldu",
+        description: "Dersiniz başarıyla oluşturuldu.",
       });
     }
   };
 
-  if (!session) {
-    return null;
-  }
+  const handleDeleteLesson = (lessonId: string) => {
+    setLessons(lessons.filter(lesson => lesson.id !== lessonId));
+    toast({
+      title: "Ders silindi",
+      description: "Dersiniz başarıyla silindi.",
+    });
+  };
+
+  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+    const updatedLessons = lessons.map(lesson =>
+      lesson.id === updatedEvent.id ? updatedEvent : lesson
+    );
+    setLessons(updatedLessons);
+  };
+
+  // Save lessons to localStorage
+  React.useEffect(() => {
+    localStorage.setItem('lessons', JSON.stringify(lessons));
+  }, [lessons]);
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -88,6 +106,7 @@ export default function CalendarPage({ headerHeight = 0 }: CalendarPageProps) { 
           <Button 
             size="sm"
             onClick={() => {
+              setSelectedLesson(undefined);
               setIsDialogOpen(true);
             }}
           >
@@ -101,7 +120,7 @@ export default function CalendarPage({ headerHeight = 0 }: CalendarPageProps) { 
       <CalendarPageHeader
         date={selectedDate}
         currentView={currentView}
-        onViewChange={setCurrentView}
+        onViewChange={(view: ViewType) => setCurrentView(view)}
         onPrevious={handleNavigationClick('prev', currentView)}
         onNext={handleNavigationClick('next', currentView)}
         onToday={handleTodayClick}
@@ -123,13 +142,69 @@ export default function CalendarPage({ headerHeight = 0 }: CalendarPageProps) { 
       
       <LessonDialog
         isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setSelectedLesson(undefined);
+        }}
         onSave={handleSaveLesson}
         onDelete={handleDeleteLesson}
-        selectedDate={dialogSelectedDate}
+        selectedDate={selectedDate}
         event={selectedLesson}
         events={lessons}
         students={students}
+      />
+
+      <StudentDialog
+        isOpen={isStudentDialogOpen}
+        onClose={() => {
+          setIsStudentDialogOpen(false);
+          setStudentDialogState({
+            selectedStudent: undefined,
+            studentName: "",
+            studentPrice: 0,
+            studentColor: "#1a73e8"
+          });
+        }}
+        onSave={() => {
+          const { selectedStudent, studentName, studentPrice, studentColor } = studentDialogState;
+          saveStudent({
+            id: selectedStudent?.id || crypto.randomUUID(),
+            name: studentName,
+            price: studentPrice,
+            color: studentColor,
+          });
+          toast({
+            title: selectedStudent ? "Öğrenci güncellendi" : "Öğrenci eklendi",
+            description: selectedStudent 
+              ? "Öğrenci bilgileri başarıyla güncellendi."
+              : "Yeni öğrenci başarıyla eklendi.",
+          });
+          setIsStudentDialogOpen(false);
+        }}
+        onDelete={() => {
+          const { selectedStudent } = studentDialogState;
+          if (selectedStudent) {
+            deleteStudent(selectedStudent.id);
+            const updatedLessons = lessons.map(lesson => 
+              lesson.studentId === selectedStudent.id 
+                ? { ...lesson, studentId: undefined }
+                : lesson
+            );
+            setLessons(updatedLessons);
+            toast({
+              title: "Öğrenci silindi",
+              description: "Öğrenci başarıyla silindi.",
+            });
+            setIsStudentDialogOpen(false);
+          }
+        }}
+        student={studentDialogState.selectedStudent}
+        studentName={studentDialogState.studentName}
+        setStudentName={(name) => setStudentDialogState(prev => ({ ...prev, studentName: name }))}
+        studentPrice={studentDialogState.studentPrice}
+        setStudentPrice={(price) => setStudentDialogState(prev => ({ ...prev, studentPrice: price }))}
+        studentColor={studentDialogState.studentColor}
+        setStudentColor={(color) => setStudentDialogState(prev => ({ ...prev, studentColor: color }))}
       />
     </div>
   );

@@ -62,7 +62,7 @@ export function WeeklySchedulePdf({ lessons, students }: WeeklySchedulePdfProps)
     // Filter lessons for the current week and student
     const weeklyLessons = lessons.filter(lesson => {
       const lessonDate = new Date(lesson.start);
-      return lesson.student_id === selectedStudentId &&
+      return lesson.studentId === selectedStudentId &&
              lessonDate >= weekStart &&
              lessonDate <= weekEnd;
     });

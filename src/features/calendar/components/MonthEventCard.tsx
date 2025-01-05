@@ -12,7 +12,7 @@ interface EventCardProps {
 }
 
 export default function MonthEventCard({ event, students, index, onClick }: EventCardProps) {
-  const student = students?.find(s => s.id === event.student_id);
+  const student = students?.find(s => s.id === event.studentId);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();

@@ -38,15 +38,15 @@ export function LessonList({
     startDate && endDate ? { start: startDate, end: endDate } : undefined
   );
 
-  const getStudentName = (student_id: string | undefined) => {
-    if (!student_id) return "Öğrenci Seçilmedi";
-    const student = students.find((s) => s.id === student_id);
+  const getStudentName = (studentId: string | undefined) => {
+    if (!studentId) return "Öğrenci Seçilmedi";
+    const student = students.find((s) => s.id === studentId);
     return student ? student.name : "Öğrenci Bulunamadı";
   };
 
-  const getLessonFee = (student_id: string | undefined) => {
-    if (!student_id) return 0;
-    const student = students.find((s) => s.id === student_id);
+  const getLessonFee = (studentId: string | undefined) => {
+    if (!studentId) return 0;
+    const student = students.find((s) => s.id === studentId);
     return student ? student.price : 0;
   };
 
@@ -72,7 +72,7 @@ export function LessonList({
             filteredLessons.map((lesson) => {
               const start = new Date(lesson.start);
               const end = new Date(lesson.end);
-              const fee = getLessonFee(lesson.student_id);
+              const fee = getLessonFee(lesson.studentId);
 
               return (
                 <TableRow key={lesson.id}>
@@ -82,7 +82,7 @@ export function LessonList({
                   <TableCell>
                     {format(start, "HH:mm")} - {format(end, "HH:mm")}
                   </TableCell>
-                  <TableCell>{getStudentName(lesson.student_id)}</TableCell>
+                  <TableCell>{getStudentName(lesson.studentId)}</TableCell>
                   <TableCell className="text-right">
                     {fee.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
                   </TableCell>

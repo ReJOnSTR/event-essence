@@ -51,7 +51,7 @@ export default function LessonDialog({
         setDescription(event.description || "");
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
-        setSelectedStudentId(event.student_id || "");
+        setSelectedStudentId(event.studentId || "");
       } else {
         const workingHours = getWorkingHours();
         const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -157,12 +157,9 @@ export default function LessonDialog({
     onSave({
       title: student ? `${student.name} Dersi` : "Ders",
       description,
-      start_time: start.toISOString(),
-      end_time: end.toISOString(),
-      student_id: selectedStudentId,
-      user_id: '', // This will be set in the hook
       start,
-      end
+      end,
+      studentId: selectedStudentId,
     });
     
     onClose();
