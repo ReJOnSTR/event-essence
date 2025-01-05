@@ -6,6 +6,8 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
 import { PageHeader } from "@/components/Layout/PageHeader";
+import { useSession } from "@supabase/auth-helpers-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function StudentsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -14,9 +16,10 @@ export default function StudentsManagementPage() {
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#1a73e8");
   const { students, saveStudent, deleteStudent } = useStudents();
+  const session = useSession();
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Öğrenci düzenleme event listener'ı
     const handleEditStudent = (event: CustomEvent<Student>) => {
       const student = event.detail;
       setSelectedStudent(student);
@@ -26,7 +29,6 @@ export default function StudentsManagementPage() {
       setIsDialogOpen(true);
     };
 
-    // Yeni öğrenci ekleme event listener'ı
     const handleAddStudent = () => {
       setSelectedStudent(undefined);
       setStudentName("");
@@ -53,6 +55,15 @@ export default function StudentsManagementPage() {
   };
 
   const handleSaveStudent = () => {
+    if (!session) {
+      toast({
+        title: "Hata",
+        description: "Öğrenci eklemek için giriş yapmanız gerekiyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const studentData: Student = {
       id: selectedStudent?.id || crypto.randomUUID(),
       name: studentName,

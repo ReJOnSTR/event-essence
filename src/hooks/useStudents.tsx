@@ -42,7 +42,7 @@ export function useStudents() {
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students', session?.user?.id],
     queryFn: getStudents,
-    enabled: !!session // Only run query when authenticated
+    enabled: !!session
   });
 
   const { mutate: saveStudent } = useMutation({
@@ -58,12 +58,15 @@ export function useStudents() {
           name: student.name,
           price: student.price,
           color: student.color,
-          user_id: session.user.id // Explicitly set user_id
+          user_id: session.user.id
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving student:', error);
+        throw error;
+      }
       return data;
     },
     onMutate: async (newStudent) => {
@@ -104,7 +107,7 @@ export function useStudents() {
         .from('students')
         .delete()
         .eq('id', studentId)
-        .eq('user_id', session.user.id); // Add user_id check for extra security
+        .eq('user_id', session.user.id);
 
       if (error) throw error;
     },
