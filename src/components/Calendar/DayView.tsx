@@ -2,15 +2,16 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
+import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
+import { getDefaultLessonDuration } from "@/utils/settings";
+import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
-import CalendarSkeleton from "./CalendarSkeleton";
-import EmptyState from "./EmptyState";
 
 interface DayViewProps {
   date: Date;
@@ -19,7 +20,6 @@ interface DayViewProps {
   onEventClick?: (event: CalendarEvent) => void;
   onEventUpdate?: (event: CalendarEvent) => void;
   students?: Student[];
-  isLoading?: boolean;
 }
 
 export default function DayView({ 
@@ -28,8 +28,7 @@ export default function DayView({
   onDateSelect, 
   onEventClick,
   onEventUpdate,
-  students,
-  isLoading
+  students 
 }: DayViewProps) {
   const { toast } = useToast();
   const workingHours = getWorkingHours();
@@ -42,37 +41,6 @@ export default function DayView({
   const dayEvents = events.filter(event => 
     format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
   );
-
-  if (isLoading) {
-    return <CalendarSkeleton />;
-  }
-
-  if (!daySettings?.enabled) {
-    return (
-      <EmptyState
-        title="Çalışma Günü Değil"
-        description="Bu gün için çalışma saatleri kapalıdır. Ayarlardan çalışma saatlerini düzenleyebilirsiniz."
-      />
-    );
-  }
-
-  if (holiday && !allowWorkOnHolidays) {
-    return (
-      <EmptyState
-        title="Resmi Tatil"
-        description={`${holiday.name} nedeniyle bu gün resmi tatildir.`}
-      />
-    );
-  }
-
-  if (dayEvents.length === 0) {
-    return (
-      <EmptyState
-        title="Ders Bulunamadı"
-        description="Bu güne ait herhangi bir ders bulunmamaktadır. Yeni ders eklemek için takvime tıklayabilirsiniz."
-      />
-    );
-  }
 
   const startHour = daySettings?.enabled ? 
     parseInt(daySettings.start.split(':')[0]) : 

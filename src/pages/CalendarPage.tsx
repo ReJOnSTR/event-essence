@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
@@ -98,16 +98,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     localStorage.setItem('lessons', JSON.stringify(lessons));
   }, [lessons]);
 
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Simulate loading state for demonstration
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
       <PageHeader title="Takvim">
@@ -146,7 +136,6 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
             onEventClick={handleLessonClick}
             onEventUpdate={handleEventUpdate}
             students={students}
-            isLoading={isLoading}
           />
         </div>
       </div>
