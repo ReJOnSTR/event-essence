@@ -40,6 +40,7 @@ const LoginPage = () => {
                 },
               },
             }}
+            providers={[]}
             localization={{
               variables: {
                 sign_in: {
