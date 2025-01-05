@@ -17,12 +17,15 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, isFuture, compareAsc } from "date-fns";
 
-export default function SideMenu() {
+interface SideMenuProps {
+  searchTerm: string;
+}
+
+export default function SideMenu({ searchTerm }: SideMenuProps) {
   const { students } = useStudents();
   const location = useLocation();
   const navigate = useNavigate();
   const { openDialog, setSelectedStudent } = useStudentStore();
-  const [searchTerm, setSearchTerm] = useState("");
   const [filteredLessons, setFilteredLessons] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
 
