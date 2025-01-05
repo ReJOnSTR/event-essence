@@ -1,141 +1,65 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Auth } from "@supabase/auth-ui-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { Mail, Lock } from "lucide-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+export default function LoginPage() {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast({
-          title: "Giriş başarısız",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Giriş başarılı",
-          description: "Yönlendiriliyorsunuz...",
-        });
-        navigate("/calendar");
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
+        localStorage.removeItem('returnUrl');
+        navigate(returnUrl);
       }
-    } catch (error) {
-      toast({
-        title: "Bir hata oluştu",
-        description: "Lütfen tekrar deneyin",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    });
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast({
-          title: "Kayıt başarısız",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Kayıt başarılı",
-          description: "Email adresinizi kontrol edin",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Bir hata oluştu",
-        description: "Lütfen tekrar deneyin",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="container mx-auto flex items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">EventEssence</CardTitle>
+          <CardTitle className="text-2xl text-center">Giriş Yap</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-9"
-                  required
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="password"
-                  placeholder="Şifre"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-9"
-                  required
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={handleSignUp}
-                disabled={loading}
-              >
-                Kayıt Ol
-              </Button>
-            </div>
-          </form>
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#000000',
+                    brandAccent: '#333333',
+                  },
+                },
+              },
+            }}
+            providers={[]}
+            localization={{
+              variables: {
+                sign_in: {
+                  email_label: 'Email adresi',
+                  password_label: 'Şifre',
+                  button_label: 'Giriş yap',
+                },
+                sign_up: {
+                  email_label: 'Email adresi',
+                  password_label: 'Şifre',
+                  button_label: 'Kayıt ol',
+                },
+              },
+            }}
+          />
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default LoginPage;
+}

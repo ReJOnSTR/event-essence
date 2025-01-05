@@ -168,11 +168,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           ) : (
             <Button 
               variant="default" 
-              onClick={() => {
-                const returnUrl = window.location.pathname;
-                localStorage.setItem('returnUrl', returnUrl);
-                navigate("/calendar");
-              }}
+              onClick={() => navigate("/login")}
               className="gap-2"
             >
               <User className="h-4 w-4" />
