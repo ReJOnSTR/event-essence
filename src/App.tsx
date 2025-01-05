@@ -74,11 +74,18 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
 
 const App = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
-  const { isDialogOpen, closeDialog, selectedStudent } = useStudentStore();
+  const { 
+    isDialogOpen, 
+    closeDialog, 
+    selectedStudent,
+    studentName,
+    studentPrice,
+    studentColor,
+    setStudentName,
+    setStudentPrice,
+    setStudentColor 
+  } = useStudentStore();
   const { saveStudent, deleteStudent } = useStudents();
-  const [studentName, setStudentName] = useState("");
-  const [studentPrice, setStudentPrice] = useState(0);
-  const [studentColor, setStudentColor] = useState("#1a73e8");
 
   const handleSaveStudent = () => {
     const studentData = {
