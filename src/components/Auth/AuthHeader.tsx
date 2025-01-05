@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { 
-  Bell, 
   User,
   LogOut,
   Settings,
@@ -27,7 +26,6 @@ interface AuthHeaderProps {
 }
 
 function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProps) {
-  const [notifications] = useState(2);
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
@@ -82,15 +80,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         </div>
 
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            {notifications > 0 && (
-              <span className="absolute top-1 right-1 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center">
-                {notifications}
-              </span>
-            )}
-          </Button>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
