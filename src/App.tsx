@@ -82,32 +82,30 @@ const ProtectedLayout = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <>
+    <SidebarProvider defaultOpen={true}>
       <AuthHeader 
         onHeightChange={setHeaderHeight} 
         onSearchChange={setSearchTerm}
       />
       <div className="flex-1 flex flex-col">
-        <SidebarProvider defaultOpen={true}>
-          <div className="min-h-screen flex w-full overflow-hidden bg-background">
-            <Sidebar>
-              <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                <SideMenu searchTerm={searchTerm} />
-              </SidebarContent>
-              <SidebarRail />
-            </Sidebar>
-            <div className="flex-1">
-              <Routes>
-                <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-                <Route path="/students" element={<StudentsManagementPage />} />
-                <Route path="/reports" element={<ReportsPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-              </Routes>
-            </div>
+        <div className="min-h-screen flex w-full overflow-hidden bg-background">
+          <Sidebar>
+            <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+              <SideMenu searchTerm={searchTerm} />
+            </SidebarContent>
+            <SidebarRail />
+          </Sidebar>
+          <div className="flex-1">
+            <Routes>
+              <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
+              <Route path="/students" element={<StudentsManagementPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Routes>
           </div>
-        </SidebarProvider>
+        </div>
       </div>
-    </>
+    </SidebarProvider>
   );
 };
 
