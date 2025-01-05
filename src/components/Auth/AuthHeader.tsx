@@ -80,10 +80,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     }
   };
 
-  const handleAuthDialogClose = () => {
-    setIsAuthDialogOpen(false);
-  };
-
   return (
     <>
       <div
@@ -166,7 +162,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
 
       <AuthDialog 
         isOpen={isAuthDialogOpen}
-        onClose={handleAuthDialogClose}
+        onClose={() => setIsAuthDialogOpen(false)}
       />
     </>
   );
