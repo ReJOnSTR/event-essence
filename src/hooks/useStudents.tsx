@@ -2,10 +2,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useStudentStore } from "@/store/studentStore";
 
 export function useStudents() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { closeDialog } = useStudentStore();
 
   // Get students from Supabase
   const getStudents = async (): Promise<Student[]> => {
@@ -84,6 +86,7 @@ export function useStudents() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
+      closeDialog(); // Close the dialog after successful deletion
       toast({
         title: "Başarılı",
         description: "Öğrenci başarıyla silindi.",
