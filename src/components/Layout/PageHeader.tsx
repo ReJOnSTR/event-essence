@@ -7,9 +7,10 @@ interface PageHeaderProps {
   backTo?: string;
   backLabel?: string;
   actions?: ReactNode;
+  children?: ReactNode;
 }
 
-export function PageHeader({ title, backTo, backLabel, actions }: PageHeaderProps) {
+export function PageHeader({ title, backTo, backLabel, actions, children }: PageHeaderProps) {
   return (
     <div className="flex items-center gap-4 p-4 border-b bg-background sticky top-0 z-10">
       <div className="flex items-center gap-2">
@@ -17,7 +18,7 @@ export function PageHeader({ title, backTo, backLabel, actions }: PageHeaderProp
         {backTo && <BackButton to={backTo} label={backLabel} />}
       </div>
       <h1 className="text-xl font-semibold text-foreground">{title}</h1>
-      {actions && <div className="ml-auto">{actions}</div>}
+      {children || actions ? <div className="ml-auto">{children || actions}</div> : null}
     </div>
   );
 }
