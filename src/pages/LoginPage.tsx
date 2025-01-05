@@ -4,6 +4,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@supabase/auth-helpers-react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const session = useSession();
@@ -14,6 +15,17 @@ export default function LoginPage() {
       navigate("/");
     }
   }, [session, navigate]);
+
+  // Set up auth state change listener
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        navigate('/');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -52,6 +64,13 @@ export default function LoginPage() {
                   button_label: 'Kayıt Ol',
                 },
               },
+            }}
+            onError={(error) => {
+              if (error.message.includes('User already registered')) {
+                toast.error('Bu email adresi zaten kayıtlı. Lütfen giriş yapın.');
+              } else {
+                toast.error('Bir hata oluştu: ' + error.message);
+              }
             }}
           />
         </div>
