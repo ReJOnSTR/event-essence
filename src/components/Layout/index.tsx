@@ -1,13 +1,16 @@
 import { Outlet } from "react-router-dom";
 import SideMenu from "@/components/Layout/SideMenu";
-import PageHeader from "@/components/Layout/PageHeader";
+import { PageHeader } from "@/components/Layout/PageHeader";
+import { useState } from "react";
 
 const Layout = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   return (
     <div className="flex h-screen">
-      <SideMenu />
+      <SideMenu searchTerm={searchTerm} />
       <div className="flex-1 flex flex-col">
-        <PageHeader />
+        <PageHeader title="Calendar" />
         <main className="flex-1 p-4 overflow-auto">
           <Outlet />
         </main>
