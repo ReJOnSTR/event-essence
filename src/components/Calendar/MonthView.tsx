@@ -216,7 +216,7 @@ export default function MonthView({
                 delay: index * 0.01,
                 ease: [0.23, 1, 0.32, 1]
               }}
-              className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
+              className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center border-b border-border"
             >
               {day}
             </motion.div>
@@ -240,7 +240,7 @@ export default function MonthView({
                     }}
                     onClick={() => !isDisabled && handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
+                      "min-h-[120px] p-2 bg-background/80 transition-colors duration-150 border-r border-border",
                       !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
                       isToday(day.date) && "bg-accent text-accent-foreground",
                       holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
