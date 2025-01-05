@@ -2,10 +2,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Lesson } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 export function useLessons() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { session, isLoading: isSessionLoading } = useSessionContext();
 
   const getLessons = async (): Promise<Lesson[]> => {
     try {
@@ -36,8 +38,9 @@ export function useLessons() {
   };
 
   const { data: lessons = [], isLoading, error } = useQuery({
-    queryKey: ['lessons'],
+    queryKey: ['lessons', session?.user.id],
     queryFn: getLessons,
+    enabled: !!session && !isSessionLoading, // Sadece oturum varsa sorguyu çalıştır
   });
 
   const { mutate: saveLesson } = useMutation({

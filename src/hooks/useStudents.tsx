@@ -3,11 +3,13 @@ import { Student } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useStudentStore } from "@/store/studentStore";
+import { useSessionContext } from '@supabase/auth-helpers-react';
 
 export function useStudents() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { closeDialog } = useStudentStore();
+  const { session, isLoading: isSessionLoading } = useSessionContext();
 
   const getStudents = async (): Promise<Student[]> => {
     try {
@@ -34,8 +36,9 @@ export function useStudents() {
   };
 
   const { data: students = [], isLoading, error } = useQuery({
-    queryKey: ['students'],
+    queryKey: ['students', session?.user.id],
     queryFn: getStudents,
+    enabled: !!session && !isSessionLoading, // Sadece oturum varsa sorguyu çalıştır
   });
 
   const { mutate: saveStudent } = useMutation({
