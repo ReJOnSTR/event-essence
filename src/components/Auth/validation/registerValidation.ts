@@ -1,3 +1,22 @@
+interface BaseRule {
+  required: boolean;
+}
+
+interface TextLengthRule extends BaseRule {
+  minLength: number;
+  maxLength: number;
+}
+
+interface PatternRule extends BaseRule {
+  pattern: RegExp;
+}
+
+interface ArrayRule extends BaseRule {
+  minItems: number;
+}
+
+type ValidationRule = TextLengthRule | PatternRule | ArrayRule;
+
 export const PASSWORD_RULES = {
   minLength: 8,
   requireUppercase: true,
@@ -6,29 +25,33 @@ export const PASSWORD_RULES = {
   requireSpecial: true,
 };
 
-export const FIELD_RULES = {
+export const FIELD_RULES: Record<string, ValidationRule> = {
   firstName: {
     required: true,
     minLength: 2,
     maxLength: 50,
-  },
+  } as TextLengthRule,
+  
   lastName: {
     required: true,
     minLength: 2,
     maxLength: 50,
-  },
+  } as TextLengthRule,
+  
   email: {
     required: true,
     pattern: /\S+@\S+\.\S+/,
-  },
+  } as PatternRule,
+  
   phoneNumber: {
     required: true,
     pattern: /^05[0-9]{9}$/,
-  },
+  } as PatternRule,
+  
   teachingSubjects: {
     required: true,
     minItems: 1,
-  },
+  } as ArrayRule,
 };
 
 export const validatePassword = (password: string) => {

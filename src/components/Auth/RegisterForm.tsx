@@ -6,6 +6,7 @@ import { User, Phone, Mail, Lock } from "lucide-react";
 import { SubjectSelect } from "./SubjectSelect";
 import { InputField } from "./FormFields/InputField";
 import { validatePassword, FIELD_RULES } from "./validation/registerValidation";
+import { cn } from "@/lib/utils";
 
 interface RegisterFormProps {
   onToggleForm: () => void;
@@ -35,21 +36,27 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
   const [validFields, setValidFields] = useState<Record<string, boolean>>({});
 
   const validateField = (name: string, value: string | string[]) => {
-    const rules = FIELD_RULES[name as keyof typeof FIELD_RULES];
+    const rules = FIELD_RULES[name];
     if (!rules) return "";
 
     if (rules.required && (!value || (Array.isArray(value) && value.length === 0))) {
       return "Bu alan zorunludur";
     }
 
-    if (typeof value === "string") {
-      if (rules.minLength && value.length < rules.minLength) {
+    if ('minLength' in rules && typeof value === 'string') {
+      if (value.length < rules.minLength) {
         return `En az ${rules.minLength} karakter giriniz`;
       }
-      if (rules.maxLength && value.length > rules.maxLength) {
+    }
+
+    if ('maxLength' in rules && typeof value === 'string') {
+      if (value.length > rules.maxLength) {
         return `En fazla ${rules.maxLength} karakter girebilirsiniz`;
       }
-      if (rules.pattern && !rules.pattern.test(value)) {
+    }
+
+    if ('pattern' in rules && typeof value === 'string') {
+      if (!rules.pattern.test(value)) {
         if (name === "email") {
           return "Geçerli bir email adresi giriniz";
         }
@@ -59,8 +66,10 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
       }
     }
 
-    if (Array.isArray(value) && rules.minItems && value.length < rules.minItems) {
-      return "En az bir ders seçmelisiniz";
+    if ('minItems' in rules && Array.isArray(value)) {
+      if (value.length < rules.minItems) {
+        return "En az bir ders seçmelisiniz";
+      }
     }
 
     return "";
@@ -157,7 +166,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
           onChange={handleInputChange}
           error={errors.firstName}
           icon={<User />}
-          maxLength={FIELD_RULES.firstName.maxLength}
+          maxLength={50}
           required
           isValid={validFields.firstName}
         />
@@ -172,7 +181,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
           onChange={handleInputChange}
           error={errors.lastName}
           icon={<User />}
-          maxLength={FIELD_RULES.lastName.maxLength}
+          maxLength={50}
           required
           isValid={validFields.lastName}
         />
