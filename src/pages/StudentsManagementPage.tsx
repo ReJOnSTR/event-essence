@@ -6,6 +6,7 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
 import { PageHeader } from "@/components/Layout/PageHeader";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 
 export default function StudentsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -14,6 +15,7 @@ export default function StudentsManagementPage() {
   const [studentPrice, setStudentPrice] = useState(0);
   const [studentColor, setStudentColor] = useState("#1a73e8");
   const { students, saveStudent, deleteStudent } = useStudents();
+  const { session } = useSessionContext();
 
   useEffect(() => {
     // Öğrenci düzenleme event listener'ı
@@ -53,11 +55,15 @@ export default function StudentsManagementPage() {
   };
 
   const handleSaveStudent = () => {
-    const studentData: Student = {
+    if (!session?.user?.id) return;
+
+    const now = new Date().toISOString();
+    const studentData: Omit<Student, 'created_at' | 'updated_at'> = {
       id: selectedStudent?.id || crypto.randomUUID(),
       name: studentName,
       price: studentPrice,
       color: studentColor,
+      user_id: session.user.id,
     };
     
     saveStudent(studentData);
