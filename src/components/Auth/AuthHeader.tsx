@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,7 +24,7 @@ import { Session } from "@supabase/supabase-js";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
-  children?: React.ReactNode;
+  children?: ReactNode;
   onSearchChange: (searchTerm: string) => void;
 }
 
@@ -41,6 +41,12 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   useEffect(() => {
     onHeightChange?.(64);
 
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
