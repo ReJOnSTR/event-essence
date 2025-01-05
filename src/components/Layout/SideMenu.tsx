@@ -3,10 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
   SidebarMenu, 
-  SidebarMenuItem,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel
+  SidebarMenuItem, 
+  SidebarSubMenu, 
+  SidebarSubMenuItem 
 } from "@/components/ui/sidebar";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,10 +20,12 @@ export default function SideMenu() {
   };
 
   const handleStudentClick = (student: Student) => {
+    // Öğrenci düzenleme modalını açmak için bir event yayınlayalım
     window.dispatchEvent(new CustomEvent('editStudent', { detail: student }));
   };
 
   const handleAddStudent = () => {
+    // Yeni öğrenci ekleme modalını açmak için bir event yayınlayalım
     window.dispatchEvent(new CustomEvent('addStudent'));
   };
 
@@ -54,43 +55,39 @@ export default function SideMenu() {
         </Link>
       </SidebarMenuItem>
 
-      <SidebarGroup>
-        <SidebarGroupLabel className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Users className="h-4 w-4" />
-            <span>Öğrenciler</span>
-          </div>
+      <SidebarSubMenu
+        icon={<Users className="h-4 w-4" />}
+        title="Öğrenciler"
+        action={
           <button
             onClick={handleAddStudent}
             className="p-2 hover:bg-accent hover:text-accent-foreground rounded-md"
           >
             <Plus className="h-4 w-4" />
           </button>
-        </SidebarGroupLabel>
-        <SidebarGroupContent>
-          {students.length === 0 ? (
-            <div className="px-4 py-2 text-sm text-muted-foreground">
-              Henüz öğrenci yok
-            </div>
-          ) : (
-            students.map((student) => (
-              <SidebarMenuItem
-                key={student.id}
-                onClick={() => handleStudentClick(student)}
-                className="cursor-pointer"
-              >
-                <div className="flex items-center space-x-2">
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: student.color }}
-                  />
-                  <span>{student.name}</span>
-                </div>
-              </SidebarMenuItem>
-            ))
-          )}
-        </SidebarGroupContent>
-      </SidebarGroup>
+        }
+      >
+        {students.length === 0 ? (
+          <div className="px-4 py-2 text-sm text-muted-foreground">
+            Henüz öğrenci yok
+          </div>
+        ) : (
+          students.map((student) => (
+            <SidebarSubMenuItem
+              key={student.id}
+              onClick={() => handleStudentClick(student)}
+            >
+              <div className="flex items-center space-x-2">
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: student.color }}
+                />
+                <span>{student.name}</span>
+              </div>
+            </SidebarSubMenuItem>
+          ))
+        )}
+      </SidebarSubMenu>
     </SidebarMenu>
   );
 }
