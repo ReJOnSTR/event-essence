@@ -158,7 +158,7 @@ export default function LessonDialog({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="p-4 sm:p-6"
+          className="p-6"
         >
           <LessonDialogHeader 
             isEditing={!!event}
