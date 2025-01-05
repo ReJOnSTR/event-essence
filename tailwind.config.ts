@@ -19,29 +19,10 @@ export default {
     },
     extend: {
       colors: {
-        // Ana renkler
-        "primary": {
-          DEFAULT: "#6366f1", // Indigo-500
-          dark: "#4338ca", // Indigo-700
-          light: "#a5b4fc", // Indigo-300
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        "secondary": {
-          DEFAULT: "#8b5cf6", // Violet-500
-          dark: "#6d28d9", // Violet-700
-          light: "#c4b5fd", // Violet-300
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        "accent": {
-          DEFAULT: "#64748b", // Slate-500
-          dark: "#334155", // Slate-700
-          light: "#cbd5e1", // Slate-300
-          foreground: "hsl(var(--accent-foreground))",
-        },
         // Google Calendar renkleri
         "calendar-blue": {
           DEFAULT: "#1a73e8",
-          dark: "#364c5b"
+          dark: "#364c5b" // Karanlık temada istenen renk
         },
         "calendar-hover": {
           DEFAULT: "#1557b0",
@@ -65,6 +46,14 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
@@ -72,6 +61,10 @@ export default {
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
