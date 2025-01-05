@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
+import { useLessons } from "@/hooks/useLessons";
 import { useToast } from "@/components/ui/use-toast";
 import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
@@ -18,23 +19,19 @@ interface CalendarPageProps {
 }
 
 export default function CalendarPage({ headerHeight }: CalendarPageProps) {
-  const [lessons, setLessons] = useState<CalendarEvent[]>(() => {
-    const savedLessons = localStorage.getItem('lessons');
-    return savedLessons ? JSON.parse(savedLessons) : [];
-  });
-  
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isStudentDialogOpen, setIsStudentDialogOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedLesson, setSelectedLesson] = useState<CalendarEvent | undefined>();
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isStudentDialogOpen, setIsStudentDialogOpen] = React.useState(false);
+  const [selectedDate, setSelectedDate] = React.useState(new Date());
+  const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
   
   const { currentView, setCurrentView } = useCalendarStore();
-  const { students, saveStudent, deleteStudent } = useStudents();
+  const { students } = useStudents();
+  const { lessons, saveLesson, deleteLesson } = useLessons();
   const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
 
   // Student dialog state
-  const [studentDialogState, setStudentDialogState] = useState({
+  const [studentDialogState, setStudentDialogState] = React.useState({
     selectedStudent: undefined,
     studentName: "",
     studentPrice: 0,
@@ -54,49 +51,24 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   };
 
   const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
-    if (selectedLesson) {
-      const updatedLessons = lessons.map(lesson => 
-        lesson.id === selectedLesson.id 
-          ? { ...lessonData, id: lesson.id }
-          : lesson
-      );
-      setLessons(updatedLessons);
-      toast({
-        title: "Ders güncellendi",
-        description: "Dersiniz başarıyla güncellendi.",
-      });
-    } else {
-      const newLesson: CalendarEvent = {
-        ...lessonData,
-        id: crypto.randomUUID(),
-      };
-      setLessons([...lessons, newLesson]);
-      toast({
-        title: "Ders oluşturuldu",
-        description: "Dersiniz başarıyla oluşturuldu.",
-      });
-    }
+    const lessonToSave = selectedLesson
+      ? { ...lessonData, id: selectedLesson.id }
+      : { ...lessonData, id: crypto.randomUUID() };
+      
+    saveLesson(lessonToSave);
+    setIsDialogOpen(false);
+    setSelectedLesson(undefined);
   };
 
   const handleDeleteLesson = (lessonId: string) => {
-    setLessons(lessons.filter(lesson => lesson.id !== lessonId));
-    toast({
-      title: "Ders silindi",
-      description: "Dersiniz başarıyla silindi.",
-    });
+    deleteLesson(lessonId);
+    setIsDialogOpen(false);
+    setSelectedLesson(undefined);
   };
 
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
-    const updatedLessons = lessons.map(lesson =>
-      lesson.id === updatedEvent.id ? updatedEvent : lesson
-    );
-    setLessons(updatedLessons);
+    saveLesson(updatedEvent);
   };
-
-  // Save lessons to localStorage
-  React.useEffect(() => {
-    localStorage.setItem('lessons', JSON.stringify(lessons));
-  }, [lessons]);
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
