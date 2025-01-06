@@ -95,38 +95,40 @@ export default function MonthView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-          {weekDays.map((day, index) => (
-            <motion.div
-              key={day}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.15,
-                delay: index * 0.01,
-                ease: [0.23, 1, 0.32, 1]
-              }}
-              className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
-            >
-              {day}
-            </motion.div>
-          ))}
-          
-          {days.map((day, idx) => {
-            const holiday = isHoliday(day.date);
-            return (
-              <MonthCell
-                key={idx}
-                day={day}
-                idx={idx}
-                holiday={holiday}
-                allowWorkOnHolidays={allowWorkOnHolidays}
-                handleDateClick={onDateSelect}
-                onEventClick={onEventClick}
-                students={students}
-              />
-            );
-          })}
+        <div className="border border-border rounded-lg overflow-hidden">
+          <div className="grid grid-cols-7 divide-x divide-y divide-border">
+            {weekDays.map((day, index) => (
+              <motion.div
+                key={day}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.15,
+                  delay: index * 0.01,
+                  ease: [0.23, 1, 0.32, 1]
+                }}
+                className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
+              >
+                {day}
+              </motion.div>
+            ))}
+            
+            {days.map((day, idx) => {
+              const holiday = isHoliday(day.date);
+              return (
+                <MonthCell
+                  key={idx}
+                  day={day}
+                  idx={idx}
+                  holiday={holiday}
+                  allowWorkOnHolidays={allowWorkOnHolidays}
+                  handleDateClick={onDateSelect}
+                  onEventClick={onEventClick}
+                  students={students}
+                />
+              );
+            })}
+          </div>
         </div>
       </motion.div>
     </DragDropContext>

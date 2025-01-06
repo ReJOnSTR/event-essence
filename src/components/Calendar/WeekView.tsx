@@ -50,19 +50,21 @@ export default function WeekView({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
     >
-      <WeekViewHeader date={date} />
-      <div className="grid grid-cols-8 gap-px bg-border">
-        <WeekViewTimeGrid
-          weekDays={weekDays}
-          hours={hours}
-          events={events}
-          workingHours={workingHours}
-          allowWorkOnHolidays={allowWorkOnHolidays}
-          onCellClick={handleCellClick}
-          onEventClick={onEventClick}
-          onEventUpdate={onEventUpdate}
-          students={students}
-        />
+      <div className="border border-border rounded-lg overflow-hidden">
+        <WeekViewHeader date={date} />
+        <div className="grid grid-cols-8 divide-x divide-border">
+          <WeekViewTimeGrid
+            weekDays={weekDays}
+            hours={hours}
+            events={events}
+            workingHours={workingHours}
+            allowWorkOnHolidays={allowWorkOnHolidays}
+            onCellClick={handleCellClick}
+            onEventClick={onEventClick}
+            onEventUpdate={onEventUpdate}
+            students={students}
+          />
+        </div>
       </div>
     </motion.div>
   );
