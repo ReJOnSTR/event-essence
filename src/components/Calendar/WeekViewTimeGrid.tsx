@@ -164,7 +164,7 @@ export default function WeekViewTimeGrid({
                     className={cn(
                       "bg-background border-b border-border min-h-[60px] relative",
                       isToday(day) && "bg-accent text-accent-foreground",
-                      (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
+                      (isWorkDisabled || isHourDisabled) && "bg-muted/40 text-muted-foreground cursor-not-allowed",
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
                       snapshot.isDraggingOver && "bg-accent"
                     )}
