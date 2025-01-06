@@ -55,7 +55,7 @@ export default function MonthCell({
             isToday(day.date) && "bg-accent text-accent-foreground",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-            !daySettings?.enabled && "bg-muted/20 dark:bg-muted/10 cursor-not-allowed",
+            !daySettings?.enabled && "bg-[#f1f5f9] dark:bg-muted/10 cursor-not-allowed",
             snapshot.isDraggingOver && "bg-accent/50",
             isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50"
           )}

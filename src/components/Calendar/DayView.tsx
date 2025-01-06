@@ -188,7 +188,7 @@ export default function DayView({
                       "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
                       snapshot.isDraggingOver && "bg-accent",
                       (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
-                      "bg-muted/20 dark:bg-muted/10 cursor-not-allowed"
+                      "bg-[#f1f5f9] dark:bg-muted/10 cursor-not-allowed"
                     )}
                     onClick={() => handleHourClick(hour, 0)}
                   >
