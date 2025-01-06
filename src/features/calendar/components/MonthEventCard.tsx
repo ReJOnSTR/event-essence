@@ -20,33 +20,35 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
     onClick?.(event);
   };
 
+  const content = (provided?: any, snapshot?: any) => (
+    <div
+      ref={provided?.innerRef}
+      {...(provided?.draggableProps || {})}
+      {...(provided?.dragHandleProps || {})}
+      className={cn(
+        "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
+        snapshot?.isDragging ? "shadow-lg opacity-70" : ""
+      )}
+      style={{ 
+        backgroundColor: student?.color || "#039be5",
+        ...(provided?.draggableProps?.style || {})
+      }}
+      onClick={handleClick}
+    >
+      <div className="flex flex-col gap-1">
+        <span className="font-medium text-[13px] leading-tight md:text-sm">
+          {student?.name || "İsimsiz Öğrenci"}
+        </span>
+        <span className="text-[12px] md:text-xs opacity-90">
+          {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
+        </span>
+      </div>
+    </div>
+  );
+
   return (
     <Draggable draggableId={event.id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          className={cn(
-            "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
-            snapshot.isDragging ? "shadow-lg opacity-70" : ""
-          )}
-          style={{ 
-            backgroundColor: student?.color || "#039be5",
-            ...provided.draggableProps.style
-          }}
-          onClick={handleClick}
-        >
-          <div className="flex flex-col gap-1">
-            <span className="font-medium text-[13px] leading-tight md:text-sm">
-              {student?.name || "İsimsiz Öğrenci"}
-            </span>
-            <span className="text-[12px] md:text-xs opacity-90">
-              {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
-            </span>
-          </div>
-        </div>
-      )}
+      {(provided, snapshot) => content(provided, snapshot)}
     </Draggable>
   );
 }

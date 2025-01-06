@@ -4,7 +4,7 @@ import { startOfWeek, addDays } from "date-fns";
 import { motion } from "framer-motion";
 import { getWorkingHours } from "@/utils/workingHours";
 import WeekViewHeader from "./WeekViewHeader";
-import WeekTimeGrid from "./WeekView/WeekTimeGrid";
+import WeekViewTimeGrid from "./WeekViewTimeGrid";
 
 interface WeekViewProps {
   date: Date;
@@ -53,7 +53,7 @@ export default function WeekView({
       <div className="border border-border rounded-lg overflow-hidden">
         <WeekViewHeader date={date} />
         <div className="grid grid-cols-8 divide-x divide-border">
-          <WeekTimeGrid
+          <WeekViewTimeGrid
             weekDays={weekDays}
             hours={hours}
             events={events}

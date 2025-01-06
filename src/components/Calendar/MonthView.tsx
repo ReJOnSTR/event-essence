@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
-import MonthEventCard from "@/features/calendar/components/cards/MonthEventCard";
+import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 

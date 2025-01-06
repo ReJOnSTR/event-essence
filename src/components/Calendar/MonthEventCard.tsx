@@ -28,20 +28,20 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={cn(
-            "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
+            "p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm truncate",
             snapshot.isDragging ? "shadow-lg opacity-70" : ""
           )}
           style={{ 
-            backgroundColor: student?.color || "#039be5",
+            backgroundColor: student?.color || "hsl(var(--primary))",
             ...provided.draggableProps.style
           }}
           onClick={handleClick}
         >
           <div className="flex flex-col gap-1">
-            <span className="font-medium text-[13px] leading-tight md:text-sm">
+            <span className="font-medium text-[13px] leading-tight md:text-sm text-primary-foreground truncate">
               {student?.name || "İsimsiz Öğrenci"}
             </span>
-            <span className="text-[12px] md:text-xs opacity-90">
+            <span className="text-[12px] md:text-xs text-primary-foreground/90 truncate">
               {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
             </span>
           </div>
