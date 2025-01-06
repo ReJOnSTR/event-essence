@@ -1,15 +1,17 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday } from "date-fns";
+import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
+import LessonCard from "./LessonCard";
+import StaticLessonCard from "./StaticLessonCard";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
+import { getDefaultLessonDuration } from "@/utils/settings";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
-import { TimeIndicator } from "@/components/Calendar/TimeIndicator";
-import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import { TimeIndicator } from "./TimeIndicator";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
-import { cn } from "@/lib/utils";
-import DayViewCell from "./DayViewCell";
 
 interface DayViewProps {
   date: Date;
@@ -49,7 +51,10 @@ export default function DayView({
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
-  const handleHourClick = (hour: number) => {
+  const handleHourClick = (hour: number, minute: number) => {
+    const eventDate = new Date(date);
+    eventDate.setHours(hour, minute);
+    
     if (holiday && !allowWorkOnHolidays) {
       toast({
         title: "Resmi Tatil",
@@ -68,6 +73,7 @@ export default function DayView({
       return;
     }
 
+    const currentTime = `${hour}:00`;
     if (hour < startHour || hour >= endHour) {
       toast({
         title: "Çalışma saatleri dışında",
@@ -77,8 +83,6 @@ export default function DayView({
       return;
     }
 
-    const eventDate = new Date(date);
-    eventDate.setHours(hour, 0);
     onDateSelect(eventDate);
   };
 
@@ -101,11 +105,11 @@ export default function DayView({
     const event = events.find(e => e.id === result.draggableId);
     if (!event) return;
 
-    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
-    const newStart = new Date(date);
-    newStart.setHours(hour, minute);
-    const newEnd = new Date(newStart.getTime() + duration);
+    const duration = differenceInMinutes(event.end, event.start);
+    const newStart = setMinutes(setHours(date, hour), minute);
+    const newEnd = new Date(newStart.getTime() + duration * 60000);
 
+    // Çakışma kontrolü
     const hasConflict = checkLessonConflict(
       { start: newStart, end: newEnd },
       events,
@@ -150,8 +154,7 @@ export default function DayView({
               transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
               className={cn(
                 "mb-4 p-2 rounded-md border",
-                !allowWorkOnHolidays ? "bg-holiday text-holiday-foreground border-holiday-foreground/20" : 
-                "bg-working-holiday text-working-holiday-foreground border-working-holiday-foreground/20"
+                !allowWorkOnHolidays ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
               )}
             >
               {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
@@ -176,15 +179,34 @@ export default function DayView({
                 {`${hour.toString().padStart(2, '0')}:00`}
                 <TimeIndicator events={dayEvents} hour={hour} />
               </div>
-              <DayViewCell
-                hour={hour}
-                events={dayEvents}
-                isDraggingOver={false}
-                isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
-                onCellClick={() => handleHourClick(hour)}
-                onEventClick={onEventClick}
-                students={students}
-              />
+              <Droppable droppableId={`${hour}:0`}>
+                {(provided, snapshot) => (
+                  <div 
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={cn(
+                      "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
+                      snapshot.isDraggingOver && "bg-accent",
+                      (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
+                      "bg-muted cursor-not-allowed"
+                    )}
+                    onClick={() => handleHourClick(hour, 0)}
+                  >
+                    {dayEvents
+                      .filter(event => new Date(event.start).getHours() === hour)
+                      .map((event, index) => (
+                        <LessonCard 
+                          key={event.id} 
+                          event={event} 
+                          onClick={onEventClick}
+                          students={students}
+                          index={index}
+                        />
+                      ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             </motion.div>
           ))}
         </div>

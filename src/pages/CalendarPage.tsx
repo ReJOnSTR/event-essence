@@ -1,4 +1,3 @@
-// Güncelliyoruz: import yollarını yeni konumlara göre düzenliyoruz
 import React from "react";
 import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
@@ -8,7 +7,7 @@ import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
-import LessonDialog from "@/features/calendar/components/LessonDialog";
+import LessonDialog from "@/components/Calendar/LessonDialog";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";

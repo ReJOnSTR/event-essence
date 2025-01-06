@@ -1,4 +1,3 @@
-// Taşıyoruz: src/components/Calendar/LessonDialogHeader.tsx -> src/features/calendar/components/LessonDialogHeader.tsx
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";

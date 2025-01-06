@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
-import LessonCard from "./LessonCard";
+import LessonCard from "@/components/Calendar/LessonCard";
 
 interface DayViewCellProps {
   hour: number;
