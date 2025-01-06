@@ -42,6 +42,9 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
     });
 
     // Listen for auth changes
@@ -63,7 +66,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     }
   };
 
-  const clearAuthData = () => {
+  const clearAuthData = async () => {
     // Clear session state
     setSession(null);
     
@@ -73,16 +76,22 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         localStorage.removeItem(key);
       }
     });
+
+    // Force refresh Supabase client
+    await supabase.auth.initialize();
   };
 
   const handleLogout = async () => {
     try {
+      // First try to clear local data
+      await clearAuthData();
+      
+      // Then attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        // If we get a session_not_found error, just clear the local data
+        // If we get a session_not_found error, just proceed with local cleanup
         if (error.message.includes('session_not_found')) {
-          clearAuthData();
           navigate('/login');
           toast({
             title: "Çıkış yapıldı",
@@ -91,7 +100,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           return;
         }
         
-        // For other errors, show the error message
+        // For other errors, show the error message but still proceed with logout
         console.error('Logout error:', error);
         toast({
           title: "Çıkış yapılırken bir hata oluştu",
@@ -99,8 +108,8 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           variant: "destructive",
           duration: 2000,
         });
+        navigate('/login');
       } else {
-        clearAuthData();
         navigate('/login');
         toast({
           title: "Başarıyla çıkış yapıldı",
@@ -110,7 +119,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     } catch (error) {
       console.error('Unexpected error during logout:', error);
       // If we catch any error, clear local data and redirect
-      clearAuthData();
+      await clearAuthData();
       navigate('/login');
       toast({
         title: "Çıkış yapıldı",
