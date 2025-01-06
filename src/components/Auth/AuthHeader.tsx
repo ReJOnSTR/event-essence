@@ -73,6 +73,17 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
       const { error } = await supabase.auth.signOut();
       
       if (error) {
+        // If we get a session_not_found error, we can ignore it since we're logging out anyway
+        if (error.message.includes('session_not_found')) {
+          setSession(null);
+          navigate('/login');
+          toast({
+            title: "Başarıyla çıkış yapıldı",
+            duration: 2000,
+          });
+          return;
+        }
+        
         console.error('Logout error:', error);
         toast({
           title: "Çıkış yapılırken bir hata oluştu",
@@ -88,6 +99,8 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
         });
+        
+        navigate('/login');
       }
     } catch (error) {
       console.error('Unexpected error during logout:', error);
