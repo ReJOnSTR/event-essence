@@ -17,8 +17,6 @@ interface StudentDialogContentProps {
   studentColor: string;
   setStudentColor: (color: string) => void;
   onDelete?: () => void;
-  onClose: () => void;
-  onSubmit: (e: React.FormEvent) => void;
 }
 
 export default function StudentDialogContent({
@@ -30,8 +28,6 @@ export default function StudentDialogContent({
   studentColor,
   setStudentColor,
   onDelete,
-  onClose,
-  onSubmit,
 }: StudentDialogContentProps) {
   const { toast } = useToast();
   const [localName, setLocalName] = useState(studentName);
@@ -80,15 +76,8 @@ export default function StudentDialogContent({
     setStudentColor(color.hex);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      onSubmit(e as any);
-    }
-  };
-
   return (
-    <form onSubmit={onSubmit} className="space-y-4" onKeyDown={handleKeyDown}>
+    <div className="space-y-4">
       <div className="space-y-2">
         <Label>İsim</Label>
         <Input
@@ -144,6 +133,6 @@ export default function StudentDialogContent({
           </Button>
         </div>
       )}
-    </form>
+    </div>
   );
 }
