@@ -1,15 +1,15 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import { format, isToday } from "date-fns";
+import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
+import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
-import { TimeIndicator } from "@/components/Calendar/TimeIndicator";
-import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
-import { cn } from "@/lib/utils";
-import DayViewCell from "./DayViewCell";
+import { TimeIndicator } from "./TimeIndicator";
+import LessonCard from "./LessonCard";
 
 interface DayViewProps {
   date: Date;

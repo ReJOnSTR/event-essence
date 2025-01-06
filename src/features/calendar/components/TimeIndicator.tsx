@@ -1,4 +1,3 @@
-// Taşıyoruz: src/components/Calendar/TimeIndicator.tsx -> src/features/calendar/components/TimeIndicator.tsx
 import { CalendarEvent } from "@/types/calendar";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
