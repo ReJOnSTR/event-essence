@@ -52,11 +52,11 @@ export default function MonthCell({
           onClick={() => !isDisabled && handleDateClick(day.date)}
           className={cn(
             "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
-            !day.isCurrentMonth && "text-muted-foreground/50 bg-[#f1f5f9] dark:bg-muted/50",
+            !day.isCurrentMonth && "text-muted-foreground/50 bg-muted/50",
             isToday(day.date) && "bg-accent text-accent-foreground",
-            holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-            holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-            !daySettings?.enabled && "bg-[#f1f5f9] dark:bg-muted",
+            holiday && !allowWorkOnHolidays && "bg-holiday text-holiday-foreground",
+            holiday && allowWorkOnHolidays && "bg-working-holiday text-working-holiday-foreground",
+            !daySettings?.enabled && "bg-muted",
             isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
             snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
           )}
@@ -70,7 +70,7 @@ export default function MonthCell({
             {holiday && (
               <div className={cn(
                 "text-xs truncate",
-                !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
+                !allowWorkOnHolidays ? "text-holiday-foreground" : "text-working-holiday-foreground"
               )}>
                 {holiday.name}
                 {allowWorkOnHolidays && " (Çalışmaya Açık)"}

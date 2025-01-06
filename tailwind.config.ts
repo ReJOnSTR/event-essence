@@ -19,10 +19,9 @@ export default {
     },
     extend: {
       colors: {
-        // Google Calendar renkleri
         "calendar-blue": {
           DEFAULT: "#1a73e8",
-          dark: "#364c5b" // Karanlık temada istenen renk
+          dark: "#60a5fa"
         },
         "calendar-hover": {
           DEFAULT: "#1557b0",
@@ -40,7 +39,14 @@ export default {
           DEFAULT: "#039be5",
           dark: "#38bdf8"
         },
-        // Diğer renkler
+        "holiday": {
+          DEFAULT: "hsl(var(--destructive) / 0.1)",
+          foreground: "hsl(var(--destructive))",
+        },
+        "working-holiday": {
+          DEFAULT: "hsl(var(--warning) / 0.1)",
+          foreground: "hsl(var(--warning))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
