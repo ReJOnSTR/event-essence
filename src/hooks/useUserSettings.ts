@@ -16,7 +16,20 @@ interface UserSettings {
 
 // Type for data that Supabase returns
 type SupabaseUserSettings = Omit<UserSettings, 'working_hours'> & {
-  working_hours: Record<string, unknown>;
+  working_hours: Record<string, any>;
+};
+
+// Type for data that Supabase accepts
+type SupabaseData = {
+  created_at?: string;
+  default_lesson_duration?: number;
+  font_family?: string;
+  font_size?: string;
+  id?: string;
+  theme?: string;
+  updated_at?: string;
+  user_id?: string;
+  working_hours?: Record<string, any>;
 };
 
 export const useUserSettings = () => {
@@ -49,9 +62,9 @@ export const useUserSettings = () => {
   const { mutate: updateSettings } = useMutation({
     mutationFn: async (newSettings: Partial<UserSettings>) => {
       // Convert the settings to a format Supabase expects
-      const supabaseSettings = {
+      const supabaseSettings: SupabaseData = {
         ...newSettings,
-        working_hours: newSettings.working_hours as Record<string, unknown>
+        working_hours: newSettings.working_hours as Record<string, any>
       };
 
       const { error } = await supabase
