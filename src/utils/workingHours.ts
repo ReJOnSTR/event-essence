@@ -5,6 +5,7 @@ export interface WorkingHours {
 }
 
 export interface WeeklyWorkingHours {
+  [key: string]: WorkingHours;
   monday: WorkingHours;
   tuesday: WorkingHours;
   wednesday: WorkingHours;
@@ -30,11 +31,10 @@ export const getWorkingHours = (): WeeklyWorkingHours => {
     if (!stored) return DEFAULT_WORKING_HOURS;
     
     const parsed = JSON.parse(stored);
-    // Ensure all days are present with default values
     return {
       ...DEFAULT_WORKING_HOURS,
       ...parsed
-    };
+    } as WeeklyWorkingHours;
   } catch (error) {
     console.error('Error reading working hours from localStorage:', error);
     return DEFAULT_WORKING_HOURS;

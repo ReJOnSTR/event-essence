@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { RotateCcw } from "lucide-react";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { WeeklyWorkingHours } from "@/utils/workingHours";
+import { WeeklyWorkingHours, WorkingHours } from "@/utils/workingHours";
 
 const DAYS = {
   monday: "Pazartesi",
@@ -19,7 +19,7 @@ const DAYS = {
   sunday: "Pazar"
 } as const;
 
-const DEFAULT_DAY = {
+const DEFAULT_DAY: WorkingHours = {
   start: "09:00",
   end: "17:00",
   enabled: true
@@ -27,7 +27,17 @@ const DEFAULT_DAY = {
 
 export default function WorkingHoursSettings() {
   const { settings, updateSettings } = useUserSettings();
-  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(settings?.working_hours || {});
+  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(
+    settings?.working_hours || {
+      monday: DEFAULT_DAY,
+      tuesday: DEFAULT_DAY,
+      wednesday: DEFAULT_DAY,
+      thursday: DEFAULT_DAY,
+      friday: DEFAULT_DAY,
+      saturday: { ...DEFAULT_DAY, enabled: false },
+      sunday: { ...DEFAULT_DAY, enabled: false }
+    }
+  );
   const { toast } = useToast();
 
   useEffect(() => {
@@ -38,10 +48,10 @@ export default function WorkingHoursSettings() {
 
   const handleChange = (
     day: keyof WeeklyWorkingHours,
-    field: "start" | "end" | "enabled",
+    field: keyof WorkingHours,
     value: string | boolean
   ) => {
-    const newHours = {
+    const newHours: WeeklyWorkingHours = {
       ...workingHours,
       [day]: {
         ...workingHours[day],
@@ -53,7 +63,7 @@ export default function WorkingHoursSettings() {
   };
 
   const resetDay = (day: keyof WeeklyWorkingHours) => {
-    const newHours = {
+    const newHours: WeeklyWorkingHours = {
       ...workingHours,
       [day]: DEFAULT_DAY
     };

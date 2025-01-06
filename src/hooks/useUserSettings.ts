@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { useToast } from "@/components/ui/use-toast";
+import { WeeklyWorkingHours } from "@/utils/workingHours";
 
 interface UserSettings {
   id: string;
@@ -10,13 +11,7 @@ interface UserSettings {
   font_family: string;
   theme: string;
   default_lesson_duration: number;
-  working_hours: {
-    [key: string]: {
-      enabled: boolean;
-      start: string;
-      end: string;
-    };
-  };
+  working_hours: WeeklyWorkingHours;
 }
 
 export const useUserSettings = () => {
@@ -33,7 +28,13 @@ export const useUserSettings = () => {
         .single();
 
       if (error) throw error;
-      return data as UserSettings;
+      
+      // Ensure the working_hours data matches our WeeklyWorkingHours type
+      const workingHours = data.working_hours as WeeklyWorkingHours;
+      return {
+        ...data,
+        working_hours: workingHours
+      } as UserSettings;
     },
     enabled: !!session?.user.id,
   });
