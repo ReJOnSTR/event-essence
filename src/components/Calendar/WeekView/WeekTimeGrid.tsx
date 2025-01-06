@@ -5,6 +5,7 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import WeekHourLabel from "./WeekHourLabel";
 import WeekCell from "./WeekCell";
 import { useWeekGrid } from "./useWeekGrid";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface WeekTimeGridProps {
   weekDays: Date[];
