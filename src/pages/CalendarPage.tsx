@@ -1,131 +1,66 @@
 import React from "react";
-import { useCalendarStore, ViewType } from "@/store/calendarStore";
+import { useCalendarStore } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
-import { useLessons } from "@/hooks/useLessons";
-import { useToast } from "@/hooks/use-toast";
-import { CalendarEvent } from "@/types/calendar";
-import { Button } from "@/components/ui/button";
-import { Plus, LogIn } from "lucide-react";
+import { useSessionContext } from '@supabase/auth-helpers-react';
+import { useStudentDialog } from "@/features/students/hooks/useStudentDialog";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import StudentDialog from "@/components/Students/StudentDialog";
-import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
 import { PageHeader } from "@/components/Layout/PageHeader";
-import { useSessionContext } from '@supabase/auth-helpers-react';
-import { useNavigate } from "react-router-dom";
-import { useStudentDialog } from "@/features/students/hooks/useStudentDialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { useCalendarEvents } from "@/features/calendar/hooks/useCalendarEvents";
+import CalendarHeader from "@/features/calendar/components/CalendarHeader";
+import LoginDialog from "@/features/calendar/components/LoginDialog";
 
 interface CalendarPageProps {
   headerHeight: number;
 }
 
 export default function CalendarPage({ headerHeight }: CalendarPageProps) {
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = React.useState(false);
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
-  
   const { currentView, setCurrentView } = useCalendarStore();
   const { students } = useStudents();
-  const { lessons, saveLesson, deleteLesson } = useLessons();
-  const { toast } = useToast();
-  const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
   const { session } = useSessionContext();
-  const navigate = useNavigate();
   const studentDialog = useStudentDialog();
+  const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(
+    selectedDate, 
+    setSelectedDate
+  );
 
-  const handleDateSelect = (date: Date) => {
-    if (!session) {
-      setIsLoginDialogOpen(true);
-      return;
-    }
-    setSelectedDate(date);
-    setSelectedLesson(undefined);
-    setIsDialogOpen(true);
-  };
-
-  const handleLessonClick = (lesson: CalendarEvent) => {
-    if (!session) {
-      setIsLoginDialogOpen(true);
-      return;
-    }
-    setSelectedLesson(lesson);
-    setSelectedDate(lesson.start);
-    setIsDialogOpen(true);
-  };
-
-  const handleLoginClick = () => {
-    navigate('/login');
-    setIsLoginDialogOpen(false);
-  };
-
-  const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
-    if (!session) return;
-    
-    const lessonToSave = selectedLesson
-      ? { ...lessonData, id: selectedLesson.id }
-      : { ...lessonData, id: crypto.randomUUID() };
-      
-    saveLesson(lessonToSave);
-    setIsDialogOpen(false);
-    setSelectedLesson(undefined);
-  };
-
-  const handleDeleteLesson = (lessonId: string) => {
-    if (!session) return;
-    deleteLesson(lessonId);
-    setIsDialogOpen(false);
-    setSelectedLesson(undefined);
-  };
-
-  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
-    if (!session) {
-      setIsLoginDialogOpen(true);
-      return;
-    }
-    saveLesson(updatedEvent);
-  };
+  const {
+    isDialogOpen,
+    setIsDialogOpen,
+    isLoginDialogOpen,
+    setIsLoginDialogOpen,
+    selectedDate,
+    setSelectedDate,
+    selectedLesson,
+    setSelectedLesson,
+    lessons,
+    handleDateSelect,
+    handleLessonClick,
+    handleSaveLesson,
+    handleDeleteLesson,
+    handleEventUpdate
+  } = useCalendarEvents();
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
       <PageHeader title="Takvim">
-        <div className="flex items-center gap-1 md:gap-2">
-          {session && (
-            <>
-              <WeeklySchedulePdf lessons={lessons} students={students} />
-              <Button 
-                size="sm"
-                onClick={() => {
-                  if (!session) {
-                    setIsLoginDialogOpen(true);
-                    return;
-                  }
-                  setSelectedLesson(undefined);
-                  setIsDialogOpen(true);
-                }}
-              >
-                <Plus className="h-4 w-4 mr-1 md:mr-2" />
-                <span className="hidden md:inline">Ders Ekle</span>
-                <span className="md:hidden">Ekle</span>
-              </Button>
-            </>
-          )}
-        </div>
+        <CalendarHeader
+          session={session}
+          setIsLoginDialogOpen={setIsLoginDialogOpen}
+          setSelectedLesson={setSelectedLesson}
+          setIsDialogOpen={setIsDialogOpen}
+          lessons={lessons}
+          students={students}
+        />
       </PageHeader>
 
       <CalendarPageHeader
         date={selectedDate}
         currentView={currentView}
-        onViewChange={(view: ViewType) => setCurrentView(view)}
+        onViewChange={setCurrentView}
         onPrevious={handleNavigationClick('prev', currentView)}
         onNext={handleNavigationClick('next', currentView)}
         onToday={handleTodayClick}
@@ -137,9 +72,9 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
             currentView={currentView}
             selectedDate={selectedDate}
             lessons={lessons}
-            onDateSelect={handleDateSelect}
-            onEventClick={handleLessonClick}
-            onEventUpdate={handleEventUpdate}
+            onDateSelect={(date) => handleDateSelect(session, date)}
+            onEventClick={(event) => handleLessonClick(session, event)}
+            onEventUpdate={(event) => handleEventUpdate(session, event)}
             students={students}
           />
         </div>
@@ -153,8 +88,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
               setIsDialogOpen(false);
               setSelectedLesson(undefined);
             }}
-            onSave={handleSaveLesson}
-            onDelete={handleDeleteLesson}
+            onSave={(lesson) => handleSaveLesson(session, lesson)}
+            onDelete={(id) => handleDeleteLesson(session, id)}
             selectedDate={selectedDate}
             event={selectedLesson}
             events={lessons}
@@ -177,26 +112,10 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         </>
       )}
 
-      <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Giriş Yapmanız Gerekiyor</DialogTitle>
-            <DialogDescription className="pt-2">
-              Ders eklemek ve düzenlemek için lütfen giriş yapın. Giriş yaparak tüm özelliklere erişebilirsiniz.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center pt-4">
-            <Button 
-              onClick={handleLoginClick}
-              className="w-full sm:w-auto"
-              size="lg"
-            >
-              <LogIn className="mr-2 h-5 w-5" />
-              Giriş Yap
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <LoginDialog 
+        isOpen={isLoginDialogOpen}
+        onOpenChange={setIsLoginDialogOpen}
+      />
     </div>
   );
 }
