@@ -1,6 +1,5 @@
 import React from "react";
 import { format, isToday } from "date-fns";
-import { tr } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { isHoliday } from "@/utils/turkishHolidays";
@@ -143,7 +142,7 @@ export default function WeekViewTimeGrid({
     <DragDropContext onDragEnd={onDragEnd}>
       {hours.map((hour) => (
         <React.Fragment key={`hour-${hour}`}>
-          <div className="bg-background p-2 text-right text-sm text-muted-foreground">
+          <div className="bg-background p-2 text-right text-sm text-muted-foreground border-b border-border">
             {`${hour.toString().padStart(2, '0')}:00`}
           </div>
           {weekDays.map((day, dayIndex) => {
@@ -163,7 +162,7 @@ export default function WeekViewTimeGrid({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "bg-background border-t border-border min-h-[60px] relative",
+                      "bg-background border-b border-border min-h-[60px] relative",
                       isToday(day) && "bg-accent text-accent-foreground",
                       (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
