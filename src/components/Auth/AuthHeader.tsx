@@ -60,19 +60,35 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     }
   };
 
+  const clearAuthData = () => {
+    // Clear session state
+    setSession(null);
+    
+    // Clear all Supabase related items from localStorage
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('supabase.auth.')) {
+        localStorage.removeItem(key);
+      }
+    });
+  };
+
   const handleLogout = async () => {
     try {
-      // Clear all Supabase related items from localStorage
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('supabase.auth.')) {
-          localStorage.removeItem(key);
-        }
-      });
-      
-      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
+        // If we get a session_not_found error, just clear the local data
+        if (error.message.includes('session_not_found')) {
+          clearAuthData();
+          navigate('/login');
+          toast({
+            title: "Çıkış yapıldı",
+            duration: 2000,
+          });
+          return;
+        }
+        
+        // For other errors, show the error message
         console.error('Logout error:', error);
         toast({
           title: "Çıkış yapılırken bir hata oluştu",
@@ -81,9 +97,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           duration: 2000,
         });
       } else {
-        // Clear session state
-        setSession(null);
-        
+        clearAuthData();
         toast({
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
@@ -91,9 +105,11 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
       }
     } catch (error) {
       console.error('Unexpected error during logout:', error);
+      // If we catch any error, clear local data and redirect
+      clearAuthData();
+      navigate('/login');
       toast({
-        title: "Çıkış yapılırken bir hata oluştu",
-        variant: "destructive",
+        title: "Çıkış yapıldı",
         duration: 2000,
       });
     }
