@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { TimeIndicator } from "./TimeIndicator";
-import LessonCard from "./LessonCard";
+import DayViewCell from "./DayViewCell";
 
 interface DayViewProps {
   date: Date;

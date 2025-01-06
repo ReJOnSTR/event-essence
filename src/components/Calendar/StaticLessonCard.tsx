@@ -1,5 +1,5 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import LessonCard from "./LessonCard";
+import LessonCard from "@/features/calendar/components/LessonCard";
 
 interface StaticLessonCardProps {
   event: CalendarEvent;

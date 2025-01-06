@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent, Student } from "@/types/calendar";
-import LessonCard from "./LessonCard";
+import LessonCard from "@/features/calendar/components/LessonCard";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 
 interface WeekViewTimeGridProps {

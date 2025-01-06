@@ -1,6 +1,6 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import MonthView from "./MonthView";
-import DayView from "@/components/Calendar/DayView";
+import DayView from "./DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import { ViewType } from "@/store/calendarStore";
