@@ -62,35 +62,51 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
 
   const handleLogout = async () => {
     try {
-      // Clear all Supabase related items from localStorage
+      // First clear the session from localStorage
+      const currentSession = await supabase.auth.getSession();
+      if (!currentSession.data.session) {
+        // If no session exists, just clear local storage and show success
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.')) {
+            localStorage.removeItem(key);
+          }
+        });
+        toast({
+          title: "Başarıyla çıkış yapıldı",
+          duration: 2000,
+        });
+        setSession(null);
+        return;
+      }
+
+      // If session exists, try to sign out properly
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Logout error:', error);
+        // Even if there's an error, clear local storage
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.')) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
+      
+      // Clear session state and show success message
+      setSession(null);
+      toast({
+        title: "Başarıyla çıkış yapıldı",
+        duration: 2000,
+      });
+      
+    } catch (error) {
+      console.error('Unexpected error during logout:', error);
+      // Ensure we clear local storage even on error
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('supabase.auth.')) {
           localStorage.removeItem(key);
         }
       });
-      
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('Logout error:', error);
-        toast({
-          title: "Çıkış yapılırken bir hata oluştu",
-          description: error.message,
-          variant: "destructive",
-          duration: 2000,
-        });
-      } else {
-        // Clear session state
-        setSession(null);
-        
-        toast({
-          title: "Başarıyla çıkış yapıldı",
-          duration: 2000,
-        });
-      }
-    } catch (error) {
-      console.error('Unexpected error during logout:', error);
       toast({
         title: "Çıkış yapılırken bir hata oluştu",
         variant: "destructive",

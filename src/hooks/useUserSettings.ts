@@ -14,12 +14,10 @@ interface UserSettings {
   working_hours: WeeklyWorkingHours;
 }
 
+// Type for data that Supabase returns
 type SupabaseUserSettings = Omit<UserSettings, 'working_hours'> & {
-  working_hours: unknown;
+  working_hours: Record<string, unknown>;
 };
-
-// Type for data that Supabase accepts
-type SupabaseJson = string | number | boolean | { [key: string]: SupabaseJson } | SupabaseJson[];
 
 export const useUserSettings = () => {
   const { session } = useSessionContext();
@@ -32,17 +30,17 @@ export const useUserSettings = () => {
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .single();
+        .eq('user_id', session?.user.id)
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) return null;
       
-      // Convert the unknown working_hours to our expected type
+      // Convert the Supabase data to our expected type
       const supabaseData = data as SupabaseUserSettings;
-      const workingHours = supabaseData.working_hours as WeeklyWorkingHours;
-
       return {
         ...supabaseData,
-        working_hours: workingHours
+        working_hours: supabaseData.working_hours as WeeklyWorkingHours
       } as UserSettings;
     },
     enabled: !!session?.user.id,
@@ -53,7 +51,7 @@ export const useUserSettings = () => {
       // Convert the settings to a format Supabase expects
       const supabaseSettings = {
         ...newSettings,
-        working_hours: newSettings.working_hours as SupabaseJson
+        working_hours: newSettings.working_hours as Record<string, unknown>
       };
 
       const { error } = await supabase
