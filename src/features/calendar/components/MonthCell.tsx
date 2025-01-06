@@ -52,11 +52,11 @@ export default function MonthCell({
           onClick={() => !isDisabled && handleDateClick(day.date)}
           className={cn(
             "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
-            !day.isCurrentMonth && "text-muted-foreground/50 bg-[#f1f5f9]",
+            !day.isCurrentMonth && "text-muted-foreground/50 bg-[#f1f5f9] dark:bg-muted/50",
             isToday(day.date) && "bg-accent text-accent-foreground",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-            !daySettings?.enabled && "bg-[#f1f5f9] dark:bg-muted/10",
+            !daySettings?.enabled && "bg-[#f1f5f9] dark:bg-muted",
             isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
             snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
           )}
