@@ -4,6 +4,7 @@ import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import { useMonthView } from "../hooks/useMonthView";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { getWorkingHours } from "@/utils/workingHours";
 import MonthCell from "./MonthCell";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 
@@ -31,6 +32,7 @@ export default function MonthView({
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   const days = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+  const workingHours = getWorkingHours();
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
@@ -41,13 +43,18 @@ export default function MonthView({
     
     if (!event) return;
 
-    const eventStart = new Date(event.start);
-    const eventEnd = new Date(event.end);
-    const duration = eventEnd.getTime() - eventStart.getTime();
-    
-    const newStart = new Date(targetDay);
-    newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
-    const newEnd = new Date(newStart.getTime() + duration);
+    const dayOfWeek = targetDay.getDay();
+    const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const daySettings = workingHours[weekDays[dayOfWeek]];
+
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     const holiday = isHoliday(targetDay);
     if (holiday && !allowWorkOnHolidays) {
@@ -59,7 +66,15 @@ export default function MonthView({
       return;
     }
 
-    // Çakışma kontrolü
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+    const duration = eventEnd.getTime() - eventStart.getTime();
+    
+    const newStart = new Date(targetDay);
+    newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
+    const newEnd = new Date(newStart.getTime() + duration);
+
+    // Check for lesson conflicts
     const hasConflict = checkLessonConflict(
       { start: newStart, end: newEnd },
       events,

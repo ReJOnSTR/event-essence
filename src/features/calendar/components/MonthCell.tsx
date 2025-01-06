@@ -5,6 +5,7 @@ import { Droppable } from "@hello-pangea/dnd";
 import MonthEventCard from "@/components/Calendar/MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { getWorkingHours } from "@/utils/workingHours";
 
 interface MonthCellProps {
   day: {
@@ -29,8 +30,14 @@ export default function MonthCell({
   onEventClick,
   students
 }: MonthCellProps) {
+  const workingHours = getWorkingHours();
+  const dayOfWeek = day.date.getDay();
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+  const daySettings = workingHours[days[dayOfWeek]];
+  const isDisabled = !daySettings?.enabled || (holiday && !allowWorkOnHolidays);
+
   return (
-    <Droppable droppableId={`${idx}`}>
+    <Droppable droppableId={`${idx}`} isDropDisabled={isDisabled}>
       {(provided, snapshot) => (
         <motion.div
           ref={provided.innerRef}
@@ -42,14 +49,16 @@ export default function MonthCell({
             delay: idx * 0.01,
             ease: [0.23, 1, 0.32, 1]
           }}
-          onClick={() => handleDateClick(day.date)}
+          onClick={() => !isDisabled && handleDateClick(day.date)}
           className={cn(
-            "min-h-[120px] p-2 bg-background/80 cursor-pointer transition-colors duration-150",
-            !day.isCurrentMonth && "text-muted-foreground/50 bg-muted/30",
+            "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
+            !day.isCurrentMonth && "text-muted-foreground/50 bg-[#f1f5f9]",
             isToday(day.date) && "bg-accent text-accent-foreground",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-            snapshot.isDraggingOver && "bg-accent/50"
+            !daySettings?.enabled && "bg-[#f1f5f9] dark:bg-muted/10",
+            isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
+            snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
           )}
         >
           <div className={cn(
@@ -65,6 +74,11 @@ export default function MonthCell({
               )}>
                 {holiday.name}
                 {allowWorkOnHolidays && " (Çalışmaya Açık)"}
+              </div>
+            )}
+            {!holiday && !daySettings?.enabled && (
+              <div className="text-xs text-muted-foreground truncate">
+                Çalışma Saatleri Kapalı
               </div>
             )}
           </div>
