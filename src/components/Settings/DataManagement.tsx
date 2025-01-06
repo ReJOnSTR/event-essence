@@ -68,14 +68,15 @@ export default function DataManagement() {
       if (studentsError) throw studentsError;
 
       // Save auth related items
-      const authToken = localStorage.getItem('sb-' + supabase.projectId + '-auth-token');
+      const authKey = 'sb-' + supabase.supabaseUrl.split('//')[1].split('.')[0] + '-auth-token';
+      const authToken = localStorage.getItem(authKey);
       
       // Clear localStorage except auth token
       localStorage.clear();
       
       // Restore auth token
       if (authToken) {
-        localStorage.setItem('sb-' + supabase.projectId + '-auth-token', authToken);
+        localStorage.setItem(authKey, authToken);
       }
       
       toast({
