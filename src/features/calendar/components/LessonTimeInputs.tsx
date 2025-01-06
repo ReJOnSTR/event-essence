@@ -1,3 +1,4 @@
+// Taşıyoruz: src/components/Calendar/LessonTimeInputs.tsx -> src/features/calendar/components/LessonTimeInputs.tsx
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { getWorkingHours } from "@/utils/workingHours";
@@ -22,7 +23,6 @@ export default function LessonTimeInputs({
   const dayOfWeek = format(selectedDate, 'EEEE', { locale: tr }).toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
 
-  // Çalışma saatlerini al
   const minTime = daySettings?.enabled ? daySettings.start : "09:00";
   const maxTime = daySettings?.enabled ? daySettings.end : "17:00";
 

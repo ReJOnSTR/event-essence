@@ -1,3 +1,4 @@
+// Taşıyoruz: src/components/Calendar/LessonDialogForm.tsx -> src/features/calendar/components/LessonDialogForm.tsx
 import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
