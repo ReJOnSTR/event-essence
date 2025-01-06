@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "@/utils/workingHours";
 import { RotateCcw } from "lucide-react";
-import { useUserSettings } from "@/hooks/useUserSettings";
-import { WeeklyWorkingHours, WorkingHours } from "@/utils/workingHours";
 
 const DAYS = {
   monday: "Pazartesi",
@@ -19,39 +18,22 @@ const DAYS = {
   sunday: "Pazar"
 } as const;
 
-const DEFAULT_DAY: WorkingHours = {
+const DEFAULT_DAY = {
   start: "09:00",
   end: "17:00",
   enabled: true
 };
 
 export default function WorkingHoursSettings() {
-  const { settings, updateSettings } = useUserSettings();
-  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(
-    settings?.working_hours || {
-      monday: DEFAULT_DAY,
-      tuesday: DEFAULT_DAY,
-      wednesday: DEFAULT_DAY,
-      thursday: DEFAULT_DAY,
-      friday: DEFAULT_DAY,
-      saturday: { ...DEFAULT_DAY, enabled: false },
-      sunday: { ...DEFAULT_DAY, enabled: false }
-    }
-  );
+  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(getWorkingHours);
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (settings?.working_hours) {
-      setWorkingHoursState(settings.working_hours);
-    }
-  }, [settings]);
 
   const handleChange = (
     day: keyof WeeklyWorkingHours,
-    field: keyof WorkingHours,
+    field: "start" | "end" | "enabled",
     value: string | boolean
   ) => {
-    const newHours: WeeklyWorkingHours = {
+    const newHours = {
       ...workingHours,
       [day]: {
         ...workingHours[day],
@@ -59,16 +41,20 @@ export default function WorkingHoursSettings() {
       }
     };
     setWorkingHoursState(newHours);
-    updateSettings({ working_hours: newHours });
+    setWorkingHours(newHours);
+    toast({
+      title: "Ayarlar güncellendi",
+      description: "Çalışma saatleri başarıyla kaydedildi.",
+    });
   };
 
   const resetDay = (day: keyof WeeklyWorkingHours) => {
-    const newHours: WeeklyWorkingHours = {
+    const newHours = {
       ...workingHours,
       [day]: DEFAULT_DAY
     };
     setWorkingHoursState(newHours);
-    updateSettings({ working_hours: newHours });
+    setWorkingHours(newHours);
     toast({
       title: "Gün sıfırlandı",
       description: `${DAYS[day]} günü varsayılan ayarlara döndürüldü.`,
@@ -86,7 +72,7 @@ export default function WorkingHoursSettings() {
       sunday: { ...DEFAULT_DAY, enabled: false }
     };
     setWorkingHoursState(defaultHours);
-    updateSettings({ working_hours: defaultHours });
+    setWorkingHours(defaultHours);
     toast({
       title: "Tüm günler sıfırlandı",
       description: "Çalışma saatleri varsayılan ayarlara döndürüldü.",
