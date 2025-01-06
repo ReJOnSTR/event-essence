@@ -7,49 +7,38 @@ import { ThemeOptions } from "./ThemeOptions";
 
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem("theme") || "system";
-    }
-    return "system";
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme || "light";
   });
   
   const [fontSize, setFontSize] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem("fontSize") || "medium";
-    }
-    return "medium";
+    return localStorage.getItem("fontSize") || "medium";
   });
   
   const [fontFamily, setFontFamily] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem("fontFamily") || "system";
-    }
-    return "system";
+    return localStorage.getItem("fontFamily") || "system";
   });
   
   const { toast } = useToast();
   const { applyTheme } = useThemeSettings();
 
   useEffect(() => {
-    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+    const handleSystemThemeChange = () => {
       if (currentTheme === "system") {
-        const newTheme = e.matches ? "dark" : "light";
-        document.documentElement.setAttribute("data-theme", newTheme);
+        applyTheme("system");
       }
     };
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    // Sadece tema değiştiğinde uygula
     if (localStorage.getItem("theme") !== currentTheme) {
-      localStorage.setItem("theme", currentTheme);
       applyTheme(currentTheme);
+      localStorage.setItem("theme", currentTheme);
       toast({
         title: "Tema değiştirildi",
         description: "Yeni tema ayarlarınız kaydedildi.",
       });
     }
 
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", handleSystemThemeChange);
 
     return () => {
