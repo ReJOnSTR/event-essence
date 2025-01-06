@@ -16,7 +16,7 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
 
   return (
     <div className="grid grid-cols-8 gap-px bg-border">
-      <div className="bg-background w-16" />
+      <div className="bg-background w-16 border-b border-border" />
       {weekDays.map((day, index) => {
         const holiday = isHoliday(day);
         return (
@@ -31,6 +31,7 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
             }}
             className={cn(
               "bg-background p-2 text-center relative min-h-[60px] md:min-h-[80px] flex flex-col justify-between",
+              "border-b border-border",
               isToday(day) && "text-[#1a73e8]"
             )}
           >
