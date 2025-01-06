@@ -16,6 +16,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+// Get this from the same place where we initialize the client
+const SUPABASE_URL = "https://dgnllgedubuinpobacli.supabase.co";
+
 export default function DataManagement() {
   const { toast } = useToast();
 
@@ -68,7 +71,7 @@ export default function DataManagement() {
       if (studentsError) throw studentsError;
 
       // Save auth related items
-      const authKey = 'sb-' + supabase.supabaseUrl.split('//')[1].split('.')[0] + '-auth-token';
+      const authKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
       const authToken = localStorage.getItem(authKey);
       
       // Clear localStorage except auth token
