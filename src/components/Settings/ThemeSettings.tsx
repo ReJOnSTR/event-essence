@@ -7,27 +7,39 @@ import { ThemeOptions } from "./ThemeOptions";
 
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme || "light";
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("theme") || "system";
+    }
+    return "system";
   });
   
   const [fontSize, setFontSize] = useState(() => {
-    return localStorage.getItem("fontSize") || "medium";
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("fontSize") || "medium";
+    }
+    return "medium";
   });
   
   const [fontFamily, setFontFamily] = useState(() => {
-    return localStorage.getItem("fontFamily") || "system";
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem("fontFamily") || "system";
+    }
+    return "system";
   });
   
   const { toast } = useToast();
   const { applyTheme } = useThemeSettings();
 
   useEffect(() => {
-    const handleSystemThemeChange = () => {
+    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
       if (currentTheme === "system") {
+        const newTheme = e.matches ? "dark" : "light";
         applyTheme("system");
+        document.documentElement.setAttribute("data-theme", newTheme);
       }
     };
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     if (localStorage.getItem("theme") !== currentTheme) {
       applyTheme(currentTheme);
@@ -38,7 +50,6 @@ export default function ThemeSettings() {
       });
     }
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", handleSystemThemeChange);
 
     return () => {

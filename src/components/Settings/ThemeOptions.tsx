@@ -34,18 +34,34 @@ interface ThemeOptionsProps {
 
 export function ThemeOptions({ currentTheme, onThemeChange }: ThemeOptionsProps) {
   const [systemTheme, setSystemTheme] = useState<string>(() => {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    if (typeof window !== 'undefined') {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return 'light';
   });
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    
     const handleChange = (e: MediaQueryListEvent) => {
-      setSystemTheme(e.matches ? "dark" : "light");
+      const newTheme = e.matches ? "dark" : "light";
+      setSystemTheme(newTheme);
+      if (currentTheme === "system") {
+        document.documentElement.setAttribute("data-theme", newTheme);
+      }
     };
 
+    // İlk yükleme için kontrol
+    setSystemTheme(mediaQuery.matches ? "dark" : "light");
+    
+    // Event listener ekleme
     mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+    
+    // Cleanup
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, [currentTheme]);
 
   const getThemePreview = (themeId: string) => {
     if (themeId === "system") {
