@@ -64,7 +64,8 @@ export default function StudentDialog({
   studentColor,
   setStudentColor,
 }: StudentDialogProps) {
-  const handleSave = async () => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!studentName.trim()) {
       return;
     }
@@ -101,6 +102,8 @@ export default function StudentDialog({
                 studentColor={studentColor}
                 setStudentColor={setStudentColor}
                 onDelete={onDelete}
+                onClose={onClose}
+                onSubmit={handleSave}
               />
 
               <DialogFooter className="flex items-center justify-end mt-6">
