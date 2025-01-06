@@ -64,7 +64,7 @@ export default function StudentDialog({
   studentColor,
   setStudentColor,
 }: StudentDialogProps) {
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!studentName.trim()) {
       return;
@@ -103,7 +103,7 @@ export default function StudentDialog({
                 setStudentColor={setStudentColor}
                 onDelete={onDelete}
                 onClose={onClose}
-                onSubmit={handleSave}
+                onSubmit={handleSubmit}
               />
 
               <DialogFooter className="flex items-center justify-end mt-6">
@@ -116,7 +116,7 @@ export default function StudentDialog({
                   <Button variant="outline" onClick={onClose}>
                     İptal
                   </Button>
-                  <Button onClick={handleSave}>
+                  <Button onClick={handleSubmit}>
                     {student ? "Güncelle" : "Ekle"}
                   </Button>
                 </motion.div>
