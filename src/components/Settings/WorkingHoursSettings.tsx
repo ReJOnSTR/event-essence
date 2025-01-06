@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "@/utils/workingHours";
 import { RotateCcw } from "lucide-react";
+import { useUserSettings } from "@/hooks/useUserSettings";
+import { WeeklyWorkingHours } from "@/utils/workingHours";
 
 const DAYS = {
   monday: "Pazartesi",
@@ -25,8 +26,15 @@ const DEFAULT_DAY = {
 };
 
 export default function WorkingHoursSettings() {
-  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(getWorkingHours);
+  const { settings, updateSettings } = useUserSettings();
+  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(settings?.working_hours || {});
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (settings?.working_hours) {
+      setWorkingHoursState(settings.working_hours);
+    }
+  }, [settings]);
 
   const handleChange = (
     day: keyof WeeklyWorkingHours,
@@ -41,11 +49,7 @@ export default function WorkingHoursSettings() {
       }
     };
     setWorkingHoursState(newHours);
-    setWorkingHours(newHours);
-    toast({
-      title: "Ayarlar güncellendi",
-      description: "Çalışma saatleri başarıyla kaydedildi.",
-    });
+    updateSettings({ working_hours: newHours });
   };
 
   const resetDay = (day: keyof WeeklyWorkingHours) => {
@@ -54,7 +58,7 @@ export default function WorkingHoursSettings() {
       [day]: DEFAULT_DAY
     };
     setWorkingHoursState(newHours);
-    setWorkingHours(newHours);
+    updateSettings({ working_hours: newHours });
     toast({
       title: "Gün sıfırlandı",
       description: `${DAYS[day]} günü varsayılan ayarlara döndürüldü.`,
@@ -72,7 +76,7 @@ export default function WorkingHoursSettings() {
       sunday: { ...DEFAULT_DAY, enabled: false }
     };
     setWorkingHoursState(defaultHours);
-    setWorkingHours(defaultHours);
+    updateSettings({ working_hours: defaultHours });
     toast({
       title: "Tüm günler sıfırlandı",
       description: "Çalışma saatleri varsayılan ayarlara döndürüldü.",
