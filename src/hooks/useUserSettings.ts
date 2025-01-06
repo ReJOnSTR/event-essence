@@ -18,6 +18,9 @@ type SupabaseUserSettings = Omit<UserSettings, 'working_hours'> & {
   working_hours: unknown;
 };
 
+// Type for data that Supabase accepts
+type SupabaseJson = string | number | boolean | { [key: string]: SupabaseJson } | SupabaseJson[];
+
 export const useUserSettings = () => {
   const { session } = useSessionContext();
   const queryClient = useQueryClient();
@@ -50,7 +53,7 @@ export const useUserSettings = () => {
       // Convert the settings to a format Supabase expects
       const supabaseSettings = {
         ...newSettings,
-        working_hours: newSettings.working_hours as unknown
+        working_hours: newSettings.working_hours as SupabaseJson
       };
 
       const { error } = await supabase
