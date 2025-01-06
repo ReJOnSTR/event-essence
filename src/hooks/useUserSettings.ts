@@ -14,6 +14,10 @@ interface UserSettings {
   working_hours: WeeklyWorkingHours;
 }
 
+type SupabaseUserSettings = Omit<UserSettings, 'working_hours'> & {
+  working_hours: unknown;
+};
+
 export const useUserSettings = () => {
   const { session } = useSessionContext();
   const queryClient = useQueryClient();
@@ -29,10 +33,12 @@ export const useUserSettings = () => {
 
       if (error) throw error;
       
-      // Ensure the working_hours data matches our WeeklyWorkingHours type
-      const workingHours = data.working_hours as WeeklyWorkingHours;
+      // Convert the unknown working_hours to our expected type
+      const supabaseData = data as SupabaseUserSettings;
+      const workingHours = supabaseData.working_hours as WeeklyWorkingHours;
+
       return {
-        ...data,
+        ...supabaseData,
         working_hours: workingHours
       } as UserSettings;
     },
@@ -41,9 +47,15 @@ export const useUserSettings = () => {
 
   const { mutate: updateSettings } = useMutation({
     mutationFn: async (newSettings: Partial<UserSettings>) => {
+      // Convert the settings to a format Supabase expects
+      const supabaseSettings = {
+        ...newSettings,
+        working_hours: newSettings.working_hours as unknown
+      };
+
       const { error } = await supabase
         .from('user_settings')
-        .update(newSettings)
+        .update(supabaseSettings)
         .eq('user_id', session?.user.id);
 
       if (error) throw error;
