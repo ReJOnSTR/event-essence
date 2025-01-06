@@ -1,8 +1,8 @@
 import { CalendarEvent, Student } from "@/types/calendar";
-import MonthView from "./MonthView";
-import DayView from "@/components/Calendar/DayView";
-import WeekView from "@/components/Calendar/WeekView";
-import YearView from "@/components/Calendar/YearView";
+import DayView from "./day-view";
+import WeekView from "./week-view";
+import MonthView from "./month-view";
+import YearView from "./year-view";
 import { ViewType } from "@/store/calendarStore";
 
 interface CalendarContentProps {
