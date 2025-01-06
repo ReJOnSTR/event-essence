@@ -61,7 +61,6 @@ export default {
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
-          dark: "hsl(var(--muted) / 0.2)", // Karanlık tema için daha şeffaf muted rengi
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
