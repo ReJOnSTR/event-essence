@@ -42,21 +42,15 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
-        navigate('/login');
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [onHeightChange, navigate]);
+  }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -66,41 +60,19 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     }
   };
 
-  const clearAuthData = async () => {
-    // Clear session state
-    setSession(null);
-    
-    // Clear all Supabase related items from localStorage
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('supabase.auth.')) {
-        localStorage.removeItem(key);
-      }
-    });
-
-    // Force refresh Supabase client
-    await supabase.auth.initialize();
-  };
-
   const handleLogout = async () => {
     try {
-      // First try to clear local data
-      await clearAuthData();
+      // Clear all Supabase related items from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth.')) {
+          localStorage.removeItem(key);
+        }
+      });
       
-      // Then attempt to sign out from Supabase
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        // If we get a session_not_found error, just proceed with local cleanup
-        if (error.message.includes('session_not_found')) {
-          navigate('/login');
-          toast({
-            title: "Çıkış yapıldı",
-            duration: 2000,
-          });
-          return;
-        }
-        
-        // For other errors, show the error message but still proceed with logout
         console.error('Logout error:', error);
         toast({
           title: "Çıkış yapılırken bir hata oluştu",
@@ -108,9 +80,10 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           variant: "destructive",
           duration: 2000,
         });
-        navigate('/login');
       } else {
-        navigate('/login');
+        // Clear session state
+        setSession(null);
+        
         toast({
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
@@ -118,11 +91,9 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
       }
     } catch (error) {
       console.error('Unexpected error during logout:', error);
-      // If we catch any error, clear local data and redirect
-      await clearAuthData();
-      navigate('/login');
       toast({
-        title: "Çıkış yapıldı",
+        title: "Çıkış yapılırken bir hata oluştu",
+        variant: "destructive",
         duration: 2000,
       });
     }
