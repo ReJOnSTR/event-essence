@@ -2,10 +2,10 @@ import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
+import MonthEventCard from "@/features/calendar/components/MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { getWorkingHours } from "@/utils/workingHours";
-import MonthEventCard from "../MonthEventCard";
 
 interface MonthCellProps {
   day: {
@@ -26,8 +26,8 @@ export default function MonthCell({
   onEventClick,
   students
 }: MonthCellProps) {
-  const holiday = isHoliday(day.date);
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+  const holiday = isHoliday(day.date);
   const workingHours = getWorkingHours();
   const dayOfWeek = day.date.getDay();
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
