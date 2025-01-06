@@ -18,10 +18,19 @@ export default function CustomHolidaySettings() {
   });
 
   const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    return localStorage.getItem('allowWorkOnHolidays') === 'true';
+    const savedSetting = localStorage.getItem('allowWorkOnHolidays');
+    // If the setting hasn't been set yet, default to true
+    return savedSetting === null ? true : savedSetting === 'true';
   });
 
   const { toast } = useToast();
+
+  // Set the default value in localStorage if it hasn't been set yet
+  useEffect(() => {
+    if (localStorage.getItem('allowWorkOnHolidays') === null) {
+      localStorage.setItem('allowWorkOnHolidays', 'true');
+    }
+  }, []);
 
   const handleSelect = (dates: Date[] | undefined) => {
     if (!dates) return;
