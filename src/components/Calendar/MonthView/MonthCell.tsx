@@ -2,7 +2,7 @@ import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
-import MonthEventCard from "../../shared/MonthEventCard";
+import MonthEventCard from "../MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { getWorkingHours } from "@/utils/workingHours";

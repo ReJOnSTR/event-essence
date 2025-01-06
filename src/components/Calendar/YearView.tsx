@@ -1,7 +1,7 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, addMonths, startOfYear } from "date-fns";
 import { tr } from 'date-fns/locale';
-import MonthView from "@/features/calendar/components/views/MonthView";
+import MonthView from "./MonthView";
 import { motion } from "framer-motion";
 
 interface YearViewProps {
