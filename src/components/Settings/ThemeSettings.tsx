@@ -34,16 +34,16 @@ export default function ThemeSettings() {
     const handleSystemThemeChange = (e: MediaQueryListEvent) => {
       if (currentTheme === "system") {
         const newTheme = e.matches ? "dark" : "light";
-        applyTheme("system");
         document.documentElement.setAttribute("data-theme", newTheme);
       }
     };
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
+    // Sadece tema değiştiğinde uygula
     if (localStorage.getItem("theme") !== currentTheme) {
-      applyTheme(currentTheme);
       localStorage.setItem("theme", currentTheme);
+      applyTheme(currentTheme);
       toast({
         title: "Tema değiştirildi",
         description: "Yeni tema ayarlarınız kaydedildi.",
