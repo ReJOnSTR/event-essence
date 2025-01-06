@@ -8,7 +8,7 @@ import { ThemeOptions } from "./ThemeOptions";
 export default function ThemeSettings() {
   const [currentTheme, setCurrentTheme] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
-    return savedTheme || "light"; // Varsayılan değer "light" olarak değiştirildi
+    return savedTheme || "light";
   });
   
   const [fontSize, setFontSize] = useState(() => {
@@ -32,6 +32,10 @@ export default function ThemeSettings() {
     if (localStorage.getItem("theme") !== currentTheme) {
       applyTheme(currentTheme);
       localStorage.setItem("theme", currentTheme);
+      toast({
+        title: "Tema değiştirildi",
+        description: "Yeni tema ayarlarınız kaydedildi.",
+      });
     }
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -40,7 +44,7 @@ export default function ThemeSettings() {
     return () => {
       mediaQuery.removeEventListener("change", handleSystemThemeChange);
     };
-  }, [currentTheme, applyTheme]);
+  }, [currentTheme, applyTheme, toast]);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
@@ -52,12 +56,7 @@ export default function ThemeSettings() {
       document.documentElement.style.setProperty('--font-family', selectedFont.value);
       localStorage.setItem("fontFamily", fontFamily);
     }
-
-    toast({
-      title: "Görünüm ayarları güncellendi",
-      description: "Yeni ayarlarınız kaydedildi.",
-    });
-  }, [fontSize, fontFamily, toast]);
+  }, [fontSize, fontFamily]);
 
   return (
     <Card className="border shadow-sm">
