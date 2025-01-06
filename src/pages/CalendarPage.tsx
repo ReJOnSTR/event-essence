@@ -22,11 +22,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const { students } = useStudents();
   const { session } = useSessionContext();
   const studentDialog = useStudentDialog();
-  const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(
-    selectedDate, 
-    setSelectedDate
-  );
-
+  
   const {
     isDialogOpen,
     setIsDialogOpen,
@@ -43,6 +39,11 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     handleDeleteLesson,
     handleEventUpdate
   } = useCalendarEvents();
+
+  const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(
+    selectedDate, 
+    setSelectedDate
+  );
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
