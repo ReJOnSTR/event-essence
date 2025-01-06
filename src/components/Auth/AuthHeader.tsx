@@ -47,10 +47,13 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!session) {
+        navigate('/login');
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [onHeightChange]);
+  }, [onHeightChange, navigate]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -98,6 +101,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         });
       } else {
         clearAuthData();
+        navigate('/login');
         toast({
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
