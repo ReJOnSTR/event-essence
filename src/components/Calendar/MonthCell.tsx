@@ -2,7 +2,7 @@ import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
-import MonthEventCard from "./MonthEventCard";
+import MonthEventCard from "../MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { getWorkingHours } from "@/utils/workingHours";
@@ -55,7 +55,7 @@ export default function MonthCell({
             isToday(day.date) && "bg-accent text-accent-foreground",
             holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-            !daySettings?.enabled && "bg-muted/20 dark:bg-muted/10 cursor-not-allowed",
+            !daySettings?.enabled && "bg-muted cursor-not-allowed",
             snapshot.isDraggingOver && "bg-accent/50",
             isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50"
           )}
