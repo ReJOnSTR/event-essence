@@ -1,69 +1,62 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { FontSettings, fontSizes, fontFamilies } from "./FontSettings";
 import { ThemeOptions } from "./ThemeOptions";
-import { useSettings } from "@/hooks/useSettings";
-
-interface ThemeSettingsData {
-  theme: string;
-  fontSize: string;
-  fontFamily: string;
-}
 
 export default function ThemeSettings() {
-  const { setting, saveSetting, isLoading } = useSettings('theme');
-  const [currentTheme, setCurrentTheme] = useState("light");
-  const [fontSize, setFontSize] = useState("medium");
-  const [fontFamily, setFontFamily] = useState("system");
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme || "light";
+  });
+  
+  const [fontSize, setFontSize] = useState(() => {
+    return localStorage.getItem("fontSize") || "medium";
+  });
+  
+  const [fontFamily, setFontFamily] = useState(() => {
+    return localStorage.getItem("fontFamily") || "system";
+  });
+  
+  const { toast } = useToast();
   const { applyTheme } = useThemeSettings();
 
   useEffect(() => {
-    if (setting) {
-      setCurrentTheme(setting.theme);
-      setFontSize(setting.fontSize);
-      setFontFamily(setting.fontFamily);
-      applyTheme(setting.theme);
+    const handleSystemThemeChange = () => {
+      if (currentTheme === "system") {
+        applyTheme("system");
+      }
+    };
+
+    if (localStorage.getItem("theme") !== currentTheme) {
+      applyTheme(currentTheme);
+      localStorage.setItem("theme", currentTheme);
+      toast({
+        title: "Tema değiştirildi",
+        description: "Yeni tema ayarlarınız kaydedildi.",
+      });
     }
-  }, [setting, applyTheme]);
 
-  const handleThemeChange = (theme: string) => {
-    setCurrentTheme(theme);
-    applyTheme(theme);
-    saveSetting({
-      theme,
-      fontSize,
-      fontFamily
-    });
-  };
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", handleSystemThemeChange);
 
-  const handleFontSizeChange = (size: string) => {
-    setFontSize(size);
-    document.documentElement.style.setProperty('--base-font-size', fontSizes[size as keyof typeof fontSizes].base);
-    document.documentElement.style.setProperty('--heading-font-size', fontSizes[size as keyof typeof fontSizes].heading);
-    saveSetting({
-      theme: currentTheme,
-      fontSize: size,
-      fontFamily
-    });
-  };
+    return () => {
+      mediaQuery.removeEventListener("change", handleSystemThemeChange);
+    };
+  }, [currentTheme, applyTheme, toast]);
 
-  const handleFontFamilyChange = (family: string) => {
-    setFontFamily(family);
-    const selectedFont = fontFamilies.find(f => f.id === family);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--base-font-size', fontSizes[fontSize as keyof typeof fontSizes].base);
+    document.documentElement.style.setProperty('--heading-font-size', fontSizes[fontSize as keyof typeof fontSizes].heading);
+    localStorage.setItem("fontSize", fontSize);
+
+    const selectedFont = fontFamilies.find(f => f.id === fontFamily);
     if (selectedFont) {
       document.documentElement.style.setProperty('--font-family', selectedFont.value);
+      localStorage.setItem("fontFamily", fontFamily);
     }
-    saveSetting({
-      theme: currentTheme,
-      fontSize,
-      fontFamily: family
-    });
-  };
-
-  if (isLoading) {
-    return <div>Yükleniyor...</div>;
-  }
+  }, [fontSize, fontFamily]);
 
   return (
     <Card className="border shadow-sm">
@@ -71,12 +64,12 @@ export default function ThemeSettings() {
         <CardTitle>Görünüm Ayarları</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <ThemeOptions currentTheme={currentTheme} onThemeChange={handleThemeChange} />
+        <ThemeOptions currentTheme={currentTheme} onThemeChange={setCurrentTheme} />
         <FontSettings 
           fontSize={fontSize} 
-          onFontSizeChange={handleFontSizeChange}
+          onFontSizeChange={setFontSize}
           fontFamily={fontFamily}
-          onFontFamilyChange={handleFontFamilyChange}
+          onFontFamilyChange={setFontFamily}
         />
       </CardContent>
     </Card>

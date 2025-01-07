@@ -1,5 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
-
 export interface WorkingHours {
   start: string;
   end: string;
@@ -26,36 +24,27 @@ const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
   sunday: { start: "09:00", end: "17:00", enabled: false },
 };
 
-export const getWorkingHours = async (): Promise<WeeklyWorkingHours> => {
+export const getWorkingHours = (): WeeklyWorkingHours => {
   try {
-    const { data } = await supabase
-      .from('settings')
-      .select('data')
-      .eq('type', 'working_hours')
-      .maybeSingle();
-
-    if (!data) return DEFAULT_WORKING_HOURS;
+    const stored = localStorage.getItem('workingHours');
+    if (!stored) return DEFAULT_WORKING_HOURS;
     
+    const parsed = JSON.parse(stored);
+    // Ensure all days are present with default values
     return {
       ...DEFAULT_WORKING_HOURS,
-      ...data.data
+      ...parsed
     };
   } catch (error) {
-    console.error('Error reading working hours:', error);
+    console.error('Error reading working hours from localStorage:', error);
     return DEFAULT_WORKING_HOURS;
   }
 };
 
-export const setWorkingHours = async (hours: WeeklyWorkingHours): Promise<void> => {
+export const setWorkingHours = (hours: WeeklyWorkingHours): void => {
   try {
-    await supabase
-      .from('settings')
-      .upsert({
-        type: 'working_hours',
-        data: hours,
-        user_id: (await supabase.auth.getUser()).data.user?.id
-      });
+    localStorage.setItem('workingHours', JSON.stringify(hours));
   } catch (error) {
-    console.error('Error saving working hours:', error);
+    console.error('Error saving working hours to localStorage:', error);
   }
 };
