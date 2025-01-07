@@ -1,13 +1,21 @@
-export const getDefaultLessonDuration = (): number => {
-  const duration = localStorage.getItem('defaultLessonDuration');
-  return duration ? parseInt(duration) : 60; // Default 60 minutes if not set
+import { supabase } from "@/integrations/supabase/client";
+
+export const getDefaultLessonDuration = async (): Promise<number> => {
+  const { data } = await supabase
+    .from('settings')
+    .select('data')
+    .eq('type', 'general')
+    .maybeSingle();
+
+  return data?.data?.defaultLessonDuration || 60;
 };
 
-export const getDefaultStartHour = (): number => {
-  const savedStartHour = localStorage.getItem('defaultStartHour');
-  return savedStartHour ? parseInt(savedStartHour) : 9; // Default to 9 AM if not set
-};
-
-export const setDefaultLessonDuration = (minutes: number): void => {
-  localStorage.setItem('defaultLessonDuration', minutes.toString());
+export const setDefaultLessonDuration = async (minutes: number): Promise<void> => {
+  await supabase
+    .from('settings')
+    .upsert({
+      type: 'general',
+      data: { defaultLessonDuration: minutes },
+      user_id: (await supabase.auth.getUser()).data.user?.id
+    });
 };

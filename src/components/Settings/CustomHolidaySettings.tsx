@@ -8,66 +8,55 @@ import { Label } from "@/components/ui/label";
 import { Gift } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSettings } from "@/hooks/useSettings";
+
+interface HolidaySettings {
+  selectedDates: Date[];
+  allowWorkOnHolidays: boolean;
+}
 
 export default function CustomHolidaySettings() {
-  const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
-    const savedHolidays = localStorage.getItem('customHolidays');
-    return savedHolidays ? JSON.parse(savedHolidays).map((h: { date: string }) => new Date(h.date)) : [];
-  });
+  const { setting, saveSetting, isLoading } = useSettings('holidays');
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(true);
 
-  const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    const savedSetting = localStorage.getItem('allowWorkOnHolidays');
-    // If the setting hasn't been set yet, default to true
-    return savedSetting === null ? true : savedSetting === 'true';
-  });
-
-  const { toast } = useToast();
-
-  // Set the default value in localStorage if it hasn't been set yet
   useEffect(() => {
-    if (localStorage.getItem('allowWorkOnHolidays') === null) {
-      localStorage.setItem('allowWorkOnHolidays', 'true');
+    if (setting) {
+      setSelectedDates(setting.selectedDates.map((d: string) => new Date(d)));
+      setAllowWorkOnHolidays(setting.allowWorkOnHolidays);
     }
-  }, []);
+  }, [setting]);
 
   const handleSelect = (dates: Date[] | undefined) => {
     if (!dates) return;
     
     setSelectedDates(dates);
-    const holidays = dates.map(date => ({
-      date: date,
-      description: "Özel Tatil"
-    }));
-    
-    localStorage.setItem('customHolidays', JSON.stringify(holidays));
-    
-    toast({
-      title: "Özel tatil günleri güncellendi",
-      description: "Seçtiğiniz günler özel tatil olarak kaydedildi.",
+    saveSetting({
+      selectedDates: dates,
+      allowWorkOnHolidays
     });
   };
 
   const clearHolidays = () => {
     setSelectedDates([]);
-    localStorage.setItem('customHolidays', JSON.stringify([]));
-    toast({
-      title: "Özel tatil günleri temizlendi",
-      description: "Tüm özel tatil günleri kaldırıldı.",
+    saveSetting({
+      selectedDates: [],
+      allowWorkOnHolidays
     });
   };
 
   const handleWorkOnHolidaysChange = (checked: boolean) => {
     setAllowWorkOnHolidays(checked);
-    localStorage.setItem('allowWorkOnHolidays', checked.toString());
-    toast({
-      title: "Tatil günü çalışma ayarı güncellendi",
-      description: checked 
-        ? "Tatil günlerinde çalışmaya izin verilecek" 
-        : "Tatil günlerinde çalışma kapatıldı",
+    saveSetting({
+      selectedDates,
+      allowWorkOnHolidays: checked
     });
   };
+
+  if (isLoading) {
+    return <div>Yükleniyor...</div>;
+  }
 
   return (
     <Card>
