@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "./workingHours";
+import { getWorkingHours, type WeeklyWorkingHours } from "./workingHours";
 import { Student, Lesson } from "@/types/calendar";
 import { getDefaultLessonDuration, setDefaultLessonDuration } from "./settings";
 
@@ -13,8 +13,7 @@ interface ProjectData {
   };
 }
 
-export const exportProjectData = async (): Promise<ProjectData> => {
-  // Get settings data from localStorage
+export const exportProjectData = (): ProjectData => {
   const data: ProjectData = {
     workingHours: getWorkingHours(),
     settings: {
@@ -28,10 +27,10 @@ export const exportProjectData = async (): Promise<ProjectData> => {
   return data;
 };
 
-export const importProjectData = async (data: ProjectData) => {
+export const importProjectData = (data: ProjectData) => {
   // Import working hours
   if (data.workingHours) {
-    setWorkingHours(data.workingHours);
+    localStorage.setItem('workingHours', JSON.stringify(data.workingHours));
   }
 
   // Import settings
@@ -50,8 +49,8 @@ export const importProjectData = async (data: ProjectData) => {
   }
 };
 
-export const downloadProjectData = async () => {
-  const data = await exportProjectData();
+export const downloadProjectData = () => {
+  const data = exportProjectData();
   const dataStr = JSON.stringify(data, null, 2);
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(dataBlob);
@@ -73,7 +72,7 @@ export const uploadProjectData = async (file: File): Promise<boolean> => {
         const data = JSON.parse(content) as ProjectData;
         
         // Import the settings data
-        await importProjectData(data);
+        importProjectData(data);
         
         // Reload the page to reflect changes
         window.location.reload();

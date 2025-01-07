@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
-export type SettingType = 'theme' | 'working_hours' | 'holidays' | 'font' | 'lesson_duration';
+export type SettingType = 'theme' | 'working_hours' | 'holidays' | 'font' | 'lesson_duration' | 'general';
 
 interface Setting {
   id: string;
@@ -34,7 +34,7 @@ export const saveSettings = async (type: SettingType, data: any) => {
     } else {
       const { error } = await supabase
         .from('settings')
-        .insert([{ type, data }]);
+        .insert({ type, data });
 
       if (error) throw error;
     }

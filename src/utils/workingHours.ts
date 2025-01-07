@@ -1,4 +1,4 @@
-import { getSettings } from "@/services/settingsService";
+import { getSettings, saveSettings } from "@/services/settingsService";
 
 export interface WorkingHours {
   start: string;
@@ -26,12 +26,39 @@ const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
   sunday: { start: "09:00", end: "17:00", enabled: false },
 };
 
-export const getWorkingHours = async (): Promise<WeeklyWorkingHours> => {
+export const getWorkingHours = (): WeeklyWorkingHours => {
   try {
-    const settings = await getSettings('working_hours');
-    return settings || DEFAULT_WORKING_HOURS;
+    const storedHours = localStorage.getItem('workingHours');
+    if (storedHours) {
+      return JSON.parse(storedHours);
+    }
+    return DEFAULT_WORKING_HOURS;
   } catch (error) {
-    console.error('Error reading working hours from settings:', error);
+    console.error('Error reading working hours:', error);
     return DEFAULT_WORKING_HOURS;
   }
 };
+
+export const setWorkingHours = async (hours: WeeklyWorkingHours) => {
+  try {
+    localStorage.setItem('workingHours', JSON.stringify(hours));
+    await saveSettings('working_hours', hours);
+  } catch (error) {
+    console.error('Error saving working hours:', error);
+  }
+};
+
+// Initialize working hours from settings
+const initializeWorkingHours = async () => {
+  try {
+    const settings = await getSettings('working_hours');
+    if (settings) {
+      localStorage.setItem('workingHours', JSON.stringify(settings));
+    }
+  } catch (error) {
+    console.error('Error initializing working hours:', error);
+  }
+};
+
+// Call initialization when the module loads
+initializeWorkingHours();
