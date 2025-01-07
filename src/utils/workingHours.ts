@@ -1,3 +1,5 @@
+import { getSettings } from "@/services/settingsService";
+
 export interface WorkingHours {
   start: string;
   end: string;
@@ -24,27 +26,12 @@ const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
   sunday: { start: "09:00", end: "17:00", enabled: false },
 };
 
-export const getWorkingHours = (): WeeklyWorkingHours => {
+export const getWorkingHours = async (): Promise<WeeklyWorkingHours> => {
   try {
-    const stored = localStorage.getItem('workingHours');
-    if (!stored) return DEFAULT_WORKING_HOURS;
-    
-    const parsed = JSON.parse(stored);
-    // Ensure all days are present with default values
-    return {
-      ...DEFAULT_WORKING_HOURS,
-      ...parsed
-    };
+    const settings = await getSettings('working_hours');
+    return settings || DEFAULT_WORKING_HOURS;
   } catch (error) {
-    console.error('Error reading working hours from localStorage:', error);
+    console.error('Error reading working hours from settings:', error);
     return DEFAULT_WORKING_HOURS;
-  }
-};
-
-export const setWorkingHours = (hours: WeeklyWorkingHours): void => {
-  try {
-    localStorage.setItem('workingHours', JSON.stringify(hours));
-  } catch (error) {
-    console.error('Error saving working hours to localStorage:', error);
   }
 };
