@@ -1,72 +1,66 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useSessionContext } from '@supabase/auth-helpers-react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from './use-toast';
 
 type SettingType = 'working_hours' | 'holidays' | 'theme' | 'general';
 
-interface Setting {
-  id: string;
-  user_id: string;
-  type: SettingType;
-  data: any;
-  created_at: string;
-  updated_at: string;
-}
-
-export function useSettings(type: SettingType) {
-  const queryClient = useQueryClient();
+export function useSettings<T>(type: SettingType) {
+  const [setting, setSetting] = useState<T | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const { session } = useSessionContext();
 
-  const { data: setting, isLoading } = useQuery({
-    queryKey: ['settings', type, session?.user.id],
-    queryFn: async () => {
+  useEffect(() => {
+    loadSetting();
+  }, [type]);
+
+  const loadSetting = async () => {
+    try {
       const { data, error } = await supabase
         .from('settings')
-        .select('*')
+        .select('data')
         .eq('type', type)
         .maybeSingle();
 
       if (error) throw error;
-      return data;
-    },
-    enabled: !!session?.user.id,
-  });
+      setSetting(data?.data as T || null);
+    } catch (error) {
+      console.error(`Error loading ${type} settings:`, error);
+      toast({
+        title: "Hata",
+        description: `Ayarlar yüklenirken bir hata oluştu: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const { mutate: saveSetting } = useMutation({
-    mutationFn: async (data: any) => {
+  const saveSetting = async (data: T) => {
+    try {
       const { error } = await supabase
         .from('settings')
         .upsert({
           type,
           data,
-          user_id: session?.user.id,
-        })
-        .select()
-        .single();
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        });
 
       if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['settings', type] });
+      
+      setSetting(data);
       toast({
-        title: "Ayarlar kaydedildi",
-        description: "Değişiklikleriniz başarıyla kaydedildi.",
+        title: "Başarılı",
+        description: "Ayarlar başarıyla kaydedildi.",
       });
-    },
-    onError: () => {
+    } catch (error) {
+      console.error(`Error saving ${type} settings:`, error);
       toast({
         title: "Hata",
-        description: "Ayarlar kaydedilirken bir hata oluştu.",
+        description: `Ayarlar kaydedilirken bir hata oluştu: ${error.message}`,
         variant: "destructive",
       });
-    },
-  });
-
-  return {
-    setting: setting?.data,
-    isLoading,
-    saveSetting,
+    }
   };
+
+  return { setting, saveSetting, isLoading };
 }

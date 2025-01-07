@@ -36,10 +36,7 @@ export const getWorkingHours = async (): Promise<WeeklyWorkingHours> => {
 
     if (!data) return DEFAULT_WORKING_HOURS;
     
-    return {
-      ...DEFAULT_WORKING_HOURS,
-      ...data.data
-    };
+    return data.data as WeeklyWorkingHours || DEFAULT_WORKING_HOURS;
   } catch (error) {
     console.error('Error reading working hours:', error);
     return DEFAULT_WORKING_HOURS;
@@ -48,12 +45,13 @@ export const getWorkingHours = async (): Promise<WeeklyWorkingHours> => {
 
 export const setWorkingHours = async (hours: WeeklyWorkingHours): Promise<void> => {
   try {
+    const user = await supabase.auth.getUser();
     await supabase
       .from('settings')
       .upsert({
         type: 'working_hours',
-        data: hours,
-        user_id: (await supabase.auth.getUser()).data.user?.id
+        data: hours as any, // Using type assertion since the data is validated by our TypeScript interface
+        user_id: user.data.user?.id
       });
   } catch (error) {
     console.error('Error saving working hours:', error);
