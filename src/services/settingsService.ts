@@ -1,7 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
-export type SettingType = 'theme' | 'working_hours' | 'holidays' | 'font' | 'lesson_duration' | 'general';
+// Update the type to match exactly what's in the database
+export type SettingType = 'theme' | 'working_hours' | 'holidays' | 'general';
 
 interface Setting {
   id: string;
@@ -34,7 +35,11 @@ export const saveSettings = async (type: SettingType, data: any) => {
     } else {
       const { error } = await supabase
         .from('settings')
-        .insert({ type, data });
+        .insert({
+          type,
+          data,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        });
 
       if (error) throw error;
     }
