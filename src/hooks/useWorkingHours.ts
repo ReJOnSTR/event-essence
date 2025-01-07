@@ -1,35 +1,15 @@
-import { useEffect, useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
-import { getWorkingHours, DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
+import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { format } from "date-fns";
-import type { WeeklyWorkingHours } from '@/types/settings';
 
 export const useWorkingHours = () => {
   const { toast } = useToast();
-  const [workingHours, setWorkingHours] = useState<WeeklyWorkingHours>(DEFAULT_WORKING_HOURS);
-  const [isLoading, setIsLoading] = useState(true);
+  const workingHours = getWorkingHours();
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
 
-  useEffect(() => {
-    loadWorkingHours();
-  }, []);
-
-  const loadWorkingHours = async () => {
-    try {
-      const hours = await getWorkingHours();
-      setWorkingHours(hours);
-    } catch (error) {
-      console.error('Error loading working hours:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const checkWorkingHours = (date: Date, hour?: number) => {
-    if (isLoading) return false;
-
-    const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof WeeklyWorkingHours;
+    const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
     const daySettings = workingHours[dayOfWeek];
     const holiday = isHoliday(date);
 
@@ -70,7 +50,6 @@ export const useWorkingHours = () => {
 
   return {
     workingHours,
-    isLoading,
     allowWorkOnHolidays,
     checkWorkingHours,
     isHoliday
