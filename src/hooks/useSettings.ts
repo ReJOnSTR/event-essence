@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from './use-toast';
-
-type SettingType = 'working_hours' | 'holidays' | 'theme' | 'general';
+import { SettingType, SettingsData } from '@/types/settings';
 
 export function useSettings<T>(type: SettingType) {
   const [setting, setSetting] = useState<T | null>(null);
@@ -23,7 +22,7 @@ export function useSettings<T>(type: SettingType) {
 
       if (error) throw error;
       setSetting(data?.data as T || null);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error loading ${type} settings:`, error);
       toast({
         title: "Hata",
@@ -41,7 +40,7 @@ export function useSettings<T>(type: SettingType) {
         .from('settings')
         .upsert({
           type,
-          data,
+          data: data as any,
           user_id: (await supabase.auth.getUser()).data.user?.id
         });
 
@@ -52,7 +51,7 @@ export function useSettings<T>(type: SettingType) {
         title: "Başarılı",
         description: "Ayarlar başarıyla kaydedildi.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error saving ${type} settings:`, error);
       toast({
         title: "Hata",

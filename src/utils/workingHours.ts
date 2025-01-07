@@ -1,29 +1,20 @@
 import { supabase } from "@/integrations/supabase/client";
+import { WeeklyWorkingHours, WorkingHoursDay } from "@/types/settings";
 
-export interface WorkingHours {
-  start: string;
-  end: string;
-  enabled: boolean;
-}
+const DEFAULT_DAY: WorkingHoursDay = {
+  start: "09:00",
+  end: "17:00",
+  enabled: true
+};
 
-export interface WeeklyWorkingHours {
-  monday: WorkingHours;
-  tuesday: WorkingHours;
-  wednesday: WorkingHours;
-  thursday: WorkingHours;
-  friday: WorkingHours;
-  saturday: WorkingHours;
-  sunday: WorkingHours;
-}
-
-const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
-  monday: { start: "09:00", end: "17:00", enabled: true },
-  tuesday: { start: "09:00", end: "17:00", enabled: true },
-  wednesday: { start: "09:00", end: "17:00", enabled: true },
-  thursday: { start: "09:00", end: "17:00", enabled: true },
-  friday: { start: "09:00", end: "17:00", enabled: true },
-  saturday: { start: "09:00", end: "17:00", enabled: false },
-  sunday: { start: "09:00", end: "17:00", enabled: false },
+export const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
+  monday: { ...DEFAULT_DAY },
+  tuesday: { ...DEFAULT_DAY },
+  wednesday: { ...DEFAULT_DAY },
+  thursday: { ...DEFAULT_DAY },
+  friday: { ...DEFAULT_DAY },
+  saturday: { ...DEFAULT_DAY, enabled: false },
+  sunday: { ...DEFAULT_DAY, enabled: false },
 };
 
 export const getWorkingHours = async (): Promise<WeeklyWorkingHours> => {
@@ -34,9 +25,9 @@ export const getWorkingHours = async (): Promise<WeeklyWorkingHours> => {
       .eq('type', 'working_hours')
       .maybeSingle();
 
-    if (!data) return DEFAULT_WORKING_HOURS;
+    if (!data?.data) return DEFAULT_WORKING_HOURS;
     
-    return data.data as WeeklyWorkingHours || DEFAULT_WORKING_HOURS;
+    return data.data as WeeklyWorkingHours;
   } catch (error) {
     console.error('Error reading working hours:', error);
     return DEFAULT_WORKING_HOURS;
@@ -50,10 +41,11 @@ export const setWorkingHours = async (hours: WeeklyWorkingHours): Promise<void> 
       .from('settings')
       .upsert({
         type: 'working_hours',
-        data: hours as any, // Using type assertion since the data is validated by our TypeScript interface
+        data: hours,
         user_id: user.data.user?.id
       });
   } catch (error) {
     console.error('Error saving working hours:', error);
+    throw error;
   }
 };
