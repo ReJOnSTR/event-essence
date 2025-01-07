@@ -1,5 +1,3 @@
-import { getSettings, saveSettings } from "@/services/settingsService";
-
 export interface WorkingHours {
   start: string;
   end: string;
@@ -28,37 +26,25 @@ const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
   try {
-    const storedHours = localStorage.getItem('workingHours');
-    if (storedHours) {
-      return JSON.parse(storedHours);
-    }
-    return DEFAULT_WORKING_HOURS;
+    const stored = localStorage.getItem('workingHours');
+    if (!stored) return DEFAULT_WORKING_HOURS;
+    
+    const parsed = JSON.parse(stored);
+    // Ensure all days are present with default values
+    return {
+      ...DEFAULT_WORKING_HOURS,
+      ...parsed
+    };
   } catch (error) {
-    console.error('Error reading working hours:', error);
+    console.error('Error reading working hours from localStorage:', error);
     return DEFAULT_WORKING_HOURS;
   }
 };
 
-export const setWorkingHours = async (hours: WeeklyWorkingHours) => {
+export const setWorkingHours = (hours: WeeklyWorkingHours): void => {
   try {
     localStorage.setItem('workingHours', JSON.stringify(hours));
-    await saveSettings('working_hours', hours);
   } catch (error) {
-    console.error('Error saving working hours:', error);
+    console.error('Error saving working hours to localStorage:', error);
   }
 };
-
-// Initialize working hours from settings
-const initializeWorkingHours = async () => {
-  try {
-    const settings = await getSettings('working_hours');
-    if (settings) {
-      localStorage.setItem('workingHours', JSON.stringify(settings));
-    }
-  } catch (error) {
-    console.error('Error initializing working hours:', error);
-  }
-};
-
-// Call initialization when the module loads
-initializeWorkingHours();
