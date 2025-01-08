@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "@/utils/workingHours";
 import { RotateCcw } from "lucide-react";
+import { useSettings } from "@/hooks/useSettings";
+import { getWorkingHours, type WeeklyWorkingHours } from "@/utils/workingHours";
 
 const DAYS = {
   monday: "Pazartesi",
@@ -26,7 +26,7 @@ const DEFAULT_DAY = {
 
 export default function WorkingHoursSettings() {
   const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(getWorkingHours);
-  const { toast } = useToast();
+  const { updateSetting } = useSettings();
 
   const handleChange = (
     day: keyof WeeklyWorkingHours,
@@ -41,11 +41,7 @@ export default function WorkingHoursSettings() {
       }
     };
     setWorkingHoursState(newHours);
-    setWorkingHours(newHours);
-    toast({
-      title: "Ayarlar güncellendi",
-      description: "Çalışma saatleri başarıyla kaydedildi.",
-    });
+    updateSetting("working_hours", newHours);
   };
 
   const resetDay = (day: keyof WeeklyWorkingHours) => {
@@ -54,11 +50,7 @@ export default function WorkingHoursSettings() {
       [day]: DEFAULT_DAY
     };
     setWorkingHoursState(newHours);
-    setWorkingHours(newHours);
-    toast({
-      title: "Gün sıfırlandı",
-      description: `${DAYS[day]} günü varsayılan ayarlara döndürüldü.`,
-    });
+    updateSetting("working_hours", newHours);
   };
 
   const resetAll = () => {
@@ -72,11 +64,7 @@ export default function WorkingHoursSettings() {
       sunday: { ...DEFAULT_DAY, enabled: false }
     };
     setWorkingHoursState(defaultHours);
-    setWorkingHours(defaultHours);
-    toast({
-      title: "Tüm günler sıfırlandı",
-      description: "Çalışma saatleri varsayılan ayarlara döndürüldü.",
-    });
+    updateSetting("working_hours", defaultHours);
   };
 
   return (
