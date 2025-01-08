@@ -1,5 +1,5 @@
-import { WeeklyWorkingHours } from "@/utils/workingHours";
 import { Json } from "@/integrations/supabase/types";
+import { WeeklyWorkingHours } from "@/utils/workingHours";
 
 export type SettingType = "working_hours" | "holidays" | "theme" | "general";
 

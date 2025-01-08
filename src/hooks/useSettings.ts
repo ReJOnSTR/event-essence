@@ -6,6 +6,7 @@ import { SettingType, SupabaseSetting, isWeeklyWorkingHours } from "@/types/sett
 import { settingsStorage } from "@/utils/settingsStorage";
 import { getWorkingHours, setWorkingHours, WeeklyWorkingHours } from "@/utils/workingHours";
 import { getDefaultLessonDuration, setDefaultLessonDuration } from "@/utils/settings";
+import { Json } from "@/integrations/supabase/types";
 
 export const useSettings = () => {
   const session = useSession();
@@ -65,68 +66,6 @@ export const useSettings = () => {
     }
   };
 
-  const syncLocalSettingsToSupabase = async () => {
-    if (!session?.user) return;
-
-    try {
-      const workingHours = getWorkingHours();
-      const allowWorkOnHolidays = settingsStorage.getAllowWorkOnHolidays();
-      const holidays = settingsStorage.getHolidays();
-      const theme = settingsStorage.getTheme();
-      const defaultLessonDuration = getDefaultLessonDuration();
-
-      const settingsToUpsert: SupabaseSetting[] = [
-        {
-          id: crypto.randomUUID(),
-          type: "working_hours",
-          data: workingHours as unknown as Json,
-          user_id: session.user.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: crypto.randomUUID(),
-          type: "holidays",
-          data: { allowWorkOnHolidays, customHolidays: holidays } as unknown as Json,
-          user_id: session.user.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: crypto.randomUUID(),
-          type: "theme",
-          data: theme as unknown as Json,
-          user_id: session.user.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: crypto.randomUUID(),
-          type: "general",
-          data: { defaultLessonDuration } as unknown as Json,
-          user_id: session.user.id,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-
-      const { error } = await supabase
-        .from("settings")
-        .upsert(settingsToUpsert, {
-          onConflict: "user_id,type"
-        });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error("Error syncing settings:", error);
-      toast({
-        title: "Hata",
-        description: "Ayarlar senkronize edilirken bir hata oluştu.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const updateSetting = async (type: SettingType, data: any) => {
     if (!session?.user) {
       switch (type) {
@@ -151,7 +90,7 @@ export const useSettings = () => {
       const settingData: SupabaseSetting = {
         id: crypto.randomUUID(),
         type,
-        data: data as unknown as Json,
+        data: data as Json,
         user_id: session.user.id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -198,7 +137,6 @@ export const useSettings = () => {
   useEffect(() => {
     if (session?.user) {
       loadSettings();
-      syncLocalSettingsToSupabase();
     }
   }, [session?.user]);
 
