@@ -1,22 +1,22 @@
 import { WeeklyWorkingHours } from "@/utils/workingHours";
+import { Json } from "@/integrations/supabase/types";
 
 export type SettingType = "working_hours" | "holidays" | "theme" | "general";
 
-export interface Setting {
+export interface BaseSetting {
   id: string;
   user_id: string;
   type: SettingType;
-  data: any;
   created_at: string;
   updated_at: string;
 }
 
-export interface WorkingHoursSetting extends Setting {
+export interface WorkingHoursSetting extends BaseSetting {
   type: "working_hours";
   data: WeeklyWorkingHours;
 }
 
-export interface HolidaysSetting extends Setting {
+export interface HolidaysSetting extends BaseSetting {
   type: "holidays";
   data: {
     allowWorkOnHolidays: boolean;
@@ -24,7 +24,7 @@ export interface HolidaysSetting extends Setting {
   };
 }
 
-export interface ThemeSetting extends Setting {
+export interface ThemeSetting extends BaseSetting {
   type: "theme";
   data: {
     theme: string;
@@ -33,7 +33,7 @@ export interface ThemeSetting extends Setting {
   };
 }
 
-export interface GeneralSetting extends Setting {
+export interface GeneralSetting extends BaseSetting {
   type: "general";
   data: {
     defaultLessonDuration: number;
@@ -41,3 +41,12 @@ export interface GeneralSetting extends Setting {
 }
 
 export type Settings = WorkingHoursSetting | HolidaysSetting | ThemeSetting | GeneralSetting;
+
+export type SupabaseSetting = {
+  id: string;
+  user_id: string;
+  type: SettingType;
+  data: Json;
+  created_at: string;
+  updated_at: string;
+};

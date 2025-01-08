@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { Settings, SettingType } from "@/types/settings";
+import { Settings, SettingType, SupabaseSetting } from "@/types/settings";
 import { getWorkingHours, setWorkingHours, WeeklyWorkingHours } from "@/utils/workingHours";
 import { getDefaultLessonDuration, setDefaultLessonDuration } from "@/utils/settings";
 
@@ -24,22 +24,25 @@ export const useSettings = () => {
       if (error) throw error;
 
       // Her ayar tipini ilgili localStorage'a kaydet
-      settings?.forEach((setting: Settings) => {
+      settings?.forEach((setting: SupabaseSetting) => {
         switch (setting.type) {
           case "working_hours":
-            setWorkingHours(setting.data);
+            setWorkingHours(setting.data as WeeklyWorkingHours);
             break;
           case "holidays":
-            localStorage.setItem("allowWorkOnHolidays", setting.data.allowWorkOnHolidays.toString());
-            localStorage.setItem("holidays", JSON.stringify(setting.data.customHolidays));
+            const holidayData = setting.data as { allowWorkOnHolidays: boolean; customHolidays: string[] };
+            localStorage.setItem("allowWorkOnHolidays", holidayData.allowWorkOnHolidays.toString());
+            localStorage.setItem("holidays", JSON.stringify(holidayData.customHolidays));
             break;
           case "theme":
-            localStorage.setItem("theme", setting.data.theme);
-            localStorage.setItem("fontSize", setting.data.fontSize);
-            localStorage.setItem("fontFamily", setting.data.fontFamily);
+            const themeData = setting.data as { theme: string; fontSize: string; fontFamily: string };
+            localStorage.setItem("theme", themeData.theme);
+            localStorage.setItem("fontSize", themeData.fontSize);
+            localStorage.setItem("fontFamily", themeData.fontFamily);
             break;
           case "general":
-            setDefaultLessonDuration(setting.data.defaultLessonDuration);
+            const generalData = setting.data as { defaultLessonDuration: number };
+            setDefaultLessonDuration(generalData.defaultLessonDuration);
             break;
         }
       });
@@ -68,32 +71,46 @@ export const useSettings = () => {
       const fontFamily = localStorage.getItem("fontFamily") || "system";
       const defaultLessonDuration = getDefaultLessonDuration();
 
-      const settings = [
+      const settingsToUpsert: SupabaseSetting[] = [
         {
-          type: "working_hours" as SettingType,
+          id: crypto.randomUUID(),
+          type: "working_hours",
           data: workingHours,
           user_id: session.user.id,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         },
         {
-          type: "holidays" as SettingType,
+          id: crypto.randomUUID(),
+          type: "holidays",
           data: { allowWorkOnHolidays, customHolidays: holidays },
           user_id: session.user.id,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         },
         {
-          type: "theme" as SettingType,
+          id: crypto.randomUUID(),
+          type: "theme",
           data: { theme, fontSize, fontFamily },
           user_id: session.user.id,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         },
         {
-          type: "general" as SettingType,
+          id: crypto.randomUUID(),
+          type: "general",
           data: { defaultLessonDuration },
           user_id: session.user.id,
-        },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
       ];
 
-      const { error } = await supabase.from("settings").upsert(settings, {
-        onConflict: "user_id,type",
-      });
+      const { error } = await supabase
+        .from("settings")
+        .upsert(settingsToUpsert, {
+          onConflict: "user_id,type"
+        });
 
       if (error) throw error;
     } catch (error) {
@@ -131,14 +148,19 @@ export const useSettings = () => {
     }
 
     try {
+      const settingData: SupabaseSetting = {
+        id: crypto.randomUUID(),
+        type,
+        data,
+        user_id: session.user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
       const { error } = await supabase
         .from("settings")
-        .upsert({
-          type,
-          data,
-          user_id: session.user.id,
-        }, {
-          onConflict: "user_id,type",
+        .upsert(settingData, {
+          onConflict: "user_id,type"
         });
 
       if (error) throw error;
