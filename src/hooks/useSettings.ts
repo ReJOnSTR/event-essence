@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { SettingType, SupabaseSetting, isWeeklyWorkingHours } from "@/types/settings";
+import { SettingType, SupabaseSetting } from "@/types/settings";
 import { settingsStorage } from "@/utils/settingsStorage";
 import { getWorkingHours, setWorkingHours, WeeklyWorkingHours } from "@/utils/workingHours";
 import { getDefaultLessonDuration, setDefaultLessonDuration } from "@/utils/settings";
@@ -29,8 +29,8 @@ export const useSettings = () => {
         
         switch (type) {
           case "working_hours":
-            if (isWeeklyWorkingHours(data)) {
-              setWorkingHours(data);
+            if (typeof data === 'object' && data !== null) {
+              setWorkingHours(data as WeeklyWorkingHours);
             }
             break;
           case "holidays":
