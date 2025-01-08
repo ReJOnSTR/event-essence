@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -8,65 +7,24 @@ import { Label } from "@/components/ui/label";
 import { Gift } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSettings } from "@/hooks/useSettings";
 
 export default function CustomHolidaySettings() {
-  const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
-    const savedHolidays = localStorage.getItem('customHolidays');
-    return savedHolidays ? JSON.parse(savedHolidays).map((h: { date: string }) => new Date(h.date)) : [];
-  });
-
-  const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    const savedSetting = localStorage.getItem('allowWorkOnHolidays');
-    // If the setting hasn't been set yet, default to true
-    return savedSetting === null ? true : savedSetting === 'true';
-  });
-
-  const { toast } = useToast();
-
-  // Set the default value in localStorage if it hasn't been set yet
-  useEffect(() => {
-    if (localStorage.getItem('allowWorkOnHolidays') === null) {
-      localStorage.setItem('allowWorkOnHolidays', 'true');
-    }
-  }, []);
+  const { 
+    customHolidays, 
+    updateCustomHolidays,
+    allowWorkOnHolidays,
+    updateAllowWorkOnHolidays
+  } = useSettings();
 
   const handleSelect = (dates: Date[] | undefined) => {
     if (!dates) return;
-    
-    setSelectedDates(dates);
-    const holidays = dates.map(date => ({
-      date: date,
-      description: "Özel Tatil"
-    }));
-    
-    localStorage.setItem('customHolidays', JSON.stringify(holidays));
-    
-    toast({
-      title: "Özel tatil günleri güncellendi",
-      description: "Seçtiğiniz günler özel tatil olarak kaydedildi.",
-    });
+    updateCustomHolidays(dates);
   };
 
   const clearHolidays = () => {
-    setSelectedDates([]);
-    localStorage.setItem('customHolidays', JSON.stringify([]));
-    toast({
-      title: "Özel tatil günleri temizlendi",
-      description: "Tüm özel tatil günleri kaldırıldı.",
-    });
-  };
-
-  const handleWorkOnHolidaysChange = (checked: boolean) => {
-    setAllowWorkOnHolidays(checked);
-    localStorage.setItem('allowWorkOnHolidays', checked.toString());
-    toast({
-      title: "Tatil günü çalışma ayarı güncellendi",
-      description: checked 
-        ? "Tatil günlerinde çalışmaya izin verilecek" 
-        : "Tatil günlerinde çalışma kapatıldı",
-    });
+    updateCustomHolidays([]);
   };
 
   return (
@@ -82,7 +40,7 @@ export default function CustomHolidaySettings() {
               <Switch
                 id="allow-work"
                 checked={allowWorkOnHolidays}
-                onCheckedChange={handleWorkOnHolidaysChange}
+                onCheckedChange={updateAllowWorkOnHolidays}
               />
               <Label htmlFor="allow-work">Tatil günlerinde çalışmaya izin ver</Label>
             </div>
@@ -93,13 +51,13 @@ export default function CustomHolidaySettings() {
 
             <Calendar
               mode="multiple"
-              selected={selectedDates}
+              selected={customHolidays}
               onSelect={handleSelect}
               className="rounded-md border"
               locale={tr}
             />
 
-            {selectedDates.length > 0 && (
+            {customHolidays.length > 0 && (
               <Button 
                 variant="destructive" 
                 size="sm"
@@ -113,14 +71,14 @@ export default function CustomHolidaySettings() {
 
           <div className="space-y-4">
             <div className="text-sm font-medium">Seçilen Özel Tatil Günleri</div>
-            {selectedDates.length === 0 ? (
+            {customHolidays.length === 0 ? (
               <div className="text-sm text-muted-foreground">
                 Henüz seçili özel tatil günü bulunmamaktadır.
               </div>
             ) : (
               <ScrollArea className="h-[400px] rounded-md border p-4">
                 <div className="space-y-2">
-                  {selectedDates
+                  {customHolidays
                     .sort((a, b) => a.getTime() - b.getTime())
                     .map((date, index) => (
                       <div 
