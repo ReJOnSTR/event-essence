@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useSession } from "@supabase/auth-helpers-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { Settings, SettingType, SupabaseSetting } from "@/types/settings";
+import { SettingType, SupabaseSetting, isWeeklyWorkingHours } from "@/types/settings";
+import { settingsStorage } from "@/utils/settingsStorage";
 import { getWorkingHours, setWorkingHours, WeeklyWorkingHours } from "@/utils/workingHours";
 import { getDefaultLessonDuration, setDefaultLessonDuration } from "@/utils/settings";
 
@@ -11,7 +12,6 @@ export const useSettings = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Ayarları Supabase'den yükle
   const loadSettings = async () => {
     if (!session?.user) return;
 
@@ -23,26 +23,33 @@ export const useSettings = () => {
 
       if (error) throw error;
 
-      // Her ayar tipini ilgili localStorage'a kaydet
       settings?.forEach((setting: SupabaseSetting) => {
-        switch (setting.type) {
+        const { type, data } = setting;
+        
+        switch (type) {
           case "working_hours":
-            setWorkingHours(setting.data as WeeklyWorkingHours);
+            if (isWeeklyWorkingHours(data)) {
+              setWorkingHours(data);
+            }
             break;
           case "holidays":
-            const holidayData = setting.data as { allowWorkOnHolidays: boolean; customHolidays: string[] };
-            localStorage.setItem("allowWorkOnHolidays", holidayData.allowWorkOnHolidays.toString());
-            localStorage.setItem("holidays", JSON.stringify(holidayData.customHolidays));
+            if (typeof data === 'object' && data !== null) {
+              const holidayData = data as { allowWorkOnHolidays: boolean; customHolidays: string[] };
+              settingsStorage.setAllowWorkOnHolidays(holidayData.allowWorkOnHolidays);
+              settingsStorage.setHolidays(holidayData.customHolidays);
+            }
             break;
           case "theme":
-            const themeData = setting.data as { theme: string; fontSize: string; fontFamily: string };
-            localStorage.setItem("theme", themeData.theme);
-            localStorage.setItem("fontSize", themeData.fontSize);
-            localStorage.setItem("fontFamily", themeData.fontFamily);
+            if (typeof data === 'object' && data !== null) {
+              const themeData = data as { theme: string; fontSize: string; fontFamily: string };
+              settingsStorage.setTheme(themeData);
+            }
             break;
           case "general":
-            const generalData = setting.data as { defaultLessonDuration: number };
-            setDefaultLessonDuration(generalData.defaultLessonDuration);
+            if (typeof data === 'object' && data !== null) {
+              const generalData = data as { defaultLessonDuration: number };
+              setDefaultLessonDuration(generalData.defaultLessonDuration);
+            }
             break;
         }
       });
@@ -58,24 +65,21 @@ export const useSettings = () => {
     }
   };
 
-  // localStorage'daki ayarları Supabase'e aktar
   const syncLocalSettingsToSupabase = async () => {
     if (!session?.user) return;
 
     try {
       const workingHours = getWorkingHours();
-      const allowWorkOnHolidays = localStorage.getItem("allowWorkOnHolidays") === "true";
-      const holidays = JSON.parse(localStorage.getItem("holidays") || "[]");
-      const theme = localStorage.getItem("theme") || "light";
-      const fontSize = localStorage.getItem("fontSize") || "medium";
-      const fontFamily = localStorage.getItem("fontFamily") || "system";
+      const allowWorkOnHolidays = settingsStorage.getAllowWorkOnHolidays();
+      const holidays = settingsStorage.getHolidays();
+      const theme = settingsStorage.getTheme();
       const defaultLessonDuration = getDefaultLessonDuration();
 
       const settingsToUpsert: SupabaseSetting[] = [
         {
           id: crypto.randomUUID(),
           type: "working_hours",
-          data: workingHours,
+          data: workingHours as unknown as Json,
           user_id: session.user.id,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -83,7 +87,7 @@ export const useSettings = () => {
         {
           id: crypto.randomUUID(),
           type: "holidays",
-          data: { allowWorkOnHolidays, customHolidays: holidays },
+          data: { allowWorkOnHolidays, customHolidays: holidays } as unknown as Json,
           user_id: session.user.id,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -91,7 +95,7 @@ export const useSettings = () => {
         {
           id: crypto.randomUUID(),
           type: "theme",
-          data: { theme, fontSize, fontFamily },
+          data: theme as unknown as Json,
           user_id: session.user.id,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -99,7 +103,7 @@ export const useSettings = () => {
         {
           id: crypto.randomUUID(),
           type: "general",
-          data: { defaultLessonDuration },
+          data: { defaultLessonDuration } as unknown as Json,
           user_id: session.user.id,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -123,22 +127,18 @@ export const useSettings = () => {
     }
   };
 
-  // Ayarları güncelle (hem localStorage hem Supabase)
   const updateSetting = async (type: SettingType, data: any) => {
     if (!session?.user) {
-      // Oturum yoksa sadece localStorage'a kaydet
       switch (type) {
         case "working_hours":
-          setWorkingHours(data);
+          setWorkingHours(data as WeeklyWorkingHours);
           break;
         case "holidays":
-          localStorage.setItem("allowWorkOnHolidays", data.allowWorkOnHolidays.toString());
-          localStorage.setItem("holidays", JSON.stringify(data.customHolidays));
+          settingsStorage.setAllowWorkOnHolidays(data.allowWorkOnHolidays);
+          settingsStorage.setHolidays(data.customHolidays);
           break;
         case "theme":
-          localStorage.setItem("theme", data.theme);
-          localStorage.setItem("fontSize", data.fontSize);
-          localStorage.setItem("fontFamily", data.fontFamily);
+          settingsStorage.setTheme(data);
           break;
         case "general":
           setDefaultLessonDuration(data.defaultLessonDuration);
@@ -151,7 +151,7 @@ export const useSettings = () => {
       const settingData: SupabaseSetting = {
         id: crypto.randomUUID(),
         type,
-        data,
+        data: data as unknown as Json,
         user_id: session.user.id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -165,19 +165,16 @@ export const useSettings = () => {
 
       if (error) throw error;
 
-      // Başarılı güncelleme sonrası localStorage'ı da güncelle
       switch (type) {
         case "working_hours":
-          setWorkingHours(data);
+          setWorkingHours(data as WeeklyWorkingHours);
           break;
         case "holidays":
-          localStorage.setItem("allowWorkOnHolidays", data.allowWorkOnHolidays.toString());
-          localStorage.setItem("holidays", JSON.stringify(data.customHolidays));
+          settingsStorage.setAllowWorkOnHolidays(data.allowWorkOnHolidays);
+          settingsStorage.setHolidays(data.customHolidays);
           break;
         case "theme":
-          localStorage.setItem("theme", data.theme);
-          localStorage.setItem("fontSize", data.fontSize);
-          localStorage.setItem("fontFamily", data.fontFamily);
+          settingsStorage.setTheme(data);
           break;
         case "general":
           setDefaultLessonDuration(data.defaultLessonDuration);
@@ -198,7 +195,6 @@ export const useSettings = () => {
     }
   };
 
-  // Oturum açıldığında ayarları yükle ve senkronize et
   useEffect(() => {
     if (session?.user) {
       loadSettings();

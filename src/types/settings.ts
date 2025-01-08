@@ -50,3 +50,16 @@ export type SupabaseSetting = {
   created_at: string;
   updated_at: string;
 };
+
+// Type guard to ensure data is WeeklyWorkingHours
+export function isWeeklyWorkingHours(data: unknown): data is WeeklyWorkingHours {
+  if (typeof data !== 'object' || data === null) return false;
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  return days.every(day => 
+    data.hasOwnProperty(day) && 
+    typeof (data as any)[day] === 'object' &&
+    typeof (data as any)[day].start === 'string' &&
+    typeof (data as any)[day].end === 'string' &&
+    typeof (data as any)[day].enabled === 'boolean'
+  );
+}
