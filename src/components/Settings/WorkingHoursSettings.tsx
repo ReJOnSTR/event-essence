@@ -5,9 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "@/utils/workingHours";
 import { RotateCcw } from "lucide-react";
-import { useSettings } from "@/hooks/useSettings";
-import { WeeklyWorkingHours } from "@/types/calendar";
 
 const DAYS = {
   monday: "Pazartesi",
@@ -26,7 +25,7 @@ const DEFAULT_DAY = {
 };
 
 export default function WorkingHoursSettings() {
-  const { workingHours, updateWorkingHours } = useSettings();
+  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(getWorkingHours);
   const { toast } = useToast();
 
   const handleChange = (
@@ -41,7 +40,8 @@ export default function WorkingHoursSettings() {
         [field]: value
       }
     };
-    updateWorkingHours(newHours);
+    setWorkingHoursState(newHours);
+    setWorkingHours(newHours);
     toast({
       title: "Ayarlar güncellendi",
       description: "Çalışma saatleri başarıyla kaydedildi.",
@@ -53,7 +53,8 @@ export default function WorkingHoursSettings() {
       ...workingHours,
       [day]: DEFAULT_DAY
     };
-    updateWorkingHours(newHours);
+    setWorkingHoursState(newHours);
+    setWorkingHours(newHours);
     toast({
       title: "Gün sıfırlandı",
       description: `${DAYS[day]} günü varsayılan ayarlara döndürüldü.`,
@@ -70,7 +71,8 @@ export default function WorkingHoursSettings() {
       saturday: { ...DEFAULT_DAY, enabled: false },
       sunday: { ...DEFAULT_DAY, enabled: false }
     };
-    updateWorkingHours(defaultHours);
+    setWorkingHoursState(defaultHours);
+    setWorkingHours(defaultHours);
     toast({
       title: "Tüm günler sıfırlandı",
       description: "Çalışma saatleri varsayılan ayarlara döndürüldü.",
