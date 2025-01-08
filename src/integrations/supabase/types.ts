@@ -125,6 +125,7 @@ export type Database = {
     }
     Enums: {
       lesson_status: "scheduled" | "completed" | "cancelled"
+      setting_type: "working_hours" | "holidays" | "theme" | "general"
     }
     CompositeTypes: {
       [_ in never]: never
