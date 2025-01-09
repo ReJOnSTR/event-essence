@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "@/utils/workingHours";
 import { RotateCcw } from "lucide-react";
+import { useWorkingHours } from "@/hooks/useWorkingHours";
 
 const DAYS = {
   monday: "Pazartesi",
@@ -25,44 +24,46 @@ const DEFAULT_DAY = {
 };
 
 export default function WorkingHoursSettings() {
-  const [workingHours, setWorkingHoursState] = useState<WeeklyWorkingHours>(getWorkingHours);
-  const { toast } = useToast();
+  const { workingHours, updateWorkingHours, isLoading } = useWorkingHours();
+  const [localWorkingHours, setLocalWorkingHours] = useState(workingHours);
+
+  useEffect(() => {
+    if (workingHours) {
+      setLocalWorkingHours(workingHours);
+    }
+  }, [workingHours]);
+
+  if (isLoading || !localWorkingHours) {
+    return <div>Yükleniyor...</div>;
+  }
 
   const handleChange = (
-    day: keyof WeeklyWorkingHours,
+    day: keyof typeof localWorkingHours,
     field: "start" | "end" | "enabled",
     value: string | boolean
   ) => {
     const newHours = {
-      ...workingHours,
+      ...localWorkingHours,
       [day]: {
-        ...workingHours[day],
+        ...localWorkingHours[day],
         [field]: value
       }
     };
-    setWorkingHoursState(newHours);
-    setWorkingHours(newHours);
-    toast({
-      title: "Ayarlar güncellendi",
-      description: "Çalışma saatleri başarıyla kaydedildi.",
-    });
+    setLocalWorkingHours(newHours);
+    updateWorkingHours(newHours);
   };
 
-  const resetDay = (day: keyof WeeklyWorkingHours) => {
+  const resetDay = (day: keyof typeof localWorkingHours) => {
     const newHours = {
-      ...workingHours,
+      ...localWorkingHours,
       [day]: DEFAULT_DAY
     };
-    setWorkingHoursState(newHours);
-    setWorkingHours(newHours);
-    toast({
-      title: "Gün sıfırlandı",
-      description: `${DAYS[day]} günü varsayılan ayarlara döndürüldü.`,
-    });
+    setLocalWorkingHours(newHours);
+    updateWorkingHours(newHours);
   };
 
   const resetAll = () => {
-    const defaultHours: WeeklyWorkingHours = {
+    const defaultHours = {
       monday: DEFAULT_DAY,
       tuesday: DEFAULT_DAY,
       wednesday: DEFAULT_DAY,
@@ -71,12 +72,8 @@ export default function WorkingHoursSettings() {
       saturday: { ...DEFAULT_DAY, enabled: false },
       sunday: { ...DEFAULT_DAY, enabled: false }
     };
-    setWorkingHoursState(defaultHours);
-    setWorkingHours(defaultHours);
-    toast({
-      title: "Tüm günler sıfırlandı",
-      description: "Çalışma saatleri varsayılan ayarlara döndürüldü.",
-    });
+    setLocalWorkingHours(defaultHours);
+    updateWorkingHours(defaultHours);
   };
 
   return (
@@ -94,11 +91,11 @@ export default function WorkingHoursSettings() {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {(Object.entries(DAYS) as [keyof WeeklyWorkingHours, string][]).map(([day, label]) => (
+          {(Object.entries(DAYS) as [keyof typeof localWorkingHours, string][]).map(([day, label]) => (
             <div key={day} className="flex items-center gap-4">
               <div className="flex items-center gap-2 w-40">
                 <Switch
-                  checked={workingHours[day]?.enabled ?? false}
+                  checked={localWorkingHours[day]?.enabled ?? false}
                   onCheckedChange={(checked) => handleChange(day, "enabled", checked)}
                 />
                 <Label>{label}</Label>
@@ -106,17 +103,17 @@ export default function WorkingHoursSettings() {
               <div className="flex items-center gap-2">
                 <Input
                   type="time"
-                  value={workingHours[day]?.start ?? "09:00"}
+                  value={localWorkingHours[day]?.start ?? "09:00"}
                   onChange={(e) => handleChange(day, "start", e.target.value)}
-                  disabled={!workingHours[day]?.enabled}
+                  disabled={!localWorkingHours[day]?.enabled}
                   className="w-32"
                 />
                 <span>-</span>
                 <Input
                   type="time"
-                  value={workingHours[day]?.end ?? "17:00"}
+                  value={localWorkingHours[day]?.end ?? "17:00"}
                   onChange={(e) => handleChange(day, "end", e.target.value)}
-                  disabled={!workingHours[day]?.enabled}
+                  disabled={!localWorkingHours[day]?.enabled}
                   className="w-32"
                 />
                 <Button

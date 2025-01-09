@@ -1,16 +1,17 @@
-import { useToast } from "@/components/ui/use-toast";
-import { getWorkingHours } from "@/utils/workingHours";
-import { isHoliday } from "@/utils/turkishHolidays";
-import { format } from "date-fns";
+import { useUserSettings } from './useUserSettings';
+import { useToast } from '@/components/ui/use-toast';
+import { isHoliday } from '@/utils/turkishHolidays';
+import { format } from 'date-fns';
 
 export const useWorkingHours = () => {
+  const { settings, updateSettings } = useUserSettings();
   const { toast } = useToast();
-  const workingHours = getWorkingHours();
-  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
 
   const checkWorkingHours = (date: Date, hour?: number) => {
-    const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
-    const daySettings = workingHours[dayOfWeek];
+    if (!settings) return false;
+
+    const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof settings.working_hours;
+    const daySettings = settings.working_hours[dayOfWeek];
     const holiday = isHoliday(date);
 
     if (!daySettings?.enabled) {
@@ -22,7 +23,7 @@ export const useWorkingHours = () => {
       return false;
     }
 
-    if (holiday && !allowWorkOnHolidays) {
+    if (holiday && !settings.allow_work_on_holidays) {
       toast({
         title: "Resmi Tatil",
         description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
@@ -48,10 +49,19 @@ export const useWorkingHours = () => {
     return true;
   };
 
+  const updateWorkingHours = async (newWorkingHours: typeof settings.working_hours) => {
+    if (!settings) return;
+    
+    await updateSettings.mutateAsync({
+      working_hours: newWorkingHours
+    });
+  };
+
   return {
-    workingHours,
-    allowWorkOnHolidays,
+    workingHours: settings?.working_hours,
+    allowWorkOnHolidays: settings?.allow_work_on_holidays,
     checkWorkingHours,
-    isHoliday
+    updateWorkingHours,
+    isLoading: !settings
   };
 };

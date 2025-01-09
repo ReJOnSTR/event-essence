@@ -1,43 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { useHolidays } from "@/hooks/useHolidays";
 
 export function HolidaySettings() {
-  const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
-    const savedHolidays = localStorage.getItem('holidays');
-    return savedHolidays ? JSON.parse(savedHolidays).map((h: { date: string }) => new Date(h.date)) : [];
-  });
-  
-  const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    return localStorage.getItem('allowWorkOnHolidays') === 'true';
-  });
+  const { 
+    holidays, 
+    allowWorkOnHolidays, 
+    removeHoliday, 
+    updateAllowWorkOnHolidays,
+    isLoading 
+  } = useHolidays();
 
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const holidays = selectedDates.map(date => ({
-      date: date,
-      description: "Tatil Günü"
-    }));
-    localStorage.setItem('holidays', JSON.stringify(holidays));
-    toast({
-      title: "Tatil günleri güncellendi",
-      description: "Tatil günleri başarıyla kaydedildi.",
-    });
-  }, [selectedDates, toast]);
-
-  useEffect(() => {
-    localStorage.setItem('allowWorkOnHolidays', allowWorkOnHolidays.toString());
-    toast({
-      title: "Tatil günü çalışma ayarı güncellendi",
-      description: allowWorkOnHolidays 
-        ? "Tatil günlerinde çalışmaya izin verilecek" 
-        : "Tatil günlerinde çalışma kapatıldı",
-    });
-  }, [allowWorkOnHolidays, toast]);
+  if (isLoading) {
+    return <div>Yükleniyor...</div>;
+  }
 
   return (
     <Card>
@@ -49,7 +30,7 @@ export function HolidaySettings() {
           <Switch
             id="allow-work"
             checked={allowWorkOnHolidays}
-            onCheckedChange={setAllowWorkOnHolidays}
+            onCheckedChange={updateAllowWorkOnHolidays}
           />
           <Label htmlFor="allow-work">Tatil günlerinde çalışmaya izin ver</Label>
         </div>
@@ -57,18 +38,34 @@ export function HolidaySettings() {
         <ScrollArea className="h-[400px] rounded-md border">
           <div className="p-4">
             <h3 className="text-sm font-medium mb-4">Özel Tatil Günleri</h3>
-            {selectedDates.length === 0 ? (
+            {holidays.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Henüz özel tatil günü eklenmemiş.
               </p>
             ) : (
               <div className="space-y-2">
-                {selectedDates.map((date, index) => (
+                {holidays.map((holiday) => (
                   <div 
-                    key={index}
-                    className="flex justify-between items-center p-2 bg-gray-50 rounded-md"
+                    key={holiday.date}
+                    className="flex justify-between items-center p-2 bg-muted rounded-md"
                   >
-                    <span className="text-sm">{date.toLocaleDateString('tr-TR')}</span>
+                    <div>
+                      <span className="text-sm font-medium">
+                        {new Date(holiday.date).toLocaleDateString('tr-TR')}
+                      </span>
+                      {holiday.description && (
+                        <p className="text-xs text-muted-foreground">
+                          {holiday.description}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeHoliday(holiday.date)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
               </div>
