@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getWorkingHours, type WeeklyWorkingHours } from "./workingHours";
 import { Student, Lesson } from "@/types/calendar";
 import { getDefaultLessonDuration } from "./settings";
+import { Json } from "@/integrations/supabase/types";
 
 interface ProjectData {
   workingHours: WeeklyWorkingHours;
@@ -25,12 +26,12 @@ export const exportProjectData = async (): Promise<ProjectData> => {
     .single();
 
   const data: ProjectData = {
-    workingHours: userSettings?.working_hours || getWorkingHours(),
+    workingHours: (userSettings?.working_hours as WeeklyWorkingHours) || getWorkingHours(),
     settings: {
       defaultLessonDuration: userSettings?.default_lesson_duration || getDefaultLessonDuration(),
       theme: userSettings?.theme || 'light',
       allowWorkOnHolidays: userSettings?.allow_work_on_holidays ?? true,
-      holidays: userSettings?.holidays || [],
+      holidays: (userSettings?.holidays as string[]) || [],
     }
   };
 
@@ -45,11 +46,11 @@ export const importProjectData = async (data: ProjectData) => {
   await supabase
     .from('user_settings')
     .update({
-      working_hours: data.workingHours,
+      working_hours: data.workingHours as Json,
       default_lesson_duration: data.settings.defaultLessonDuration,
       theme: data.settings.theme,
       allow_work_on_holidays: data.settings.allowWorkOnHolidays,
-      holidays: data.settings.holidays
+      holidays: data.settings.holidays as Json
     })
     .eq('user_id', userData.user.id);
 
