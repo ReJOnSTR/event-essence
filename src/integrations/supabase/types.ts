@@ -116,6 +116,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          allow_work_on_holidays: boolean | null
+          created_at: string | null
+          default_lesson_duration: number | null
+          font_family: string | null
+          font_size: string | null
+          holidays: Json | null
+          id: string
+          theme: string | null
+          updated_at: string | null
+          user_id: string
+          working_hours: Json | null
+        }
+        Insert: {
+          allow_work_on_holidays?: boolean | null
+          created_at?: string | null
+          default_lesson_duration?: number | null
+          font_family?: string | null
+          font_size?: string | null
+          holidays?: Json | null
+          id?: string
+          theme?: string | null
+          updated_at?: string | null
+          user_id: string
+          working_hours?: Json | null
+        }
+        Update: {
+          allow_work_on_holidays?: boolean | null
+          created_at?: string | null
+          default_lesson_duration?: number | null
+          font_family?: string | null
+          font_size?: string | null
+          holidays?: Json | null
+          id?: string
+          theme?: string | null
+          updated_at?: string | null
+          user_id?: string
+          working_hours?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
