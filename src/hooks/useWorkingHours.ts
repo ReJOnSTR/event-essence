@@ -4,11 +4,11 @@ import { isHoliday } from '@/utils/turkishHolidays';
 import { format } from 'date-fns';
 
 export const useWorkingHours = () => {
-  const { settings, updateSettings } = useUserSettings();
+  const { settings, updateSettings, isLoading } = useUserSettings();
   const { toast } = useToast();
 
   const checkWorkingHours = (date: Date, hour?: number) => {
-    if (!settings) return false;
+    if (!settings || isLoading) return false;
 
     const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof settings.working_hours;
     const daySettings = settings.working_hours[dayOfWeek];
@@ -59,9 +59,10 @@ export const useWorkingHours = () => {
 
   return {
     workingHours: settings?.working_hours,
+    defaultLessonDuration: settings?.default_lesson_duration || 60,
     allowWorkOnHolidays: settings?.allow_work_on_holidays,
     checkWorkingHours,
     updateWorkingHours,
-    isLoading: !settings
+    isLoading: !settings || isLoading
   };
 };

@@ -1,13 +1,14 @@
+import { useWorkingHours } from "@/hooks/useWorkingHours";
+
 export const getDefaultLessonDuration = (): number => {
-  const duration = localStorage.getItem('defaultLessonDuration');
-  return duration ? parseInt(duration) : 60; // Default 60 minutes if not set
+  const { defaultLessonDuration } = useWorkingHours();
+  return defaultLessonDuration || 60;
 };
 
 export const getDefaultStartHour = (): number => {
-  const savedStartHour = localStorage.getItem('defaultStartHour');
-  return savedStartHour ? parseInt(savedStartHour) : 9; // Default to 9 AM if not set
-};
-
-export const setDefaultLessonDuration = (minutes: number): void => {
-  localStorage.setItem('defaultLessonDuration', minutes.toString());
+  const { workingHours } = useWorkingHours();
+  if (!workingHours?.monday) return 9;
+  
+  const [startHour] = workingHours.monday.start.split(':').map(Number);
+  return startHour || 9;
 };
