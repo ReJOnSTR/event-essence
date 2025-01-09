@@ -16,7 +16,7 @@ export interface WeeklyWorkingHours {
   sunday: WorkingHours;
 }
 
-const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
+export const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
   monday: { start: "09:00", end: "17:00", enabled: true },
   tuesday: { start: "09:00", end: "17:00", enabled: true },
   wednesday: { start: "09:00", end: "17:00", enabled: true },
@@ -28,5 +28,5 @@ const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
   const { settings } = useUserSettings();
-  return settings?.working_hours || DEFAULT_WORKING_HOURS;
+  return settings?.working_hours as WeeklyWorkingHours || DEFAULT_WORKING_HOURS;
 };
