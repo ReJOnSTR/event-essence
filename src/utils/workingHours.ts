@@ -28,5 +28,21 @@ export const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
   const { settings } = useUserSettings();
-  return settings?.working_hours as WeeklyWorkingHours || DEFAULT_WORKING_HOURS;
+  if (!settings?.working_hours) return DEFAULT_WORKING_HOURS;
+  
+  // Tip güvenliği için kontrol ekliyoruz
+  const workingHours = settings.working_hours as Record<string, WorkingHours>;
+  
+  // Tüm günlerin doğru formatta olduğundan emin oluyoruz
+  const validatedHours: WeeklyWorkingHours = {
+    monday: workingHours.monday || DEFAULT_WORKING_HOURS.monday,
+    tuesday: workingHours.tuesday || DEFAULT_WORKING_HOURS.tuesday,
+    wednesday: workingHours.wednesday || DEFAULT_WORKING_HOURS.wednesday,
+    thursday: workingHours.thursday || DEFAULT_WORKING_HOURS.thursday,
+    friday: workingHours.friday || DEFAULT_WORKING_HOURS.friday,
+    saturday: workingHours.saturday || DEFAULT_WORKING_HOURS.saturday,
+    sunday: workingHours.sunday || DEFAULT_WORKING_HOURS.sunday,
+  };
+
+  return validatedHours;
 };
