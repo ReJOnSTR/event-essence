@@ -3,9 +3,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval, isEqual } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { getDefaultLessonDuration } from "@/utils/settings";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { motion } from "framer-motion";
-import { getWorkingHours } from "@/utils/workingHours";
 import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
 
@@ -35,6 +34,7 @@ export default function LessonDialog({
   const [endTime, setEndTime] = useState("10:00");
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const { toast } = useToast();
+  const { settings } = useUserSettings();
 
   useEffect(() => {
     if (isOpen) {
@@ -44,9 +44,9 @@ export default function LessonDialog({
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
       } else {
-        const workingHours = getWorkingHours();
+        const workingHours = settings?.working_hours;
         const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
-        const daySettings = workingHours[dayOfWeek];
+        const daySettings = workingHours?.[dayOfWeek];
 
         let initialStartTime;
         if (daySettings?.enabled) {
@@ -69,7 +69,7 @@ export default function LessonDialog({
         const startDate = new Date(selectedDate);
         startDate.setHours(hours, minutes, 0, 0);
         
-        const defaultDuration = getDefaultLessonDuration();
+        const defaultDuration = settings?.default_lesson_duration || 60;
         const endDate = new Date(startDate.getTime() + defaultDuration * 60000);
         
         setEndTime(format(endDate, 'HH:mm'));
@@ -77,7 +77,7 @@ export default function LessonDialog({
         setSelectedStudentId("");
       }
     }
-  }, [isOpen, selectedDate, event]);
+  }, [isOpen, selectedDate, event, settings]);
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;

@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
-import { getWorkingHours } from "@/utils/workingHours";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { tr } from "date-fns/locale";
 
 interface LessonTimeInputsProps {
@@ -18,11 +18,11 @@ export default function LessonTimeInputs({
   onStartTimeChange,
   onEndTimeChange
 }: LessonTimeInputsProps) {
-  const workingHours = getWorkingHours();
+  const { settings } = useUserSettings();
+  const workingHours = settings?.working_hours;
   const dayOfWeek = format(selectedDate, 'EEEE', { locale: tr }).toLowerCase() as keyof typeof workingHours;
-  const daySettings = workingHours[dayOfWeek];
+  const daySettings = workingHours?.[dayOfWeek];
 
-  // Çalışma saatlerini al
   const minTime = daySettings?.enabled ? daySettings.start : "09:00";
   const maxTime = daySettings?.enabled ? daySettings.end : "17:00";
 

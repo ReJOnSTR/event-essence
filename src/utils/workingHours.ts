@@ -1,3 +1,5 @@
+import { useUserSettings } from "@/hooks/useUserSettings";
+
 export interface WorkingHours {
   start: string;
   end: string;
@@ -25,26 +27,6 @@ const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
 };
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
-  try {
-    const stored = localStorage.getItem('workingHours');
-    if (!stored) return DEFAULT_WORKING_HOURS;
-    
-    const parsed = JSON.parse(stored);
-    // Ensure all days are present with default values
-    return {
-      ...DEFAULT_WORKING_HOURS,
-      ...parsed
-    };
-  } catch (error) {
-    console.error('Error reading working hours from localStorage:', error);
-    return DEFAULT_WORKING_HOURS;
-  }
-};
-
-export const setWorkingHours = (hours: WeeklyWorkingHours): void => {
-  try {
-    localStorage.setItem('workingHours', JSON.stringify(hours));
-  } catch (error) {
-    console.error('Error saving working hours to localStorage:', error);
-  }
+  const { settings } = useUserSettings();
+  return settings?.working_hours || DEFAULT_WORKING_HOURS;
 };
