@@ -15,11 +15,11 @@ import LessonTimeInputs from "./LessonTimeInputs";
 interface LessonDialogFormProps {
   description: string;
   onDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
   selectedDate: Date;
-  setStartTime: (time: Date) => void;
-  setEndTime: (time: Date) => void;
+  setStartTime: (time: string) => void;
+  setEndTime: (time: string) => void;
   selectedStudentId: string;
   setSelectedStudentId: (id: string) => void;
   students: Student[];
