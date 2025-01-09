@@ -4,11 +4,11 @@ import { getWorkingHours } from "@/utils/workingHours";
 import { tr } from "date-fns/locale";
 
 interface LessonTimeInputsProps {
-  startTime: string;
-  endTime: string;
+  startTime: Date;
+  endTime: Date;
   selectedDate: Date;
-  onStartTimeChange: (value: string) => void;
-  onEndTimeChange: (value: string) => void;
+  onStartTimeChange: (value: Date) => void;
+  onEndTimeChange: (value: Date) => void;
 }
 
 export default function LessonTimeInputs({
@@ -26,14 +26,28 @@ export default function LessonTimeInputs({
   const minTime = daySettings?.enabled ? daySettings.start : "09:00";
   const maxTime = daySettings?.enabled ? daySettings.end : "17:00";
 
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [hours, minutes] = e.target.value.split(':').map(Number);
+    const newDate = new Date(startTime);
+    newDate.setHours(hours, minutes);
+    onStartTimeChange(newDate);
+  };
+
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [hours, minutes] = e.target.value.split(':').map(Number);
+    const newDate = new Date(endTime);
+    newDate.setHours(hours, minutes);
+    onEndTimeChange(newDate);
+  };
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
         <label className="text-sm font-medium">Başlangıç Saati</label>
         <Input
           type="time"
-          value={startTime}
-          onChange={(e) => onStartTimeChange(e.target.value)}
+          value={format(startTime, 'HH:mm')}
+          onChange={handleStartTimeChange}
           min={minTime}
           max={maxTime}
           required
@@ -43,8 +57,8 @@ export default function LessonTimeInputs({
         <label className="text-sm font-medium">Bitiş Saati</label>
         <Input
           type="time"
-          value={endTime}
-          onChange={(e) => onEndTimeChange(e.target.value)}
+          value={format(endTime, 'HH:mm')}
+          onChange={handleEndTimeChange}
           min={minTime}
           max={maxTime}
           required

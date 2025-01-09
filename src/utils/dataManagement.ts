@@ -1,7 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "./workingHours";
 import { Student, Lesson } from "@/types/calendar";
-import { getDefaultLessonDuration, setDefaultLessonDuration } from "./settings";
+import { getDefaultLessonDuration } from "./settings";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface ProjectData {
   workingHours: WeeklyWorkingHours;
@@ -29,6 +30,8 @@ export const exportProjectData = async (): Promise<ProjectData> => {
 };
 
 export const importProjectData = async (data: ProjectData) => {
+  const { updateSettings } = useUserSettings();
+
   // Import working hours
   if (data.workingHours) {
     setWorkingHours(data.workingHours);
@@ -36,8 +39,10 @@ export const importProjectData = async (data: ProjectData) => {
 
   // Import settings
   if (data.settings) {
-    // Default lesson duration
-    setDefaultLessonDuration(data.settings.defaultLessonDuration);
+    // Update default lesson duration through Supabase
+    await updateSettings.mutateAsync({
+      default_lesson_duration: data.settings.defaultLessonDuration
+    });
     
     // Theme
     localStorage.setItem('theme', data.settings.theme);
