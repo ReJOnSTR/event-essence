@@ -30,19 +30,17 @@ export const getWorkingHours = (): WeeklyWorkingHours => {
   const { settings } = useUserSettings();
   if (!settings?.working_hours) return DEFAULT_WORKING_HOURS;
   
-  // Tip güvenliği için kontrol ekliyoruz
-  const workingHours = settings.working_hours as Record<string, WorkingHours>;
+  // First convert to unknown, then to the correct type
+  const workingHours = settings.working_hours as unknown as WeeklyWorkingHours;
   
-  // Tüm günlerin doğru formatta olduğundan emin oluyoruz
-  const validatedHours: WeeklyWorkingHours = {
-    monday: workingHours.monday || DEFAULT_WORKING_HOURS.monday,
-    tuesday: workingHours.tuesday || DEFAULT_WORKING_HOURS.tuesday,
-    wednesday: workingHours.wednesday || DEFAULT_WORKING_HOURS.wednesday,
-    thursday: workingHours.thursday || DEFAULT_WORKING_HOURS.thursday,
-    friday: workingHours.friday || DEFAULT_WORKING_HOURS.friday,
-    saturday: workingHours.saturday || DEFAULT_WORKING_HOURS.saturday,
-    sunday: workingHours.sunday || DEFAULT_WORKING_HOURS.sunday,
+  // Validate and merge with defaults
+  return {
+    monday: { ...DEFAULT_WORKING_HOURS.monday, ...workingHours.monday },
+    tuesday: { ...DEFAULT_WORKING_HOURS.tuesday, ...workingHours.tuesday },
+    wednesday: { ...DEFAULT_WORKING_HOURS.wednesday, ...workingHours.wednesday },
+    thursday: { ...DEFAULT_WORKING_HOURS.thursday, ...workingHours.thursday },
+    friday: { ...DEFAULT_WORKING_HOURS.friday, ...workingHours.friday },
+    saturday: { ...DEFAULT_WORKING_HOURS.saturday, ...workingHours.saturday },
+    sunday: { ...DEFAULT_WORKING_HOURS.sunday, ...workingHours.sunday },
   };
-
-  return validatedHours;
 };
