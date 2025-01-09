@@ -62,14 +62,17 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
 
   const handleLogout = async () => {
     try {
-      // Clear all Supabase related items from localStorage
+      // Önce session'ı temizle
+      setSession(null);
+      
+      // Local storage'dan Supabase ile ilgili verileri temizle
       Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('supabase.auth.')) {
+        if (key.startsWith('sb-')) {
           localStorage.removeItem(key);
         }
       });
       
-      // Sign out from Supabase
+      // Supabase'den çıkış yap
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -81,9 +84,8 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           duration: 2000,
         });
       } else {
-        // Clear session state
-        setSession(null);
-        
+        // Başarılı çıkış durumunda
+        navigate('/login');
         toast({
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
@@ -96,6 +98,9 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         variant: "destructive",
         duration: 2000,
       });
+      
+      // Hata durumunda da login sayfasına yönlendir
+      navigate('/login');
     }
   };
 
