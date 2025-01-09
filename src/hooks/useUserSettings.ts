@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { Json } from '@/integrations/supabase/types';
 
 interface WorkingHours {
   start: string;
@@ -18,16 +19,37 @@ interface WeeklyWorkingHours {
   sunday: WorkingHours;
 }
 
+interface Holiday {
+  date: string;
+  description: string;
+}
+
 interface UserSettings {
   id: string;
   user_id: string;
   default_lesson_duration: number;
   working_hours: WeeklyWorkingHours;
-  holidays: Array<{ date: string; description: string }>;
+  holidays: Holiday[];
   allow_work_on_holidays: boolean;
   theme: string;
   font_size: string;
   font_family: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface DatabaseUserSettings {
+  id: string;
+  user_id: string;
+  default_lesson_duration: number;
+  working_hours: Json;
+  holidays: Json;
+  allow_work_on_holidays: boolean;
+  theme: string;
+  font_size: string;
+  font_family: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const useUserSettings = () => {
@@ -47,15 +69,31 @@ export const useUserSettings = () => {
         throw error;
       }
 
-      return data as UserSettings;
+      const dbSettings = data as DatabaseUserSettings;
+      
+      // Convert database types to our interface types
+      const userSettings: UserSettings = {
+        ...dbSettings,
+        working_hours: dbSettings.working_hours as unknown as WeeklyWorkingHours,
+        holidays: dbSettings.holidays as unknown as Holiday[]
+      };
+
+      return userSettings;
     }
   });
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<UserSettings>) => {
+      // Convert our interface types back to database types
+      const dbSettings: Partial<DatabaseUserSettings> = {
+        ...newSettings,
+        working_hours: newSettings.working_hours as unknown as Json,
+        holidays: newSettings.holidays as unknown as Json
+      };
+
       const { data, error } = await supabase
         .from('user_settings')
-        .update(newSettings)
+        .update(dbSettings)
         .eq('user_id', settings?.user_id)
         .select()
         .single();
