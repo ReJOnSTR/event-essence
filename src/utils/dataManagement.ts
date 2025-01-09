@@ -62,9 +62,6 @@ export const importProjectData = async (data: ProjectData) => {
       holidays: data.settings.holidays as unknown as Json
     })
     .eq('user_id', userData.user.id);
-
-  document.documentElement.classList.remove('light', 'sunset');
-  document.documentElement.classList.add(data.settings.theme);
 };
 
 export const downloadProjectData = async () => {

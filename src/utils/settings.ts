@@ -2,14 +2,10 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 
 export const getDefaultLessonDuration = (): number => {
   const { settings } = useUserSettings();
-  // Ayarlar yüklenene kadar varsayılan değeri kullanıyoruz
-  if (!settings) return 60;
-  return settings.default_lesson_duration;
+  return settings?.default_lesson_duration ?? 60;
 };
 
 export const getAllowWorkOnHolidays = (): boolean => {
   const { settings } = useUserSettings();
-  // Ayarlar yüklenene kadar varsayılan değeri kullanıyoruz
-  if (!settings) return true;
-  return settings.allow_work_on_holidays;
+  return settings?.allow_work_on_holidays ?? true;
 };

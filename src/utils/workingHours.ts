@@ -28,19 +28,20 @@ export const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
   const { settings } = useUserSettings();
-  if (!settings?.working_hours) return DEFAULT_WORKING_HOURS;
   
-  // First convert to unknown, then to the correct type
-  const workingHours = settings.working_hours as unknown as WeeklyWorkingHours;
-  
-  // Validate and merge with defaults
+  if (!settings?.working_hours) {
+    return DEFAULT_WORKING_HOURS;
+  }
+
+  const userWorkingHours = settings.working_hours as unknown as WeeklyWorkingHours;
+
   return {
-    monday: { ...DEFAULT_WORKING_HOURS.monday, ...workingHours.monday },
-    tuesday: { ...DEFAULT_WORKING_HOURS.tuesday, ...workingHours.tuesday },
-    wednesday: { ...DEFAULT_WORKING_HOURS.wednesday, ...workingHours.wednesday },
-    thursday: { ...DEFAULT_WORKING_HOURS.thursday, ...workingHours.thursday },
-    friday: { ...DEFAULT_WORKING_HOURS.friday, ...workingHours.friday },
-    saturday: { ...DEFAULT_WORKING_HOURS.saturday, ...workingHours.saturday },
-    sunday: { ...DEFAULT_WORKING_HOURS.sunday, ...workingHours.sunday },
+    monday: { ...DEFAULT_WORKING_HOURS.monday, ...userWorkingHours.monday },
+    tuesday: { ...DEFAULT_WORKING_HOURS.tuesday, ...userWorkingHours.tuesday },
+    wednesday: { ...DEFAULT_WORKING_HOURS.wednesday, ...userWorkingHours.wednesday },
+    thursday: { ...DEFAULT_WORKING_HOURS.thursday, ...userWorkingHours.thursday },
+    friday: { ...DEFAULT_WORKING_HOURS.friday, ...userWorkingHours.friday },
+    saturday: { ...DEFAULT_WORKING_HOURS.saturday, ...userWorkingHours.saturday },
+    sunday: { ...DEFAULT_WORKING_HOURS.sunday, ...userWorkingHours.sunday },
   };
 };
