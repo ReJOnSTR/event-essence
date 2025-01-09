@@ -25,13 +25,16 @@ export const exportProjectData = async (): Promise<ProjectData> => {
     .eq('user_id', userData.user.id)
     .single();
 
+  const workingHoursData = userSettings?.working_hours as unknown as WeeklyWorkingHours;
+  const holidaysData = userSettings?.holidays as unknown as string[];
+
   const data: ProjectData = {
-    workingHours: (userSettings?.working_hours as WeeklyWorkingHours) || getWorkingHours(),
+    workingHours: workingHoursData || getWorkingHours(),
     settings: {
       defaultLessonDuration: userSettings?.default_lesson_duration || getDefaultLessonDuration(),
       theme: userSettings?.theme || 'light',
       allowWorkOnHolidays: userSettings?.allow_work_on_holidays ?? true,
-      holidays: (userSettings?.holidays as string[]) || [],
+      holidays: holidaysData || [],
     }
   };
 
@@ -46,11 +49,11 @@ export const importProjectData = async (data: ProjectData) => {
   await supabase
     .from('user_settings')
     .update({
-      working_hours: data.workingHours as Json,
+      working_hours: data.workingHours as unknown as Json,
       default_lesson_duration: data.settings.defaultLessonDuration,
       theme: data.settings.theme,
       allow_work_on_holidays: data.settings.allowWorkOnHolidays,
-      holidays: data.settings.holidays as Json
+      holidays: data.settings.holidays as unknown as Json
     })
     .eq('user_id', userData.user.id);
 
