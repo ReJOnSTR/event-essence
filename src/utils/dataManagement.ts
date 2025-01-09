@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
-import { getWorkingHours, setWorkingHours, type WeeklyWorkingHours } from "./workingHours";
+import { getWorkingHours, type WeeklyWorkingHours } from "./workingHours";
 import { Student, Lesson } from "@/types/calendar";
-import { getDefaultLessonDuration, setDefaultLessonDuration } from "./settings";
+import { getDefaultLessonDuration } from "./settings";
 
 interface ProjectData {
   workingHours: WeeklyWorkingHours;
@@ -14,14 +14,23 @@ interface ProjectData {
 }
 
 export const exportProjectData = async (): Promise<ProjectData> => {
-  // Get settings data from localStorage
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) throw new Error('User not authenticated');
+
+  // Get settings data from Supabase
+  const { data: userSettings } = await supabase
+    .from('user_settings')
+    .select('*')
+    .eq('user_id', userData.user.id)
+    .single();
+
   const data: ProjectData = {
-    workingHours: getWorkingHours(),
+    workingHours: userSettings?.working_hours || getWorkingHours(),
     settings: {
-      defaultLessonDuration: getDefaultLessonDuration(),
-      theme: localStorage.getItem('theme') || 'light',
-      allowWorkOnHolidays: localStorage.getItem('allowWorkOnHolidays') === 'true',
-      holidays: JSON.parse(localStorage.getItem('holidays') || '[]'),
+      defaultLessonDuration: userSettings?.default_lesson_duration || getDefaultLessonDuration(),
+      theme: userSettings?.theme || 'light',
+      allowWorkOnHolidays: userSettings?.allow_work_on_holidays ?? true,
+      holidays: userSettings?.holidays || [],
     }
   };
 
@@ -29,25 +38,24 @@ export const exportProjectData = async (): Promise<ProjectData> => {
 };
 
 export const importProjectData = async (data: ProjectData) => {
-  // Import working hours
-  if (data.workingHours) {
-    setWorkingHours(data.workingHours);
-  }
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) throw new Error('User not authenticated');
 
-  // Import settings
-  if (data.settings) {
-    // Default lesson duration
-    setDefaultLessonDuration(data.settings.defaultLessonDuration);
-    
-    // Theme
-    localStorage.setItem('theme', data.settings.theme);
-    document.documentElement.classList.remove('light', 'sunset');
-    document.documentElement.classList.add(data.settings.theme);
-    
-    // Holiday settings
-    localStorage.setItem('allowWorkOnHolidays', data.settings.allowWorkOnHolidays.toString());
-    localStorage.setItem('holidays', JSON.stringify(data.settings.holidays));
-  }
+  // Update user settings in Supabase
+  await supabase
+    .from('user_settings')
+    .update({
+      working_hours: data.workingHours,
+      default_lesson_duration: data.settings.defaultLessonDuration,
+      theme: data.settings.theme,
+      allow_work_on_holidays: data.settings.allowWorkOnHolidays,
+      holidays: data.settings.holidays
+    })
+    .eq('user_id', userData.user.id);
+
+  // Update theme
+  document.documentElement.classList.remove('light', 'sunset');
+  document.documentElement.classList.add(data.settings.theme);
 };
 
 export const downloadProjectData = async () => {
