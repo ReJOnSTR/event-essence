@@ -38,9 +38,7 @@ export default function GeneralSettings() {
             onChange={handleDurationChange}
             min="1"
             max="60"
-            className="max
-
--w-[200px]"
+            className="max-w-[200px]"
           />
           <p className="text-sm text-muted-foreground">
             Yeni ders eklerken otomatik olarak ayarlanacak süre (1-60 dakika arası)

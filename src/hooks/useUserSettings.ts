@@ -71,7 +71,6 @@ export const useUserSettings = () => {
 
       const dbSettings = data as DatabaseUserSettings;
       
-      // Convert database types to our interface types
       const userSettings: UserSettings = {
         ...dbSettings,
         working_hours: dbSettings.working_hours as unknown as WeeklyWorkingHours,
@@ -84,7 +83,6 @@ export const useUserSettings = () => {
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<UserSettings>) => {
-      // Convert our interface types back to database types
       const dbSettings: Partial<DatabaseUserSettings> = {
         ...newSettings,
         working_hours: newSettings.working_hours as unknown as Json,
@@ -126,7 +124,6 @@ export const useUserSettings = () => {
     settings,
     isLoading,
     error,
-    updateSettings: (newSettings: Partial<UserSettings>) => 
-      updateSettings.mutate(newSettings),
+    updateSettings,
   };
 };
