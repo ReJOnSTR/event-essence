@@ -1,4 +1,4 @@
-import { useUserSettings } from "@/hooks/useUserSettings";
+import { useUserSettings } from '@/hooks/useUserSettings';
 
 export interface WorkingHours {
   start: string;
@@ -33,15 +33,5 @@ export const getWorkingHours = (): WeeklyWorkingHours => {
     return DEFAULT_WORKING_HOURS;
   }
 
-  const userWorkingHours = settings.working_hours as unknown as WeeklyWorkingHours;
-
-  return {
-    monday: { ...DEFAULT_WORKING_HOURS.monday, ...userWorkingHours.monday },
-    tuesday: { ...DEFAULT_WORKING_HOURS.tuesday, ...userWorkingHours.tuesday },
-    wednesday: { ...DEFAULT_WORKING_HOURS.wednesday, ...userWorkingHours.wednesday },
-    thursday: { ...DEFAULT_WORKING_HOURS.thursday, ...userWorkingHours.thursday },
-    friday: { ...DEFAULT_WORKING_HOURS.friday, ...userWorkingHours.friday },
-    saturday: { ...DEFAULT_WORKING_HOURS.saturday, ...userWorkingHours.saturday },
-    sunday: { ...DEFAULT_WORKING_HOURS.sunday, ...userWorkingHours.sunday },
-  };
+  return settings.working_hours;
 };
