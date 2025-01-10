@@ -1,11 +1,10 @@
 import React from "react";
+import { startOfWeek, addDays, format } from "date-fns";
+import { tr } from "date-fns/locale";
 import { CalendarEvent, Student } from "@/types/calendar";
-import { startOfWeek, addDays } from "date-fns";
-import { motion } from "framer-motion";
-import { getWorkingHours } from "@/utils/workingHours";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
-import { useUserSettings } from "@/hooks/useUserSettings";
+import { getWorkingHours } from "@/utils/workingHours";
 
 interface WeekViewProps {
   date: Date;
@@ -16,19 +15,15 @@ interface WeekViewProps {
   students?: Student[];
 }
 
-export default function WeekView({ 
-  date, 
-  events, 
-  onDateSelect, 
+export default function WeekView({
+  date,
+  events,
+  onDateSelect,
   onEventClick,
   onEventUpdate,
-  students 
+  students
 }: WeekViewProps) {
-  const { settings } = useUserSettings();
-  const workingHours = settings?.working_hours || getWorkingHours();
-  const weekStart = startOfWeek(date, { weekStartsOn: 1 });
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-
+  const workingHours = getWorkingHours();
   const startHour = Math.min(...Object.values(workingHours)
     .filter(day => day.enabled)
     .map(day => parseInt(day.start.split(':')[0])));
@@ -36,37 +31,30 @@ export default function WeekView({
     .filter(day => day.enabled)
     .map(day => parseInt(day.end.split(':')[0])));
 
-  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+  const hours = Array.from(
+    { length: endHour - startHour + 1 },
+    (_, i) => startHour + i
+  );
 
-  const handleCellClick = (day: Date, hour: number) => {
-    const eventDate = new Date(day);
-    eventDate.setHours(hour);
-    onDateSelect(eventDate);
-  };
+  const weekStart = startOfWeek(date, { weekStartsOn: 1 });
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
-    <motion.div 
-      className="w-full overflow-x-auto"
-      initial={{ opacity: 0, y: 2 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-    >
-      <div className="border border-border rounded-lg overflow-hidden">
-        <WeekViewHeader date={date} />
-        <div className="grid grid-cols-8 divide-x divide-border">
-          <WeekViewTimeGrid
-            weekDays={weekDays}
-            hours={hours}
-            events={events}
-            workingHours={workingHours}
-            allowWorkOnHolidays={settings?.allow_work_on_holidays ?? true}
-            onCellClick={handleCellClick}
-            onEventClick={onEventClick}
-            onEventUpdate={onEventUpdate}
-            students={students}
-          />
-        </div>
+    <div className="w-full">
+      <WeekViewHeader weekDays={weekDays} />
+      <div className="grid grid-cols-[auto_repeat(7,1fr)] divide-x divide-border border border-border rounded-lg mt-2">
+        <WeekViewTimeGrid
+          weekDays={weekDays}
+          hours={hours}
+          events={events}
+          workingHours={workingHours}
+          allowWorkOnHolidays={localStorage.getItem('allowWorkOnHolidays') === 'true'}
+          onCellClick={onDateSelect}
+          onEventClick={onEventClick}
+          onEventUpdate={onEventUpdate}
+          students={students}
+        />
       </div>
-    </motion.div>
+    </div>
   );
 }
