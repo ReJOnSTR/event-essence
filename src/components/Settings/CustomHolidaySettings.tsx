@@ -10,38 +10,34 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 export default function CustomHolidaySettings() {
-  const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
-    const savedHolidays = localStorage.getItem('customHolidays');
-    return savedHolidays ? JSON.parse(savedHolidays).map((h: { date: string }) => new Date(h.date)) : [];
-  });
-
-  const [allowWorkOnHolidays, setAllowWorkOnHolidays] = useState(() => {
-    const savedSetting = localStorage.getItem('allowWorkOnHolidays');
-    // If the setting hasn't been set yet, default to true
-    return savedSetting === null ? true : savedSetting === 'true';
-  });
-
+  const { settings, updateSettings } = useUserSettings();
   const { toast } = useToast();
+  
+  const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
+    return settings?.holidays?.map((h: { date: string }) => new Date(h.date)) || [];
+  });
 
-  // Set the default value in localStorage if it hasn't been set yet
   useEffect(() => {
-    if (localStorage.getItem('allowWorkOnHolidays') === null) {
-      localStorage.setItem('allowWorkOnHolidays', 'true');
+    if (settings?.holidays) {
+      setSelectedDates(settings.holidays.map((h: { date: string }) => new Date(h.date)));
     }
-  }, []);
+  }, [settings?.holidays]);
 
-  const handleSelect = (dates: Date[] | undefined) => {
+  const handleSelect = async (dates: Date[] | undefined) => {
     if (!dates) return;
     
     setSelectedDates(dates);
     const holidays = dates.map(date => ({
-      date: date,
+      date: date.toISOString(),
       description: "Özel Tatil"
     }));
     
-    localStorage.setItem('customHolidays', JSON.stringify(holidays));
+    await updateSettings.mutateAsync({
+      holidays: holidays
+    });
     
     toast({
       title: "Özel tatil günleri güncellendi",
@@ -49,18 +45,23 @@ export default function CustomHolidaySettings() {
     });
   };
 
-  const clearHolidays = () => {
+  const clearHolidays = async () => {
     setSelectedDates([]);
-    localStorage.setItem('customHolidays', JSON.stringify([]));
+    await updateSettings.mutateAsync({
+      holidays: []
+    });
+    
     toast({
       title: "Özel tatil günleri temizlendi",
       description: "Tüm özel tatil günleri kaldırıldı.",
     });
   };
 
-  const handleWorkOnHolidaysChange = (checked: boolean) => {
-    setAllowWorkOnHolidays(checked);
-    localStorage.setItem('allowWorkOnHolidays', checked.toString());
+  const handleWorkOnHolidaysChange = async (checked: boolean) => {
+    await updateSettings.mutateAsync({
+      allow_work_on_holidays: checked
+    });
+    
     toast({
       title: "Tatil günü çalışma ayarı güncellendi",
       description: checked 
@@ -81,7 +82,7 @@ export default function CustomHolidaySettings() {
             <div className="flex items-center space-x-2 pb-4">
               <Switch
                 id="allow-work"
-                checked={allowWorkOnHolidays}
+                checked={settings?.allow_work_on_holidays}
                 onCheckedChange={handleWorkOnHolidaysChange}
               />
               <Label htmlFor="allow-work">Tatil günlerinde çalışmaya izin ver</Label>
