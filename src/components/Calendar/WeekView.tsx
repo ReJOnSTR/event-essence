@@ -1,6 +1,5 @@
 import React from "react";
-import { startOfWeek, addDays, format } from "date-fns";
-import { tr } from "date-fns/locale";
+import { startOfWeek, addDays } from "date-fns";
 import { CalendarEvent, Student } from "@/types/calendar";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
