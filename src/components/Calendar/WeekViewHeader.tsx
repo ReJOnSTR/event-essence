@@ -1,4 +1,4 @@
-import { format, isToday, startOfWeek, addDays } from "date-fns";
+import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -6,13 +6,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { isHoliday } from "@/utils/turkishHolidays";
 
 interface WeekViewHeaderProps {
-  date: Date;
+  weekDays: Date[];
 }
 
-export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
+export default function WeekViewHeader({ weekDays }: WeekViewHeaderProps) {
   const isMobile = useIsMobile();
-  const weekStart = startOfWeek(date, { weekStartsOn: 1 });
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
     <div className="grid grid-cols-8 gap-px bg-border">
