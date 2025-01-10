@@ -7,5 +7,5 @@ export const getDefaultLessonDuration = (): number => {
 
 export const getAllowWorkOnHolidays = (): boolean => {
   const { settings } = useUserSettings();
-  return settings?.allow_work_on_holidays ?? true;
+  return settings?.allow_work_on_holidays ?? false;
 };

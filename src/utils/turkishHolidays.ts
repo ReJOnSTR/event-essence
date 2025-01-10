@@ -1,4 +1,5 @@
 import { isWithinInterval, getYear } from "date-fns";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 export interface Holiday {
   name: string;
@@ -18,30 +19,31 @@ export const getTurkishHolidays = (year: number): Holiday[] => {
 };
 
 export const isHoliday = (date: Date | string | number): Holiday | undefined => {
-  // Ensure we're working with a Date object
   const dateObj = date instanceof Date ? date : new Date(date);
   
-  // Validate the date
   if (isNaN(dateObj.getTime())) {
     console.error('Invalid date provided to isHoliday:', date);
     return undefined;
   }
 
-  // Check custom holidays from settings
-  try {
-    const customHolidays = JSON.parse(localStorage.getItem('customHolidays') || '[]');
-    const customHoliday = customHolidays.find((holiday: { date: string }) => 
+  const { settings } = useUserSettings();
+  
+  // Veritabanından özel tatilleri kontrol et
+  if (settings?.holidays) {
+    const customHolidays = settings.holidays as { date: string; description: string }[];
+    const customHoliday = customHolidays.find(holiday => 
       new Date(holiday.date).toDateString() === dateObj.toDateString()
     );
     
     if (customHoliday) {
-      return { name: "Özel Tatil", date: new Date(customHoliday.date) };
+      return { 
+        name: customHoliday.description || "Özel Tatil", 
+        date: new Date(customHoliday.date) 
+      };
     }
-  } catch (error) {
-    console.error('Error parsing custom holidays:', error);
   }
 
-  // Check official holidays
+  // Resmi tatilleri kontrol et
   const holidays = getTurkishHolidays(getYear(dateObj));
   return holidays.find(holiday => 
     dateObj.getDate() === holiday.date.getDate() && 
