@@ -102,7 +102,7 @@ export const useUserSettings = () => {
       return userSettings;
     },
     staleTime: 1000 * 60, // 1 minute
-    cacheTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 5, // 5 minutes (eski cacheTime)
     retry: false
   });
 
