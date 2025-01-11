@@ -2,7 +2,7 @@ import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { startOfWeek, addDays } from "date-fns";
 import { motion } from "framer-motion";
-import { getWorkingHours } from "@/utils/workingHours";
+import { DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
 import { useUserSettings } from "@/hooks/useUserSettings";
@@ -25,7 +25,7 @@ export default function WeekView({
   students 
 }: WeekViewProps) {
   const { settings } = useUserSettings();
-  const workingHours = settings?.working_hours || getWorkingHours();
+  const workingHours = settings?.working_hours || DEFAULT_WORKING_HOURS;
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
