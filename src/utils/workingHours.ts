@@ -23,3 +23,7 @@ export const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
   saturday: { start: "09:00", end: "17:00", enabled: false },
   sunday: { start: "09:00", end: "17:00", enabled: false },
 };
+
+export const getWorkingHours = (settings: any): WeeklyWorkingHours => {
+  return settings?.working_hours || DEFAULT_WORKING_HOURS;
+};

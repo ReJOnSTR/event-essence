@@ -2,7 +2,7 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { useToast } from "@/components/ui/use-toast";
-import { getWorkingHours } from "@/utils/workingHours";
+import { DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "@/components/Calendar/TimeIndicator";
@@ -10,6 +10,7 @@ import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { cn } from "@/lib/utils";
 import DayViewCell from "./DayViewCell";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface DayViewProps {
   date: Date;
@@ -29,9 +30,10 @@ export default function DayView({
   students 
 }: DayViewProps) {
   const { toast } = useToast();
-  const workingHours = getWorkingHours();
+  const { settings } = useUserSettings();
+  const workingHours = settings?.working_hours || DEFAULT_WORKING_HOURS;
   const holiday = isHoliday(date);
-  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+  const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
   
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
