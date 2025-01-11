@@ -110,6 +110,7 @@ export default function WeekViewTimeGrid({
     const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
 
+    // Çakışma kontrolü
     const hasConflict = checkLessonConflict(
       { start: newStart, end: newEnd },
       events,
@@ -141,7 +142,7 @@ export default function WeekViewTimeGrid({
     <DragDropContext onDragEnd={onDragEnd}>
       {hours.map((hour) => (
         <React.Fragment key={`hour-${hour}`}>
-          <div className="sticky left-0 bg-background p-2 text-right text-sm text-muted-foreground border-r border-b border-border w-[60px]">
+          <div className="bg-background p-2 text-right text-sm text-muted-foreground border-b border-border">
             {`${hour.toString().padStart(2, '0')}:00`}
           </div>
           {weekDays.map((day, dayIndex) => {
@@ -161,8 +162,8 @@ export default function WeekViewTimeGrid({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "relative min-h-[60px] border-r border-b border-border p-1",
-                      isToday(day) && "bg-accent",
+                      "bg-background border-b border-border min-h-[60px] relative",
+                      isToday(day) && "bg-accent text-accent-foreground",
                       (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
                       snapshot.isDraggingOver && "bg-accent"
