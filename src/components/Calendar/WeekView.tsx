@@ -39,20 +39,22 @@ export default function WeekView({
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
-    <div className="w-full">
+    <div className="flex flex-col w-full h-full overflow-hidden">
       <WeekViewHeader weekDays={weekDays} />
-      <div className="grid grid-cols-[auto_repeat(7,1fr)] divide-x divide-border border border-border rounded-lg mt-2">
-        <WeekViewTimeGrid
-          weekDays={weekDays}
-          hours={hours}
-          events={events}
-          workingHours={workingHours}
-          allowWorkOnHolidays={localStorage.getItem('allowWorkOnHolidays') === 'true'}
-          onCellClick={onDateSelect}
-          onEventClick={onEventClick}
-          onEventUpdate={onEventUpdate}
-          students={students}
-        />
+      <div className="flex-1 overflow-auto">
+        <div className="grid grid-cols-[auto_repeat(7,1fr)] divide-x divide-border border border-border rounded-lg mt-2 bg-background">
+          <WeekViewTimeGrid
+            weekDays={weekDays}
+            hours={hours}
+            events={events}
+            workingHours={workingHours}
+            allowWorkOnHolidays={localStorage.getItem('allowWorkOnHolidays') === 'true'}
+            onCellClick={onDateSelect}
+            onEventClick={onEventClick}
+            onEventUpdate={onEventUpdate}
+            students={students}
+          />
+        </div>
       </div>
     </div>
   );

@@ -142,7 +142,7 @@ export default function WeekViewTimeGrid({
     <DragDropContext onDragEnd={onDragEnd}>
       {hours.map((hour) => (
         <React.Fragment key={`hour-${hour}`}>
-          <div className="bg-background p-2 text-right text-sm text-muted-foreground border-b border-border">
+          <div className="sticky left-0 bg-background p-2 text-right text-sm text-muted-foreground border-b border-border min-w-[60px]">
             {`${hour.toString().padStart(2, '0')}:00`}
           </div>
           {weekDays.map((day, dayIndex) => {
@@ -162,8 +162,8 @@ export default function WeekViewTimeGrid({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "bg-background border-b border-border min-h-[60px] relative",
-                      isToday(day) && "bg-accent text-accent-foreground",
+                      "relative border-b border-border min-h-[60px] w-full",
+                      isToday(day) && "bg-accent",
                       (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
                       snapshot.isDraggingOver && "bg-accent"
