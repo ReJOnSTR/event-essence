@@ -47,6 +47,7 @@ const pageTransition = {
 
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
+  const { session } = useSessionContext();
   
   return (
     <AnimatePresence mode="wait">
@@ -65,9 +66,24 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
       >
         <Routes location={location}>
           <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route 
+            path="/students" 
+            element={
+              session ? <StudentsManagementPage /> : <Navigate to="/login" replace />
+            } 
+          />
+          <Route 
+            path="/reports" 
+            element={
+              session ? <ReportsPage /> : <Navigate to="/login" replace />
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              session ? <SettingsPage /> : <Navigate to="/login" replace />
+            } 
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
@@ -149,3 +165,4 @@ const App = () => {
 };
 
 export default App;
+
