@@ -40,9 +40,11 @@ export default function WeekView({
 
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
-      <WeekViewHeader weekDays={weekDays} />
+      <div className="flex-none">
+        <WeekViewHeader weekDays={weekDays} />
+      </div>
       <div className="flex-1 overflow-auto">
-        <div className="grid grid-cols-[auto_repeat(7,1fr)] divide-x divide-border border border-border rounded-lg mt-2 bg-background">
+        <div className="grid grid-cols-[60px_repeat(7,1fr)] min-w-full border border-border rounded-lg mt-2 bg-background">
           <WeekViewTimeGrid
             weekDays={weekDays}
             hours={hours}
