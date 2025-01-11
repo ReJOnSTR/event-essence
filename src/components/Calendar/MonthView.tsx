@@ -6,9 +6,8 @@ import { motion } from "framer-motion";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
-import { DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
+import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -30,9 +29,8 @@ export default function MonthView({
   students
 }: MonthViewProps) {
   const { toast } = useToast();
-  const { settings } = useUserSettings();
-  const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
-  const workingHours = settings?.working_hours || DEFAULT_WORKING_HOURS;
+  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+  const workingHours = getWorkingHours();
 
   const getDaysInMonth = (currentDate: Date) => {
     const start = startOfMonth(currentDate);
@@ -118,16 +116,6 @@ export default function MonthView({
       return;
     }
 
-    const holiday = isHoliday(targetDay);
-    if (holiday && !allowWorkOnHolidays) {
-      toast({
-        title: "Tatil günü",
-        description: `${holiday.name} nedeniyle bu gün tatildir.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
     const eventStart = new Date(event.start);
     const eventEnd = new Date(event.end);
     const duration = eventEnd.getTime() - eventStart.getTime();
@@ -136,17 +124,11 @@ export default function MonthView({
     newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
     const newEnd = new Date(newStart.getTime() + duration);
 
-    // Check for lesson conflicts
-    const hasConflict = checkLessonConflict(
-      { start: newStart, end: newEnd },
-      events,
-      event.id
-    );
-
-    if (hasConflict) {
+    const holiday = isHoliday(targetDay);
+    if (holiday && !allowWorkOnHolidays) {
       toast({
-        title: "Ders çakışması",
-        description: "Seçilen günde ve saatte başka bir ders bulunuyor.",
+        title: "Tatil günü",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
         variant: "destructive"
       });
       return;

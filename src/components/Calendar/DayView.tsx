@@ -5,14 +5,13 @@ import LessonCard from "./LessonCard";
 import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
+import { getWorkingHours } from "@/utils/workingHours";
 import { getDefaultLessonDuration } from "@/utils/settings";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
-import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface DayViewProps {
   date: Date;
@@ -32,10 +31,9 @@ export default function DayView({
   students 
 }: DayViewProps) {
   const { toast } = useToast();
-  const { settings } = useUserSettings();
-  const workingHours = settings?.working_hours || DEFAULT_WORKING_HOURS;
+  const workingHours = getWorkingHours();
   const holiday = isHoliday(date);
-  const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
+  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
@@ -53,7 +51,10 @@ export default function DayView({
 
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
-  const handleHourClick = (hour: number) => {
+  const handleHourClick = (hour: number, minute: number) => {
+    const eventDate = new Date(date);
+    eventDate.setHours(hour, minute);
+    
     if (holiday && !allowWorkOnHolidays) {
       toast({
         title: "Resmi Tatil",
@@ -72,6 +73,7 @@ export default function DayView({
       return;
     }
 
+    const currentTime = `${hour}:00`;
     if (hour < startHour || hour >= endHour) {
       toast({
         title: "Çalışma saatleri dışında",
@@ -81,8 +83,6 @@ export default function DayView({
       return;
     }
 
-    const eventDate = new Date(date);
-    eventDate.setHours(hour, 0);
     onDateSelect(eventDate);
   };
 
@@ -105,11 +105,11 @@ export default function DayView({
     const event = events.find(e => e.id === result.draggableId);
     if (!event) return;
 
-    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
-    const newStart = new Date(date);
-    newStart.setHours(hour, minute);
-    const newEnd = new Date(newStart.getTime() + duration);
+    const duration = differenceInMinutes(event.end, event.start);
+    const newStart = setMinutes(setHours(date, hour), minute);
+    const newEnd = new Date(newStart.getTime() + duration * 60000);
 
+    // Çakışma kontrolü
     const hasConflict = checkLessonConflict(
       { start: newStart, end: newEnd },
       events,
@@ -154,8 +154,7 @@ export default function DayView({
               transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
               className={cn(
                 "mb-4 p-2 rounded-md border",
-                !allowWorkOnHolidays ? "bg-holiday text-holiday-foreground border-holiday-foreground/20" : 
-                "bg-working-holiday text-working-holiday-foreground border-working-holiday-foreground/20"
+                !allowWorkOnHolidays ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
               )}
             >
               {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
@@ -191,7 +190,7 @@ export default function DayView({
                       (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
                       "bg-muted cursor-not-allowed"
                     )}
-                    onClick={() => handleHourClick(hour)}
+                    onClick={() => handleHourClick(hour, 0)}
                   >
                     {dayEvents
                       .filter(event => new Date(event.start).getHours() === hour)
