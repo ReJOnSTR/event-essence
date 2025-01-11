@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LoginFormProps {
@@ -31,8 +31,6 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
 
     if (!formData.password) {
       newErrors.password = "Şifre alanı zorunludur";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Şifre en az 6 karakter olmalıdır";
     }
 
     setErrors(newErrors);
@@ -58,27 +56,20 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
       return;
     }
 
+    setLoading(true);
+
     try {
-      setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast({
-            variant: "destructive",
-            title: "Giriş başarısız",
-            description: "Email veya şifre hatalı"
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Giriş başarısız",
-            description: error.message
-          });
-        }
+        toast({
+          variant: "destructive",
+          title: "Giriş başarısız",
+          description: error.message
+        });
       } else {
         toast({
           title: "Giriş başarılı",
@@ -109,20 +100,12 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
             placeholder="ornek@email.com"
             value={formData.email}
             onChange={handleInputChange}
-            className={cn(
-              "pl-10",
-              errors.email && "border-destructive focus-visible:ring-destructive"
-            )}
-            disabled={loading}
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "email-error" : undefined}
+            className={cn("pl-10", errors.email && "border-destructive")}
           />
           <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
         </div>
         {errors.email && (
-          <p className="text-sm text-destructive" id="email-error" role="alert">
-            {errors.email}
-          </p>
+          <p className="text-sm text-destructive">{errors.email}</p>
         )}
       </div>
 
@@ -136,20 +119,12 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
             placeholder="••••••••"
             value={formData.password}
             onChange={handleInputChange}
-            className={cn(
-              "pl-10",
-              errors.password && "border-destructive focus-visible:ring-destructive"
-            )}
-            disabled={loading}
-            aria-invalid={!!errors.password}
-            aria-describedby={errors.password ? "password-error" : undefined}
+            className={cn("pl-10", errors.password && "border-destructive")}
           />
           <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
         </div>
         {errors.password && (
-          <p className="text-sm text-destructive" id="password-error" role="alert">
-            {errors.password}
-          </p>
+          <p className="text-sm text-destructive">{errors.password}</p>
         )}
       </div>
 
@@ -158,14 +133,7 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
         className="w-full"
         disabled={loading}
       >
-        {loading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Giriş yapılıyor...
-          </>
-        ) : (
-          "Giriş Yap"
-        )}
+        {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
@@ -175,7 +143,6 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
           className="p-0 h-auto font-normal"
           onClick={onToggleForm}
           type="button"
-          disabled={loading}
         >
           Kayıt olun
         </Button>

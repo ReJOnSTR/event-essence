@@ -4,7 +4,6 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
 import { getWorkingHours } from "@/utils/workingHours";
-import { cn } from "@/lib/utils";
 
 interface WeekViewProps {
   date: Date;
@@ -40,26 +39,20 @@ export default function WeekView({
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   return (
-    <div className="w-full flex flex-col h-full overflow-hidden">
+    <div className="w-full">
       <WeekViewHeader weekDays={weekDays} />
-      <div className="flex-1 overflow-auto">
-        <div className={cn(
-          "grid grid-cols-[auto_repeat(7,1fr)]",
-          "divide-x divide-border border border-border rounded-lg mt-2",
-          "min-w-[800px]"
-        )}>
-          <WeekViewTimeGrid
-            weekDays={weekDays}
-            hours={hours}
-            events={events}
-            workingHours={workingHours}
-            allowWorkOnHolidays={localStorage.getItem('allowWorkOnHolidays') === 'true'}
-            onCellClick={onDateSelect}
-            onEventClick={onEventClick}
-            onEventUpdate={onEventUpdate}
-            students={students}
-          />
-        </div>
+      <div className="grid grid-cols-[auto_repeat(7,1fr)] divide-x divide-border border border-border rounded-lg mt-2">
+        <WeekViewTimeGrid
+          weekDays={weekDays}
+          hours={hours}
+          events={events}
+          workingHours={workingHours}
+          allowWorkOnHolidays={localStorage.getItem('allowWorkOnHolidays') === 'true'}
+          onCellClick={onDateSelect}
+          onEventClick={onEventClick}
+          onEventUpdate={onEventUpdate}
+          students={students}
+        />
       </div>
     </div>
   );

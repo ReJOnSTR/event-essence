@@ -10,7 +10,7 @@ import {
   SidebarContent,
   SidebarRail
 } from "@/components/ui/sidebar";
-import { SessionContextProvider, useSessionContext } from '@supabase/auth-helpers-react';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
@@ -47,7 +47,6 @@ const pageTransition = {
 
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
-  const { session } = useSessionContext();
   
   return (
     <AnimatePresence mode="wait">
@@ -66,24 +65,9 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
       >
         <Routes location={location}>
           <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route 
-            path="/students" 
-            element={
-              session ? <StudentsManagementPage /> : <Navigate to="/login" replace />
-            } 
-          />
-          <Route 
-            path="/reports" 
-            element={
-              session ? <ReportsPage /> : <Navigate to="/login" replace />
-            } 
-          />
-          <Route 
-            path="/settings" 
-            element={
-              session ? <SettingsPage /> : <Navigate to="/login" replace />
-            } 
-          />
+          <Route path="/students" element={<StudentsManagementPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
