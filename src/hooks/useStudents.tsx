@@ -38,7 +38,7 @@ export const useStudents = () => {
     enabled: !!session && !isSessionLoading,
   });
 
-  const saveStudent = useMutation({
+  const { mutateAsync: saveStudent } = useMutation({
     mutationFn: async (student: Student) => {
       const { error } = await supabase
         .from('students')
@@ -55,11 +55,11 @@ export const useStudents = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['students']);
+      queryClient.invalidateQueries({ queryKey: ['students'] });
     },
   });
 
-  const deleteStudent = useMutation({
+  const { mutateAsync: deleteStudent } = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('students')
@@ -77,7 +77,7 @@ export const useStudents = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['students']);
+      queryClient.invalidateQueries({ queryKey: ['students'] });
     },
   });
 

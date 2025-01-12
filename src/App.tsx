@@ -144,7 +144,7 @@ const App = () => {
   } = useStudentStore();
   const { saveStudent, deleteStudent } = useStudents();
 
-  const handleSaveStudent = () => {
+  const handleSaveStudent = async () => {
     const studentData = {
       id: selectedStudent?.id || crypto.randomUUID(),
       name: studentName,
@@ -152,8 +152,15 @@ const App = () => {
       color: studentColor,
     };
     
-    saveStudent(studentData);
+    await saveStudent(studentData);
     closeDialog();
+  };
+
+  const handleDeleteStudent = async () => {
+    if (selectedStudent) {
+      await deleteStudent(selectedStudent.id);
+      closeDialog();
+    }
   };
 
   return (
@@ -187,7 +194,7 @@ const App = () => {
         isOpen={isDialogOpen}
         onClose={closeDialog}
         onSave={handleSaveStudent}
-        onDelete={selectedStudent ? () => deleteStudent(selectedStudent.id) : undefined}
+        onDelete={selectedStudent ? handleDeleteStudent : undefined}
         student={selectedStudent}
         studentName={studentName}
         setStudentName={setStudentName}

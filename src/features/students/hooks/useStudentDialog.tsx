@@ -11,7 +11,7 @@ export function useStudentDialog() {
   
   const { saveStudent, deleteStudent } = useStudents();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const student: Student = {
       id: selectedStudent?.id || crypto.randomUUID(),
       name: studentName,
@@ -19,13 +19,13 @@ export function useStudentDialog() {
       color: studentColor,
     };
     
-    saveStudent(student);
+    await saveStudent(student);
     handleClose();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedStudent) {
-      deleteStudent(selectedStudent.id);
+      await deleteStudent(selectedStudent.id);
       handleClose();
     }
   };
