@@ -51,6 +51,14 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
 
   const handleLogout = async () => {
     try {
+      // First clear any existing session data from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Then attempt to sign out
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -62,14 +70,8 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           duration: 2000,
         });
       } else {
-        // Clear any local storage items related to Supabase
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('sb-')) {
-            localStorage.removeItem(key);
-          }
-        });
-        
-        navigate('/login');
+        // Force navigation to login page
+        navigate('/login', { replace: true });
         toast({
           title: "Başarıyla çıkış yapıldı",
           duration: 2000,
@@ -77,12 +79,13 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
       }
     } catch (error) {
       console.error('Unexpected error during logout:', error);
+      // Even if there's an error, clear local storage and redirect
+      navigate('/login', { replace: true });
       toast({
         title: "Çıkış yapılırken bir hata oluştu",
         variant: "destructive",
         duration: 2000,
       });
-      navigate('/login');
     }
   };
 
