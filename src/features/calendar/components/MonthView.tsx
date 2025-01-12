@@ -130,21 +130,17 @@ export default function MonthView({
               </motion.div>
             ))}
             
-            {days.map((day, idx) => {
-              const holiday = isHoliday(day.date);
-              return (
-                <MonthCell
-                  key={idx}
-                  day={day}
-                  idx={idx}
-                  holiday={holiday}
-                  allowWorkOnHolidays={allowWorkOnHolidays}
-                  handleDateClick={onDateSelect}
-                  onEventClick={onEventClick}
-                  students={students}
-                />
-              );
-            })}
+            {days.map((day, idx) => (
+              <MonthCell
+                key={idx}
+                day={day}
+                idx={idx}
+                allowWorkOnHolidays={allowWorkOnHolidays}
+                handleDateClick={onDateSelect}
+                onEventClick={onEventClick}
+                students={students}
+              />
+            ))}
           </div>
         </div>
       </motion.div>

@@ -7,6 +7,7 @@ import { isHoliday } from "@/utils/turkishHolidays";
 import { DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
 import MonthCell from "./MonthCell";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { checkLessonConflict } from "@/utils/lessonConflict";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -129,21 +130,17 @@ export default function MonthView({
               </motion.div>
             ))}
             
-            {days.map((day, idx) => {
-              const holiday = isHoliday(day.date);
-              return (
-                <MonthCell
-                  key={idx}
-                  day={day}
-                  idx={idx}
-                  holiday={holiday}
-                  allowWorkOnHolidays={allowWorkOnHolidays}
-                  handleDateClick={onDateSelect}
-                  onEventClick={onEventClick}
-                  students={students}
-                />
-              );
-            })}
+            {days.map((day, idx) => (
+              <MonthCell
+                key={idx}
+                day={day}
+                idx={idx}
+                allowWorkOnHolidays={allowWorkOnHolidays}
+                handleDateClick={onDateSelect}
+                onEventClick={onEventClick}
+                students={students}
+              />
+            ))}
           </div>
         </div>
       </motion.div>
