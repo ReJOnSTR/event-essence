@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { SessionContextProvider, useSessionContext } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
 import CalendarPage from "./pages/CalendarPage";
@@ -23,7 +23,6 @@ import LoginPage from "./pages/LoginPage";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
-import { useState } from "react";
 
 const pageVariants = {
   initial: {
@@ -152,13 +151,9 @@ const App = () => {
     closeDialog();
   };
 
-  // Get the current session from localStorage
-  const currentSession = supabase.auth.getSession();
-
   return (
     <SessionContextProvider 
       supabaseClient={supabase}
-      initialSession={currentSession}
     >
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <TooltipProvider>

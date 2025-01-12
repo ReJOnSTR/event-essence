@@ -12,6 +12,10 @@ export function useStudents() {
   const { session, isLoading: isSessionLoading } = useSessionContext();
 
   const getStudents = async (): Promise<Student[]> => {
+    if (!session?.user) {
+      return [];
+    }
+
     try {
       const { data, error } = await supabase
         .from('students')
@@ -36,9 +40,9 @@ export function useStudents() {
   };
 
   const { data: students = [], isLoading, error } = useQuery({
-    queryKey: ['students', session?.user.id],
+    queryKey: ['students', session?.user?.id],
     queryFn: getStudents,
-    enabled: !!session && !isSessionLoading, // Sadece oturum varsa sorguyu çalıştır
+    enabled: !!session && !isSessionLoading,
   });
 
   const { mutate: saveStudent } = useMutation({
