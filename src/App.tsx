@@ -51,10 +51,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (!isLoading && !session) {
-      localStorage.setItem('returnUrl', location.pathname);
-      navigate('/login');
-    }
+    const checkSession = async () => {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession && !isLoading) {
+        localStorage.setItem('returnUrl', location.pathname);
+        navigate('/login');
+      }
+    };
+
+    checkSession();
   }, [session, isLoading, navigate, location]);
 
   if (isLoading) {
