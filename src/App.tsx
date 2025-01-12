@@ -60,8 +60,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         if (error) {
           console.error('Session error:', error);
           toast({
-            title: "Oturum hatası",
-            description: "Lütfen tekrar giriş yapın",
+            title: "Session error",
+            description: "Please sign in again",
             variant: "destructive",
           });
           navigate('/login');
