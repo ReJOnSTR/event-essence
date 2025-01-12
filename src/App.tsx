@@ -53,7 +53,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!isLoading && !session) {
-      // Store the attempted URL
       localStorage.setItem('returnUrl', location.pathname);
       navigate('/login');
     }
@@ -153,10 +152,15 @@ const App = () => {
     closeDialog();
   };
 
+  // Initialize session from local storage if available
+  const initialSession = localStorage.getItem('supabase.auth.token')
+    ? JSON.parse(localStorage.getItem('supabase.auth.token')!)
+    : null;
+
   return (
     <SessionContextProvider 
       supabaseClient={supabase}
-      initialSession={null}
+      initialSession={initialSession}
     >
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <TooltipProvider>
