@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
+import { WeeklyWorkingHours } from "@/types/calendar";
 
 const DAYS = {
   monday: "Pazartesi",
@@ -25,7 +26,7 @@ const DEFAULT_DAY = {
 
 export default function WorkingHoursSettings() {
   const { workingHours, updateWorkingHours, isLoading } = useWorkingHours();
-  const [localWorkingHours, setLocalWorkingHours] = useState(workingHours);
+  const [localWorkingHours, setLocalWorkingHours] = useState<WeeklyWorkingHours | null>(null);
 
   useEffect(() => {
     if (workingHours) {
@@ -38,7 +39,7 @@ export default function WorkingHoursSettings() {
   }
 
   const handleChange = (
-    day: keyof typeof localWorkingHours,
+    day: keyof WeeklyWorkingHours,
     field: "start" | "end" | "enabled",
     value: string | boolean
   ) => {
@@ -53,7 +54,7 @@ export default function WorkingHoursSettings() {
     updateWorkingHours(newHours);
   };
 
-  const resetDay = (day: keyof typeof localWorkingHours) => {
+  const resetDay = (day: keyof WeeklyWorkingHours) => {
     const newHours = {
       ...localWorkingHours,
       [day]: DEFAULT_DAY
@@ -63,7 +64,7 @@ export default function WorkingHoursSettings() {
   };
 
   const resetAll = () => {
-    const defaultHours = {
+    const defaultHours: WeeklyWorkingHours = {
       monday: DEFAULT_DAY,
       tuesday: DEFAULT_DAY,
       wednesday: DEFAULT_DAY,
@@ -91,7 +92,7 @@ export default function WorkingHoursSettings() {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {(Object.entries(DAYS) as [keyof typeof localWorkingHours, string][]).map(([day, label]) => (
+          {(Object.entries(DAYS) as [keyof WeeklyWorkingHours, string][]).map(([day, label]) => (
             <div key={day} className="flex items-center gap-4">
               <div className="flex items-center gap-2 w-40">
                 <Switch

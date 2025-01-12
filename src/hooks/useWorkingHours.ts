@@ -1,13 +1,7 @@
 import { useUserSettings } from './useUserSettings';
 import { WeeklyWorkingHours } from '@/types/calendar';
 
-interface UseWorkingHoursReturn extends WeeklyWorkingHours {
-  isLoading: boolean;
-  updateWorkingHours: (hours: WeeklyWorkingHours) => void;
-  checkWorkingHours: (date: Date, hour: number) => boolean;
-}
-
-export const useWorkingHours = (): UseWorkingHoursReturn => {
+export const useWorkingHours = () => {
   const { settings, isLoading, updateSettings } = useUserSettings();
   
   const defaultHours: WeeklyWorkingHours = {
@@ -23,7 +17,7 @@ export const useWorkingHours = (): UseWorkingHoursReturn => {
   const workingHours = settings?.working_hours || defaultHours;
 
   const updateWorkingHours = (newHours: WeeklyWorkingHours) => {
-    updateSettings({ working_hours: newHours });
+    updateSettings.mutate({ working_hours: newHours });
   };
 
   const checkWorkingHours = (date: Date, hour: number) => {
@@ -39,7 +33,7 @@ export const useWorkingHours = (): UseWorkingHoursReturn => {
   };
 
   return {
-    ...workingHours,
+    workingHours,
     isLoading,
     updateWorkingHours,
     checkWorkingHours,
