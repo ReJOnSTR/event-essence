@@ -26,6 +26,11 @@ export const useCalendarDragDrop = (
     const { start: newStart, end: newEnd } = newTimes;
 
     if (!checkWorkingHours(newStart, newStart.getHours())) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu saat için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
       return;
     }
 
