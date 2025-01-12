@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
@@ -10,8 +10,9 @@ import {
   SidebarContent,
   SidebarRail
 } from "@/components/ui/sidebar";
-import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { SessionContextProvider, useSessionContext } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
 import CalendarPage from "./pages/CalendarPage";
@@ -45,6 +46,26 @@ const pageTransition = {
   duration: 0.3
 };
 
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, isLoading } = useSessionContext();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && !session) {
+      // Store the attempted URL
+      localStorage.setItem('returnUrl', location.pathname);
+      navigate('/login');
+    }
+  }, [session, isLoading, navigate, location]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return session ? <>{children}</> : null;
+};
+
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
   
@@ -64,10 +85,38 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         }}
       >
         <Routes location={location}>
-          <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
-          <Route path="/students" element={<StudentsManagementPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route 
+            path="/calendar" 
+            element={
+              <ProtectedRoute>
+                <CalendarPage headerHeight={headerHeight} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/students" 
+            element={
+              <ProtectedRoute>
+                <StudentsManagementPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/reports" 
+            element={
+              <ProtectedRoute>
+                <ReportsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
@@ -105,7 +154,10 @@ const App = () => {
   };
 
   return (
-    <SessionContextProvider supabaseClient={supabase}>
+    <SessionContextProvider 
+      supabaseClient={supabase}
+      initialSession={null}
+    >
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <TooltipProvider>
           <SidebarProvider defaultOpen={true}>
