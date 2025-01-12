@@ -5,24 +5,43 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CalendarDays } from "lucide-react";
 import { LoginForm } from "@/components/Auth/LoginForm";
 import { RegisterForm } from "@/components/Auth/RegisterForm";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [isLoginView, setIsLoginView] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
         localStorage.removeItem('returnUrl');
-        navigate(returnUrl);
+        
+        toast({
+          title: "Giriş başarılı",
+          description: "Yönlendiriliyorsunuz...",
+          duration: 2000,
+        });
+        
+        navigate(returnUrl, { replace: true });
       }
     });
+
+    // Oturum kontrolü
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/calendar', { replace: true });
+      }
+    };
+    
+    checkSession();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 bg-gradient-to-b from-background to-muted/20">

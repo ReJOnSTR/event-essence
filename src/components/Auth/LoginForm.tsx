@@ -3,13 +3,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Mail, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 interface LoginFormProps {
   onToggleForm: () => void;
 }
+
+const getErrorMessage = (error: AuthError) => {
+  if (error instanceof AuthApiError) {
+    switch (error.status) {
+      case 400:
+        return 'Geçersiz email veya şifre';
+      case 422:
+        return 'Email adresinizi doğrulamanız gerekiyor';
+      case 401:
+        return 'Giriş bilgileri hatalı';
+      default:
+        return error.message;
+    }
+  }
+  return error.message;
+};
 
 export function LoginForm({ onToggleForm }: LoginFormProps) {
   const { toast } = useToast();
@@ -43,7 +60,6 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -68,12 +84,8 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
         toast({
           variant: "destructive",
           title: "Giriş başarısız",
-          description: error.message
-        });
-      } else {
-        toast({
-          title: "Giriş başarılı",
-          description: "Yönlendiriliyorsunuz..."
+          description: getErrorMessage(error),
+          duration: 3000,
         });
       }
     } catch (error) {
@@ -81,7 +93,8 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
       toast({
         variant: "destructive",
         title: "Bir hata oluştu",
-        description: "Lütfen daha sonra tekrar deneyin."
+        description: "Lütfen daha sonra tekrar deneyin.",
+        duration: 3000,
       });
     } finally {
       setLoading(false);
