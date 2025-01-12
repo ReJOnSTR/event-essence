@@ -1,10 +1,10 @@
 import { CalendarEvent, Student } from "@/types/calendar";
 import { motion } from "framer-motion";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useMonthView } from "../hooks/useMonthView";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { getWorkingHours } from "@/utils/workingHours";
+import { useWorkingHours } from "@/hooks/useWorkingHours";
 import MonthCell from "./MonthCell";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 
@@ -29,10 +29,10 @@ export default function MonthView({
 }: MonthViewProps) {
   const { toast } = useToast();
   const { getDaysInMonth } = useMonthView(date, events);
+  const workingHours = useWorkingHours();
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   const days = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
-  const workingHours = getWorkingHours();
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
@@ -140,6 +140,7 @@ export default function MonthView({
                   handleDateClick={onDateSelect}
                   onEventClick={onEventClick}
                   students={students}
+                  workingHours={workingHours}
                 />
               );
             })}
