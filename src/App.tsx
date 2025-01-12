@@ -152,15 +152,13 @@ const App = () => {
     closeDialog();
   };
 
-  // Initialize session from local storage if available
-  const initialSession = localStorage.getItem('supabase.auth.token')
-    ? JSON.parse(localStorage.getItem('supabase.auth.token')!)
-    : null;
+  // Get the current session from localStorage
+  const currentSession = supabase.auth.getSession();
 
   return (
     <SessionContextProvider 
       supabaseClient={supabase}
-      initialSession={initialSession}
+      initialSession={currentSession}
     >
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <TooltipProvider>
