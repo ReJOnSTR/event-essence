@@ -59,22 +59,14 @@ export const useUserSettings = () => {
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['userSettings'],
     queryFn: async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('User not authenticated');
-
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .eq('user_id', userData.user.id)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error('Error fetching user settings:', error);
         throw error;
-      }
-
-      if (!data) {
-        throw new Error('No settings found for user');
       }
 
       const dbSettings = data as DatabaseUserSettings;
@@ -91,9 +83,6 @@ export const useUserSettings = () => {
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<UserSettings>) => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('User not authenticated');
-
       const dbSettings: Partial<DatabaseUserSettings> = {
         ...newSettings,
         working_hours: newSettings.working_hours as unknown as Json,
@@ -103,7 +92,7 @@ export const useUserSettings = () => {
       const { data, error } = await supabase
         .from('user_settings')
         .update(dbSettings)
-        .eq('user_id', userData.user.id)
+        .eq('user_id', settings?.user_id)
         .select()
         .single();
 
