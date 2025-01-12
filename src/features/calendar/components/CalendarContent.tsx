@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import MonthView from "./MonthView";
 import DayView from "@/components/Calendar/DayView";
@@ -15,7 +16,7 @@ interface CalendarContentProps {
   students: Student[];
 }
 
-export default function CalendarContent({
+const CalendarContent = memo(({
   currentView,
   selectedDate,
   lessons,
@@ -23,7 +24,7 @@ export default function CalendarContent({
   onEventClick,
   onEventUpdate,
   students
-}: CalendarContentProps) {
+}: CalendarContentProps) => {
   const viewProps = {
     date: selectedDate,
     events: lessons,
@@ -43,4 +44,8 @@ export default function CalendarContent({
     default:
       return <MonthView {...viewProps} />;
   }
-}
+});
+
+CalendarContent.displayName = "CalendarContent";
+
+export default CalendarContent;

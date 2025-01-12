@@ -5,7 +5,7 @@ import { useLessons } from "@/hooks/useLessons";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Plus, LogIn } from "lucide-react";
+import { Plus, LogIn, Loader2 } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import StudentDialog from "@/components/Students/StudentDialog";
@@ -34,14 +34,18 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
   
-  const { currentView, setCurrentView } = useCalendarStore();
+  const { currentView, setCurrentView, isLoading, setIsLoading } = useCalendarStore();
   const { students } = useStudents();
-  const { lessons, saveLesson, deleteLesson } = useLessons();
+  const { lessons, saveLesson, deleteLesson, isLoading: lessonsLoading } = useLessons();
   const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
   const { session } = useSessionContext();
   const navigate = useNavigate();
   const studentDialog = useStudentDialog();
+
+  React.useEffect(() => {
+    setIsLoading(lessonsLoading);
+  }, [lessonsLoading, setIsLoading]);
 
   const handleDateSelect = (date: Date) => {
     if (!session) {
@@ -131,7 +135,12 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         onToday={handleTodayClick}
       />
       
-      <div className="flex-1 overflow-auto bg-background">
+      <div className="flex-1 overflow-auto bg-background relative">
+        {isLoading && (
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        )}
         <div className="p-2 md:p-4">
           <CalendarContent
             currentView={currentView}
