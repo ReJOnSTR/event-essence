@@ -1,17 +1,16 @@
 import React from "react";
-import { useCalendarStore, ViewType } from "@/store/calendarStore";
-import { useStudents } from "@/hooks/useStudents";
-import { useLessons } from "@/hooks/useLessons";
+import { useCalendarStore } from "@/store/calendarStore";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
-import { Plus, LogIn, Loader2 } from "lucide-react";
+import { Plus, LogIn } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
+import { useCalendarEvents } from "@/features/calendar/hooks/useCalendarEvents";
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { useNavigate } from "react-router-dom";
@@ -34,18 +33,13 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
   
-  const { currentView, setCurrentView, isLoading, setIsLoading } = useCalendarStore();
-  const { students } = useStudents();
-  const { lessons, saveLesson, deleteLesson, isLoading: lessonsLoading } = useLessons();
+  const { currentView, setCurrentView } = useCalendarStore();
+  const { events, students, isLoading, handleEventUpdate, handleEventDelete } = useCalendarEvents();
   const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
   const { session } = useSessionContext();
   const navigate = useNavigate();
   const studentDialog = useStudentDialog();
-
-  React.useEffect(() => {
-    setIsLoading(lessonsLoading);
-  }, [lessonsLoading, setIsLoading]);
 
   const handleDateSelect = (date: Date) => {
     if (!session) {
@@ -79,24 +73,9 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       ? { ...lessonData, id: selectedLesson.id }
       : { ...lessonData, id: crypto.randomUUID() };
       
-    saveLesson(lessonToSave);
+    handleEventUpdate(lessonToSave);
     setIsDialogOpen(false);
     setSelectedLesson(undefined);
-  };
-
-  const handleDeleteLesson = (lessonId: string) => {
-    if (!session) return;
-    deleteLesson(lessonId);
-    setIsDialogOpen(false);
-    setSelectedLesson(undefined);
-  };
-
-  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
-    if (!session) {
-      setIsLoginDialogOpen(true);
-      return;
-    }
-    saveLesson(updatedEvent);
   };
 
   return (
@@ -105,7 +84,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         <div className="flex items-center gap-1 md:gap-2">
           {session && (
             <>
-              <WeeklySchedulePdf lessons={lessons} students={students} />
+              <WeeklySchedulePdf lessons={events} students={students} />
               <Button 
                 size="sm"
                 onClick={() => {
@@ -129,30 +108,22 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       <CalendarPageHeader
         date={selectedDate}
         currentView={currentView}
-        onViewChange={(view: ViewType) => setCurrentView(view)}
+        onViewChange={setCurrentView}
         onPrevious={handleNavigationClick('prev', currentView)}
         onNext={handleNavigationClick('next', currentView)}
         onToday={handleTodayClick}
       />
       
-      <div className="flex-1 overflow-auto bg-background relative">
-        {isLoading && (
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        )}
-        <div className="p-2 md:p-4">
-          <CalendarContent
-            currentView={currentView}
-            selectedDate={selectedDate}
-            lessons={lessons}
-            onDateSelect={handleDateSelect}
-            onEventClick={handleLessonClick}
-            onEventUpdate={handleEventUpdate}
-            students={students}
-          />
-        </div>
-      </div>
+      <CalendarContent
+        currentView={currentView}
+        selectedDate={selectedDate}
+        events={events}
+        onDateSelect={handleDateSelect}
+        onEventClick={handleLessonClick}
+        onEventUpdate={handleEventUpdate}
+        students={students}
+        isLoading={isLoading}
+      />
       
       {session && (
         <>
@@ -163,10 +134,10 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
               setSelectedLesson(undefined);
             }}
             onSave={handleSaveLesson}
-            onDelete={handleDeleteLesson}
+            onDelete={handleEventDelete}
             selectedDate={selectedDate}
             event={selectedLesson}
-            events={lessons}
+            events={events}
             students={students}
           />
 
