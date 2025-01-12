@@ -1,4 +1,4 @@
-import { useUserSettings } from '@/hooks/useUserSettings';
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 export interface WorkingHours {
   start: string;
@@ -28,10 +28,19 @@ export const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
   const { settings } = useUserSettings();
+  if (!settings?.working_hours) return DEFAULT_WORKING_HOURS;
   
-  if (!settings?.working_hours) {
-    return DEFAULT_WORKING_HOURS;
-  }
-
-  return settings.working_hours;
+  // First convert to unknown, then to the correct type
+  const workingHours = settings.working_hours as unknown as WeeklyWorkingHours;
+  
+  // Validate and merge with defaults
+  return {
+    monday: { ...DEFAULT_WORKING_HOURS.monday, ...workingHours.monday },
+    tuesday: { ...DEFAULT_WORKING_HOURS.tuesday, ...workingHours.tuesday },
+    wednesday: { ...DEFAULT_WORKING_HOURS.wednesday, ...workingHours.wednesday },
+    thursday: { ...DEFAULT_WORKING_HOURS.thursday, ...workingHours.thursday },
+    friday: { ...DEFAULT_WORKING_HOURS.friday, ...workingHours.friday },
+    saturday: { ...DEFAULT_WORKING_HOURS.saturday, ...workingHours.saturday },
+    sunday: { ...DEFAULT_WORKING_HOURS.sunday, ...workingHours.sunday },
+  };
 };

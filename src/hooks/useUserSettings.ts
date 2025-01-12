@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Json } from '@/integrations/supabase/types';
-import { useEffect } from 'react';
 
 interface WorkingHours {
   start: string;
@@ -57,19 +56,6 @@ export const useUserSettings = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Kullanıcı oturumu değiştiğinde önbelleği temizle
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') {
-        queryClient.clear();
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [queryClient]);
-
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['userSettings'],
     queryFn: async () => {
@@ -100,10 +86,7 @@ export const useUserSettings = () => {
       };
 
       return userSettings;
-    },
-    staleTime: 1000 * 60, // 1 minute
-    gcTime: 1000 * 60 * 5, // 5 minutes (eski cacheTime)
-    retry: false
+    }
   });
 
   const updateSettings = useMutation({
@@ -147,29 +130,6 @@ export const useUserSettings = () => {
       });
     }
   });
-
-  // Real-time güncellemeleri dinle
-  useEffect(() => {
-    const channel = supabase
-      .channel('user_settings_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_settings',
-          filter: settings ? `user_id=eq.${settings.user_id}` : undefined
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['userSettings'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient, settings?.user_id]);
 
   return {
     settings,

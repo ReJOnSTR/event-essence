@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { getWorkingHours } from "@/utils/workingHours";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
-import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface WeekViewProps {
   date: Date;
@@ -24,10 +23,10 @@ export default function WeekView({
   onEventUpdate,
   students 
 }: WeekViewProps) {
-  const { settings } = useUserSettings();
-  const workingHours = settings?.working_hours || getWorkingHours();
+  const workingHours = getWorkingHours();
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
 
   const startHour = Math.min(...Object.values(workingHours)
     .filter(day => day.enabled)
@@ -59,7 +58,7 @@ export default function WeekView({
             hours={hours}
             events={events}
             workingHours={workingHours}
-            allowWorkOnHolidays={settings?.allow_work_on_holidays ?? true}
+            allowWorkOnHolidays={allowWorkOnHolidays}
             onCellClick={handleCellClick}
             onEventClick={onEventClick}
             onEventUpdate={onEventUpdate}

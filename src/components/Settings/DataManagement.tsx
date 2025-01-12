@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Download, Upload, Trash2 } from "lucide-react";
+import { downloadProjectData, uploadProjectData } from "@/utils/dataManagement";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
@@ -25,65 +26,17 @@ export default function DataManagement() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    try {
-      const fileContent = await file.text();
-      const data = JSON.parse(fileContent);
-
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('Kullanıcı oturumu bulunamadı');
-
-      // Import students
-      if (data.students?.length > 0) {
-        const { error: studentsError } = await supabase
-          .from('students')
-          .upsert(
-            data.students.map((student: any) => ({
-              ...student,
-              user_id: userData.user?.id
-            }))
-          );
-        
-        if (studentsError) throw studentsError;
-      }
-
-      // Import lessons
-      if (data.lessons?.length > 0) {
-        const { error: lessonsError } = await supabase
-          .from('lessons')
-          .upsert(
-            data.lessons.map((lesson: any) => ({
-              ...lesson,
-              user_id: userData.user?.id
-            }))
-          );
-        
-        if (lessonsError) throw lessonsError;
-      }
-
-      // Import user settings
-      if (data.settings) {
-        const { error: settingsError } = await supabase
-          .from('user_settings')
-          .upsert({
-            ...data.settings,
-            user_id: userData.user?.id
-          });
-        
-        if (settingsError) throw settingsError;
-      }
-
+    const success = await uploadProjectData(file);
+    
+    if (success) {
       toast({
-        title: "Veriler içe aktarıldı",
-        description: "Tüm veriler başarıyla yüklendi.",
+        title: "Ayarlar içe aktarıldı",
+        description: "Tüm ayarlar başarıyla yüklendi.",
       });
-
-      // Reload the page to refresh the data
-      window.location.reload();
-    } catch (error) {
-      console.error('Error importing data:', error);
+    } else {
       toast({
         title: "Hata",
-        description: "Veriler içe aktarılırken bir hata oluştu.",
+        description: "Dosya içe aktarılırken bir hata oluştu.",
         variant: "destructive"
       });
     }
@@ -92,76 +45,20 @@ export default function DataManagement() {
   };
 
   const handleExport = async () => {
-    try {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('Kullanıcı oturumu bulunamadı');
-
-      // Get students
-      const { data: students, error: studentsError } = await supabase
-        .from('students')
-        .select('*')
-        .eq('user_id', userData.user.id);
-      
-      if (studentsError) throw studentsError;
-
-      // Get lessons
-      const { data: lessons, error: lessonsError } = await supabase
-        .from('lessons')
-        .select('*')
-        .eq('user_id', userData.user.id);
-      
-      if (lessonsError) throw lessonsError;
-
-      // Get user settings
-      const { data: settings, error: settingsError } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', userData.user.id)
-        .single();
-      
-      if (settingsError) throw settingsError;
-
-      const exportData = {
-        students,
-        lessons,
-        settings
-      };
-
-      const dataStr = JSON.stringify(exportData, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `verilerim_${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "Veriler dışa aktarıldı",
-        description: "Tüm veriler başarıyla indirildi.",
-      });
-    } catch (error) {
-      console.error('Error exporting data:', error);
-      toast({
-        title: "Hata",
-        description: "Veriler dışa aktarılırken bir hata oluştu.",
-        variant: "destructive"
-      });
-    }
+    await downloadProjectData();
+    toast({
+      title: "Ayarlar dışa aktarıldı",
+      description: "Tüm ayarlar başarıyla indirildi.",
+    });
   };
 
   const handleDelete = async () => {
     try {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('Kullanıcı oturumu bulunamadı');
-
       // Delete all lessons
       const { error: lessonsError } = await supabase
         .from('lessons')
         .delete()
-        .eq('user_id', userData.user.id);
+        .neq('id', '00000000-0000-0000-0000-000000000000');
       
       if (lessonsError) throw lessonsError;
 
@@ -169,33 +66,9 @@ export default function DataManagement() {
       const { error: studentsError } = await supabase
         .from('students')
         .delete()
-        .eq('user_id', userData.user.id);
+        .neq('id', '00000000-0000-0000-0000-000000000000');
       
       if (studentsError) throw studentsError;
-
-      // Reset user settings to defaults
-      const { error: settingsError } = await supabase
-        .from('user_settings')
-        .update({
-          default_lesson_duration: 60,
-          working_hours: {
-            monday: { start: "09:00", end: "17:00", enabled: true },
-            tuesday: { start: "09:00", end: "17:00", enabled: true },
-            wednesday: { start: "09:00", end: "17:00", enabled: true },
-            thursday: { start: "09:00", end: "17:00", enabled: true },
-            friday: { start: "09:00", end: "17:00", enabled: true },
-            saturday: { start: "09:00", end: "17:00", enabled: false },
-            sunday: { start: "09:00", end: "17:00", enabled: false }
-          },
-          holidays: [],
-          allow_work_on_holidays: true,
-          theme: 'light',
-          font_size: 'medium',
-          font_family: 'system'
-        })
-        .eq('user_id', userData.user.id);
-      
-      if (settingsError) throw settingsError;
 
       // Save auth related items
       const authKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
@@ -238,14 +111,14 @@ export default function DataManagement() {
             onClick={handleExport}
           >
             <Download className="h-4 w-4 mr-2" />
-            Verileri İndir
+            Ayarları İndir
           </Button>
           <Button
             variant="outline"
             onClick={() => document.getElementById('import-project-file')?.click()}
           >
             <Upload className="h-4 w-4 mr-2" />
-            Verileri Yükle
+            Ayarları Yükle
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
