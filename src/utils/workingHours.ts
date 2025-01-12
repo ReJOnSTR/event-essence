@@ -1,3 +1,5 @@
+import { useUserSettings } from '@/hooks/useUserSettings';
+
 export interface WorkingHours {
   start: string;
   end: string;
@@ -14,7 +16,7 @@ export interface WeeklyWorkingHours {
   sunday: WorkingHours;
 }
 
-const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
+export const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
   monday: { start: "09:00", end: "17:00", enabled: true },
   tuesday: { start: "09:00", end: "17:00", enabled: true },
   wednesday: { start: "09:00", end: "17:00", enabled: true },
@@ -25,26 +27,11 @@ const DEFAULT_WORKING_HOURS: WeeklyWorkingHours = {
 };
 
 export const getWorkingHours = (): WeeklyWorkingHours => {
-  try {
-    const stored = localStorage.getItem('workingHours');
-    if (!stored) return DEFAULT_WORKING_HOURS;
-    
-    const parsed = JSON.parse(stored);
-    // Ensure all days are present with default values
-    return {
-      ...DEFAULT_WORKING_HOURS,
-      ...parsed
-    };
-  } catch (error) {
-    console.error('Error reading working hours from localStorage:', error);
+  const { settings } = useUserSettings();
+  
+  if (!settings?.working_hours) {
     return DEFAULT_WORKING_HOURS;
   }
-};
 
-export const setWorkingHours = (hours: WeeklyWorkingHours): void => {
-  try {
-    localStorage.setItem('workingHours', JSON.stringify(hours));
-  } catch (error) {
-    console.error('Error saving working hours to localStorage:', error);
-  }
+  return settings.working_hours;
 };

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Json } from '@/integrations/supabase/types';
+import { useEffect } from 'react';
 
 interface WorkingHours {
   start: string;
@@ -56,17 +57,38 @@ export const useUserSettings = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Kullanıcı oturumu değiştiğinde önbelleği temizle
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [queryClient]);
+
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['userSettings'],
     queryFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .single();
+        .eq('user_id', userData.user.id)
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching user settings:', error);
         throw error;
+      }
+
+      if (!data) {
+        throw new Error('No settings found for user');
       }
 
       const dbSettings = data as DatabaseUserSettings;
@@ -78,11 +100,17 @@ export const useUserSettings = () => {
       };
 
       return userSettings;
-    }
+    },
+    staleTime: 1000 * 60, // 1 minute
+    gcTime: 1000 * 60 * 5, // 5 minutes (eski cacheTime)
+    retry: false
   });
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<UserSettings>) => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error('User not authenticated');
+
       const dbSettings: Partial<DatabaseUserSettings> = {
         ...newSettings,
         working_hours: newSettings.working_hours as unknown as Json,
@@ -92,7 +120,7 @@ export const useUserSettings = () => {
       const { data, error } = await supabase
         .from('user_settings')
         .update(dbSettings)
-        .eq('user_id', settings?.user_id)
+        .eq('user_id', userData.user.id)
         .select()
         .single();
 
@@ -119,6 +147,29 @@ export const useUserSettings = () => {
       });
     }
   });
+
+  // Real-time güncellemeleri dinle
+  useEffect(() => {
+    const channel = supabase
+      .channel('user_settings_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_settings',
+          filter: settings ? `user_id=eq.${settings.user_id}` : undefined
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['userSettings'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient, settings?.user_id]);
 
   return {
     settings,
