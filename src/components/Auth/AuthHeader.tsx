@@ -20,6 +20,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "../ui/use-toast";
 import { Session } from "@supabase/supabase-js";
+import { useSessionContext } from "@supabase/auth-helpers-react";
 
 interface AuthHeaderProps {
   onHeightChange?: (height: number) => void;
@@ -32,24 +33,12 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   const headerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { setOpen } = useSidebar();
-  const [session, setSession] = useState<Session | null>(null);
+  const { session } = useSessionContext();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     onHeightChange?.(64);
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
   }, [onHeightChange]);
 
   const handleSearchChange = (value: string) => {
@@ -62,17 +51,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
 
   const handleLogout = async () => {
     try {
-      // Önce session'ı temizle
-      setSession(null);
-      
-      // Local storage'dan Supabase ile ilgili verileri temizle
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('sb-')) {
-          localStorage.removeItem(key);
-        }
-      });
-      
-      // Supabase'den çıkış yap
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -84,7 +62,13 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
           duration: 2000,
         });
       } else {
-        // Başarılı çıkış durumunda
+        // Clear any local storage items related to Supabase
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('sb-')) {
+            localStorage.removeItem(key);
+          }
+        });
+        
         navigate('/login');
         toast({
           title: "Başarıyla çıkış yapıldı",
@@ -98,8 +82,6 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
         variant: "destructive",
         duration: 2000,
       });
-      
-      // Hata durumunda da login sayfasına yönlendir
       navigate('/login');
     }
   };
