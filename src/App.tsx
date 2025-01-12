@@ -51,15 +51,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (!currentSession && !isLoading) {
-        localStorage.setItem('returnUrl', location.pathname);
-        navigate('/login');
-      }
-    };
-
-    checkSession();
+    if (!session && !isLoading) {
+      localStorage.setItem('returnUrl', location.pathname);
+      navigate('/login');
+    }
   }, [session, isLoading, navigate, location]);
 
   if (isLoading) {
@@ -166,6 +161,7 @@ const App = () => {
   return (
     <SessionContextProvider 
       supabaseClient={supabase}
+      initialSession={null}
     >
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <TooltipProvider>
