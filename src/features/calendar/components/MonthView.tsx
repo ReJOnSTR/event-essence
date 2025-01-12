@@ -29,7 +29,7 @@ export default function MonthView({
 }: MonthViewProps) {
   const { toast } = useToast();
   const { getDaysInMonth } = useMonthView(date, events);
-  const workingHours = useWorkingHours();
+  const { workingHours, checkWorkingHours } = useWorkingHours();
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   const days = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
