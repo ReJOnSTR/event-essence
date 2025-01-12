@@ -2,11 +2,11 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { motion } from "framer-motion";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
-import { isHoliday } from "@/utils/turkishHolidays";
-import { getWorkingHours } from "@/utils/workingHours";
-import MonthCell from "./MonthCell";
-import MonthHeader from "./MonthHeader";
 import { useMonthView } from "@/features/calendar/hooks/useMonthView";
+import { isHoliday } from "@/utils/turkishHolidays";
+import { DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
+import MonthCell from "./MonthCell";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -29,37 +29,11 @@ export default function MonthView({
 }: MonthViewProps) {
   const { toast } = useToast();
   const { getDaysInMonth } = useMonthView(date, events);
+  const { settings } = useUserSettings();
+  const workingHours = settings?.working_hours || DEFAULT_WORKING_HOURS;
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   const days = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
-  const workingHours = getWorkingHours();
-
-  const handleDateClick = (clickedDate: Date) => {
-    const dayOfWeek = clickedDate.getDay();
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-    const daySettings = workingHours[days[dayOfWeek]];
-
-    if (!daySettings?.enabled) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Bu gün için çalışma saatleri kapalıdır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const holiday = isHoliday(clickedDate);
-    if (holiday && !allowWorkOnHolidays) {
-      toast({
-        title: "Resmi Tatil",
-        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onDateSelect(clickedDate);
-  };
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
@@ -101,6 +75,22 @@ export default function MonthView({
     newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
     const newEnd = new Date(newStart.getTime() + duration);
 
+    // Check for lesson conflicts
+    const hasConflict = checkLessonConflict(
+      { start: newStart, end: newEnd },
+      events,
+      event.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders çakışması",
+        description: "Seçilen günde ve saatte başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     onEventUpdate({
       ...event,
       start: newStart,
@@ -121,20 +111,40 @@ export default function MonthView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.1, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-          <MonthHeader weekDays={weekDays} />
-          
-          {days.map((day, idx) => (
-            <MonthCell
-              key={idx}
-              day={day}
-              idx={idx}
-              handleDateClick={handleDateClick}
-              onEventClick={onEventClick}
-              students={students}
-              allowWorkOnHolidays={allowWorkOnHolidays}
-            />
-          ))}
+        <div className="border border-border rounded-lg overflow-hidden">
+          <div className="grid grid-cols-7 divide-x divide-y divide-border">
+            {weekDays.map((day, index) => (
+              <motion.div
+                key={day}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.15,
+                  delay: index * 0.01,
+                  ease: [0.23, 1, 0.32, 1]
+                }}
+                className="bg-background/80 p-2 text-sm font-medium text-muted-foreground text-center"
+              >
+                {day}
+              </motion.div>
+            ))}
+            
+            {days.map((day, idx) => {
+              const holiday = isHoliday(day.date);
+              return (
+                <MonthCell
+                  key={idx}
+                  day={day}
+                  idx={idx}
+                  holiday={holiday}
+                  allowWorkOnHolidays={allowWorkOnHolidays}
+                  handleDateClick={onDateSelect}
+                  onEventClick={onEventClick}
+                  students={students}
+                />
+              );
+            })}
+          </div>
         </div>
       </motion.div>
     </DragDropContext>

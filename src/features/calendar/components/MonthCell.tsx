@@ -5,7 +5,8 @@ import { Droppable } from "@hello-pangea/dnd";
 import MonthEventCard from "@/components/Calendar/MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { getWorkingHours } from "@/utils/workingHours";
+import { DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface MonthCellProps {
   day: {
@@ -30,7 +31,8 @@ export default function MonthCell({
   onEventClick,
   students
 }: MonthCellProps) {
-  const workingHours = getWorkingHours();
+  const { settings } = useUserSettings();
+  const workingHours = settings?.working_hours || DEFAULT_WORKING_HOURS;
   const dayOfWeek = day.date.getDay();
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
   const daySettings = workingHours[days[dayOfWeek]];
