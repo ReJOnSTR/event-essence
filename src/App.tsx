@@ -23,7 +23,6 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useState, useEffect } from "react";
-import { useToast } from "./components/ui/use-toast";
 
 const pageVariants = {
   initial: {
@@ -50,36 +49,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useSessionContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Session error:', error);
-          toast({
-            title: "Session error",
-            description: "Please sign in again",
-            variant: "destructive",
-          });
-          navigate('/login');
-          return;
-        }
-
-        if (!isLoading && !currentSession) {
-          localStorage.setItem('returnUrl', location.pathname);
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error('Session check error:', error);
-        navigate('/login');
-      }
-    };
-
-    checkSession();
-  }, [session, isLoading, navigate, location, toast]);
+    if (!isLoading && !session) {
+      // Store the attempted URL
+      localStorage.setItem('returnUrl', location.pathname);
+      navigate('/login');
+    }
+  }, [session, isLoading, navigate, location]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -162,23 +139,6 @@ const App = () => {
     setStudentColor 
   } = useStudentStore();
   const { saveStudent, deleteStudent } = useStudents();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT') {
-        window.location.href = '/login';
-      } else if (event === 'SIGNED_IN') {
-        const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
-        localStorage.removeItem('returnUrl');
-        window.location.href = returnUrl;
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
 
   const handleSaveStudent = () => {
     const studentData = {
