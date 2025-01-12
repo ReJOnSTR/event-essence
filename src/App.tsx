@@ -23,6 +23,7 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useState, useEffect } from "react";
+import { useToast } from "./components/ui/use-toast";
 
 const pageVariants = {
   initial: {
@@ -49,14 +50,36 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useSessionContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (!isLoading && !session) {
-      // Store the attempted URL
-      localStorage.setItem('returnUrl', location.pathname);
-      navigate('/login');
-    }
-  }, [session, isLoading, navigate, location]);
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Session error:', error);
+          toast({
+            title: "Oturum hatası",
+            description: "Lütfen tekrar giriş yapın",
+            variant: "destructive",
+          });
+          navigate('/login');
+          return;
+        }
+
+        if (!isLoading && !currentSession) {
+          localStorage.setItem('returnUrl', location.pathname);
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+        navigate('/login');
+      }
+    };
+
+    checkSession();
+  }, [session, isLoading, navigate, location, toast]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -139,6 +162,18 @@ const App = () => {
     setStudentColor 
   } = useStudentStore();
   const { saveStudent, deleteStudent } = useStudents();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        window.location.href = '/login';
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSaveStudent = () => {
     const studentData = {
