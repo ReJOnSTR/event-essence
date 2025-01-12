@@ -162,11 +162,16 @@ const App = () => {
     setStudentColor 
   } = useStudentStore();
   const { saveStudent, deleteStudent } = useStudents();
+  const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         window.location.href = '/login';
+      } else if (event === 'SIGNED_IN') {
+        const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
+        localStorage.removeItem('returnUrl');
+        window.location.href = returnUrl;
       }
     });
 
