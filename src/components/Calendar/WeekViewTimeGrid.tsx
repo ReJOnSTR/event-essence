@@ -23,13 +23,13 @@ interface WeekViewTimeGridProps {
 export default function WeekViewTimeGrid({
   weekDays,
   hours,
-  events = [], // Add default empty array
+  events,
   workingHours,
   allowWorkOnHolidays,
   onCellClick,
   onEventClick,
   onEventUpdate,
-  students = [] // Add default empty array
+  students
 }: WeekViewTimeGridProps) {
   const { toast } = useToast();
 
@@ -110,6 +110,7 @@ export default function WeekViewTimeGrid({
     const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
 
+    // Çakışma kontrolü
     const hasConflict = checkLessonConflict(
       { start: newStart, end: newEnd },
       events,
@@ -169,7 +170,7 @@ export default function WeekViewTimeGrid({
                     )}
                     onClick={() => handleCellClick(day, hour)}
                   >
-                    {Array.isArray(events) && events
+                    {events
                       .filter(
                         event =>
                           format(new Date(event.start), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&

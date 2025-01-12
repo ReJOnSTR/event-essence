@@ -4,10 +4,9 @@ import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import { useMonthView } from "../hooks/useMonthView";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { DEFAULT_WORKING_HOURS } from "@/utils/workingHours";
+import { getWorkingHours } from "@/utils/workingHours";
 import MonthCell from "./MonthCell";
 import { checkLessonConflict } from "@/utils/lessonConflict";
-import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -30,11 +29,10 @@ export default function MonthView({
 }: MonthViewProps) {
   const { toast } = useToast();
   const { getDaysInMonth } = useMonthView(date, events);
-  const { settings } = useUserSettings();
-  const workingHours = settings?.working_hours || DEFAULT_WORKING_HOURS;
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   const days = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+  const workingHours = getWorkingHours();
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
@@ -130,17 +128,21 @@ export default function MonthView({
               </motion.div>
             ))}
             
-            {days.map((day, idx) => (
-              <MonthCell
-                key={idx}
-                day={day}
-                idx={idx}
-                allowWorkOnHolidays={allowWorkOnHolidays}
-                handleDateClick={onDateSelect}
-                onEventClick={onEventClick}
-                students={students}
-              />
-            ))}
+            {days.map((day, idx) => {
+              const holiday = isHoliday(day.date);
+              return (
+                <MonthCell
+                  key={idx}
+                  day={day}
+                  idx={idx}
+                  holiday={holiday}
+                  allowWorkOnHolidays={allowWorkOnHolidays}
+                  handleDateClick={onDateSelect}
+                  onEventClick={onEventClick}
+                  students={students}
+                />
+              );
+            })}
           </div>
         </div>
       </motion.div>

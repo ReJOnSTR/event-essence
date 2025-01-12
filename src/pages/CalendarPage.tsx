@@ -1,5 +1,7 @@
 import React from "react";
-import { useCalendarStore } from "@/store/calendarStore";
+import { useCalendarStore, ViewType } from "@/store/calendarStore";
+import { useStudents } from "@/hooks/useStudents";
+import { useLessons } from "@/hooks/useLessons";
 import { useToast } from "@/hooks/use-toast";
 import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
@@ -10,7 +12,6 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
-import { useCalendarEvents } from "@/features/calendar/hooks/useCalendarEvents";
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { useNavigate } from "react-router-dom";
@@ -34,7 +35,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
   
   const { currentView, setCurrentView } = useCalendarStore();
-  const { events, students, isLoading, handleEventUpdate, handleEventDelete } = useCalendarEvents();
+  const { students } = useStudents();
+  const { lessons, saveLesson, deleteLesson } = useLessons();
   const { toast } = useToast();
   const { handleNavigationClick, handleTodayClick } = useCalendarNavigation(selectedDate, setSelectedDate);
   const { session } = useSessionContext();
@@ -73,9 +75,24 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       ? { ...lessonData, id: selectedLesson.id }
       : { ...lessonData, id: crypto.randomUUID() };
       
-    handleEventUpdate(lessonToSave);
+    saveLesson(lessonToSave);
     setIsDialogOpen(false);
     setSelectedLesson(undefined);
+  };
+
+  const handleDeleteLesson = (lessonId: string) => {
+    if (!session) return;
+    deleteLesson(lessonId);
+    setIsDialogOpen(false);
+    setSelectedLesson(undefined);
+  };
+
+  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+    if (!session) {
+      setIsLoginDialogOpen(true);
+      return;
+    }
+    saveLesson(updatedEvent);
   };
 
   return (
@@ -84,7 +101,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         <div className="flex items-center gap-1 md:gap-2">
           {session && (
             <>
-              <WeeklySchedulePdf lessons={events} students={students} />
+              <WeeklySchedulePdf lessons={lessons} students={students} />
               <Button 
                 size="sm"
                 onClick={() => {
@@ -108,22 +125,25 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
       <CalendarPageHeader
         date={selectedDate}
         currentView={currentView}
-        onViewChange={setCurrentView}
+        onViewChange={(view: ViewType) => setCurrentView(view)}
         onPrevious={handleNavigationClick('prev', currentView)}
         onNext={handleNavigationClick('next', currentView)}
         onToday={handleTodayClick}
       />
       
-      <CalendarContent
-        currentView={currentView}
-        selectedDate={selectedDate}
-        events={events}
-        onDateSelect={handleDateSelect}
-        onEventClick={handleLessonClick}
-        onEventUpdate={handleEventUpdate}
-        students={students}
-        isLoading={isLoading}
-      />
+      <div className="flex-1 overflow-auto bg-background">
+        <div className="p-2 md:p-4">
+          <CalendarContent
+            currentView={currentView}
+            selectedDate={selectedDate}
+            lessons={lessons}
+            onDateSelect={handleDateSelect}
+            onEventClick={handleLessonClick}
+            onEventUpdate={handleEventUpdate}
+            students={students}
+          />
+        </div>
+      </div>
       
       {session && (
         <>
@@ -134,10 +154,10 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
               setSelectedLesson(undefined);
             }}
             onSave={handleSaveLesson}
-            onDelete={handleEventDelete}
+            onDelete={handleDeleteLesson}
             selectedDate={selectedDate}
             event={selectedLesson}
-            events={events}
+            events={lessons}
             students={students}
           />
 
