@@ -3,23 +3,23 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { useToast } from "@/components/ui/use-toast";
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+export function ProtectedRoute({ children, requireAuth = false }: { children: React.ReactNode, requireAuth?: boolean }) {
   const { session, isLoading } = useSessionContext();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!session && !isLoading) {
+    if (!session && !isLoading && requireAuth) {
       localStorage.setItem('returnUrl', location.pathname);
       navigate('/login', { replace: true });
       toast({
         title: "Oturum açmanız gerekiyor",
-        description: "Bu sayfaya erişmek için lütfen giriş yapın.",
+        description: "Bu işlemi gerçekleştirmek için lütfen giriş yapın.",
         variant: "destructive",
       });
     }
-  }, [session, isLoading, navigate, location, toast]);
+  }, [session, isLoading, navigate, location, toast, requireAuth]);
 
   if (isLoading) {
     return (
@@ -29,5 +29,5 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return session ? <>{children}</> : null;
+  return <>{children}</>;
 }
