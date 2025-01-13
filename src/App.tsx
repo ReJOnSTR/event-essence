@@ -1,8 +1,8 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { BrowserRouter, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
   SidebarProvider, 
@@ -10,149 +10,21 @@ import {
   SidebarContent,
   SidebarRail
 } from "@/components/ui/sidebar";
-import { SessionContextProvider, useSessionContext } from '@supabase/auth-helpers-react';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
-import CalendarPage from "./pages/CalendarPage";
-import StudentsManagementPage from "./pages/StudentsManagementPage";
-import ReportsPage from "./pages/ReportsPage";
-import SettingsPage from "./pages/SettingsPage";
-import LoginPage from "./pages/LoginPage";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
+import { AppRoutes } from "./routes/AppRoutes";
 
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    x: -10,
-  },
-  animate: {
-    opacity: 1,
-    x: 0,
-  },
-  exit: {
-    opacity: 0,
-    x: 10,
-  }
-};
-
-const pageTransition = {
-  type: "tween",
-  ease: [0.25, 0.1, 0.25, 1],
-  duration: 0.3
-};
-
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading } = useSessionContext();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (!session && !isLoading) {
-      localStorage.setItem('returnUrl', location.pathname);
-      navigate('/login', { replace: true });
-    }
-  }, [session, isLoading, navigate, location]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  return session ? <>{children}</> : null;
-};
-
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, isLoading } = useSessionContext();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (session && !isLoading) {
-      const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
-      localStorage.removeItem('returnUrl');
-      navigate(returnUrl, { replace: true });
-    }
-  }, [session, isLoading, navigate]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  return !session ? <>{children}</> : null;
-};
-
-const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
-  const location = useLocation();
-  
-  return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={location.pathname}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageVariants}
-        transition={pageTransition}
-        className="w-full h-full"
-        style={{ 
-          marginTop: headerHeight,
-          height: `calc(100vh - ${headerHeight}px)`,
-          transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
-        }}
-      >
-        <Routes location={location}>
-          <Route 
-            path="/login" 
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/calendar" 
-            element={
-              <ProtectedRoute>
-                <CalendarPage headerHeight={headerHeight} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/students" 
-            element={
-              <ProtectedRoute>
-                <StudentsManagementPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/reports" 
-            element={
-              <ProtectedRoute>
-                <ReportsPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/settings" 
-            element={
-              <ProtectedRoute>
-                <SettingsPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/" element={<Navigate to="/calendar" replace />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
-
-const App = () => {
+function AppContent() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
+  
   const { 
     isDialogOpen, 
     closeDialog, 
@@ -164,6 +36,7 @@ const App = () => {
     setStudentPrice,
     setStudentColor 
   } = useStudentStore();
+  
   const { saveStudent, deleteStudent } = useStudents();
 
   const handleSaveStudent = async () => {
@@ -186,33 +59,22 @@ const App = () => {
   };
 
   return (
-    <SessionContextProvider 
-      supabaseClient={supabase}
-      initialSession={null}
-    >
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <TooltipProvider>
-          <SidebarProvider defaultOpen={true}>
-            <BrowserRouter>
-              <div className="min-h-screen flex w-full overflow-hidden bg-background">
-                <Sidebar>
-                  <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-                    <SideMenu searchTerm={searchTerm} />
-                  </SidebarContent>
-                  <SidebarRail />
-                </Sidebar>
-                <div className="flex-1 flex flex-col">
-                  <AuthHeader 
-                    onHeightChange={setHeaderHeight} 
-                    onSearchChange={setSearchTerm}
-                  />
-                  <AnimatedRoutes headerHeight={headerHeight} />
-                </div>
-              </div>
-            </BrowserRouter>
-          </SidebarProvider>
-        </TooltipProvider>
-      </ThemeProvider>
+    <div className="min-h-screen flex w-full overflow-hidden bg-background">
+      <Sidebar>
+        <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+          <SideMenu searchTerm={searchTerm} />
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
+      <div className="flex-1 flex flex-col">
+        <AuthHeader 
+          onHeightChange={setHeaderHeight} 
+          onSearchChange={setSearchTerm}
+        />
+        <AnimatePresence mode="wait" initial={false}>
+          <AppRoutes headerHeight={headerHeight} location={location} />
+        </AnimatePresence>
+      </div>
       <StudentDialog
         isOpen={isDialogOpen}
         onClose={closeDialog}
@@ -226,6 +88,25 @@ const App = () => {
         studentColor={studentColor}
         setStudentColor={setStudentColor}
       />
+    </div>
+  );
+}
+
+const App = () => {
+  return (
+    <SessionContextProvider 
+      supabaseClient={supabase}
+      initialSession={null}
+    >
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <SidebarProvider defaultOpen={true}>
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </SidebarProvider>
+        </TooltipProvider>
+      </ThemeProvider>
       <Toaster />
       <Sonner />
     </SessionContextProvider>
