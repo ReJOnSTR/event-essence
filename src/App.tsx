@@ -87,7 +87,7 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
   const location = useLocation();
   
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={location.pathname}
         initial="initial"
@@ -101,7 +101,7 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
           transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
         }}
       >
-        <Routes location={location}>
+        <Routes>
           <Route 
             path="/login" 
             element={
