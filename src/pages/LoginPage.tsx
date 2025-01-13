@@ -28,16 +28,6 @@ export default function LoginPage() {
       }
     });
 
-    // Oturum kontrolü
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/calendar', { replace: true });
-      }
-    };
-    
-    checkSession();
-
     return () => {
       subscription.unsubscribe();
     };

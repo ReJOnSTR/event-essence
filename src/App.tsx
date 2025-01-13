@@ -53,7 +53,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!session && !isLoading) {
       localStorage.setItem('returnUrl', location.pathname);
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
   }, [session, isLoading, navigate, location]);
 
@@ -62,6 +62,25 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return session ? <>{children}</> : null;
+};
+
+const PublicRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, isLoading } = useSessionContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session && !isLoading) {
+      const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
+      localStorage.removeItem('returnUrl');
+      navigate(returnUrl, { replace: true });
+    }
+  }, [session, isLoading, navigate]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return !session ? <>{children}</> : null;
 };
 
 const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
@@ -83,6 +102,14 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         }}
       >
         <Routes location={location}>
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            } 
+          />
           <Route 
             path="/calendar" 
             element={
@@ -115,7 +142,6 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
               </ProtectedRoute>
             } 
           />
-          <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<Navigate to="/calendar" replace />} />
         </Routes>
       </motion.div>
