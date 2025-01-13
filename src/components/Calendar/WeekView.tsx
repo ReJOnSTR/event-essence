@@ -2,7 +2,6 @@ import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { startOfWeek, addDays } from "date-fns";
 import { motion } from "framer-motion";
-import { getWorkingHours } from "@/utils/workingHours";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
 import { useUserSettings } from "@/hooks/useUserSettings";
@@ -25,18 +24,33 @@ export default function WeekView({
   students 
 }: WeekViewProps) {
   const { settings } = useUserSettings();
-  const workingHours = settings?.working_hours || getWorkingHours();
+  
+  // Always initialize these variables, don't return early
+  const workingHours = settings?.working_hours || {
+    monday: { start: "09:00", end: "17:00", enabled: true },
+    tuesday: { start: "09:00", end: "17:00", enabled: true },
+    wednesday: { start: "09:00", end: "17:00", enabled: true },
+    thursday: { start: "09:00", end: "17:00", enabled: true },
+    friday: { start: "09:00", end: "17:00", enabled: true },
+    saturday: { start: "09:00", end: "17:00", enabled: false },
+    sunday: { start: "09:00", end: "17:00", enabled: false }
+  };
+
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const startHour = Math.min(...Object.values(workingHours)
     .filter(day => day.enabled)
-    .map(day => parseInt(day.start.split(':')[0])));
+    .map(day => parseInt(day.start.split(':')[0])) || [9]);
+    
   const endHour = Math.max(...Object.values(workingHours)
     .filter(day => day.enabled)
-    .map(day => parseInt(day.end.split(':')[0])));
+    .map(day => parseInt(day.end.split(':')[0])) || [17]);
 
-  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
+  const hours = Array.from(
+    { length: endHour - startHour + 1 }, 
+    (_, i) => startHour + i
+  );
 
   const handleCellClick = (day: Date, hour: number) => {
     const eventDate = new Date(day);
