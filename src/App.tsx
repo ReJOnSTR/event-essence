@@ -98,10 +98,11 @@ const AnimatedRoutes = ({ headerHeight }: { headerHeight: number }) => {
         className="w-full h-full"
         style={{ 
           marginTop: headerHeight,
+          height: `calc(100vh - ${headerHeight}px)`,
           transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
         }}
       >
-        <Routes>
+        <Routes location={location}>
           <Route 
             path="/login" 
             element={
