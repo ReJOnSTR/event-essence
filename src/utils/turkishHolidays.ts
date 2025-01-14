@@ -1,5 +1,4 @@
-import { isWithinInterval, getYear } from "date-fns";
-import { useUserSettings } from "@/hooks/useUserSettings";
+import { getYear } from "date-fns";
 
 export interface Holiday {
   name: string;
@@ -18,7 +17,10 @@ export const getTurkishHolidays = (year: number): Holiday[] => {
   ];
 };
 
-export const isHoliday = (date: Date | string | number): Holiday | undefined => {
+export const isHoliday = (
+  date: Date | string | number,
+  customHolidays: Array<{ date: string; description?: string }> = []
+): Holiday | undefined => {
   // Ensure we're working with a Date object
   const dateObj = date instanceof Date ? date : new Date(date);
   
@@ -27,13 +29,9 @@ export const isHoliday = (date: Date | string | number): Holiday | undefined => 
     console.error('Invalid date provided to isHoliday:', date);
     return undefined;
   }
-
-  // Get user settings for custom holidays
-  const { settings } = useUserSettings();
-  const customHolidays = settings?.holidays || [];
   
   // Check custom holidays from user settings
-  const customHoliday = customHolidays.find((holiday: { date: string }) => 
+  const customHoliday = customHolidays.find(holiday => 
     new Date(holiday.date).toDateString() === dateObj.toDateString()
   );
   
