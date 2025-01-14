@@ -31,8 +31,9 @@ export const useStudents = () => {
     queryKey: ['students', session?.user?.id],
     queryFn: getStudents,
     enabled: !!session && !isSessionLoading,
-    staleTime: 1000 * 60 * 5, // 5 dakika boyunca cache'de tut
-    cacheTime: 1000 * 60 * 30, // 30 dakika boyunca cache'de tut
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
+    refetchOnWindowFocus: false
   });
 
   const { mutateAsync: saveStudent } = useMutation({

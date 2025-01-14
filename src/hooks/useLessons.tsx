@@ -31,9 +31,9 @@ export function useLessons() {
     queryKey: ['lessons', session?.user.id],
     queryFn: getLessons,
     enabled: !!session && !isSessionLoading,
-    staleTime: 1000 * 60 * 5, // 5 dakika boyunca cache'de tut
-    cacheTime: 1000 * 60 * 30, // 30 dakika boyunca cache'de tut
-    refetchOnWindowFocus: false, // Pencere odağı değiştiğinde otomatik yenileme yapma
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
+    refetchOnWindowFocus: false
   });
 
   const { mutate: saveLesson } = useMutation({
