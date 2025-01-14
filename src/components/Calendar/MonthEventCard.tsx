@@ -1,54 +1,52 @@
-import { memo } from "react";
-import { format } from "date-fns";
 import { CalendarEvent, Student } from "@/types/calendar";
-import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
-import { motion, HTMLMotionProps } from "framer-motion";
+import { cn } from "@/lib/utils";
 
-interface MonthEventCardProps {
+interface EventCardProps {
   event: CalendarEvent;
   students?: Student[];
   index: number;
   onClick?: (event: CalendarEvent) => void;
 }
 
-const MonthEventCard = memo(({ event, students, index, onClick }: MonthEventCardProps) => {
+export default function MonthEventCard({ event, students, index, onClick }: EventCardProps) {
   const student = students?.find(s => s.id === event.studentId);
-  
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClick?.(event);
+  };
+
   return (
     <Draggable draggableId={event.id} index={index}>
-      {(provided, snapshot) => {
-        const motionProps: HTMLMotionProps<"div"> = {
-          initial: { opacity: 0, y: 5 },
-          animate: { opacity: 1, y: 0 },
-          exit: { opacity: 0, y: -5 },
-          transition: { duration: 0.2 },
-          onClick: () => onClick?.(event),
-          className: cn(
-            "p-1 rounded text-xs cursor-pointer transition-colors",
-            snapshot.isDragging ? "opacity-50" : "hover:opacity-80",
-            student?.color ? `bg-[${student.color}] text-white` : "bg-primary text-primary-foreground"
-          ),
-          style: {
-            ...provided.draggableProps.style,
-          },
-          ...provided.draggableProps,
-          ...provided.dragHandleProps,
-          ref: provided.innerRef,
-        };
-
-        return (
-          <motion.div {...motionProps}>
-            <div className="font-medium truncate">
-              {format(new Date(event.start), "HH:mm")} - {student?.name || "İsimsiz Öğrenci"}
-            </div>
-          </motion.div>
-        );
-      }}
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          className={cn(
+            "p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm truncate",
+            snapshot.isDragging ? "shadow-lg opacity-70" : ""
+          )}
+          style={{ 
+            backgroundColor: student?.color || "hsl(var(--primary))",
+            ...provided.draggableProps.style
+          }}
+          onClick={handleClick}
+        >
+          <div className="flex flex-col gap-1">
+            <span className="font-medium text-[13px] leading-tight md:text-sm text-primary-foreground truncate">
+              {student?.name || "İsimsiz Öğrenci"}
+            </span>
+            <span className="text-[12px] md:text-xs text-primary-foreground/90 truncate">
+              {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
+            </span>
+          </div>
+        </div>
+      )}
     </Draggable>
   );
-});
-
-MonthEventCard.displayName = "MonthEventCard";
-
-export default MonthEventCard;
+}
