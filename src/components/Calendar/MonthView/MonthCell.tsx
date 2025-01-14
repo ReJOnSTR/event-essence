@@ -1,11 +1,10 @@
 import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CalendarEvent, Student } from "@/types/calendar";
+import { CalendarEvent, Student, WeeklyWorkingHours } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
-import MonthEventCard from "../MonthEventCard";
+import MonthEventCard from "@/components/Calendar/MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { getWorkingHours } from "@/utils/workingHours";
 
 interface MonthCellProps {
   day: {
@@ -18,6 +17,8 @@ interface MonthCellProps {
   onEventClick?: (event: CalendarEvent) => void;
   students?: Student[];
   allowWorkOnHolidays: boolean;
+  customHolidays: Array<{ date: string; description?: string }>;
+  workingHours?: WeeklyWorkingHours;
 }
 
 export default function MonthCell({
@@ -26,17 +27,42 @@ export default function MonthCell({
   handleDateClick,
   onEventClick,
   students,
-  allowWorkOnHolidays
+  allowWorkOnHolidays,
+  customHolidays,
+  workingHours
 }: MonthCellProps) {
-  const holiday = isHoliday(day.date);
-  const workingHours = getWorkingHours();
   const dayOfWeek = day.date.getDay();
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-  const daySettings = workingHours[days[dayOfWeek]];
-  const isDisabled = !daySettings?.enabled || (holiday && !allowWorkOnHolidays);
+  const daySettings = workingHours?.[days[dayOfWeek]];
+  
+  const officialHoliday = isHoliday(day.date);
+  const customHoliday = customHolidays.find(holiday => 
+    new Date(holiday.date).toDateString() === day.date.toDateString()
+  );
+  
+  const isDisabled = !daySettings?.enabled || 
+    ((officialHoliday || customHoliday) && !allowWorkOnHolidays);
+
+  const getHolidayInfo = () => {
+    if (customHoliday) {
+      return {
+        name: customHoliday.description || "Özel Tatil",
+        isCustom: true
+      };
+    }
+    if (officialHoliday) {
+      return {
+        name: officialHoliday.name,
+        isCustom: false
+      };
+    }
+    return null;
+  };
+
+  const holidayInfo = getHolidayInfo();
 
   return (
-    <Droppable droppableId={`${idx}`}>
+    <Droppable droppableId={`${idx}`} isDropDisabled={isDisabled}>
       {(provided, snapshot) => (
         <motion.div
           ref={provided.innerRef}
@@ -51,30 +77,32 @@ export default function MonthCell({
           onClick={() => !isDisabled && handleDateClick(day.date)}
           className={cn(
             "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
-            !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
+            !day.isCurrentMonth && "text-muted-foreground/50 bg-muted/50",
             isToday(day.date) && "bg-accent text-accent-foreground",
-            holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-            holiday && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-            !daySettings?.enabled && "bg-muted cursor-not-allowed",
-            snapshot.isDraggingOver && "bg-accent/50",
-            isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50"
+            holidayInfo && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
+            holidayInfo && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
+            !daySettings?.enabled && "bg-muted",
+            isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
+            snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
           )}
         >
           <div className={cn(
             "text-sm font-medium mb-1",
+            !day.isCurrentMonth && "text-muted-foreground/50",
             isToday(day.date) && "text-accent-foreground"
           )}>
             {format(day.date, "d")}
-            {holiday && (
+            {holidayInfo && (
               <div className={cn(
                 "text-xs truncate",
-                !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
+                !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500",
+                holidayInfo.isCustom && "italic"
               )}>
-                {holiday.name}
+                {holidayInfo.name}
                 {allowWorkOnHolidays && " (Çalışmaya Açık)"}
               </div>
             )}
-            {!holiday && !daySettings?.enabled && (
+            {!holidayInfo && !daySettings?.enabled && (
               <div className="text-xs text-muted-foreground truncate">
                 Çalışma Saatleri Kapalı
               </div>
