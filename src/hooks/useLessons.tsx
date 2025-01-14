@@ -10,37 +10,30 @@ export function useLessons() {
   const { session, isLoading: isSessionLoading } = useSessionContext();
 
   const getLessons = async (): Promise<Lesson[]> => {
-    try {
-      const { data, error } = await supabase
-        .from('lessons')
-        .select('*')
-        .order('start_time', { ascending: true });
+    const { data, error } = await supabase
+      .from('lessons')
+      .select('*')
+      .order('start_time', { ascending: true });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      return data.map(lesson => ({
-        id: lesson.id,
-        title: lesson.title,
-        description: lesson.description || undefined,
-        start: new Date(lesson.start_time),
-        end: new Date(lesson.end_time),
-        studentId: lesson.student_id || undefined
-      }));
-    } catch (error) {
-      console.error('Error loading lessons:', error);
-      toast({
-        title: "Hata",
-        description: "Dersler yüklenirken bir hata oluştu.",
-        variant: "destructive"
-      });
-      return [];
-    }
+    return data.map(lesson => ({
+      id: lesson.id,
+      title: lesson.title,
+      description: lesson.description || undefined,
+      start: new Date(lesson.start_time),
+      end: new Date(lesson.end_time),
+      studentId: lesson.student_id || undefined
+    }));
   };
 
   const { data: lessons = [], isLoading, error } = useQuery({
     queryKey: ['lessons', session?.user.id],
     queryFn: getLessons,
-    enabled: !!session && !isSessionLoading, // Sadece oturum varsa sorguyu çalıştır
+    enabled: !!session && !isSessionLoading,
+    staleTime: 1000 * 60 * 5, // 5 dakika boyunca cache'de tut
+    cacheTime: 1000 * 60 * 30, // 30 dakika boyunca cache'de tut
+    refetchOnWindowFocus: false, // Pencere odağı değiştiğinde otomatik yenileme yapma
   });
 
   const { mutate: saveLesson } = useMutation({
@@ -62,23 +55,17 @@ export function useLessons() {
       return data;
     },
     onMutate: async (newLesson) => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['lessons'] });
-
-      // Snapshot the previous value
       const previousLessons = queryClient.getQueryData(['lessons']);
-
-      // Optimistically update to the new value
+      
       queryClient.setQueryData(['lessons'], (old: Lesson[] = []) => {
         const filtered = old.filter(lesson => lesson.id !== newLesson.id);
         return [...filtered, newLesson];
       });
 
-      // Return a context object with the snapshotted value
       return { previousLessons };
     },
     onError: (err, newLesson, context) => {
-      // If the mutation fails, use the context returned from onMutate to roll back
       queryClient.setQueryData(['lessons'], context?.previousLessons);
       toast({
         title: "Hata",
@@ -93,7 +80,6 @@ export function useLessons() {
       });
     },
     onSettled: () => {
-      // Always refetch after error or success to ensure data consistency
       queryClient.invalidateQueries({ queryKey: ['lessons'] });
     },
   });
@@ -109,7 +95,6 @@ export function useLessons() {
     },
     onMutate: async (deletedLessonId) => {
       await queryClient.cancelQueries({ queryKey: ['lessons'] });
-
       const previousLessons = queryClient.getQueryData(['lessons']);
 
       queryClient.setQueryData(['lessons'], (old: Lesson[] = []) => 

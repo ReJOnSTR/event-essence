@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { memo } from "react";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -11,7 +12,7 @@ interface EventCardProps {
   onClick?: (event: CalendarEvent) => void;
 }
 
-export default function MonthEventCard({ event, students, index, onClick }: EventCardProps) {
+const MonthEventCard = memo(({ event, students, index, onClick }: EventCardProps) => {
   const student = students?.find(s => s.id === event.studentId);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -49,4 +50,8 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       )}
     </Draggable>
   );
-}
+});
+
+MonthEventCard.displayName = "MonthEventCard";
+
+export default MonthEventCard;
