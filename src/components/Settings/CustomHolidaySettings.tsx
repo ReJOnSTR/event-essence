@@ -35,39 +35,66 @@ export default function CustomHolidaySettings() {
       description: "Özel Tatil"
     }));
     
-    await updateSettings.mutateAsync({
-      holidays: holidays
-    });
-    
-    toast({
-      title: "Özel tatil günleri güncellendi",
-      description: "Seçtiğiniz günler özel tatil olarak kaydedildi.",
-    });
+    try {
+      await updateSettings.mutateAsync({
+        holidays: holidays
+      });
+      
+      toast({
+        title: "Özel tatil günleri güncellendi",
+        description: "Seçtiğiniz günler özel tatil olarak kaydedildi.",
+      });
+    } catch (error) {
+      console.error('Error updating holidays:', error);
+      toast({
+        title: "Hata",
+        description: "Tatil günleri güncellenirken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
   };
 
   const clearHolidays = async () => {
-    setSelectedDates([]);
-    await updateSettings.mutateAsync({
-      holidays: []
-    });
-    
-    toast({
-      title: "Özel tatil günleri temizlendi",
-      description: "Tüm özel tatil günleri kaldırıldı.",
-    });
+    try {
+      setSelectedDates([]);
+      await updateSettings.mutateAsync({
+        holidays: []
+      });
+      
+      toast({
+        title: "Özel tatil günleri temizlendi",
+        description: "Tüm özel tatil günleri kaldırıldı.",
+      });
+    } catch (error) {
+      console.error('Error clearing holidays:', error);
+      toast({
+        title: "Hata",
+        description: "Tatil günleri temizlenirken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleWorkOnHolidaysChange = async (checked: boolean) => {
-    await updateSettings.mutateAsync({
-      allow_work_on_holidays: checked
-    });
-    
-    toast({
-      title: "Tatil günü çalışma ayarı güncellendi",
-      description: checked 
-        ? "Tatil günlerinde çalışmaya izin verilecek" 
-        : "Tatil günlerinde çalışma kapatıldı",
-    });
+    try {
+      await updateSettings.mutateAsync({
+        allow_work_on_holidays: checked
+      });
+      
+      toast({
+        title: "Tatil günü çalışma ayarı güncellendi",
+        description: checked 
+          ? "Tatil günlerinde çalışmaya izin verilecek" 
+          : "Tatil günlerinde çalışma kapatıldı",
+      });
+    } catch (error) {
+      console.error('Error updating work on holidays setting:', error);
+      toast({
+        title: "Hata",
+        description: "Ayar güncellenirken bir hata oluştu.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

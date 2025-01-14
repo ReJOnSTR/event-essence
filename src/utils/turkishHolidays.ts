@@ -1,4 +1,5 @@
 import { isWithinInterval, getYear } from "date-fns";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 export interface Holiday {
   name: string;
@@ -27,18 +28,20 @@ export const isHoliday = (date: Date | string | number): Holiday | undefined => 
     return undefined;
   }
 
-  // Check custom holidays from settings
-  try {
-    const customHolidays = JSON.parse(localStorage.getItem('customHolidays') || '[]');
-    const customHoliday = customHolidays.find((holiday: { date: string }) => 
-      new Date(holiday.date).toDateString() === dateObj.toDateString()
-    );
-    
-    if (customHoliday) {
-      return { name: "Özel Tatil", date: new Date(customHoliday.date) };
-    }
-  } catch (error) {
-    console.error('Error parsing custom holidays:', error);
+  // Get user settings for custom holidays
+  const { settings } = useUserSettings();
+  const customHolidays = settings?.holidays || [];
+  
+  // Check custom holidays from user settings
+  const customHoliday = customHolidays.find((holiday: { date: string }) => 
+    new Date(holiday.date).toDateString() === dateObj.toDateString()
+  );
+  
+  if (customHoliday) {
+    return { 
+      name: customHoliday.description || "Özel Tatil", 
+      date: new Date(customHoliday.date) 
+    };
   }
 
   // Check official holidays
