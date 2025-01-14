@@ -30,7 +30,16 @@ export default function DataManagement() {
       const data = JSON.parse(fileContent);
 
       const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('Kullanıcı oturumu bulunamadı');
+      if (!userData.user) {
+        toast({
+          title: "Hata",
+          description: "Oturum açmanız gerekiyor.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      let importErrors = [];
 
       // Import students
       if (data.students?.length > 0) {
@@ -43,7 +52,9 @@ export default function DataManagement() {
             }))
           );
         
-        if (studentsError) throw studentsError;
+        if (studentsError) {
+          importErrors.push(`Öğrenciler: ${studentsError.message}`);
+        }
       }
 
       // Import lessons
@@ -57,7 +68,9 @@ export default function DataManagement() {
             }))
           );
         
-        if (lessonsError) throw lessonsError;
+        if (lessonsError) {
+          importErrors.push(`Dersler: ${lessonsError.message}`);
+        }
       }
 
       // Import user settings
@@ -69,32 +82,47 @@ export default function DataManagement() {
             user_id: userData.user?.id
           });
         
-        if (settingsError) throw settingsError;
+        if (settingsError) {
+          importErrors.push(`Ayarlar: ${settingsError.message}`);
+        }
       }
 
-      toast({
-        title: "Veriler içe aktarıldı",
-        description: "Tüm veriler başarıyla yüklendi.",
-      });
-
-      // Reload the page to refresh the data
-      window.location.reload();
+      if (importErrors.length > 0) {
+        toast({
+          title: "Bazı veriler içe aktarılamadı",
+          description: importErrors.join('\n'),
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Veriler içe aktarıldı",
+          description: "Tüm veriler başarıyla yüklendi.",
+        });
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Error importing data:', error);
       toast({
         title: "Hata",
-        description: "Veriler içe aktarılırken bir hata oluştu.",
+        description: "Veriler içe aktarılırken bir hata oluştu. Dosya formatını kontrol edin.",
         variant: "destructive"
       });
     }
     
-    event.target.value = ''; // Reset input
+    event.target.value = '';
   };
 
   const handleExport = async () => {
     try {
       const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('Kullanıcı oturumu bulunamadı');
+      if (!userData.user) {
+        toast({
+          title: "Hata",
+          description: "Oturum açmanız gerekiyor.",
+          variant: "destructive"
+        });
+        return;
+      }
 
       // Get students
       const { data: students, error: studentsError } = await supabase
@@ -117,7 +145,7 @@ export default function DataManagement() {
         .from('user_settings')
         .select('*')
         .eq('user_id', userData.user.id)
-        .single();
+        .maybeSingle();
       
       if (settingsError) throw settingsError;
 
@@ -155,7 +183,16 @@ export default function DataManagement() {
   const handleDelete = async () => {
     try {
       const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('Kullanıcı oturumu bulunamadı');
+      if (!userData.user) {
+        toast({
+          title: "Hata",
+          description: "Oturum açmanız gerekiyor.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      let deleteErrors = [];
 
       // Delete all lessons
       const { error: lessonsError } = await supabase
@@ -163,7 +200,9 @@ export default function DataManagement() {
         .delete()
         .eq('user_id', userData.user.id);
       
-      if (lessonsError) throw lessonsError;
+      if (lessonsError) {
+        deleteErrors.push(`Dersler: ${lessonsError.message}`);
+      }
 
       // Delete all students
       const { error: studentsError } = await supabase
@@ -171,7 +210,9 @@ export default function DataManagement() {
         .delete()
         .eq('user_id', userData.user.id);
       
-      if (studentsError) throw studentsError;
+      if (studentsError) {
+        deleteErrors.push(`Öğrenciler: ${studentsError.message}`);
+      }
 
       // Reset user settings to defaults
       const { error: settingsError } = await supabase
@@ -195,7 +236,9 @@ export default function DataManagement() {
         })
         .eq('user_id', userData.user.id);
       
-      if (settingsError) throw settingsError;
+      if (settingsError) {
+        deleteErrors.push(`Ayarlar: ${settingsError.message}`);
+      }
 
       // Save auth related items
       const authKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
@@ -208,14 +251,20 @@ export default function DataManagement() {
       if (authToken) {
         localStorage.setItem(authKey, authToken);
       }
-      
-      toast({
-        title: "Veriler silindi",
-        description: "Tüm veriler başarıyla silindi.",
-      });
 
-      // Reload the page to reset the app state
-      window.location.reload();
+      if (deleteErrors.length > 0) {
+        toast({
+          title: "Bazı veriler silinemedi",
+          description: deleteErrors.join('\n'),
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Veriler silindi",
+          description: "Tüm veriler başarıyla silindi.",
+        });
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Error deleting data:', error);
       toast({
