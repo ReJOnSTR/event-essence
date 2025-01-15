@@ -91,8 +91,14 @@ export function ProfileDialog({ isOpen, onClose }: ProfileDialogProps) {
     }
   };
 
+  const handleClose = () => {
+    if (!loading) {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Profil Ayarları</DialogTitle>
@@ -149,7 +155,7 @@ export function ProfileDialog({ isOpen, onClose }: ProfileDialogProps) {
             </AlertDialogContent>
           </AlertDialog>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={handleClose}>
               İptal
             </Button>
             <Button onClick={handleUpdateProfile} disabled={loading}>
