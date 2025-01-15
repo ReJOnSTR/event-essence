@@ -1,4 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 
 export const fontSizes = {
   small: {
@@ -35,7 +36,7 @@ export function FontSettings({
   onFontFamilyChange 
 }: FontSettingsProps) {
   return (
-    <>
+    <div className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Yazı Boyutu</h3>
         <Select value={fontSize} onValueChange={onFontSizeChange}>
@@ -65,6 +66,24 @@ export function FontSettings({
           </SelectContent>
         </Select>
       </div>
-    </>
+
+      <Card className="p-4 mt-4">
+        <h4 className="text-lg font-medium mb-4">Önizleme</h4>
+        <div className="space-y-4">
+          <p style={{ 
+            fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
+            fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
+          }}>
+            Bu bir örnek metindir. Seçtiğiniz yazı tipi ve boyutunu burada görebilirsiniz.
+          </p>
+          <h2 style={{ 
+            fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.heading,
+            fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
+          }}>
+            Bu bir başlık örneğidir
+          </h2>
+        </div>
+      </Card>
+    </div>
   );
 }

@@ -26,6 +26,9 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    --base-font-size: 16px;
+    --heading-font-size: 20px;
+    --font-family: system-ui, sans-serif;
   }
 
   :root[data-theme="dark"] {
@@ -57,6 +60,12 @@
     overflow: hidden;
     margin: 0;
     padding: 0;
+    font-size: var(--base-font-size);
+    font-family: var(--font-family);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: var(--heading-font-size);
   }
 
   html {
