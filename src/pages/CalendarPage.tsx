@@ -1,5 +1,6 @@
 import React from "react";
 import { useCalendarStore } from "@/store/calendarStore";
+import type { ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
 import { useToast } from "@/hooks/use-toast";
