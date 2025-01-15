@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useStudents } from "@/hooks/useStudents";
-import StudentDialog from "@/components/Students/StudentDialog";
+import StudentDialog from "@/features/students/components/StudentDialog";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
 import { PageHeader } from "@/components/Layout/PageHeader";
