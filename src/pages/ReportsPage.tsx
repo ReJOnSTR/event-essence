@@ -6,7 +6,7 @@ import { PdfReport } from "@/components/Reports/PdfReport";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
 import { Student } from "@/types/calendar";
-import StudentDialog from "@/features/students/components/StudentDialog";
+import StudentDialog from "@/components/Students/StudentDialog";
 import { PageHeader } from "@/components/Layout/PageHeader";
 
 export default function ReportsPage() {

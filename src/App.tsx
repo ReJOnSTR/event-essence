@@ -6,15 +6,16 @@ import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
   SidebarProvider, 
+  Sidebar, 
   SidebarContent,
   SidebarRail
 } from "@/components/ui/sidebar";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { supabase } from "@/services/api/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
-import Header from "@/components/layout/Header";
-import Sidebar from "@/components/layout/Sidebar";
-import StudentDialog from "@/features/students/components/StudentDialog";
+import AuthHeader from "@/components/Auth/AuthHeader";
+import SideMenu from "@/components/Layout/SideMenu";
+import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { AppRoutes } from "./routes/AppRoutes";
@@ -61,12 +62,12 @@ function AppContent() {
     <div className="min-h-screen flex w-full overflow-hidden bg-background">
       <Sidebar>
         <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-          <Sidebar searchTerm={searchTerm} />
+          <SideMenu searchTerm={searchTerm} />
         </SidebarContent>
         <SidebarRail />
       </Sidebar>
       <div className="flex-1 flex flex-col">
-        <Header 
+        <AuthHeader 
           onHeightChange={setHeaderHeight} 
           onSearchChange={setSearchTerm}
         />

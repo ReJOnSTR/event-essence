@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import StudentDialogContent from "@/components/Students/StudentDialogContent";
+import StudentDialogContent from "./StudentDialogContent";
 
 interface StudentDialogProps {
   isOpen: boolean;

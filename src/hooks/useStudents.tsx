@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/services/api/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Student } from '@/types/calendar';
 import { useToast } from '@/components/ui/use-toast';
 import { useSessionContext } from '@supabase/auth-helpers-react';

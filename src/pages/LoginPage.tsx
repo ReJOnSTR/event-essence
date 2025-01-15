@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "@/services/api/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
-import { LoginForm } from "@/features/auth/components/LoginForm";
-import { RegisterForm } from "@/features/auth/components/RegisterForm";
+import { LoginForm } from "@/components/Auth/LoginForm";
+import { RegisterForm } from "@/components/Auth/RegisterForm";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function LoginPage() {

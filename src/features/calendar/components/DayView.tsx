@@ -1,4 +1,3 @@
-// Move from src/components/Calendar/DayView.tsx
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';

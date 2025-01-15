@@ -1,15 +1,14 @@
 import React from "react";
-import { useCalendarStore } from "@/store/calendarStore";
-import type { ViewType } from "@/store/calendarStore";
+import { useCalendarStore, ViewType } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
 import { useToast } from "@/hooks/use-toast";
-import { Lesson } from "@/types/calendar";
+import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
 import LessonDialog from "@/components/Calendar/LessonDialog";
-import StudentDialog from "@/features/students/components/StudentDialog";
+import StudentDialog from "@/components/Students/StudentDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
 import { useCalendarNavigation } from "@/features/calendar/hooks/useCalendarNavigation";
@@ -34,7 +33,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const [selectedLesson, setSelectedLesson] = React.useState<Lesson | undefined>();
+  const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
   
   const { currentView, setCurrentView } = useCalendarStore();
   const { students } = useStudents();
@@ -55,7 +54,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     setIsDialogOpen(true);
   };
 
-  const handleLessonClick = (lesson: Lesson) => {
+  const handleLessonClick = (lesson: CalendarEvent) => {
     if (!session) {
       setIsLoginDialogOpen(true);
       return;
@@ -70,7 +69,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     setIsLoginDialogOpen(false);
   };
 
-  const handleSaveLesson = (lessonData: Omit<Lesson, "id">) => {
+  const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
     if (!session) return;
     
     const lessonToSave = selectedLesson
@@ -89,7 +88,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     setSelectedLesson(undefined);
   };
 
-  const handleEventUpdate = (updatedEvent: Lesson) => {
+  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
     if (!session) {
       setIsLoginDialogOpen(true);
       return;
