@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/services/api/supabase';
 import { useToast } from '@/components/ui/use-toast';
-import { Json } from '@/integrations/supabase/types';
+import { Json } from '@/types/supabase';
 import { useEffect } from 'react';
 
 interface WorkingHours {

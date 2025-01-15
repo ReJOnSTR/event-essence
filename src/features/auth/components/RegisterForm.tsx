@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/services/api/supabase";
-import { Button } from "@/components/common/Button";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { SubjectSelect } from "../SubjectSelect";
+import { SubjectSelect } from "@/components/Auth/SubjectSelect";
 import { PersonalInfoFields } from "./FormFields/PersonalInfoFields";
 import { ContactFields } from "./FormFields/ContactFields";
 import { SecurityFields } from "./FormFields/SecurityFields";
@@ -99,7 +99,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
       <p className="text-center text-sm text-muted-foreground">
         Zaten hesabınız var mı?{" "}
         <Button 
-          variant="link" 
+          variant="ghost" 
           className="p-0 h-auto font-normal"
           onClick={onToggleForm}
           type="button"

@@ -1,6 +1,6 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/services/api/supabase";
 import { type WeeklyWorkingHours, DEFAULT_WORKING_HOURS } from "./workingHours";
-import { Json } from "@/integrations/supabase/types";
+import { Json } from "@/types/supabase";
 
 interface ProjectData {
   workingHours: WeeklyWorkingHours;
