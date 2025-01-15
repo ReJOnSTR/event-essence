@@ -14,26 +14,28 @@ export const useStudents = () => {
       return [];
     }
 
-    const { data, error } = await supabase
-      .from('students')
-      .select('*')
-      .order('name');
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .order('name');
 
-    if (error) {
-      console.error('Error fetching students:', error);
+      if (error) {
+        console.error('Error fetching students:', error);
+        throw error;
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getStudents:', error);
       throw error;
     }
-
-    return data || [];
   };
 
   const { data: students = [], isLoading, error } = useQuery({
     queryKey: ['students', session?.user?.id],
     queryFn: getStudents,
     enabled: !!session && !isSessionLoading,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 30, // 30 minutes
-    refetchOnWindowFocus: false
   });
 
   const { mutateAsync: saveStudent } = useMutation({
