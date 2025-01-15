@@ -6,6 +6,11 @@ import { Calendar, Users, FileText, Settings } from "lucide-react";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import { motion } from "framer-motion";
 
+interface SidebarProps {
+  searchTerm?: string;
+  children?: React.ReactNode;
+}
+
 const menuItems = [
   {
     title: "Takvim",
@@ -33,11 +38,7 @@ const menuItems = [
   }
 ];
 
-interface SideMenuProps {
-  searchTerm?: string;
-}
-
-export default function SideMenu({ searchTerm }: SideMenuProps) {
+export default function Sidebar({ searchTerm, children }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { session } = useSessionContext();
@@ -49,6 +50,7 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
 
   return (
     <ScrollArea className="h-full">
+      {children}
       <div className="space-y-2 py-2">
         {filteredMenuItems.map((item, index) => {
           const Icon = item.icon;
