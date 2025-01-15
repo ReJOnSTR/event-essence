@@ -1,8 +1,9 @@
 import React from "react";
-import { useCalendarStore, ViewType } from "@/store/calendarStore";
+import { useCalendarStore } from "@/store/calendarStore";
 import { useStudents } from "@/hooks/useStudents";
 import { useLessons } from "@/hooks/useLessons";
 import { useToast } from "@/hooks/use-toast";
+import { Lesson } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
@@ -32,7 +33,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
-  const [selectedLesson, setSelectedLesson] = React.useState<CalendarEvent | undefined>();
+  const [selectedLesson, setSelectedLesson] = React.useState<Lesson | undefined>();
   
   const { currentView, setCurrentView } = useCalendarStore();
   const { students } = useStudents();
@@ -53,7 +54,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     setIsDialogOpen(true);
   };
 
-  const handleLessonClick = (lesson: CalendarEvent) => {
+  const handleLessonClick = (lesson: Lesson) => {
     if (!session) {
       setIsLoginDialogOpen(true);
       return;
@@ -68,7 +69,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     setIsLoginDialogOpen(false);
   };
 
-  const handleSaveLesson = (lessonData: Omit<CalendarEvent, "id">) => {
+  const handleSaveLesson = (lessonData: Omit<Lesson, "id">) => {
     if (!session) return;
     
     const lessonToSave = selectedLesson
@@ -87,7 +88,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
     setSelectedLesson(undefined);
   };
 
-  const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+  const handleEventUpdate = (updatedEvent: Lesson) => {
     if (!session) {
       setIsLoginDialogOpen(true);
       return;
