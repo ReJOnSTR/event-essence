@@ -1,24 +1,19 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Student } from "@/types/calendar";
+import { Button } from "@/components/ui/button";
 
 interface StudentCardProps {
   student: Student;
-  onEdit: (student: Student) => void;
+  onClick: (student: Student) => void;
 }
 
-export default function StudentCard({ student, onEdit }: StudentCardProps) {
+export default function StudentCard({ student, onClick }: StudentCardProps) {
   return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="font-medium">{student.name}</h3>
-          <p className="text-sm text-muted-foreground">{student.price} TL/saat</p>
-        </div>
-        <Button variant="outline" onClick={() => onEdit(student)}>
-          Düzenle
-        </Button>
+    <div className="border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+      <h3 className="text-lg font-semibold">{student.name}</h3>
+      <p className="text-sm text-gray-500">Fiyat: {student.price}₺</p>
+      <div className="mt-2">
+        <Button onClick={() => onClick(student)}>Düzenle</Button>
       </div>
-    </Card>
+    </div>
   );
 }
