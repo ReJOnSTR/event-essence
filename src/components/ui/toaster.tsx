@@ -7,29 +7,39 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 import { useToast } from "@/hooks/use-toast"
+import { AlertCircle, CheckCircle2, Info, XCircle } from "lucide-react"
 
 export function Toaster() {
   const { toasts } = useToast()
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
+      {toasts.map(function ({ id, title, description, action, variant, ...props }) {
+        const Icon = variant === 'destructive' ? XCircle :
+                    variant === 'success' ? CheckCircle2 :
+                    variant === 'warning' ? AlertCircle :
+                    variant === 'info' ? Info :
+                    Info;
+
         return (
-          <Toast key={id} {...props} className="group">
-            <div className="grid gap-1">
-              {title && <ToastTitle className="text-base font-semibold">{title}</ToastTitle>}
-              {description && (
-                <ToastDescription className="text-sm text-muted-foreground">
-                  {description}
-                </ToastDescription>
-              )}
+          <Toast key={id} {...props} variant={variant} className="group">
+            <div className="flex gap-3">
+              <Icon className="h-5 w-5 mt-1" />
+              <div className="grid gap-1">
+                {title && <ToastTitle>{title}</ToastTitle>}
+                {description && (
+                  <ToastDescription>
+                    {description}
+                  </ToastDescription>
+                )}
+              </div>
             </div>
             {action}
             <ToastClose className="absolute right-2 top-2 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100" />
           </Toast>
         )
       })}
-      <ToastViewport className="fixed bottom-0 right-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]" />
+      <ToastViewport />
     </ToastProvider>
   )
 }
