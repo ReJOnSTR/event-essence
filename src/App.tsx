@@ -59,7 +59,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex w-full overflow-hidden bg-background">
+    <div className="min-h-screen flex w-full overflow-hidden bg-background" role="application">
       <Sidebar>
         <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
           <SideMenu searchTerm={searchTerm} />
@@ -72,7 +72,9 @@ function AppContent() {
           onSearchChange={setSearchTerm}
         />
         <AnimatePresence mode="wait" initial={false}>
-          <AppRoutes headerHeight={headerHeight} location={location} />
+          <main role="main">
+            <AppRoutes headerHeight={headerHeight} location={location} />
+          </main>
         </AnimatePresence>
       </div>
       <StudentDialog
