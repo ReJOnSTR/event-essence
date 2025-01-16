@@ -17,15 +17,72 @@ export const fontSizes = {
 };
 
 export const fontFamilies = [
-  { id: "inter", name: "Inter", value: "Inter, sans-serif" },
-  { id: "roboto", name: "Roboto", value: "Roboto, sans-serif" },
-  { id: "opensans", name: "Open Sans", value: "'Open Sans', sans-serif" },
-  { id: "lato", name: "Lato", value: "Lato, sans-serif" },
-  { id: "poppins", name: "Poppins", value: "Poppins, sans-serif" },
-  { id: "montserrat", name: "Montserrat", value: "Montserrat, sans-serif" },
-  { id: "sourcesanspro", name: "Source Sans Pro", value: "'Source Sans Pro', sans-serif" },
-  { id: "nunito", name: "Nunito", value: "Nunito, sans-serif" },
-  { id: "system", name: "Sistem Yazı Tipi", value: "system-ui, sans-serif" }
+  { 
+    id: "playfair", 
+    name: "Playfair Display", 
+    value: "'Playfair Display', serif",
+    description: "Zarif ve klasik serif yazı tipi"
+  },
+  { 
+    id: "robotomono", 
+    name: "Roboto Mono", 
+    value: "'Roboto Mono', monospace",
+    description: "Modern monospace yazı tipi"
+  },
+  { 
+    id: "abrilfatface", 
+    name: "Abril Fatface", 
+    value: "'Abril Fatface', cursive",
+    description: "Dekoratif display yazı tipi"
+  },
+  { 
+    id: "comfortaa", 
+    name: "Comfortaa", 
+    value: "'Comfortaa', cursive",
+    description: "Yumuşak köşeli modern yazı tipi"
+  },
+  { 
+    id: "permanentmarker", 
+    name: "Permanent Marker", 
+    value: "'Permanent Marker', cursive",
+    description: "El yazısı stili yazı tipi"
+  },
+  { 
+    id: "quicksand", 
+    name: "Quicksand", 
+    value: "'Quicksand', sans-serif",
+    description: "Modern geometrik sans-serif"
+  },
+  { 
+    id: "josefin", 
+    name: "Josefin Sans", 
+    value: "'Josefin Sans', sans-serif",
+    description: "Art deco stilinde sans-serif"
+  },
+  { 
+    id: "crimsonpro", 
+    name: "Crimson Pro", 
+    value: "'Crimson Pro', serif",
+    description: "Akademik serif yazı tipi"
+  },
+  { 
+    id: "spacegrotesk", 
+    name: "Space Grotesk", 
+    value: "'Space Grotesk', sans-serif",
+    description: "Teknolojik görünümlü sans-serif"
+  },
+  { 
+    id: "dmserif", 
+    name: "DM Serif Display", 
+    value: "'DM Serif Display', serif",
+    description: "Modern kontrastlı serif"
+  },
+  { 
+    id: "system", 
+    name: "Sistem Yazı Tipi", 
+    value: "system-ui, sans-serif",
+    description: "Sistemin varsayılan yazı tipi"
+  }
 ];
 
 interface FontSettingsProps {
@@ -65,8 +122,15 @@ export function FontSettings({
           </SelectTrigger>
           <SelectContent>
             {fontFamilies.map((font) => (
-              <SelectItem key={font.id} value={font.id}>
-                {font.name}
+              <SelectItem 
+                key={font.id} 
+                value={font.id}
+                className="py-3 px-2"
+              >
+                <div className="flex flex-col gap-1">
+                  <span style={{ fontFamily: font.value }}>{font.name}</span>
+                  <span className="text-xs text-muted-foreground">{font.description}</span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
@@ -81,6 +145,9 @@ export function FontSettings({
             fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
           }}>
             Bu bir örnek metindir. Seçtiğiniz yazı tipi ve boyutunu burada görebilirsiniz.
+            ABCÇDEFGĞHIIJKLMNOÖPRSŞTUÜVYZ
+            abcçdefgğhıijklmnoöprsştuüvyz
+            1234567890
           </p>
           <h2 style={{ 
             fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.heading,
