@@ -19,6 +19,12 @@ export const fontSizes = {
 export const fontFamilies = [
   { id: "inter", name: "Inter", value: "Inter, sans-serif" },
   { id: "roboto", name: "Roboto", value: "Roboto, sans-serif" },
+  { id: "opensans", name: "Open Sans", value: "'Open Sans', sans-serif" },
+  { id: "lato", name: "Lato", value: "Lato, sans-serif" },
+  { id: "poppins", name: "Poppins", value: "Poppins, sans-serif" },
+  { id: "montserrat", name: "Montserrat", value: "Montserrat, sans-serif" },
+  { id: "sourcesanspro", name: "Source Sans Pro", value: "'Source Sans Pro', sans-serif" },
+  { id: "nunito", name: "Nunito", value: "Nunito, sans-serif" },
   { id: "system", name: "Sistem Yazı Tipi", value: "system-ui, sans-serif" }
 ];
 
