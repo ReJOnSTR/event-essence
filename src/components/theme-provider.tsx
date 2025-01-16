@@ -11,6 +11,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   const { settings } = useUserSettings();
 
   useEffect(() => {
+    // Tema ayarını uygula
     if (settings?.theme) {
       document.documentElement.setAttribute("data-theme", settings.theme);
     }
@@ -18,8 +19,11 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     // Font size ayarını uygula
     if (settings?.font_size) {
       const size = fontSizes[settings.font_size as keyof typeof fontSizes];
-      document.documentElement.style.setProperty('--base-font-size', size.base);
-      document.documentElement.style.setProperty('--heading-font-size', size.heading);
+      if (size) {
+        document.documentElement.style.setProperty('--base-font-size', size.base);
+        document.documentElement.style.setProperty('--heading-font-size', size.heading);
+        console.log('Font size updated:', size);
+      }
     }
 
     // Font family ayarını uygula
@@ -27,6 +31,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
       const font = fontFamilies.find(f => f.id === settings.font_family);
       if (font) {
         document.documentElement.style.setProperty('--font-family', font.value);
+        console.log('Font family updated:', font.value);
       }
     }
   }, [settings?.theme, settings?.font_size, settings?.font_family]);

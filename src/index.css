@@ -68,11 +68,6 @@
     font-size: var(--heading-font-size);
   }
 
-  html {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-
   * {
     @apply border-border;
   }
