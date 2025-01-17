@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { User, UserX, Save, Phone, Clock } from "lucide-react";
+import { User, UserX, Save, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SubjectSelect } from "@/components/Auth/SubjectSelect";
 import { InputField } from "@/components/Auth/FormFields/InputField";
@@ -18,7 +18,6 @@ const ProfilePage = () => {
     fullName: "",
     phoneNumber: "",
     teachingSubjects: [] as string[],
-    yearsOfExperience: 0
   });
 
   useEffect(() => {
@@ -46,7 +45,6 @@ const ProfilePage = () => {
           fullName: data.full_name || "",
           phoneNumber: data.phone_number || "",
           teachingSubjects: data.teaching_subjects || [],
-          yearsOfExperience: data.years_of_experience || 0
         });
       }
     } catch (error) {
@@ -74,7 +72,6 @@ const ProfilePage = () => {
           full_name: profile.fullName,
           phone_number: profile.phoneNumber,
           teaching_subjects: profile.teachingSubjects,
-          years_of_experience: profile.yearsOfExperience
         })
         .eq('id', user.id);
 
@@ -156,16 +153,6 @@ const ProfilePage = () => {
             <SubjectSelect
               selectedSubjects={profile.teachingSubjects}
               onChange={(subjects) => setProfile({ ...profile, teachingSubjects: subjects })}
-            />
-
-            <InputField
-              id="yearsOfExperience"
-              label="Deneyim Yılı"
-              type="number"
-              value={profile.yearsOfExperience.toString()}
-              onChange={(e) => setProfile({ ...profile, yearsOfExperience: parseInt(e.target.value) || 0 })}
-              placeholder="Deneyim Yılı"
-              icon={<Clock className="h-4 w-4" />}
             />
           </div>
 
