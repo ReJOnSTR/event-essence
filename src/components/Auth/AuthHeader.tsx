@@ -13,13 +13,13 @@ import {
   LogOut,
   Settings,
   HelpCircle,
+  UserCircle,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { SearchInput } from "@/components/Search/SearchInput";
 import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "../ui/use-toast";
-import { Session } from "@supabase/supabase-js";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 
 interface AuthHeaderProps {
@@ -135,6 +135,14 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem 
+                    className="gap-2" 
+                    onClick={() => navigate('/profile')}
+                  >
+                    <UserCircle className="h-4 w-4" />
+                    <span>Profil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem className="gap-2" onClick={handleLogout}>
                     <LogOut className="h-4 w-4" />
                     <span>Çıkış Yap</span>
