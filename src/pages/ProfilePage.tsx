@@ -96,13 +96,19 @@ const ProfilePage = () => {
   const handleDeleteAccount = async () => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.admin.deleteUser(
-        (await supabase.auth.getUser()).data.user?.id || ''
-      );
+      
+      // First delete the profile data
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', (await supabase.auth.getUser()).data.user?.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
-      await supabase.auth.signOut();
+      // Then sign out the user
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
+
       navigate('/login');
       
       toast({
