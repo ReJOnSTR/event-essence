@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { User, UserX, Save } from "lucide-react";
+import { User, UserX, Save, Phone, BookOpen, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { SubjectSelect } from "@/components/Auth/SubjectSelect";
 
 const ProfilePage = () => {
   const { toast } = useToast();
@@ -18,7 +19,46 @@ const ProfilePage = () => {
     fullName: "",
     phoneNumber: "",
     teachingSubjects: [] as string[],
+    yearsOfExperience: 0
   });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("Kullanıcı bulunamadı");
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setProfile({
+          fullName: data.full_name || "",
+          phoneNumber: data.phone_number || "",
+          teachingSubjects: data.teaching_subjects || [],
+          yearsOfExperience: data.years_of_experience || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      toast({
+        variant: "destructive",
+        title: "Hata",
+        description: "Profil bilgileri yüklenirken bir hata oluştu.",
+      });
+    }
+  };
 
   const handleProfileUpdate = async () => {
     try {
@@ -35,6 +75,7 @@ const ProfilePage = () => {
           full_name: profile.fullName,
           phone_number: profile.phoneNumber,
           teaching_subjects: profile.teachingSubjects,
+          years_of_experience: profile.yearsOfExperience
         })
         .eq('id', user.id);
 
@@ -45,6 +86,7 @@ const ProfilePage = () => {
         description: "Bilgileriniz başarıyla kaydedildi.",
       });
     } catch (error) {
+      console.error('Error updating profile:', error);
       toast({
         variant: "destructive",
         title: "Hata",
@@ -72,6 +114,7 @@ const ProfilePage = () => {
         description: "Hesabınız başarıyla silindi.",
       });
     } catch (error) {
+      console.error('Error deleting account:', error);
       toast({
         variant: "destructive",
         title: "Hata",
@@ -99,6 +142,8 @@ const ProfilePage = () => {
                 id="fullName"
                 value={profile.fullName}
                 onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
+                placeholder="Ad Soyad"
+                icon={<User className="h-4 w-4" />}
               />
             </div>
 
@@ -108,6 +153,28 @@ const ProfilePage = () => {
                 id="phoneNumber"
                 value={profile.phoneNumber}
                 onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
+                placeholder="Telefon Numarası"
+                icon={<Phone className="h-4 w-4" />}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="teachingSubjects">Öğretilen Dersler</Label>
+              <SubjectSelect
+                value={profile.teachingSubjects}
+                onChange={(subjects) => setProfile({ ...profile, teachingSubjects: subjects })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="yearsOfExperience">Deneyim Yılı</Label>
+              <Input
+                id="yearsOfExperience"
+                type="number"
+                value={profile.yearsOfExperience}
+                onChange={(e) => setProfile({ ...profile, yearsOfExperience: parseInt(e.target.value) || 0 })}
+                placeholder="Deneyim Yılı"
+                icon={<Clock className="h-4 w-4" />}
               />
             </div>
           </div>
