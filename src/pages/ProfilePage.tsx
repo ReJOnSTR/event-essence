@@ -3,13 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { User, UserX, Save, Phone, BookOpen, Clock } from "lucide-react";
+import { User, UserX, Save, Phone, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SubjectSelect } from "@/components/Auth/SubjectSelect";
+import { InputField } from "@/components/Auth/FormFields/InputField";
 
 const ProfilePage = () => {
   const { toast } = useToast();
@@ -136,47 +135,38 @@ const ProfilePage = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Ad Soyad</Label>
-              <Input
-                id="fullName"
-                value={profile.fullName}
-                onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                placeholder="Ad Soyad"
-                icon={<User className="h-4 w-4" />}
-              />
-            </div>
+            <InputField
+              id="fullName"
+              label="Ad Soyad"
+              value={profile.fullName}
+              onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
+              placeholder="Ad Soyad"
+              icon={<User className="h-4 w-4" />}
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Telefon Numarası</Label>
-              <Input
-                id="phoneNumber"
-                value={profile.phoneNumber}
-                onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
-                placeholder="Telefon Numarası"
-                icon={<Phone className="h-4 w-4" />}
-              />
-            </div>
+            <InputField
+              id="phoneNumber"
+              label="Telefon Numarası"
+              value={profile.phoneNumber}
+              onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
+              placeholder="Telefon Numarası"
+              icon={<Phone className="h-4 w-4" />}
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="teachingSubjects">Öğretilen Dersler</Label>
-              <SubjectSelect
-                value={profile.teachingSubjects}
-                onChange={(subjects) => setProfile({ ...profile, teachingSubjects: subjects })}
-              />
-            </div>
+            <SubjectSelect
+              selectedSubjects={profile.teachingSubjects}
+              onChange={(subjects) => setProfile({ ...profile, teachingSubjects: subjects })}
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="yearsOfExperience">Deneyim Yılı</Label>
-              <Input
-                id="yearsOfExperience"
-                type="number"
-                value={profile.yearsOfExperience}
-                onChange={(e) => setProfile({ ...profile, yearsOfExperience: parseInt(e.target.value) || 0 })}
-                placeholder="Deneyim Yılı"
-                icon={<Clock className="h-4 w-4" />}
-              />
-            </div>
+            <InputField
+              id="yearsOfExperience"
+              label="Deneyim Yılı"
+              type="number"
+              value={profile.yearsOfExperience.toString()}
+              onChange={(e) => setProfile({ ...profile, yearsOfExperience: parseInt(e.target.value) || 0 })}
+              placeholder="Deneyim Yılı"
+              icon={<Clock className="h-4 w-4" />}
+            />
           </div>
 
           <Button
