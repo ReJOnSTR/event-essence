@@ -4,6 +4,7 @@ import CalendarPage from "@/pages/CalendarPage";
 import StudentsManagementPage from "@/pages/StudentsManagementPage";
 import ReportsPage from "@/pages/ReportsPage";
 import SettingsPage from "@/pages/SettingsPage";
+import ProfilePage from "@/pages/ProfilePage";
 import LoginPage from "@/pages/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
@@ -88,6 +89,14 @@ export function AppRoutes({ headerHeight, location }: AppRoutesProps) {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           } 
         />
