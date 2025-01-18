@@ -108,28 +108,40 @@ const ProfilePage = () => {
     try {
       setLoading(true);
       
-      // Delete user's profile data first
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', (await supabase.auth.getUser()).data.user?.id);
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Kullanıcı bulunamadı");
 
-      if (profileError) throw profileError;
+      // Delete user's data from all tables
+      const deletions = await Promise.all([
+        // Delete profile
+        supabase.from('profiles').delete().eq('id', user.id),
+        // Delete user settings
+        supabase.from('user_settings').delete().eq('user_id', user.id),
+        // Delete user's students
+        supabase.from('students').delete().eq('user_id', user.id),
+        // Delete user's lessons
+        supabase.from('lessons').delete().eq('user_id', user.id),
+      ]);
 
-      // Delete the user's auth account using standard API
-      const { error: authError } = await supabase.auth.updateUser({
-        data: { deleted: true }
-      });
+      // Check for any deletion errors
+      for (const { error } of deletions) {
+        if (error) throw error;
+      }
 
-      if (authError) throw authError;
+      // Delete the auth account
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
 
-      // Sign out after deletion
-      await supabase.auth.signOut();
+      // Delete the user's auth account
+      const { error: deleteError } = await supabase.rpc('delete_user');
+      if (deleteError) throw deleteError;
+
       navigate('/login');
       
       toast({
         title: "Hesap silindi",
-        description: "Hesabınız başarıyla silindi.",
+        description: "Hesabınız ve tüm verileriniz başarıyla silindi.",
       });
     } catch (error) {
       console.error('Error deleting account:', error);
