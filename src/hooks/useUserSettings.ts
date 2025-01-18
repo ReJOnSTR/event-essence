@@ -92,13 +92,16 @@ export const useUserSettings = () => {
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['userSettings'],
     queryFn: async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('User not authenticated');
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        throw new Error('User not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .eq('user_id', userData.user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {
@@ -111,7 +114,7 @@ export const useUserSettings = () => {
         const { data: newSettings, error: insertError } = await supabase
           .from('user_settings')
           .insert({
-            user_id: userData.user.id,
+            user_id: user.id,
             ...DEFAULT_SETTINGS
           })
           .select()
@@ -142,8 +145,11 @@ export const useUserSettings = () => {
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<UserSettings>) => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('User not authenticated');
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        throw new Error('User not authenticated');
+      }
 
       // Convert the settings to the database format
       const dbSettings: Partial<DatabaseUserSettings> = {
@@ -155,7 +161,7 @@ export const useUserSettings = () => {
       const { data, error } = await supabase
         .from('user_settings')
         .update(dbSettings)
-        .eq('user_id', userData.user.id)
+        .eq('user_id', user.id)
         .select()
         .maybeSingle();
 
