@@ -39,19 +39,23 @@ interface UserSettings {
   updated_at?: string;
 }
 
-interface DatabaseUserSettings {
-  id: string;
-  user_id: string;
-  default_lesson_duration: number;
-  working_hours: Json;
-  holidays: Json;
-  allow_work_on_holidays: boolean;
-  theme: string;
-  font_size: string;
-  font_family: string;
-  created_at?: string;
-  updated_at?: string;
-}
+const DEFAULT_SETTINGS = {
+  default_lesson_duration: 60,
+  working_hours: {
+    monday: { start: "09:00", end: "17:00", enabled: true },
+    tuesday: { start: "09:00", end: "17:00", enabled: true },
+    wednesday: { start: "09:00", end: "17:00", enabled: true },
+    thursday: { start: "09:00", end: "17:00", enabled: true },
+    friday: { start: "09:00", end: "17:00", enabled: true },
+    saturday: { start: "09:00", end: "17:00", enabled: false },
+    sunday: { start: "09:00", end: "17:00", enabled: false }
+  },
+  holidays: [],
+  allow_work_on_holidays: true,
+  theme: 'light',
+  font_size: 'medium',
+  font_family: 'system'
+};
 
 export const useUserSettings = () => {
   const { toast } = useToast();
@@ -87,22 +91,27 @@ export const useUserSettings = () => {
         throw error;
       }
 
+      // If no settings exist, create default settings
       if (!data) {
-        throw new Error('No settings found for user');
+        const { data: newSettings, error: insertError } = await supabase
+          .from('user_settings')
+          .insert({
+            user_id: userData.user.id,
+            ...DEFAULT_SETTINGS
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating default settings:', insertError);
+          throw insertError;
+        }
+
+        return newSettings as UserSettings;
       }
 
-      const dbSettings = data as DatabaseUserSettings;
-      
-      const userSettings: UserSettings = {
-        ...dbSettings,
-        working_hours: dbSettings.working_hours as unknown as WeeklyWorkingHours,
-        holidays: dbSettings.holidays as unknown as Holiday[]
-      };
-
-      return userSettings;
+      return data as UserSettings;
     },
-    staleTime: 1000 * 60, // 1 minute
-    gcTime: 1000 * 60 * 5, // 5 minutes (eski cacheTime)
     retry: false
   });
 
@@ -111,15 +120,9 @@ export const useUserSettings = () => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('User not authenticated');
 
-      const dbSettings: Partial<DatabaseUserSettings> = {
-        ...newSettings,
-        working_hours: newSettings.working_hours as unknown as Json,
-        holidays: newSettings.holidays as unknown as Json
-      };
-
       const { data, error } = await supabase
         .from('user_settings')
-        .update(dbSettings)
+        .update(newSettings)
         .eq('user_id', userData.user.id)
         .select()
         .single();
