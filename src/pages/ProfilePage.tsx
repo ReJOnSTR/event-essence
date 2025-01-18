@@ -33,7 +33,6 @@ const ProfilePage = () => {
         throw new Error("Kullanıcı bulunamadı");
       }
 
-      // Set email from auth user
       setProfile(prev => ({ ...prev, email: user.email || "" }));
 
       const { data, error } = await supabase
@@ -51,12 +50,6 @@ const ProfilePage = () => {
           phoneNumber: data.phone_number || "",
           teachingSubjects: Array.isArray(data.teaching_subjects) ? data.teaching_subjects : [],
         }));
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Hata",
-          description: "Profil bilgileri bulunamadı.",
-        });
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -108,16 +101,20 @@ const ProfilePage = () => {
     try {
       setLoading(true);
       
-      // First sign out the user - this will clear the session
-      const { error: signOutError } = await supabase.auth.signOut();
-      if (signOutError) throw signOutError;
-
-      // Then call the delete_user RPC function
+      // Call the delete_user RPC function
       const { error: rpcError } = await supabase.rpc('delete_user');
       if (rpcError) throw rpcError;
 
+      // Force sign out after successful deletion
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
+
+      // Clear any local storage or session data
+      localStorage.clear();
+      sessionStorage.clear();
+
       // Navigate to login page
-      navigate('/login');
+      navigate('/login', { replace: true });
       
       toast({
         title: "Hesap silindi",
