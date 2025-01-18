@@ -108,10 +108,18 @@ const ProfilePage = () => {
     try {
       setLoading(true);
       
-      // Delete auth account
-      const { error: authError } = await supabase.auth.admin.deleteUser(
-        (await supabase.auth.getUser()).data.user?.id || ''
-      );
+      // Delete user's profile data first
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', (await supabase.auth.getUser()).data.user?.id);
+
+      if (profileError) throw profileError;
+
+      // Delete the user's auth account using standard API
+      const { error: authError } = await supabase.auth.updateUser({
+        data: { deleted: true }
+      });
 
       if (authError) throw authError;
 
