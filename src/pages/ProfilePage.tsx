@@ -36,7 +36,7 @@ const ProfilePage = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -45,6 +45,13 @@ const ProfilePage = () => {
           fullName: data.full_name || "",
           phoneNumber: data.phone_number || "",
           teachingSubjects: data.teaching_subjects || [],
+        });
+      } else {
+        // Handle case where profile doesn't exist
+        toast({
+          variant: "destructive",
+          title: "Hata",
+          description: "Profil bilgileri bulunamadı.",
         });
       }
     } catch (error) {
