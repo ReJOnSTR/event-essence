@@ -101,19 +101,16 @@ const ProfilePage = () => {
     try {
       setLoading(true);
       
-      // Call the delete_user RPC function
-      const { error: rpcError } = await supabase.rpc('delete_user');
-      if (rpcError) throw rpcError;
-
-      // Force sign out after successful deletion
-      const { error: signOutError } = await supabase.auth.signOut();
-      if (signOutError) throw signOutError;
-
-      // Clear any local storage or session data
+      // First, clear any local storage or session data
       localStorage.clear();
       sessionStorage.clear();
 
-      // Navigate to login page
+      // Then call the delete_user RPC function
+      const { error: rpcError } = await supabase.rpc('delete_user');
+      if (rpcError) throw rpcError;
+
+      // Finally, sign out and navigate
+      await supabase.auth.signOut();
       navigate('/login', { replace: true });
       
       toast({
