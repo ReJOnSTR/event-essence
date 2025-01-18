@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { User, UserX, Save, Phone } from "lucide-react";
+import { User, UserX, Save, Phone, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SubjectSelect } from "@/components/Auth/SubjectSelect";
 import { InputField } from "@/components/Auth/FormFields/InputField";
@@ -17,6 +17,7 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState({
     fullName: "",
     phoneNumber: "",
+    email: "",
     teachingSubjects: [] as string[],
   });
 
@@ -32,6 +33,9 @@ const ProfilePage = () => {
         throw new Error("Kullanıcı bulunamadı");
       }
 
+      // Set email from auth user
+      setProfile(prev => ({ ...prev, email: user.email || "" }));
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -41,13 +45,13 @@ const ProfilePage = () => {
       if (error) throw error;
 
       if (data) {
-        setProfile({
+        setProfile(prev => ({
+          ...prev,
           fullName: data.full_name || "",
           phoneNumber: data.phone_number || "",
-          teachingSubjects: data.teaching_subjects || [],
-        });
+          teachingSubjects: Array.isArray(data.teaching_subjects) ? data.teaching_subjects : [],
+        }));
       } else {
-        // Handle case where profile doesn't exist
         toast({
           variant: "destructive",
           title: "Hata",
@@ -104,18 +108,15 @@ const ProfilePage = () => {
     try {
       setLoading(true);
       
-      // First delete the profile data
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', (await supabase.auth.getUser()).data.user?.id);
+      // Delete auth account
+      const { error: authError } = await supabase.auth.admin.deleteUser(
+        (await supabase.auth.getUser()).data.user?.id || ''
+      );
 
-      if (profileError) throw profileError;
+      if (authError) throw authError;
 
-      // Then sign out the user
-      const { error: signOutError } = await supabase.auth.signOut();
-      if (signOutError) throw signOutError;
-
+      // Sign out after deletion
+      await supabase.auth.signOut();
       navigate('/login');
       
       toast({
@@ -152,6 +153,15 @@ const ProfilePage = () => {
               onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
               placeholder="Ad Soyad"
               icon={<User className="h-4 w-4" />}
+            />
+
+            <InputField
+              id="email"
+              label="Email"
+              value={profile.email}
+              readOnly
+              placeholder="Email"
+              icon={<Mail className="h-4 w-4" />}
             />
 
             <InputField
