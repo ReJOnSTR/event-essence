@@ -1,11 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { InputField } from "@/components/Auth/FormFields/InputField";
 import { useToast } from "@/components/ui/use-toast";
 import { Mail, Lock } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Separator } from "@/components/ui/separator";
 
@@ -17,11 +15,16 @@ const getErrorMessage = (error: AuthError) => {
   if (error instanceof AuthApiError) {
     switch (error.status) {
       case 400:
+        if (error.message.includes("Invalid login credentials")) {
+          return 'Email veya şifre hatalı';
+        }
         return 'Geçersiz email veya şifre';
       case 422:
         return 'Email adresinizi doğrulamanız gerekiyor';
       case 401:
         return 'Giriş bilgileri hatalı';
+      case 403:
+        return 'Oturum süresi dolmuş. Lütfen tekrar giriş yapın.';
       default:
         return error.message;
     }
@@ -37,6 +40,17 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
     password: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Check and clear invalid session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error?.status === 403 || (session && !session.user)) {
+        await supabase.auth.signOut();
+      }
+    };
+    checkSession();
+  }, []);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -79,7 +93,7 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
         toast({
           variant: "destructive",
           title: "Google ile giriş başarısız",
-          description: error.message
+          description: getErrorMessage(error)
         });
       }
     } catch (error) {
@@ -102,6 +116,9 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
     setLoading(true);
 
     try {
+      // First ensure no existing invalid session
+      await supabase.auth.signOut();
+
       const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
@@ -130,43 +147,31 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email Adresi</Label>
-        <div className="relative">
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="ornek@email.com"
-            value={formData.email}
-            onChange={handleInputChange}
-            className={cn("pl-10", errors.email && "border-destructive")}
-          />
-          <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-        </div>
-        {errors.email && (
-          <p className="text-sm text-destructive">{errors.email}</p>
-        )}
-      </div>
+      <InputField
+        id="email"
+        name="email"
+        type="email"
+        label="Email Adresi"
+        placeholder="ornek@email.com"
+        value={formData.email}
+        onChange={handleInputChange}
+        error={errors.email}
+        icon={<Mail />}
+        required
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Şifre</Label>
-        <div className="relative">
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleInputChange}
-            className={cn("pl-10", errors.password && "border-destructive")}
-          />
-          <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-        </div>
-        {errors.password && (
-          <p className="text-sm text-destructive">{errors.password}</p>
-        )}
-      </div>
+      <InputField
+        id="password"
+        name="password"
+        type="password"
+        label="Şifre"
+        placeholder="••••••••"
+        value={formData.password}
+        onChange={handleInputChange}
+        error={errors.password}
+        icon={<Lock />}
+        required
+      />
 
       <Button 
         type="submit" 
