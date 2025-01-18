@@ -112,30 +112,13 @@ const ProfilePage = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Kullanıcı bulunamadı");
 
-      // Delete user's data from all tables
-      const deletions = await Promise.all([
-        // Delete profile
-        supabase.from('profiles').delete().eq('id', user.id),
-        // Delete user settings
-        supabase.from('user_settings').delete().eq('user_id', user.id),
-        // Delete user's students
-        supabase.from('students').delete().eq('user_id', user.id),
-        // Delete user's lessons
-        supabase.from('lessons').delete().eq('user_id', user.id),
-      ]);
+      // Call the delete_user RPC function
+      const { error: rpcError } = await supabase.rpc('delete_user');
+      if (rpcError) throw rpcError;
 
-      // Check for any deletion errors
-      for (const { error } of deletions) {
-        if (error) throw error;
-      }
-
-      // Delete the auth account
+      // Sign out the user
       const { error: signOutError } = await supabase.auth.signOut();
       if (signOutError) throw signOutError;
-
-      // Delete the user's auth account using RPC
-      const { error: deleteError } = await supabase.rpc('delete_user');
-      if (deleteError) throw deleteError;
 
       navigate('/login');
       
