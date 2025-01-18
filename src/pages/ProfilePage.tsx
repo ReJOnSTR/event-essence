@@ -108,18 +108,15 @@ const ProfilePage = () => {
     try {
       setLoading(true);
       
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Kullanıcı bulunamadı");
-
-      // Call the delete_user RPC function
-      const { error: rpcError } = await supabase.rpc('delete_user');
-      if (rpcError) throw rpcError;
-
-      // Sign out the user
+      // First sign out the user - this will clear the session
       const { error: signOutError } = await supabase.auth.signOut();
       if (signOutError) throw signOutError;
 
+      // Then call the delete_user RPC function
+      const { error: rpcError } = await supabase.rpc('delete_user');
+      if (rpcError) throw rpcError;
+
+      // Navigate to login page
       navigate('/login');
       
       toast({
