@@ -39,6 +39,21 @@ interface UserSettings {
   updated_at?: string;
 }
 
+// Database type that matches exactly what Supabase returns
+interface DatabaseUserSettings {
+  id: string;
+  user_id: string;
+  default_lesson_duration: number;
+  working_hours: Json;
+  holidays: Json;
+  allow_work_on_holidays: boolean;
+  theme: string;
+  font_size: string;
+  font_family: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 const DEFAULT_SETTINGS = {
   default_lesson_duration: 60,
   working_hours: {
@@ -100,17 +115,27 @@ export const useUserSettings = () => {
             ...DEFAULT_SETTINGS
           })
           .select()
-          .single();
+          .maybeSingle();
 
         if (insertError) {
           console.error('Error creating default settings:', insertError);
           throw insertError;
         }
 
-        return newSettings as UserSettings;
+        const typedSettings = newSettings as DatabaseUserSettings;
+        return {
+          ...typedSettings,
+          working_hours: typedSettings.working_hours as unknown as WeeklyWorkingHours,
+          holidays: typedSettings.holidays as unknown as Holiday[]
+        } as UserSettings;
       }
 
-      return data as UserSettings;
+      const typedSettings = data as DatabaseUserSettings;
+      return {
+        ...typedSettings,
+        working_hours: typedSettings.working_hours as unknown as WeeklyWorkingHours,
+        holidays: typedSettings.holidays as unknown as Holiday[]
+      } as UserSettings;
     },
     retry: false
   });
@@ -120,19 +145,31 @@ export const useUserSettings = () => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('User not authenticated');
 
+      // Convert the settings to the database format
+      const dbSettings: Partial<DatabaseUserSettings> = {
+        ...newSettings,
+        working_hours: newSettings.working_hours as unknown as Json,
+        holidays: newSettings.holidays as unknown as Json
+      };
+
       const { data, error } = await supabase
         .from('user_settings')
-        .update(newSettings)
+        .update(dbSettings)
         .eq('user_id', userData.user.id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error updating user settings:', error);
         throw error;
       }
 
-      return data;
+      const typedSettings = data as DatabaseUserSettings;
+      return {
+        ...typedSettings,
+        working_hours: typedSettings.working_hours as unknown as WeeklyWorkingHours,
+        holidays: typedSettings.holidays as unknown as Holiday[]
+      } as UserSettings;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userSettings'] });
