@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -133,7 +133,7 @@ const ProfilePage = () => {
       const { error: signOutError } = await supabase.auth.signOut();
       if (signOutError) throw signOutError;
 
-      // Delete the user's auth account
+      // Delete the user's auth account using RPC
       const { error: deleteError } = await supabase.rpc('delete_user');
       if (deleteError) throw deleteError;
 
