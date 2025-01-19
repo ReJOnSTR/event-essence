@@ -17,7 +17,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 
 interface Profile {
   full_name: string | null;
@@ -35,13 +34,21 @@ export default function ProfilePage() {
   const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
+    checkSession();
     fetchProfile();
   }, []);
 
+  const checkSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate('/login', { replace: true });
+      return;
+    }
+  };
+
   const fetchProfile = async () => {
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate('/login', { replace: true });
         return;
@@ -71,8 +78,7 @@ export default function ProfilePage() {
 
     try {
       setLoading(true);
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate('/login', { replace: true });
         return;
@@ -111,19 +117,21 @@ export default function ProfilePage() {
   const handleDeleteAccount = async () => {
     try {
       setLoading(true);
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate('/login', { replace: true });
         return;
       }
 
-      const { error: rpcError } = await supabase.rpc('delete_user');
-      if (rpcError) throw rpcError;
-
+      // First clear local storage and session
       localStorage.clear();
       sessionStorage.clear();
 
+      // Then delete the user data
+      const { error: rpcError } = await supabase.rpc('delete_user');
+      if (rpcError) throw rpcError;
+
+      // Finally sign out locally and navigate
       await supabase.auth.signOut({ scope: 'local' });
       navigate('/login', { replace: true });
       
