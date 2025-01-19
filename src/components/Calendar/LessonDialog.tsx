@@ -158,7 +158,7 @@ export default function LessonDialog({
                 <SelectValue placeholder="Öğrenci seçin" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Öğrenci seçin</SelectItem>
+                <SelectItem value="_none">Öğrenci seçin</SelectItem>
                 {students.map((student) => (
                   <SelectItem key={student.id} value={student.id}>
                     {student.name}
@@ -193,8 +193,8 @@ export default function LessonDialog({
           <div className="space-y-2">
             <Label>Tekrar</Label>
             <RecurrenceSettings
-              value={recurrencePattern}
-              onChange={setRecurrencePattern}
+              recurrencePattern={recurrencePattern}
+              onRecurrenceChange={setRecurrencePattern}
               startDate={selectedDate}
             />
           </div>

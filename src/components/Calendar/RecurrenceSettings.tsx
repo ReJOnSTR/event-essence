@@ -31,9 +31,9 @@ export default function RecurrenceSettings({
   };
 
   const handleIntervalChange = (value: string) => {
-    if (!value) return;
+    if (!value || !recurrencePattern) return;
     onRecurrenceChange({
-      ...recurrencePattern!,
+      ...recurrencePattern,
       interval: parseInt(value),
     });
   };
