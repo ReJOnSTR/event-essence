@@ -1,142 +1,120 @@
-import React from 'react';
-import { RecurrencePattern } from '@/types/calendar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Checkbox } from '@/components/ui/checkbox';
-import { addDays } from 'date-fns';
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
+import { RecurrencePattern } from "@/types/calendar";
 
 interface RecurrenceSettingsProps {
-  value: RecurrencePattern | undefined;
-  onChange: (pattern: RecurrencePattern | undefined) => void;
+  recurrencePattern: RecurrencePattern | undefined;
+  onRecurrenceChange: (pattern: RecurrencePattern | undefined) => void;
   startDate: Date;
 }
 
-const WEEKDAYS = [
-  { label: 'Pazartesi', value: 1 },
-  { label: 'Salı', value: 2 },
-  { label: 'Çarşamba', value: 3 },
-  { label: 'Perşembe', value: 4 },
-  { label: 'Cuma', value: 5 },
-  { label: 'Cumartesi', value: 6 },
-  { label: 'Pazar', value: 0 },
-];
+export default function RecurrenceSettings({ 
+  recurrencePattern, 
+  onRecurrenceChange,
+  startDate 
+}: RecurrenceSettingsProps) {
+  const [endType, setEndType] = useState<"never" | "date" | "occurrences">(
+    recurrencePattern?.endDate ? "date" : 
+    recurrencePattern?.count ? "occurrences" : 
+    "never"
+  );
 
-export default function RecurrenceSettings({ value, onChange, startDate }: RecurrenceSettingsProps) {
-  const handleFrequencyChange = (frequency: string) => {
-    if (!frequency) {
-      onChange(undefined);
-      return;
-    }
-
-    onChange({
-      frequency: frequency as RecurrencePattern['frequency'],
-      interval: 1,
-      daysOfWeek: frequency === 'weekly' ? [startDate.getDay()] : undefined,
+  const handleFrequencyChange = (value: string) => {
+    if (!value) return;
+    onRecurrenceChange({
+      frequency: value as "daily" | "weekly" | "monthly",
+      interval: recurrencePattern?.interval || 1,
+      endDate: recurrencePattern?.endDate,
+      count: recurrencePattern?.count,
     });
   };
 
-  const handleIntervalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleIntervalChange = (value: string) => {
     if (!value) return;
-    onChange({
-      ...value,
-      interval: Math.max(1, parseInt(event.target.value) || 1),
+    onRecurrenceChange({
+      ...recurrencePattern!,
+      interval: parseInt(value),
     });
   };
 
   const handleEndDateChange = (date: Date | undefined) => {
-    if (!value) return;
-    onChange({
-      ...value,
+    if (!recurrencePattern || !date) return;
+    onRecurrenceChange({
+      ...recurrencePattern,
       endDate: date,
+      count: undefined,
     });
   };
 
-  const handleDayToggle = (day: number) => {
-    if (!value) return;
-    const currentDays = value.daysOfWeek || [];
-    const newDays = currentDays.includes(day)
-      ? currentDays.filter(d => d !== day)
-      : [...currentDays, day].sort();
+  const handleEndTypeChange = (value: "never" | "date" | "occurrences") => {
+    setEndType(value);
+    if (!recurrencePattern) return;
 
-    onChange({
-      ...value,
-      daysOfWeek: newDays,
-    });
+    if (value === "never") {
+      onRecurrenceChange({
+        ...recurrencePattern,
+        endDate: undefined,
+        count: undefined,
+      });
+    }
   };
 
   return (
-    <div className="space-y-4 py-2">
-      <div className="space-y-2">
-        <Label>Tekrar Sıklığı</Label>
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
         <Select
-          value={value?.frequency || ''}
+          value={recurrencePattern?.frequency || "daily"}
           onValueChange={handleFrequencyChange}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Tekrar etmez" />
+            <SelectValue placeholder="Tekrar sıklığı" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tekrar etmez</SelectItem>
             <SelectItem value="daily">Günlük</SelectItem>
             <SelectItem value="weekly">Haftalık</SelectItem>
             <SelectItem value="monthly">Aylık</SelectItem>
           </SelectContent>
         </Select>
+
+        <Select
+          value={String(recurrencePattern?.interval || 1)}
+          onValueChange={handleIntervalChange}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Tekrar aralığı" />
+          </SelectTrigger>
+          <SelectContent>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+              <SelectItem key={num} value={String(num)}>
+                {num}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {value && (
-        <>
-          <div className="space-y-2">
-            <Label>Tekrar Aralığı</Label>
-            <Input
-              type="number"
-              min="1"
-              value={value.interval}
-              onChange={handleIntervalChange}
-            />
-            <span className="text-sm text-muted-foreground">
-              {value.frequency === 'daily' && 'gün'}
-              {value.frequency === 'weekly' && 'hafta'}
-              {value.frequency === 'monthly' && 'ay'}
-            </span>
-          </div>
+      <div className="space-y-2">
+        <Select value={endType} onValueChange={handleEndTypeChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Bitiş" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="never">Asla</SelectItem>
+            <SelectItem value="date">Tarihte</SelectItem>
+            <SelectItem value="occurrences">Tekrar sayısında</SelectItem>
+          </SelectContent>
+        </Select>
 
-          {value.frequency === 'weekly' && (
-            <div className="space-y-2">
-              <Label>Tekrar Günleri</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {WEEKDAYS.map((day) => (
-                  <div key={day.value} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`day-${day.value}`}
-                      checked={(value.daysOfWeek || []).includes(day.value)}
-                      onCheckedChange={() => handleDayToggle(day.value)}
-                    />
-                    <label
-                      htmlFor={`day-${day.value}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {day.label}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Label>Bitiş Tarihi</Label>
-            <DatePicker
-              date={value.endDate}
-              onSelect={handleEndDateChange}
-              placeholder="Seçiniz"
-              fromDate={addDays(startDate, 1)}
-            />
-          </div>
-        </>
-      )}
+        {endType === "date" && (
+          <DatePicker
+            date={recurrencePattern?.endDate}
+            onSelect={handleEndDateChange}
+            placeholder="Bitiş tarihi seçin"
+            fromDate={startDate}
+          />
+        )}
+      </div>
     </div>
   );
 }
