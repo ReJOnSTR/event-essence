@@ -12,6 +12,8 @@ export interface Lesson {
   start: Date;
   end: Date;
   studentId?: string;
+  recurrencePattern?: RecurrencePattern;
+  parentLessonId?: string;
 }
 
 export interface DayCell {
@@ -48,4 +50,12 @@ export interface WeeklyWorkingHours {
   friday: WorkingHours;
   saturday: WorkingHours;
   sunday: WorkingHours;
+}
+
+export interface RecurrencePattern {
+  frequency: 'daily' | 'weekly' | 'monthly';
+  interval: number;
+  endDate?: Date;
+  daysOfWeek?: number[];
+  count?: number;
 }
