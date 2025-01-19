@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,22 +29,13 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
-    checkSession();
     fetchProfile();
   }, []);
-
-  const checkSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate('/login', { replace: true });
-      return;
-    }
-  };
 
   const fetchProfile = async () => {
     try {
@@ -61,6 +52,7 @@ export default function ProfilePage() {
         .single();
 
       if (error) throw error;
+
       setProfile(data);
       setEditedProfile(data);
     } catch (error) {
@@ -74,8 +66,6 @@ export default function ProfilePage() {
   };
 
   const handleSaveProfile = async () => {
-    if (!editedProfile) return;
-
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
@@ -86,12 +76,7 @@ export default function ProfilePage() {
 
       const { error } = await supabase
         .from('profiles')
-        .update({
-          full_name: editedProfile.full_name,
-          phone_number: editedProfile.phone_number,
-          teaching_subjects: editedProfile.teaching_subjects,
-          years_of_experience: editedProfile.years_of_experience
-        })
+        .update(editedProfile)
         .eq('id', session.user.id);
 
       if (error) throw error;
@@ -117,26 +102,30 @@ export default function ProfilePage() {
   const handleDeleteAccount = async () => {
     try {
       setLoading(true);
+      
+      // First check if we have a valid session
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate('/login', { replace: true });
         return;
       }
 
-      // First clear local storage and session
-      localStorage.clear();
-      sessionStorage.clear();
-
-      // Then delete the user data
+      // Delete user data using RPC function
       const { error: rpcError } = await supabase.rpc('delete_user');
       if (rpcError) throw rpcError;
 
-      // Finally sign out locally and navigate
-      await supabase.auth.signOut({ scope: 'local' });
+      // Clear all local storage and session data
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Sign out the user
+      await supabase.auth.signOut();
+
+      // Navigate to login page
       navigate('/login', { replace: true });
-      
+
       toast({
-        title: "Hesap silindi",
+        title: "Hesap Silindi",
         description: "Hesabınız başarıyla silindi.",
       });
     } catch (error) {
@@ -144,7 +133,7 @@ export default function ProfilePage() {
       toast({
         variant: "destructive",
         title: "Hata",
-        description: "Hesap silinirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+        description: "Hesap silinirken bir hata oluştu.",
       });
     } finally {
       setLoading(false);
@@ -271,4 +260,4 @@ export default function ProfilePage() {
       </Card>
     </div>
   );
-}
+};
