@@ -2,16 +2,15 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import LessonCard from "./LessonCard";
-import StaticLessonCard from "./StaticLessonCard";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
-import { getDefaultLessonDuration } from "@/utils/settings";
-import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
+import { useMobileDragDrop } from "@/hooks/useMobileDragDrop";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface DayViewProps {
   date: Date;
@@ -35,6 +34,8 @@ export default function DayView({
   const holiday = isHoliday(date);
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
   
+  const { draggedEvent, handleTouchStart, handleTouchEnd } = useMobileDragDrop(onEventUpdate);
+  
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
 
@@ -52,6 +53,11 @@ export default function DayView({
   const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i);
 
   const handleHourClick = (hour: number, minute: number) => {
+    if (draggedEvent) {
+      handleTouchEnd(hour, minute);
+      return;
+    }
+
     const eventDate = new Date(date);
     eventDate.setHours(hour, minute);
     
@@ -109,7 +115,6 @@ export default function DayView({
     const newStart = setMinutes(setHours(date, hour), minute);
     const newEnd = new Date(newStart.getTime() + duration * 60000);
 
-    // Çakışma kontrolü
     const hasConflict = checkLessonConflict(
       { start: newStart, end: newEnd },
       events,
@@ -187,6 +192,7 @@ export default function DayView({
                     className={cn(
                       "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
                       snapshot.isDraggingOver && "bg-accent",
+                      draggedEvent && "bg-accent/50",
                       (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
                       "bg-muted cursor-not-allowed"
                     )}
@@ -201,6 +207,7 @@ export default function DayView({
                           onClick={onEventClick}
                           students={students}
                           index={index}
+                          onTouchStart={(e) => handleTouchStart(event, e)}
                         />
                       ))}
                     {provided.placeholder}

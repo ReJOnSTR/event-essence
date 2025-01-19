@@ -10,6 +10,7 @@ interface EventCardProps {
   students?: Student[];
   index: number;
   isDraggable?: boolean;
+  onTouchStart?: (e: React.TouchEvent) => void;
 }
 
 export default function LessonCard({ 
@@ -17,11 +18,12 @@ export default function LessonCard({
   onClick, 
   students, 
   index,
-  isDraggable = true 
+  isDraggable = true,
+  onTouchStart 
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
   const durationInMinutes = differenceInMinutes(event.end, event.start);
-  const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40); // Minimum height of 40px
+  const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40);
   const student = students?.find(s => s.id === event.studentId);
   const isCompact = heightInPixels <= 40;
 
@@ -39,13 +41,20 @@ export default function LessonCard({
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (onTouchStart) {
+      e.stopPropagation();
+      onTouchStart(e);
+    }
+  };
+
   const content = (provided?: any, snapshot?: any) => (
     <div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm",
+        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm touch-none",
         snapshot?.isDragging ? "shadow-lg opacity-70" : "",
         isCompact ? "flex items-center justify-between gap-1" : ""
       )}
@@ -54,6 +63,7 @@ export default function LessonCard({
         ...(provided?.draggableProps?.style || {}),
       }}
       onClick={handleClick}
+      onTouchStart={handleTouchStart}
     >
       {isCompact ? (
         <>
