@@ -5,8 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Checkbox } from '@/components/ui/checkbox';
-import { addDays, format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { addDays } from 'date-fns';
 
 interface RecurrenceSettingsProps {
   value: RecurrencePattern | undefined;

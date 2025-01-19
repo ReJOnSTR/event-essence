@@ -59,3 +59,12 @@ export interface RecurrencePattern {
   daysOfWeek?: number[];
   count?: number;
 }
+
+// Helper type for database operations
+export type RecurrencePatternDB = {
+  frequency: 'daily' | 'weekly' | 'monthly';
+  interval: number;
+  endDate?: string;
+  daysOfWeek?: number[];
+  count?: number;
+}
