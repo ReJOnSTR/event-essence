@@ -15,6 +15,8 @@ export type Database = {
           description: string | null
           end_time: string
           id: string
+          parent_lesson_id: string | null
+          recurrence_pattern: Json | null
           start_time: string
           status: Database["public"]["Enums"]["lesson_status"] | null
           student_id: string | null
@@ -27,6 +29,8 @@ export type Database = {
           description?: string | null
           end_time: string
           id?: string
+          parent_lesson_id?: string | null
+          recurrence_pattern?: Json | null
           start_time: string
           status?: Database["public"]["Enums"]["lesson_status"] | null
           student_id?: string | null
@@ -39,6 +43,8 @@ export type Database = {
           description?: string | null
           end_time?: string
           id?: string
+          parent_lesson_id?: string | null
+          recurrence_pattern?: Json | null
           start_time?: string
           status?: Database["public"]["Enums"]["lesson_status"] | null
           student_id?: string | null
@@ -47,6 +53,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "lessons_parent_lesson_id_fkey"
+            columns: ["parent_lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "lessons_student_id_fkey"
             columns: ["student_id"]
