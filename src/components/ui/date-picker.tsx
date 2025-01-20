@@ -16,19 +16,11 @@ import {
 
 interface DatePickerProps {
   date?: Date
-  onSelect?: (date: Date | undefined) => void
+  setDate: (date: Date) => void
   placeholder?: string
-  fromDate?: Date
-  disabled?: (date: Date) => boolean
 }
 
-export function DatePicker({ 
-  date, 
-  onSelect, 
-  placeholder = "Tarih seçin", 
-  fromDate,
-  disabled 
-}: DatePickerProps) {
+export function DatePicker({ date, setDate, placeholder = "Tarih seçin" }: DatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -47,11 +39,9 @@ export function DatePicker({
         <Calendar
           mode="single"
           selected={date}
-          onSelect={onSelect}
+          onSelect={(date) => date && setDate(date)}
           initialFocus
           locale={tr}
-          fromDate={fromDate}
-          disabled={disabled}
         />
       </PopoverContent>
     </Popover>
