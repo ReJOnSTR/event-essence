@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual } from "date-fns";
+import { format, isWithinInterval, isEqual, addDays, addWeeks, addMonths } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { motion } from "framer-motion";
@@ -33,6 +33,10 @@ export default function LessonDialog({
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [recurrenceType, setRecurrenceType] = useState<"none" | "daily" | "weekly" | "monthly">("none");
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | null>(null);
+  const [recurrenceInterval, setRecurrenceInterval] = useState(1);
+  
   const { toast } = useToast();
   const { settings } = useUserSettings();
 
@@ -43,6 +47,9 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
+        setRecurrenceType(event.recurrenceType || "none");
+        setRecurrenceEndDate(event.recurrenceEndDate || null);
+        setRecurrenceInterval(event.recurrenceInterval || 1);
       } else {
         const workingHours = settings?.working_hours;
         const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -75,6 +82,9 @@ export default function LessonDialog({
         setEndTime(format(endDate, 'HH:mm'));
         setDescription("");
         setSelectedStudentId("");
+        setRecurrenceType("none");
+        setRecurrenceEndDate(null);
+        setRecurrenceInterval(1);
       }
     }
   }, [isOpen, selectedDate, event, settings]);
@@ -109,6 +119,44 @@ export default function LessonDialog({
     });
   };
 
+  const createRecurringLessons = (baseStart: Date, baseEnd: Date) => {
+    const lessons: Omit<Lesson, "id">[] = [];
+    let currentStart = baseStart;
+    let currentEnd = baseEnd;
+
+    while (recurrenceEndDate && currentStart <= recurrenceEndDate) {
+      if (!checkLessonOverlap(currentStart, currentEnd)) {
+        lessons.push({
+          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
+          description,
+          start: currentStart,
+          end: currentEnd,
+          studentId: selectedStudentId,
+          recurrenceType,
+          recurrenceEndDate,
+          recurrenceInterval
+        });
+      }
+
+      switch (recurrenceType) {
+        case "daily":
+          currentStart = addDays(currentStart, recurrenceInterval);
+          currentEnd = addDays(currentEnd, recurrenceInterval);
+          break;
+        case "weekly":
+          currentStart = addWeeks(currentStart, recurrenceInterval);
+          currentEnd = addWeeks(currentEnd, recurrenceInterval);
+          break;
+        case "monthly":
+          currentStart = addMonths(currentStart, recurrenceInterval);
+          currentEnd = addMonths(currentEnd, recurrenceInterval);
+          break;
+      }
+    }
+
+    return lessons;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -141,13 +189,23 @@ export default function LessonDialog({
     
     const student = students.find(s => s.id === selectedStudentId);
     
-    onSave({
-      title: student ? `${student.name} Dersi` : "Ders",
-      description,
-      start,
-      end,
-      studentId: selectedStudentId,
-    });
+    if (recurrenceType !== "none" && recurrenceEndDate) {
+      const recurringLessons = createRecurringLessons(start, end);
+      recurringLessons.forEach(lesson => onSave(lesson));
+    } else {
+      onSave({
+        title: student ? `${student.name} Dersi` : "Ders",
+        description,
+        start,
+        end,
+        studentId: selectedStudentId,
+        recurrenceType,
+        recurrenceEndDate,
+        recurrenceInterval
+      });
+    }
+
+    onClose();
   };
 
   return (
@@ -179,6 +237,12 @@ export default function LessonDialog({
             onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
             onClose={onClose}
             onSubmit={handleSubmit}
+            recurrenceType={recurrenceType}
+            recurrenceEndDate={recurrenceEndDate}
+            recurrenceInterval={recurrenceInterval}
+            onRecurrenceTypeChange={setRecurrenceType}
+            onRecurrenceEndDateChange={setRecurrenceEndDate}
+            onRecurrenceIntervalChange={setRecurrenceInterval}
           />
         </motion.div>
       </DialogContent>

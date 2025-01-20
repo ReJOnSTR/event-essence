@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import LessonTimeInputs from "./LessonTimeInputs";
+import RecurrenceSettings from "./RecurrenceSettings";
 
 interface LessonDialogFormProps {
   description: string;
@@ -26,6 +27,12 @@ interface LessonDialogFormProps {
   onDelete?: () => void;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
+  recurrenceType: "none" | "daily" | "weekly" | "monthly";
+  recurrenceEndDate: Date | null;
+  recurrenceInterval: number;
+  onRecurrenceTypeChange: (value: "none" | "daily" | "weekly" | "monthly") => void;
+  onRecurrenceEndDateChange: (date: Date | null) => void;
+  onRecurrenceIntervalChange: (interval: number) => void;
 }
 
 export default function LessonDialogForm({
@@ -41,7 +48,13 @@ export default function LessonDialogForm({
   students,
   onDelete,
   onClose,
-  onSubmit
+  onSubmit,
+  recurrenceType,
+  recurrenceEndDate,
+  recurrenceInterval,
+  onRecurrenceTypeChange,
+  onRecurrenceEndDateChange,
+  onRecurrenceIntervalChange
 }: LessonDialogFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -109,11 +122,26 @@ export default function LessonDialogForm({
           onEndTimeChange={setEndTime}
         />
       </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <RecurrenceSettings
+          recurrenceType={recurrenceType}
+          recurrenceEndDate={recurrenceEndDate}
+          recurrenceInterval={recurrenceInterval}
+          onRecurrenceTypeChange={onRecurrenceTypeChange}
+          onRecurrenceEndDateChange={onRecurrenceEndDateChange}
+          onRecurrenceIntervalChange={onRecurrenceIntervalChange}
+        />
+      </motion.div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.5 }}
         className="flex justify-between"
       >
         {onDelete && (
