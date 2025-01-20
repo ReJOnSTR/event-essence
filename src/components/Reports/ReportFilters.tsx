@@ -94,12 +94,12 @@ export function ReportFilters({
           <>
             <DatePicker
               date={startDate}
-              onSelect={setStartDate}
+              setDate={setStartDate}
               placeholder="Başlangıç Tarihi"
             />
             <DatePicker
               date={endDate}
-              onSelect={setEndDate}
+              setDate={setEndDate}
               placeholder="Bitiş Tarihi"
             />
           </>
@@ -107,7 +107,7 @@ export function ReportFilters({
           <div className="sm:col-span-2">
             <DatePicker
               date={selectedDate}
-              onSelect={(date) => date && setSelectedDate(date)}
+              setDate={setSelectedDate}
             />
           </div>
         )}

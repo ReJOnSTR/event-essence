@@ -1,218 +1,186 @@
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { tr } from "date-fns/locale";
-import { CalendarEvent, Student, RecurrencePattern } from "@/types/calendar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { checkLessonConflict } from "@/utils/lessonConflict";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Lesson, Student } from "@/types/calendar";
+import { format, isWithinInterval, isEqual } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import RecurrenceSettings from "./RecurrenceSettings";
+import { useUserSettings } from "@/hooks/useUserSettings";
+import { motion } from "framer-motion";
+import LessonDialogHeader from "./LessonDialogHeader";
+import LessonDialogForm from "./LessonDialogForm";
 
 interface LessonDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (lesson: Omit<CalendarEvent, "id">) => void;
+  onSave: (lesson: Omit<Lesson, "id">) => void;
   onDelete?: (lessonId: string) => void;
   selectedDate: Date;
-  event?: CalendarEvent;
-  events?: CalendarEvent[];
-  students?: Student[];
+  event?: Lesson;
+  events: Lesson[];
+  students: Student[];
 }
 
-export default function LessonDialog({
-  isOpen,
-  onClose,
-  onSave,
+export default function LessonDialog({ 
+  isOpen, 
+  onClose, 
+  onSave, 
   onDelete,
   selectedDate,
   event,
-  events = [],
-  students = [],
+  events,
+  students
 }: LessonDialogProps) {
-  const [title, setTitle] = useState(event?.title || "");
-  const [description, setDescription] = useState(event?.description || "");
-  const [studentId, setStudentId] = useState(event?.studentId || "_none");
-  const [startTime, setStartTime] = useState(
-    format(event?.start || selectedDate, "HH:mm")
-  );
-  const [endTime, setEndTime] = useState(
-    format(
-      event?.end || new Date(selectedDate.getTime() + 60 * 60 * 1000),
-      "HH:mm"
-    )
-  );
-  const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern | null>(
-    event?.recurrencePattern || null
-  );
-
+  const [description, setDescription] = useState("");
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("10:00");
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const { toast } = useToast();
+  const { settings } = useUserSettings();
 
   useEffect(() => {
-    if (!event) {
-      setTitle("");
-      setDescription("");
-      setStudentId("_none");
-      setStartTime(format(selectedDate, "HH:mm"));
-      setEndTime(
-        format(new Date(selectedDate.getTime() + 60 * 60 * 1000), "HH:mm")
+    if (isOpen) {
+      if (event) {
+        setDescription(event.description || "");
+        setStartTime(format(event.start, "HH:mm"));
+        setEndTime(format(event.end, "HH:mm"));
+        setSelectedStudentId(event.studentId || "");
+      } else {
+        const workingHours = settings?.working_hours;
+        const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
+        const daySettings = workingHours?.[dayOfWeek];
+
+        let initialStartTime;
+        if (daySettings?.enabled) {
+          const [startHour] = daySettings.start.split(':');
+          const currentHours = selectedDate.getHours();
+          const currentMinutes = selectedDate.getMinutes();
+
+          if (currentHours < parseInt(startHour)) {
+            initialStartTime = daySettings.start;
+          } else {
+            initialStartTime = `${currentHours.toString().padStart(2, '0')}:${currentMinutes.toString().padStart(2, '0')}`;
+          }
+        } else {
+          initialStartTime = "09:00";
+        }
+
+        setStartTime(initialStartTime);
+        
+        const [hours, minutes] = initialStartTime.split(':').map(Number);
+        const startDate = new Date(selectedDate);
+        startDate.setHours(hours, minutes, 0, 0);
+        
+        const defaultDuration = settings?.default_lesson_duration || 60;
+        const endDate = new Date(startDate.getTime() + defaultDuration * 60000);
+        
+        setEndTime(format(endDate, 'HH:mm'));
+        setDescription("");
+        setSelectedStudentId("");
+      }
+    }
+  }, [isOpen, selectedDate, event, settings]);
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= 100) {
+      setDescription(value);
+    } else {
+      toast({
+        title: "Karakter Sınırı",
+        description: "Açıklama en fazla 100 karakter olabilir.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const checkLessonOverlap = (start: Date, end: Date) => {
+    return events.some(existingEvent => {
+      if (event && existingEvent.id === event.id) return false;
+      
+      if (isEqual(start, existingEvent.end) || isEqual(end, existingEvent.start)) {
+        return false;
+      }
+
+      return (
+        isWithinInterval(start, { start: existingEvent.start, end: existingEvent.end }) ||
+        isWithinInterval(end, { start: existingEvent.start, end: existingEvent.end }) ||
+        isWithinInterval(existingEvent.start, { start, end }) ||
+        isWithinInterval(existingEvent.end, { start, end })
       );
-      setRecurrencePattern(null);
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedStudentId) {
+      toast({
+        title: "Öğrenci Seçilmedi",
+        description: "Lütfen bir öğrenci seçin.",
+        variant: "destructive"
+      });
+      return;
     }
-  }, [event, selectedDate]);
 
-  const handleSave = () => {
-    const [startHour, startMinute] = startTime.split(":").map(Number);
-    const [endHour, endMinute] = endTime.split(":").map(Number);
-
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const [endHours, endMinutes] = endTime.split(":").map(Number);
+    
     const start = new Date(selectedDate);
-    start.setHours(startHour, startMinute, 0);
-
+    start.setHours(startHours, startMinutes);
+    
     const end = new Date(selectedDate);
-    end.setHours(endHour, endMinute, 0);
+    end.setHours(endHours, endMinutes);
 
-    if (end <= start) {
+    if (checkLessonOverlap(start, end)) {
       toast({
-        title: "Hata",
-        description: "Bitiş saati başlangıç saatinden sonra olmalıdır.",
-        variant: "destructive",
+        title: "Zaman Çakışması",
+        description: "Bu zaman aralığında başka bir ders bulunuyor.",
+        variant: "destructive"
       });
       return;
     }
-
-    const hasConflict = checkLessonConflict(
-      { start, end },
-      events,
-      event?.id
-    );
-
-    if (hasConflict) {
-      toast({
-        title: "Ders çakışması",
-        description: "Seçilen saatte başka bir ders bulunuyor.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    
+    const student = students.find(s => s.id === selectedStudentId);
+    
     onSave({
-      title,
+      title: student ? `${student.name} Dersi` : "Ders",
       description,
       start,
       end,
-      studentId: studentId === "_none" ? null : studentId,
-      recurrencePattern,
+      studentId: selectedStudentId,
     });
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            {event ? "Dersi Düzenle" : "Yeni Ders"}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Başlık</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ders başlığı"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Açıklama</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Ders açıklaması"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Öğrenci</Label>
-            <Select value={studentId} onValueChange={setStudentId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Öğrenci seçin" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="_none">Öğrenci seçin</SelectItem>
-                {students.map((student) => (
-                  <SelectItem key={student.id} value={student.id}>
-                    {student.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startTime">Başlangıç Saati</Label>
-              <Input
-                id="startTime"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endTime">Bitiş Saati</Label>
-              <Input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Tekrar</Label>
-            <RecurrenceSettings
-              recurrencePattern={recurrencePattern}
-              onRecurrenceChange={setRecurrencePattern}
-              startDate={selectedDate}
-            />
-          </div>
-        </div>
-        <DialogFooter className="gap-2">
-          {event && onDelete && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => onDelete(event.id)}
-            >
-              Sil
-            </Button>
-          )}
-          <Button type="button" variant="secondary" onClick={onClose}>
-            İptal
-          </Button>
-          <Button type="button" onClick={handleSave}>
-            Kaydet
-          </Button>
-        </DialogFooter>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px] overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="p-6"
+        >
+          <LessonDialogHeader 
+            isEditing={!!event}
+            selectedDate={selectedDate}
+          />
+          
+          <LessonDialogForm
+            description={description}
+            onDescriptionChange={handleDescriptionChange}
+            startTime={startTime}
+            endTime={endTime}
+            selectedDate={selectedDate}
+            setStartTime={setStartTime}
+            setEndTime={setEndTime}
+            selectedStudentId={selectedStudentId}
+            setSelectedStudentId={setSelectedStudentId}
+            students={students}
+            onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
+            onClose={onClose}
+            onSubmit={handleSubmit}
+          />
+        </motion.div>
       </DialogContent>
     </Dialog>
   );
