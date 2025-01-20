@@ -88,7 +88,7 @@ export default function RecurrenceSettings({
             <DatePicker
               date={recurrencePattern.endDate ? new Date(recurrencePattern.endDate) : undefined}
               onSelect={handleEndDateChange}
-              disabled={(date) => date < startDate}
+              fromDate={startDate}
               placeholder="Bitiş tarihi seçin"
             />
           </div>
