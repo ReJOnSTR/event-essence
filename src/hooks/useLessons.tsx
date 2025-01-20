@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Lesson } from "@/types/calendar";
+import { Lesson, RecurrencePattern, RecurrencePatternDB } from "@/types/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionContext } from '@supabase/auth-helpers-react';
@@ -8,6 +8,14 @@ export function useLessons() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { session, isLoading: isSessionLoading } = useSessionContext();
+
+  const convertRecurrencePattern = (pattern: any): RecurrencePattern | undefined => {
+    if (!pattern) return undefined;
+    return {
+      ...pattern,
+      endDate: pattern.endDate ? new Date(pattern.endDate) : undefined
+    };
+  };
 
   const getLessons = async (): Promise<Lesson[]> => {
     try {
@@ -24,7 +32,9 @@ export function useLessons() {
         description: lesson.description || undefined,
         start: new Date(lesson.start_time),
         end: new Date(lesson.end_time),
-        studentId: lesson.student_id || undefined
+        studentId: lesson.student_id || undefined,
+        recurrencePattern: convertRecurrencePattern(lesson.recurrence_pattern),
+        parentLessonId: lesson.parent_lesson_id || undefined
       }));
     } catch (error) {
       console.error('Error loading lessons:', error);
@@ -35,6 +45,23 @@ export function useLessons() {
       });
       return [];
     }
+  };
+
+  const convertToDBFormat = (lesson: Lesson) => {
+    const dbLesson = {
+      id: lesson.id,
+      title: lesson.title,
+      description: lesson.description,
+      start_time: lesson.start.toISOString(),
+      end_time: lesson.end.toISOString(),
+      student_id: lesson.studentId,
+      parent_lesson_id: lesson.parentLessonId,
+      recurrence_pattern: lesson.recurrencePattern ? {
+        ...lesson.recurrencePattern,
+        endDate: lesson.recurrencePattern.endDate?.toISOString()
+      } : null
+    };
+    return dbLesson;
   };
 
   const { data: lessons = [], isLoading, error } = useQuery({
