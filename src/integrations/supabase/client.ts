@@ -1,17 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from './types';
 
-const SUPABASE_URL = "https://dgnllgedubuinpobacli.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnbmxsZ2VkdWJ1aW5wb2JhY2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDU3MzQ0OTEsImV4cCI6MjAyMTMxMDQ5MX0.oNxn03W2UGXopi6U3zr7uibjIlcGeFKFdg-XOcZQKMA";
+const supabaseUrl = 'https://dgnllgedubuinpobacli.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnbmxsZ2VkdWJ1aW5wb2JhY2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk4MjI0MDAsImV4cCI6MjAyNTM5ODQwMH0.qDPHvNxNsQ4Wd7eqeVgvXd1BXPGBWUDSJQcRVEfUJ0Y';
 
-export const supabase = createClient<Database>(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
-    }
-  }
-);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
