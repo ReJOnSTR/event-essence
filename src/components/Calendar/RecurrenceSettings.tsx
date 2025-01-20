@@ -1,32 +1,36 @@
-import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { RecurrencePattern } from "@/types/calendar";
 
 interface RecurrenceSettingsProps {
-  recurrencePattern: RecurrencePattern | undefined;
-  onRecurrenceChange: (pattern: RecurrencePattern | undefined) => void;
+  recurrencePattern: RecurrencePattern | null;
+  onRecurrenceChange: (pattern: RecurrencePattern | null) => void;
   startDate: Date;
 }
 
-export default function RecurrenceSettings({ 
-  recurrencePattern, 
+export default function RecurrenceSettings({
+  recurrencePattern,
   onRecurrenceChange,
-  startDate 
+  startDate,
 }: RecurrenceSettingsProps) {
-  const [endType, setEndType] = useState<"never" | "date" | "occurrences">(
-    recurrencePattern?.endDate ? "date" : 
-    recurrencePattern?.count ? "occurrences" : 
-    "never"
-  );
-
   const handleFrequencyChange = (value: string) => {
-    if (!value) return;
+    if (value === "_none") {
+      onRecurrenceChange(null);
+      return;
+    }
+    
     onRecurrenceChange({
-      frequency: value as "daily" | "weekly" | "monthly",
-      interval: recurrencePattern?.interval || 1,
-      endDate: recurrencePattern?.endDate,
-      count: recurrencePattern?.count,
+      frequency: value as RecurrencePattern["frequency"],
+      interval: 1,
+      endDate: null,
     });
   };
 
@@ -39,82 +43,57 @@ export default function RecurrenceSettings({
   };
 
   const handleEndDateChange = (date: Date | undefined) => {
-    if (!recurrencePattern || !date) return;
+    if (!recurrencePattern) return;
     onRecurrenceChange({
       ...recurrencePattern,
-      endDate: date,
-      count: undefined,
+      endDate: date || null,
     });
-  };
-
-  const handleEndTypeChange = (value: "never" | "date" | "occurrences") => {
-    setEndType(value);
-    if (!recurrencePattern) return;
-
-    if (value === "never") {
-      onRecurrenceChange({
-        ...recurrencePattern,
-        endDate: undefined,
-        count: undefined,
-      });
-    }
   };
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label>Tekrar Sıklığı</Label>
         <Select
-          value={recurrencePattern?.frequency || "daily"}
+          value={recurrencePattern?.frequency || "_none"}
           onValueChange={handleFrequencyChange}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Tekrar sıklığı" />
+            <SelectValue placeholder="Tekrar etmeyen" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="_none">Tekrar etmeyen</SelectItem>
             <SelectItem value="daily">Günlük</SelectItem>
             <SelectItem value="weekly">Haftalık</SelectItem>
             <SelectItem value="monthly">Aylık</SelectItem>
           </SelectContent>
         </Select>
-
-        <Select
-          value={String(recurrencePattern?.interval || 1)}
-          onValueChange={handleIntervalChange}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Tekrar aralığı" />
-          </SelectTrigger>
-          <SelectContent>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-              <SelectItem key={num} value={String(num)}>
-                {num}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
-      <div className="space-y-2">
-        <Select value={endType} onValueChange={handleEndTypeChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Bitiş" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="never">Asla</SelectItem>
-            <SelectItem value="date">Tarihte</SelectItem>
-            <SelectItem value="occurrences">Tekrar sayısında</SelectItem>
-          </SelectContent>
-        </Select>
+      {recurrencePattern && (
+        <>
+          <div className="space-y-2">
+            <Label>Tekrar Aralığı</Label>
+            <Input
+              type="number"
+              min={1}
+              value={recurrencePattern.interval}
+              onChange={(e) => handleIntervalChange(e.target.value)}
+              placeholder="1"
+            />
+          </div>
 
-        {endType === "date" && (
-          <DatePicker
-            date={recurrencePattern?.endDate}
-            onSelect={handleEndDateChange}
-            placeholder="Bitiş tarihi seçin"
-            fromDate={startDate}
-          />
-        )}
-      </div>
+          <div className="space-y-2">
+            <Label>Bitiş Tarihi (Opsiyonel)</Label>
+            <DatePicker
+              date={recurrencePattern.endDate ? new Date(recurrencePattern.endDate) : undefined}
+              onSelect={handleEndDateChange}
+              disabled={(date) => date < startDate}
+              placeholder="Bitiş tarihi seçin"
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }

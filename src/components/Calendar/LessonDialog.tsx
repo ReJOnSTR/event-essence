@@ -1,14 +1,17 @@
-import React from 'react';
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
+import { tr } from "date-fns/locale";
+import { CalendarEvent, Student, RecurrencePattern } from "@/types/calendar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -16,12 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarEvent, Student, RecurrencePattern } from "@/types/calendar";
+import { Textarea } from "@/components/ui/textarea";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useToast } from "@/hooks/use-toast";
-import { addMinutes, format } from "date-fns";
-import { tr } from 'date-fns/locale';
-import RecurrenceSettings from './RecurrenceSettings';
+import RecurrenceSettings from "./RecurrenceSettings";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -30,7 +31,7 @@ interface LessonDialogProps {
   onDelete?: (lessonId: string) => void;
   selectedDate: Date;
   event?: CalendarEvent;
-  events: CalendarEvent[];
+  events?: CalendarEvent[];
   students?: Student[];
 }
 
@@ -41,56 +42,54 @@ export default function LessonDialog({
   onDelete,
   selectedDate,
   event,
-  events,
+  events = [],
   students = [],
 }: LessonDialogProps) {
-  const { toast } = useToast();
-  const [title, setTitle] = React.useState(event?.title || "");
-  const [description, setDescription] = React.useState(event?.description || "");
-  const [studentId, setStudentId] = React.useState(event?.studentId || "");
-  const [startTime, setStartTime] = React.useState(
+  const [title, setTitle] = useState(event?.title || "");
+  const [description, setDescription] = useState(event?.description || "");
+  const [studentId, setStudentId] = useState(event?.studentId || "_none");
+  const [startTime, setStartTime] = useState(
     format(event?.start || selectedDate, "HH:mm")
   );
-  const [endTime, setEndTime] = React.useState(
+  const [endTime, setEndTime] = useState(
     format(
-      event?.end || addMinutes(selectedDate, 60),
+      event?.end || new Date(selectedDate.getTime() + 60 * 60 * 1000),
       "HH:mm"
     )
   );
-  const [recurrencePattern, setRecurrencePattern] = React.useState<RecurrencePattern | undefined>(
-    event?.recurrencePattern
+  const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern | null>(
+    event?.recurrencePattern || null
   );
 
-  React.useEffect(() => {
-    if (isOpen) {
-      setTitle(event?.title || "");
-      setDescription(event?.description || "");
-      setStudentId(event?.studentId || "");
-      setStartTime(format(event?.start || selectedDate, "HH:mm"));
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!event) {
+      setTitle("");
+      setDescription("");
+      setStudentId("_none");
+      setStartTime(format(selectedDate, "HH:mm"));
       setEndTime(
-        format(
-          event?.end || addMinutes(selectedDate, 60),
-          "HH:mm"
-        )
+        format(new Date(selectedDate.getTime() + 60 * 60 * 1000), "HH:mm")
       );
-      setRecurrencePattern(event?.recurrencePattern);
+      setRecurrencePattern(null);
     }
-  }, [isOpen, event, selectedDate]);
+  }, [event, selectedDate]);
 
   const handleSave = () => {
-    const [startHours, startMinutes] = startTime.split(":").map(Number);
-    const [endHours, endMinutes] = endTime.split(":").map(Number);
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
 
     const start = new Date(selectedDate);
-    start.setHours(startHours, startMinutes, 0);
+    start.setHours(startHour, startMinute, 0);
 
     const end = new Date(selectedDate);
-    end.setHours(endHours, endMinutes, 0);
+    end.setHours(endHour, endMinute, 0);
 
     if (end <= start) {
       toast({
-        title: "Geçersiz zaman aralığı",
-        description: "Bitiş zamanı başlangıç zamanından sonra olmalıdır.",
+        title: "Hata",
+        description: "Bitiş saati başlangıç saatinden sonra olmalıdır.",
         variant: "destructive",
       });
       return;
@@ -105,7 +104,7 @@ export default function LessonDialog({
     if (hasConflict) {
       toast({
         title: "Ders çakışması",
-        description: "Seçilen zaman aralığında başka bir ders bulunuyor.",
+        description: "Seçilen saatte başka bir ders bulunuyor.",
         variant: "destructive",
       });
       return;
@@ -116,7 +115,7 @@ export default function LessonDialog({
       description,
       start,
       end,
-      studentId: studentId || undefined,
+      studentId: studentId === "_none" ? null : studentId,
       recurrencePattern,
     });
   };
@@ -129,7 +128,6 @@ export default function LessonDialog({
             {event ? "Dersi Düzenle" : "Yeni Ders"}
           </DialogTitle>
         </DialogHeader>
-
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="title">Başlık</Label>
@@ -152,7 +150,7 @@ export default function LessonDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="student">Öğrenci</Label>
+            <Label>Öğrenci</Label>
             <Select value={studentId} onValueChange={setStudentId}>
               <SelectTrigger>
                 <SelectValue placeholder="Öğrenci seçin" />
@@ -170,7 +168,7 @@ export default function LessonDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startTime">Başlangıç</Label>
+              <Label htmlFor="startTime">Başlangıç Saati</Label>
               <Input
                 id="startTime"
                 type="time"
@@ -178,9 +176,8 @@ export default function LessonDialog({
                 onChange={(e) => setStartTime(e.target.value)}
               />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="endTime">Bitiş</Label>
+              <Label htmlFor="endTime">Bitiş Saati</Label>
               <Input
                 id="endTime"
                 type="time"
@@ -199,25 +196,23 @@ export default function LessonDialog({
             />
           </div>
         </div>
-
-        <div className="flex justify-between">
+        <DialogFooter className="gap-2">
           {event && onDelete && (
             <Button
+              type="button"
               variant="destructive"
               onClick={() => onDelete(event.id)}
             >
               Sil
             </Button>
           )}
-          <div className="flex gap-2 ml-auto">
-            <Button variant="outline" onClick={onClose}>
-              İptal
-            </Button>
-            <Button onClick={handleSave}>
-              {event ? "Güncelle" : "Kaydet"}
-            </Button>
-          </div>
-        </div>
+          <Button type="button" variant="secondary" onClick={onClose}>
+            İptal
+          </Button>
+          <Button type="button" onClick={handleSave}>
+            Kaydet
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
