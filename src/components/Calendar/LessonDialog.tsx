@@ -7,6 +7,7 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 import { motion } from "framer-motion";
 import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -119,14 +120,31 @@ export default function LessonDialog({
     });
   };
 
+  const isDateAvailable = (date: Date) => {
+    const workingHours = settings?.working_hours;
+    const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours?.[dayOfWeek];
+    const holiday = isHoliday(date);
+    const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
+
+    // Çalışma saatleri kapalı veya tatil günü ve çalışmaya kapalı ise false döndür
+    if (!daySettings?.enabled || (holiday && !allowWorkOnHolidays)) {
+      return false;
+    }
+
+    return true;
+  };
+
   const createRecurringLessons = (baseStart: Date, baseEnd: Date) => {
     const lessons: Omit<Lesson, "id">[] = [];
     let currentStart = baseStart;
     let currentEnd = baseEnd;
     let count = 0;
+    let attempts = 0;
+    const maxAttempts = recurrenceCount * 3; // Sonsuz döngüyü önlemek için maksimum deneme sayısı
 
-    while (count < recurrenceCount) {
-      if (!checkLessonOverlap(currentStart, currentEnd)) {
+    while (count < recurrenceCount && attempts < maxAttempts) {
+      if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
         lessons.push({
           title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
           description,
@@ -139,6 +157,8 @@ export default function LessonDialog({
         });
         count++;
       }
+
+      attempts++;
 
       switch (recurrenceType) {
         case "daily":
@@ -154,6 +174,14 @@ export default function LessonDialog({
           currentEnd = addMonths(currentEnd, recurrenceInterval);
           break;
       }
+    }
+
+    if (count < recurrenceCount) {
+      toast({
+        title: "Uyarı",
+        description: `Bazı tekrar eden dersler, çalışma saatleri kapalı veya tatil günlerine denk geldiği için oluşturulamadı.`,
+        variant: "warning"
+      });
     }
 
     return lessons;
@@ -179,6 +207,15 @@ export default function LessonDialog({
     
     const end = new Date(selectedDate);
     end.setHours(endHours, endMinutes);
+
+    if (!isDateAvailable(start)) {
+      toast({
+        title: "Uygun Olmayan Tarih",
+        description: "Seçilen tarih çalışma saatleri dışında veya tatil günü.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     if (checkLessonOverlap(start, end)) {
       toast({
