@@ -1,6 +1,6 @@
 import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CalendarEvent, Student } from "@/types/calendar";
+import { CalendarEvent, Student, WeeklyWorkingHours } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
 import MonthEventCard from "@/components/Calendar/MonthEventCard";
 import { motion } from "framer-motion";
