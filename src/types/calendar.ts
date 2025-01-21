@@ -13,7 +13,7 @@ export interface Lesson {
   end: Date;
   studentId?: string;
   recurrenceType?: "none" | "daily" | "weekly" | "monthly";
-  recurrenceEndDate?: Date | null;
+  recurrenceCount?: number;
   recurrenceInterval?: number;
 }
 

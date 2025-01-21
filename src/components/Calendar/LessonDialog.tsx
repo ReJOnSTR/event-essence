@@ -34,7 +34,7 @@ export default function LessonDialog({
   const [endTime, setEndTime] = useState("10:00");
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const [recurrenceType, setRecurrenceType] = useState<"none" | "daily" | "weekly" | "monthly">("none");
-  const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | null>(null);
+  const [recurrenceCount, setRecurrenceCount] = useState(1);
   const [recurrenceInterval, setRecurrenceInterval] = useState(1);
   
   const { toast } = useToast();
@@ -48,7 +48,7 @@ export default function LessonDialog({
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
         setRecurrenceType(event.recurrenceType || "none");
-        setRecurrenceEndDate(event.recurrenceEndDate || null);
+        setRecurrenceCount(event.recurrenceCount || 1);
         setRecurrenceInterval(event.recurrenceInterval || 1);
       } else {
         const workingHours = settings?.working_hours;
@@ -83,7 +83,7 @@ export default function LessonDialog({
         setDescription("");
         setSelectedStudentId("");
         setRecurrenceType("none");
-        setRecurrenceEndDate(null);
+        setRecurrenceCount(1);
         setRecurrenceInterval(1);
       }
     }
@@ -123,8 +123,9 @@ export default function LessonDialog({
     const lessons: Omit<Lesson, "id">[] = [];
     let currentStart = baseStart;
     let currentEnd = baseEnd;
+    let count = 0;
 
-    while (recurrenceEndDate && currentStart <= recurrenceEndDate) {
+    while (count < recurrenceCount) {
       if (!checkLessonOverlap(currentStart, currentEnd)) {
         lessons.push({
           title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
@@ -133,9 +134,10 @@ export default function LessonDialog({
           end: currentEnd,
           studentId: selectedStudentId,
           recurrenceType,
-          recurrenceEndDate,
+          recurrenceCount,
           recurrenceInterval
         });
+        count++;
       }
 
       switch (recurrenceType) {
@@ -189,7 +191,7 @@ export default function LessonDialog({
     
     const student = students.find(s => s.id === selectedStudentId);
     
-    if (recurrenceType !== "none" && recurrenceEndDate) {
+    if (recurrenceType !== "none") {
       const recurringLessons = createRecurringLessons(start, end);
       recurringLessons.forEach(lesson => onSave(lesson));
     } else {
@@ -200,7 +202,7 @@ export default function LessonDialog({
         end,
         studentId: selectedStudentId,
         recurrenceType,
-        recurrenceEndDate,
+        recurrenceCount,
         recurrenceInterval
       });
     }
@@ -238,10 +240,10 @@ export default function LessonDialog({
             onClose={onClose}
             onSubmit={handleSubmit}
             recurrenceType={recurrenceType}
-            recurrenceEndDate={recurrenceEndDate}
+            recurrenceCount={recurrenceCount}
             recurrenceInterval={recurrenceInterval}
             onRecurrenceTypeChange={setRecurrenceType}
-            onRecurrenceEndDateChange={setRecurrenceEndDate}
+            onRecurrenceCountChange={setRecurrenceCount}
             onRecurrenceIntervalChange={setRecurrenceInterval}
           />
         </motion.div>

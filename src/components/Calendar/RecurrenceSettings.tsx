@@ -1,28 +1,22 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { CalendarIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { tr } from "date-fns/locale";
 
 interface RecurrenceSettingsProps {
   recurrenceType: "none" | "daily" | "weekly" | "monthly";
-  recurrenceEndDate: Date | null;
+  recurrenceCount: number;
   recurrenceInterval: number;
   onRecurrenceTypeChange: (value: "none" | "daily" | "weekly" | "monthly") => void;
-  onRecurrenceEndDateChange: (date: Date | null) => void;
+  onRecurrenceCountChange: (count: number) => void;
   onRecurrenceIntervalChange: (interval: number) => void;
 }
 
 export default function RecurrenceSettings({
   recurrenceType,
-  recurrenceEndDate,
+  recurrenceCount,
   recurrenceInterval,
   onRecurrenceTypeChange,
-  onRecurrenceEndDateChange,
+  onRecurrenceCountChange,
   onRecurrenceIntervalChange,
 }: RecurrenceSettingsProps) {
   return (
@@ -63,30 +57,18 @@ export default function RecurrenceSettings({
           </div>
 
           <div className="space-y-2">
-            <Label>Bitiş Tarihi</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {recurrenceEndDate ? (
-                    format(recurrenceEndDate, "PPP", { locale: tr })
-                  ) : (
-                    <span>Tarih seçin</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={recurrenceEndDate || undefined}
-                  onSelect={onRecurrenceEndDateChange}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <Label>Tekrar Sayısı</Label>
+            <Input
+              type="number"
+              min={1}
+              max={99}
+              value={recurrenceCount}
+              onChange={(e) => onRecurrenceCountChange(parseInt(e.target.value) || 1)}
+              className="w-full"
+            />
+            <span className="text-sm text-muted-foreground">
+              Toplam {recurrenceCount} kez tekrarlanacak
+            </span>
           </div>
         </>
       )}
