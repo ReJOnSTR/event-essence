@@ -191,7 +191,7 @@ export default function LessonDialog({
     
     const student = students.find(s => s.id === selectedStudentId);
     
-    if (recurrenceType !== "none") {
+    if (recurrenceType !== "none" && !event) {
       const recurringLessons = createRecurringLessons(start, end);
       recurringLessons.forEach(lesson => onSave(lesson));
     } else {
