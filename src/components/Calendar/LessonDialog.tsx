@@ -124,10 +124,10 @@ export default function LessonDialog({
     const workingHours = settings?.working_hours;
     const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
     const daySettings = workingHours?.[dayOfWeek];
-    const holiday = isHoliday(date);
+    const customHolidays = settings?.holidays || [];
+    const holiday = isHoliday(date, customHolidays);
     const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
 
-    // Çalışma saatleri kapalı veya tatil günü ve çalışmaya kapalı ise false döndür
     if (!daySettings?.enabled || (holiday && !allowWorkOnHolidays)) {
       return false;
     }
@@ -141,7 +141,7 @@ export default function LessonDialog({
     let currentEnd = baseEnd;
     let count = 0;
     let attempts = 0;
-    const maxAttempts = recurrenceCount * 3; // Sonsuz döngüyü önlemek için maksimum deneme sayısı
+    const maxAttempts = recurrenceCount * 3;
 
     while (count < recurrenceCount && attempts < maxAttempts) {
       if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
