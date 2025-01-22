@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isWithinInterval, isEqual, addDays, addWeeks, addMonths } from "date-fns";
+import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { motion } from "framer-motion";
@@ -34,9 +34,8 @@ export default function LessonDialog({
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
-  const [recurrenceType, setRecurrenceType] = useState<"none" | "daily" | "weekly" | "monthly">("none");
+  const [recurrenceType, setRecurrenceType] = useState<"none" | "weekly" | "monthly">("none");
   const [recurrenceCount, setRecurrenceCount] = useState(1);
-  const [recurrenceInterval, setRecurrenceInterval] = useState(1);
   
   const { toast } = useToast();
   const { settings } = useUserSettings();
@@ -48,9 +47,8 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
-        setRecurrenceType(event.recurrenceType || "none");
+        setRecurrenceType(event.recurrenceType as "none" | "weekly" | "monthly" || "none");
         setRecurrenceCount(event.recurrenceCount || 1);
-        setRecurrenceInterval(event.recurrenceInterval || 1);
       } else {
         const workingHours = settings?.working_hours;
         const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -85,7 +83,6 @@ export default function LessonDialog({
         setSelectedStudentId("");
         setRecurrenceType("none");
         setRecurrenceCount(1);
-        setRecurrenceInterval(1);
       }
     }
   }, [isOpen, selectedDate, event, settings]);
@@ -152,8 +149,7 @@ export default function LessonDialog({
           end: currentEnd,
           studentId: selectedStudentId,
           recurrenceType,
-          recurrenceCount,
-          recurrenceInterval
+          recurrenceCount
         });
         count++;
       }
@@ -161,17 +157,13 @@ export default function LessonDialog({
       attempts++;
 
       switch (recurrenceType) {
-        case "daily":
-          currentStart = addDays(currentStart, recurrenceInterval);
-          currentEnd = addDays(currentEnd, recurrenceInterval);
-          break;
         case "weekly":
-          currentStart = addWeeks(currentStart, recurrenceInterval);
-          currentEnd = addWeeks(currentEnd, recurrenceInterval);
+          currentStart = addWeeks(currentStart, 1);
+          currentEnd = addWeeks(currentEnd, 1);
           break;
         case "monthly":
-          currentStart = addMonths(currentStart, recurrenceInterval);
-          currentEnd = addMonths(currentEnd, recurrenceInterval);
+          currentStart = addMonths(currentStart, 1);
+          currentEnd = addMonths(currentEnd, 1);
           break;
       }
     }
@@ -239,8 +231,7 @@ export default function LessonDialog({
         end,
         studentId: selectedStudentId,
         recurrenceType,
-        recurrenceCount,
-        recurrenceInterval
+        recurrenceCount
       });
     }
 
@@ -278,10 +269,8 @@ export default function LessonDialog({
             onSubmit={handleSubmit}
             recurrenceType={recurrenceType}
             recurrenceCount={recurrenceCount}
-            recurrenceInterval={recurrenceInterval}
             onRecurrenceTypeChange={setRecurrenceType}
             onRecurrenceCountChange={setRecurrenceCount}
-            onRecurrenceIntervalChange={setRecurrenceInterval}
           />
         </motion.div>
       </DialogContent>
