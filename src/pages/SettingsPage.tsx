@@ -6,6 +6,7 @@ import WorkingHoursSettings from "@/components/Settings/WorkingHoursSettings";
 import CustomHolidaySettings from "@/components/Settings/CustomHolidaySettings";
 import DataManagement from "@/components/Settings/DataManagement";
 import ThemeSettings from "@/components/Settings/ThemeSettings";
+import RecurringLessonsSettings from "@/components/Settings/RecurringLessonsSettings";
 
 export default function SettingsPage() {
   return (
@@ -23,6 +24,7 @@ export default function SettingsPage() {
               <TabsTrigger value="general">Genel</TabsTrigger>
               <TabsTrigger value="working-hours">Çalışma Saatleri</TabsTrigger>
               <TabsTrigger value="custom-holidays">Tatil Günleri</TabsTrigger>
+              <TabsTrigger value="recurring-lessons">Tekrarlanan Dersler</TabsTrigger>
               <TabsTrigger value="theme">Tema</TabsTrigger>
               <TabsTrigger value="data">Veri Yönetimi</TabsTrigger>
             </TabsList>
@@ -34,6 +36,9 @@ export default function SettingsPage() {
             </TabsContent>
             <TabsContent value="custom-holidays">
               <CustomHolidaySettings />
+            </TabsContent>
+            <TabsContent value="recurring-lessons">
+              <RecurringLessonsSettings />
             </TabsContent>
             <TabsContent value="theme">
               <ThemeSettings />
