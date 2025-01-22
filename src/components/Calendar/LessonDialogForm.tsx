@@ -27,12 +27,10 @@ interface LessonDialogFormProps {
   onDelete?: () => void;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
-  recurrenceType: "none" | "daily" | "weekly" | "monthly";
+  recurrenceType: "none" | "weekly" | "monthly";
   recurrenceCount: number;
-  recurrenceInterval: number;
-  onRecurrenceTypeChange: (value: "none" | "daily" | "weekly" | "monthly") => void;
+  onRecurrenceTypeChange: (value: "none" | "weekly" | "monthly") => void;
   onRecurrenceCountChange: (count: number) => void;
-  onRecurrenceIntervalChange: (interval: number) => void;
 }
 
 export default function LessonDialogForm({
@@ -51,10 +49,8 @@ export default function LessonDialogForm({
   onSubmit,
   recurrenceType,
   recurrenceCount,
-  recurrenceInterval,
   onRecurrenceTypeChange,
-  onRecurrenceCountChange,
-  onRecurrenceIntervalChange
+  onRecurrenceCountChange
 }: LessonDialogFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -131,10 +127,8 @@ export default function LessonDialogForm({
         <RecurrenceSettings
           recurrenceType={recurrenceType}
           recurrenceCount={recurrenceCount}
-          recurrenceInterval={recurrenceInterval}
           onRecurrenceTypeChange={onRecurrenceTypeChange}
           onRecurrenceCountChange={onRecurrenceCountChange}
-          onRecurrenceIntervalChange={onRecurrenceIntervalChange}
         />
       </motion.div>
       
