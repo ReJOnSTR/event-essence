@@ -38,7 +38,7 @@ export default function LessonDialog({
   const [recurrenceCount, setRecurrenceCount] = useState(1);
   
   const { toast } = useToast();
-  const { settings } = useUserSettings();
+  const { settings, updateSettings } = useUserSettings();
 
   useEffect(() => {
     if (isOpen) {
@@ -125,14 +125,18 @@ export default function LessonDialog({
     const holiday = isHoliday(date, customHolidays);
     const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
 
-    if (!daySettings?.enabled || (holiday && !allowWorkOnHolidays)) {
+    if (!daySettings?.enabled) {
+      return false;
+    }
+
+    if (holiday && !allowWorkOnHolidays) {
       return false;
     }
 
     return true;
   };
 
-  const createRecurringLessons = (baseStart: Date, baseEnd: Date) => {
+  const createRecurringLessons = async (baseStart: Date, baseEnd: Date) => {
     const lessons: Omit<Lesson, "id">[] = [];
     let currentStart = baseStart;
     let currentEnd = baseEnd;
@@ -141,6 +145,35 @@ export default function LessonDialog({
     const maxAttempts = recurrenceCount * 3;
 
     while (count < recurrenceCount && attempts < maxAttempts) {
+      const customHolidays = settings?.holidays || [];
+      const holiday = isHoliday(currentStart, customHolidays);
+      
+      if (holiday && !settings?.allow_work_on_holidays) {
+        const confirmHoliday = window.confirm(
+          `${format(currentStart, 'd MMMM yyyy')} tarihi tatil günü. Bu tarih için çalışma iznini açmak ister misiniz?`
+        );
+        
+        if (confirmHoliday) {
+          await updateSettings.mutateAsync({
+            allow_work_on_holidays: true
+          });
+        } else {
+          // Skip this date and move to next
+          switch (recurrenceType) {
+            case "weekly":
+              currentStart = addWeeks(currentStart, 1);
+              currentEnd = addWeeks(currentEnd, 1);
+              break;
+            case "monthly":
+              currentStart = addMonths(currentStart, 1);
+              currentEnd = addMonths(currentEnd, 1);
+              break;
+          }
+          attempts++;
+          continue;
+        }
+      }
+
       if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
         lessons.push({
           title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
@@ -179,7 +212,7 @@ export default function LessonDialog({
     return lessons;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedStudentId) {
@@ -221,7 +254,7 @@ export default function LessonDialog({
     const student = students.find(s => s.id === selectedStudentId);
     
     if (recurrenceType !== "none" && !event) {
-      const recurringLessons = createRecurringLessons(start, end);
+      const recurringLessons = await createRecurringLessons(start, end);
       recurringLessons.forEach(lesson => onSave(lesson));
     } else {
       onSave({
