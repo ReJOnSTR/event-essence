@@ -24,7 +24,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import RecurringLessonsManager from "@/components/Calendar/RecurringLessonsManager";
 
 interface CalendarPageProps {
   headerHeight: number;
@@ -105,32 +104,21 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
             {session && (
               <>
                 <WeeklySchedulePdf lessons={lessons} students={students} />
-                <div className="flex flex-col gap-2">
-                  <Button 
-                    size="sm"
-                    onClick={() => {
-                      if (!session) {
-                        setIsLoginDialogOpen(true);
-                        return;
-                      }
-                      setSelectedLesson(undefined);
-                      setIsDialogOpen(true);
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-1 md:mr-2" />
-                    <span className="hidden md:inline">Ders Ekle</span>
-                    <span className="md:hidden">Ekle</span>
-                  </Button>
-                  <RecurringLessonsManager
-                    lessons={lessons}
-                    onEdit={(lesson) => {
-                      setSelectedLesson(lesson);
-                      setSelectedDate(lesson.start);
-                      setIsDialogOpen(true);
-                    }}
-                    onDelete={handleDeleteLesson}
-                  />
-                </div>
+                <Button 
+                  size="sm"
+                  onClick={() => {
+                    if (!session) {
+                      setIsLoginDialogOpen(true);
+                      return;
+                    }
+                    setSelectedLesson(undefined);
+                    setIsDialogOpen(true);
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-1 md:mr-2" />
+                  <span className="hidden md:inline">Ders Ekle</span>
+                  <span className="md:hidden">Ekle</span>
+                </Button>
               </>
             )}
           </div>

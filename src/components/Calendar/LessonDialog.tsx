@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +37,9 @@ export default function LessonDialog({
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
   const [recurrenceType, setRecurrenceType] = useState<"none" | "weekly" | "monthly">("none");
   const [recurrenceCount, setRecurrenceCount] = useState(1);
+  const [showHolidayDialog, setShowHolidayDialog] = useState(false);
+  const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
+  const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
   
   const { toast } = useToast();
   const { settings, updateSettings } = useUserSettings();
@@ -121,15 +125,8 @@ export default function LessonDialog({
     const workingHours = settings?.working_hours;
     const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
     const daySettings = workingHours?.[dayOfWeek];
-    const customHolidays = settings?.holidays || [];
-    const holiday = isHoliday(date, customHolidays);
-    const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
 
     if (!daySettings?.enabled) {
-      return false;
-    }
-
-    if (holiday && !allowWorkOnHolidays) {
       return false;
     }
 
@@ -149,29 +146,10 @@ export default function LessonDialog({
       const holiday = isHoliday(currentStart, customHolidays);
       
       if (holiday && !settings?.allow_work_on_holidays) {
-        const confirmHoliday = window.confirm(
-          `${format(currentStart, 'd MMMM yyyy')} tarihi tatil günü. Bu tarih için çalışma iznini açmak ister misiniz?`
-        );
-        
-        if (confirmHoliday) {
-          await updateSettings.mutateAsync({
-            allow_work_on_holidays: true
-          });
-        } else {
-          // Skip this date and move to next
-          switch (recurrenceType) {
-            case "weekly":
-              currentStart = addWeeks(currentStart, 1);
-              currentEnd = addWeeks(currentEnd, 1);
-              break;
-            case "monthly":
-              currentStart = addMonths(currentStart, 1);
-              currentEnd = addMonths(currentEnd, 1);
-              break;
-          }
-          attempts++;
-          continue;
-        }
+        setCurrentHolidayDate(currentStart);
+        setShowHolidayDialog(true);
+        setPendingLessons([...lessons]);
+        return lessons;
       }
 
       if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
@@ -236,7 +214,7 @@ export default function LessonDialog({
     if (!isDateAvailable(start)) {
       toast({
         title: "Uygun Olmayan Tarih",
-        description: "Seçilen tarih çalışma saatleri dışında veya tatil günü.",
+        description: "Seçilen tarih çalışma saatleri dışında.",
         variant: "destructive"
       });
       return;
@@ -271,42 +249,79 @@ export default function LessonDialog({
     onClose();
   };
 
+  const handleHolidayConfirm = async () => {
+    await updateSettings.mutateAsync({
+      allow_work_on_holidays: true
+    });
+    setShowHolidayDialog(false);
+    
+    if (pendingLessons.length > 0) {
+      pendingLessons.forEach(lesson => onSave(lesson));
+      setPendingLessons([]);
+    }
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-          className="p-6"
-        >
-          <LessonDialogHeader 
-            isEditing={!!event}
-            selectedDate={selectedDate}
-          />
-          
-          <LessonDialogForm
-            description={description}
-            onDescriptionChange={handleDescriptionChange}
-            startTime={startTime}
-            endTime={endTime}
-            selectedDate={selectedDate}
-            setStartTime={setStartTime}
-            setEndTime={setEndTime}
-            selectedStudentId={selectedStudentId}
-            setSelectedStudentId={setSelectedStudentId}
-            students={students}
-            onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
-            onClose={onClose}
-            onSubmit={handleSubmit}
-            recurrenceType={recurrenceType}
-            recurrenceCount={recurrenceCount}
-            onRecurrenceTypeChange={setRecurrenceType}
-            onRecurrenceCountChange={setRecurrenceCount}
-          />
-        </motion.div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[425px] overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="p-6"
+          >
+            <LessonDialogHeader 
+              isEditing={!!event}
+              selectedDate={selectedDate}
+            />
+            
+            <LessonDialogForm
+              description={description}
+              onDescriptionChange={handleDescriptionChange}
+              startTime={startTime}
+              endTime={endTime}
+              selectedDate={selectedDate}
+              setStartTime={setStartTime}
+              setEndTime={setEndTime}
+              selectedStudentId={selectedStudentId}
+              setSelectedStudentId={setSelectedStudentId}
+              students={students}
+              onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
+              onClose={onClose}
+              onSubmit={handleSubmit}
+              recurrenceType={recurrenceType}
+              recurrenceCount={recurrenceCount}
+              onRecurrenceTypeChange={setRecurrenceType}
+              onRecurrenceCountChange={setRecurrenceCount}
+            />
+          </motion.div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showHolidayDialog} onOpenChange={setShowHolidayDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tatil Günü Uyarısı</DialogTitle>
+            <DialogDescription>
+              {currentHolidayDate && `${format(currentHolidayDate, 'd MMMM yyyy')} tarihi tatil günü. Bu tarih için çalışma iznini açmak ister misiniz?`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowHolidayDialog(false);
+              onClose();
+            }}>
+              İptal
+            </Button>
+            <Button onClick={handleHolidayConfirm}>
+              Çalışma İznini Aç
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
