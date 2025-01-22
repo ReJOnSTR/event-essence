@@ -167,27 +167,15 @@ export default function LessonDialog({
 
       attempts++;
 
-      // Calculate next date based on recurrence type
-      let nextStart = new Date(currentStart);
-      let nextEnd = new Date(currentEnd);
-
       switch (recurrenceType) {
         case "weekly":
-          nextStart = addWeeks(currentStart, 1);
-          nextEnd = addWeeks(currentEnd, 1);
+          currentStart = addWeeks(currentStart, 1);
+          currentEnd = addWeeks(currentEnd, 1);
           break;
         case "monthly":
-          nextStart = addMonths(currentStart, 1);
-          nextEnd = addMonths(currentEnd, 1);
+          currentStart = addMonths(currentStart, 1);
+          currentEnd = addMonths(currentEnd, 1);
           break;
-      }
-
-      // Only update if the next date is valid
-      if (!isNaN(nextStart.getTime()) && !isNaN(nextEnd.getTime())) {
-        currentStart = nextStart;
-        currentEnd = nextEnd;
-      } else {
-        break;
       }
     }
 
