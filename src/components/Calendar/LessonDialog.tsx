@@ -137,10 +137,8 @@ export default function LessonDialog({
     let currentStart = baseStart;
     let currentEnd = baseEnd;
     let count = 0;
-    let attempts = 0;
-    const maxAttempts = recurrenceCount * 3;
 
-    while (count < recurrenceCount && attempts < maxAttempts) {
+    while (count < recurrenceCount) {
       const customHolidays = settings?.holidays || [];
       const holiday = isHoliday(currentStart, customHolidays);
       
@@ -162,8 +160,6 @@ export default function LessonDialog({
         });
         count++;
       }
-
-      attempts++;
 
       switch (recurrenceType) {
         case "weekly":
