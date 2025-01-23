@@ -148,8 +148,7 @@ export default function LessonDialog({
       if (holiday && !settings?.allow_work_on_holidays) {
         setCurrentHolidayDate(currentStart);
         setShowHolidayDialog(true);
-        // Only add the current lesson to pending lessons
-        const newLesson = {
+        setPendingLessons([...lessons, {
           title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
           description,
           start: currentStart,
@@ -157,13 +156,12 @@ export default function LessonDialog({
           studentId: selectedStudentId,
           recurrenceType,
           recurrenceCount
-        };
-        setPendingLessons([...lessons, newLesson]);
+        }]);
         return lessons;
       }
 
       if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
-        const newLesson = {
+        lessons.push({
           title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
           description,
           start: currentStart,
@@ -171,8 +169,7 @@ export default function LessonDialog({
           studentId: selectedStudentId,
           recurrenceType,
           recurrenceCount
-        };
-        lessons.push(newLesson);
+        });
         count++;
       }
 
