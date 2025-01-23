@@ -39,6 +39,7 @@ export default function LessonDialog({
   const [recurrenceCount, setRecurrenceCount] = useState(1);
   const [showHolidayDialog, setShowHolidayDialog] = useState(false);
   const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
+  const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
   
   const { toast } = useToast();
   const { settings, updateSettings } = useUserSettings();
@@ -137,39 +138,35 @@ export default function LessonDialog({
     let currentStart = baseStart;
     let currentEnd = baseEnd;
     let count = 0;
-    let processedDates = new Set<string>();
+    let attempts = 0;
+    const maxAttempts = recurrenceCount * 3;
 
-    while (count < recurrenceCount) {
-      const dateKey = format(currentStart, 'yyyy-MM-dd');
+    while (count < recurrenceCount && attempts < maxAttempts) {
+      const customHolidays = settings?.holidays || [];
+      const holiday = isHoliday(currentStart, customHolidays);
       
-      // Tarihin daha önce işlenip işlenmediğini kontrol et
-      if (!processedDates.has(dateKey)) {
-        const customHolidays = settings?.holidays || [];
-        const holiday = isHoliday(currentStart, customHolidays);
-        
-        if (holiday && !settings?.allow_work_on_holidays) {
-          setCurrentHolidayDate(currentStart);
-          setShowHolidayDialog(true);
-          return lessons;
-        }
-
-        if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
-          lessons.push({
-            title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
-            description,
-            start: currentStart,
-            end: currentEnd,
-            studentId: selectedStudentId,
-            recurrenceType,
-            recurrenceCount
-          });
-          
-          processedDates.add(dateKey);
-          count++;
-        }
+      if (holiday && !settings?.allow_work_on_holidays) {
+        setCurrentHolidayDate(currentStart);
+        setShowHolidayDialog(true);
+        setPendingLessons([...lessons]);
+        return lessons;
       }
 
-      // Bir sonraki tarihe geç
+      if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
+        lessons.push({
+          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
+          description,
+          start: currentStart,
+          end: currentEnd,
+          studentId: selectedStudentId,
+          recurrenceType,
+          recurrenceCount
+        });
+        count++;
+      }
+
+      attempts++;
+
       switch (recurrenceType) {
         case "weekly":
           currentStart = addWeeks(currentStart, 1);
@@ -258,18 +255,10 @@ export default function LessonDialog({
     });
     setShowHolidayDialog(false);
     
-    const [startHours, startMinutes] = startTime.split(":").map(Number);
-    const [endHours, endMinutes] = endTime.split(":").map(Number);
-    
-    const start = new Date(selectedDate);
-    start.setHours(startHours, startMinutes);
-    
-    const end = new Date(selectedDate);
-    end.setHours(endHours, endMinutes);
-    
-    const recurringLessons = await createRecurringLessons(start, end);
-    recurringLessons.forEach(lesson => onSave(lesson));
-    
+    if (pendingLessons.length > 0) {
+      pendingLessons.forEach(lesson => onSave(lesson));
+      setPendingLessons([]);
+    }
     onClose();
   };
 
