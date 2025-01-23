@@ -39,7 +39,6 @@ export default function LessonDialog({
   const [recurrenceCount, setRecurrenceCount] = useState(1);
   const [showHolidayDialog, setShowHolidayDialog] = useState(false);
   const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
-  const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
   
   const { toast } = useToast();
   const { settings, updateSettings } = useUserSettings();
@@ -148,15 +147,6 @@ export default function LessonDialog({
       if (holiday && !settings?.allow_work_on_holidays) {
         setCurrentHolidayDate(currentStart);
         setShowHolidayDialog(true);
-        setPendingLessons([...lessons, {
-          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
-          description,
-          start: currentStart,
-          end: currentEnd,
-          studentId: selectedStudentId,
-          recurrenceType,
-          recurrenceCount
-        }]);
         return lessons;
       }
 
@@ -263,10 +253,18 @@ export default function LessonDialog({
     });
     setShowHolidayDialog(false);
     
-    if (pendingLessons.length > 0) {
-      pendingLessons.forEach(lesson => onSave(lesson));
-      setPendingLessons([]);
-    }
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const [endHours, endMinutes] = endTime.split(":").map(Number);
+    
+    const start = new Date(selectedDate);
+    start.setHours(startHours, startMinutes);
+    
+    const end = new Date(selectedDate);
+    end.setHours(endHours, endMinutes);
+    
+    const recurringLessons = await createRecurringLessons(start, end);
+    recurringLessons.forEach(lesson => onSave(lesson));
+    
     onClose();
   };
 
