@@ -137,30 +137,39 @@ export default function LessonDialog({
     let currentStart = baseStart;
     let currentEnd = baseEnd;
     let count = 0;
+    let processedDates = new Set<string>();
 
     while (count < recurrenceCount) {
-      const customHolidays = settings?.holidays || [];
-      const holiday = isHoliday(currentStart, customHolidays);
+      const dateKey = format(currentStart, 'yyyy-MM-dd');
       
-      if (holiday && !settings?.allow_work_on_holidays) {
-        setCurrentHolidayDate(currentStart);
-        setShowHolidayDialog(true);
-        return lessons;
+      // Tarihin daha önce işlenip işlenmediğini kontrol et
+      if (!processedDates.has(dateKey)) {
+        const customHolidays = settings?.holidays || [];
+        const holiday = isHoliday(currentStart, customHolidays);
+        
+        if (holiday && !settings?.allow_work_on_holidays) {
+          setCurrentHolidayDate(currentStart);
+          setShowHolidayDialog(true);
+          return lessons;
+        }
+
+        if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
+          lessons.push({
+            title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
+            description,
+            start: currentStart,
+            end: currentEnd,
+            studentId: selectedStudentId,
+            recurrenceType,
+            recurrenceCount
+          });
+          
+          processedDates.add(dateKey);
+          count++;
+        }
       }
 
-      if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
-        lessons.push({
-          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
-          description,
-          start: currentStart,
-          end: currentEnd,
-          studentId: selectedStudentId,
-          recurrenceType,
-          recurrenceCount
-        });
-        count++;
-      }
-
+      // Bir sonraki tarihe geç
       switch (recurrenceType) {
         case "weekly":
           currentStart = addWeeks(currentStart, 1);
