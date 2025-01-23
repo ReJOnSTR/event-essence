@@ -1,5 +1,4 @@
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addDays, isSameMonth, isSameDay, isToday, setHours } from "date-fns";
-import { tr } from 'date-fns/locale';
 import { CalendarEvent, Student } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -8,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { UserSettings } from "@/hooks/useUserSettings";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -17,6 +17,7 @@ interface MonthViewProps {
   onEventClick?: (event: CalendarEvent) => void;
   onEventUpdate?: (event: CalendarEvent) => void;
   students?: Student[];
+  settings?: UserSettings;
 }
 
 export default function MonthView({ 
@@ -26,10 +27,12 @@ export default function MonthView({
   isYearView = false,
   onEventClick,
   onEventUpdate,
-  students
+  students,
+  settings
 }: MonthViewProps) {
   const { toast } = useToast();
-  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+  const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
+  const customHolidays = settings?.holidays || [];
   const workingHours = getWorkingHours();
 
   const getDaysInMonth = (currentDate: Date) => {
@@ -73,11 +76,11 @@ export default function MonthView({
       return;
     }
 
-    const holiday = isHoliday(clickedDate);
+    const holiday = isHoliday(clickedDate, customHolidays);
     if (holiday && !allowWorkOnHolidays) {
       toast({
-        title: "Resmi Tatil",
-        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        title: "Tatil Günü",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
         variant: "destructive"
       });
       return;
@@ -124,7 +127,7 @@ export default function MonthView({
     newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
     const newEnd = new Date(newStart.getTime() + duration);
 
-    const holiday = isHoliday(targetDay);
+    const holiday = isHoliday(targetDay, customHolidays);
     if (holiday && !allowWorkOnHolidays) {
       toast({
         title: "Tatil günü",
@@ -152,7 +155,7 @@ export default function MonthView({
     const dayOfWeek = date.getDay();
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
     const daySettings = workingHours[days[dayOfWeek]];
-    const holiday = isHoliday(date);
+    const holiday = isHoliday(date, customHolidays);
 
     return (!daySettings?.enabled || (holiday && !allowWorkOnHolidays));
   };
@@ -171,7 +174,7 @@ export default function MonthView({
           ))}
           
           {days.map((day, idx) => {
-            const holiday = isHoliday(day.date);
+            const holiday = isHoliday(day.date, customHolidays);
             const isDisabled = isDateDisabled(day.date);
             return (
               <div
@@ -223,7 +226,7 @@ export default function MonthView({
           ))}
           
           {days.map((day, idx) => {
-            const holiday = isHoliday(day.date);
+            const holiday = isHoliday(day.date, customHolidays);
             const isDisabled = isDateDisabled(day.date);
             return (
               <Droppable droppableId={`${idx}`} key={idx}>
