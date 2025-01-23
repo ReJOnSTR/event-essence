@@ -11,6 +11,7 @@ import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useMobileDragDrop } from "@/hooks/useMobileDragDrop";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface DayViewProps {
   date: Date;
@@ -30,9 +31,12 @@ export default function DayView({
   students 
 }: DayViewProps) {
   const { toast } = useToast();
+  const { settings } = useUserSettings();
   const workingHours = getWorkingHours();
-  const holiday = isHoliday(date);
-  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+  const customHolidays = settings?.holidays || [];
+  const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
+  
+  const holiday = isHoliday(date, customHolidays);
   
   const { draggedEvent, handleTouchStart, handleTouchEnd } = useMobileDragDrop(onEventUpdate);
   
@@ -63,8 +67,8 @@ export default function DayView({
     
     if (holiday && !allowWorkOnHolidays) {
       toast({
-        title: "Resmi Tatil",
-        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        title: "Tatil Günü",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
         variant: "destructive"
       });
       return;
@@ -162,7 +166,7 @@ export default function DayView({
                 !allowWorkOnHolidays ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
               )}
             >
-              {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Resmi Tatil"}
+              {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Tatil"}
             </motion.div>
           )}
         </AnimatePresence>

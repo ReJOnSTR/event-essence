@@ -3,6 +3,7 @@ import { format, addMonths, startOfYear } from "date-fns";
 import { tr } from 'date-fns/locale';
 import MonthView from "./MonthView";
 import { motion } from "framer-motion";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface YearViewProps {
   date: Date;
@@ -15,6 +16,7 @@ interface YearViewProps {
 export default function YearView({ date, events, onDateSelect, onEventClick, students }: YearViewProps) {
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
+  const { settings } = useUserSettings();
 
   return (
     <motion.div 
@@ -49,6 +51,7 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
                 onEventClick={onEventClick}
                 isYearView={true}
                 students={students}
+                settings={settings}
               />
             </div>
           </motion.div>

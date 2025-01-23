@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface WeekViewHeaderProps {
   date: Date;
@@ -11,6 +12,10 @@ interface WeekViewHeaderProps {
 
 export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
   const isMobile = useIsMobile();
+  const { settings } = useUserSettings();
+  const customHolidays = settings?.holidays || [];
+  const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
+  
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
@@ -18,7 +23,7 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
     <div className="grid grid-cols-8 gap-px bg-border">
       <div className="bg-background w-16 border-b border-border" />
       {weekDays.map((day, index) => {
-        const holiday = isHoliday(day);
+        const holiday = isHoliday(day, customHolidays);
         return (
           <motion.div
             key={day.toString()}
@@ -47,11 +52,15 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
               <div 
                 className={cn(
                   "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded-md",
-                  "bg-destructive/10 text-destructive border border-destructive/20 truncate"
+                  !allowWorkOnHolidays 
+                    ? "bg-destructive/10 text-destructive border border-destructive/20" 
+                    : "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20",
+                  "truncate"
                 )}
                 title={holiday.name}
               >
                 {holiday.name}
+                {allowWorkOnHolidays && " (Çalışmaya Açık)"}
               </div>
             )}
           </motion.div>
