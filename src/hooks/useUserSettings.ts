@@ -25,7 +25,7 @@ interface Holiday {
   description: string;
 }
 
-interface UserSettings {
+export interface UserSettings {
   id: string;
   user_id: string;
   default_lesson_duration: number;
