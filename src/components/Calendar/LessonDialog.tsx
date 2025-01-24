@@ -148,8 +148,8 @@ export default function LessonDialog({
       if (holiday && !settings?.allow_work_on_holidays) {
         setCurrentHolidayDate(currentStart);
         setShowHolidayDialog(true);
-        setPendingLessons([...lessons]);
-        return lessons;
+        setPendingLessons(lessons);
+        return [];
       }
 
       if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
@@ -233,7 +233,10 @@ export default function LessonDialog({
     
     if (recurrenceType !== "none" && !event) {
       const recurringLessons = await createRecurringLessons(start, end);
-      recurringLessons.forEach(lesson => onSave(lesson));
+      if (recurringLessons.length > 0) {
+        recurringLessons.forEach(lesson => onSave(lesson));
+        onClose();
+      }
     } else {
       onSave({
         title: student ? `${student.name} Dersi` : "Ders",
@@ -244,9 +247,8 @@ export default function LessonDialog({
         recurrenceType,
         recurrenceCount
       });
+      onClose();
     }
-
-    onClose();
   };
 
   const handleHolidayConfirm = async () => {
