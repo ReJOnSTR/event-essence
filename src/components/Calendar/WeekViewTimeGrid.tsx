@@ -7,6 +7,7 @@ import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
 import { checkLessonConflict } from "@/utils/lessonConflict";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -32,6 +33,8 @@ export default function WeekViewTimeGrid({
   students
 }: WeekViewTimeGridProps) {
   const { toast } = useToast();
+  const { settings } = useUserSettings();
+  const customHolidays = settings?.holidays || [];
 
   const handleCellClick = (day: Date, hour: number) => {
     const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -46,11 +49,11 @@ export default function WeekViewTimeGrid({
       return;
     }
 
-    const holiday = isHoliday(day);
+    const holiday = isHoliday(day, customHolidays);
     if (holiday && !allowWorkOnHolidays) {
       toast({
-        title: "Resmi Tatil",
-        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        title: "Tatil Günü",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
         variant: "destructive"
       });
       return;
@@ -92,11 +95,11 @@ export default function WeekViewTimeGrid({
       return;
     }
 
-    const holiday = isHoliday(targetDay);
+    const holiday = isHoliday(targetDay, customHolidays);
     if (holiday && !allowWorkOnHolidays) {
       toast({
-        title: "Resmi Tatil",
-        description: `${holiday.name} nedeniyle bu gün resmi tatildir.`,
+        title: "Tatil Günü",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
         variant: "destructive"
       });
       return;
@@ -110,7 +113,6 @@ export default function WeekViewTimeGrid({
     const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
     const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
 
-    // Çakışma kontrolü
     const hasConflict = checkLessonConflict(
       { start: newStart, end: newEnd },
       events,
@@ -149,7 +151,7 @@ export default function WeekViewTimeGrid({
             const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
             const daySettings = workingHours[dayOfWeek];
             const isDayEnabled = daySettings?.enabled;
-            const holiday = isHoliday(day);
+            const holiday = isHoliday(day, customHolidays);
             const isWorkDisabled = (holiday && !allowWorkOnHolidays) || !isDayEnabled;
             const [startHour] = (daySettings?.start || "09:00").split(':').map(Number);
             const [endHour] = (daySettings?.end || "17:00").split(':').map(Number);
