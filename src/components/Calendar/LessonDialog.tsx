@@ -148,7 +148,17 @@ export default function LessonDialog({
       if (holiday && !settings?.allow_work_on_holidays) {
         setCurrentHolidayDate(currentStart);
         setShowHolidayDialog(true);
-        setPendingLessons(lessons);
+        setPendingLessons([]);
+        const currentLesson = {
+          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
+          description,
+          start: currentStart,
+          end: currentEnd,
+          studentId: selectedStudentId,
+          recurrenceType,
+          recurrenceCount
+        };
+        setPendingLessons([...lessons, currentLesson]);
         return [];
       }
 
@@ -260,8 +270,8 @@ export default function LessonDialog({
     if (pendingLessons.length > 0) {
       pendingLessons.forEach(lesson => onSave(lesson));
       setPendingLessons([]);
+      onClose();
     }
-    onClose();
   };
 
   return (
