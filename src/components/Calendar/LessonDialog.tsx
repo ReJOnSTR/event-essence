@@ -51,8 +51,8 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
-        setRecurrenceType(event.recurrenceType as "none" | "weekly" | "monthly" || "none");
-        setRecurrenceCount(event.recurrenceCount || 1);
+        setRecurrenceType("none"); // Reset recurrence settings in edit mode
+        setRecurrenceCount(1);
       } else {
         const workingHours = settings?.working_hours;
         const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -148,7 +148,6 @@ export default function LessonDialog({
       if (holiday && !settings?.allow_work_on_holidays) {
         setCurrentHolidayDate(currentStart);
         setShowHolidayDialog(true);
-        setPendingLessons([]);
         const currentLesson = {
           title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
           description,
@@ -241,7 +240,7 @@ export default function LessonDialog({
     
     const student = students.find(s => s.id === selectedStudentId);
     
-    if (recurrenceType !== "none" && !event) {
+    if (recurrenceType !== "none") {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
         recurringLessons.forEach(lesson => onSave(lesson));
