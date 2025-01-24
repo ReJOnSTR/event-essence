@@ -134,7 +134,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         />
         
         <div className="flex-1 overflow-auto bg-background">
-          <div className="p-2 md:p-4 pb-16">
+          <div className="p-2 md:p-4">
             <CalendarContent
               currentView={currentView}
               selectedDate={selectedDate}
