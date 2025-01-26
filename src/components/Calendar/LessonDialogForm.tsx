@@ -31,7 +31,6 @@ interface LessonDialogFormProps {
   recurrenceCount: number;
   onRecurrenceTypeChange: (value: "none" | "weekly" | "monthly") => void;
   onRecurrenceCountChange: (count: number) => void;
-  isPartOfRecurring?: boolean;
 }
 
 export default function LessonDialogForm({
@@ -51,8 +50,7 @@ export default function LessonDialogForm({
   recurrenceType,
   recurrenceCount,
   onRecurrenceTypeChange,
-  onRecurrenceCountChange,
-  isPartOfRecurring
+  onRecurrenceCountChange
 }: LessonDialogFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -121,20 +119,18 @@ export default function LessonDialogForm({
         />
       </motion.div>
 
-      {!isPartOfRecurring && (
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <RecurrenceSettings
-            recurrenceType={recurrenceType}
-            recurrenceCount={recurrenceCount}
-            onRecurrenceTypeChange={onRecurrenceTypeChange}
-            onRecurrenceCountChange={onRecurrenceCountChange}
-          />
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <RecurrenceSettings
+          recurrenceType={recurrenceType}
+          recurrenceCount={recurrenceCount}
+          onRecurrenceTypeChange={onRecurrenceTypeChange}
+          onRecurrenceCountChange={onRecurrenceCountChange}
+        />
+      </motion.div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -1,36 +1,27 @@
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CalendarClock } from "lucide-react";
 
 interface LessonDialogHeaderProps {
   isEditing: boolean;
   selectedDate: Date;
-  isPartOfRecurring?: boolean;
 }
 
-export default function LessonDialogHeader({ 
-  isEditing, 
-  selectedDate,
-  isPartOfRecurring
-}: LessonDialogHeaderProps) {
+export default function LessonDialogHeader({ isEditing, selectedDate }: LessonDialogHeaderProps) {
+  const formattedDate = format(selectedDate, "d MMMM yyyy, EEEE", { locale: tr });
+
   return (
-    <DialogHeader className="space-y-4">
-      <div className="flex items-center justify-between">
-        <DialogTitle>
-          {isEditing ? "Dersi Düzenle" : "Yeni Ders"}
-        </DialogTitle>
-        {isPartOfRecurring && (
-          <Badge variant="secondary" className="flex items-center gap-1">
-            <CalendarClock className="h-3 w-3" />
-            Tekrarlanan Ders
-          </Badge>
-        )}
+    <DialogHeader>
+      <div className="flex items-center gap-2 mb-2">
+        <DialogTitle>{isEditing ? "Dersi Düzenle" : "Ders Ekle"}</DialogTitle>
+        <Badge variant="secondary" className="text-xs">
+          {formattedDate}
+        </Badge>
       </div>
-      <div className="text-sm text-muted-foreground">
-        {format(selectedDate, "d MMMM yyyy, EEEE", { locale: tr })}
-      </div>
+      <DialogDescription>
+        Ders detaylarını buradan düzenleyebilirsiniz.
+      </DialogDescription>
     </DialogHeader>
   );
 }

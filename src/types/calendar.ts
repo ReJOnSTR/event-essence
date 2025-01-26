@@ -12,8 +12,9 @@ export interface Lesson {
   start: Date;
   end: Date;
   studentId?: string;
-  recurrenceType?: "none" | "weekly" | "monthly";
+  recurrenceType?: "none" | "daily" | "weekly" | "monthly";
   recurrenceCount?: number;
+  recurrenceInterval?: number;
 }
 
 export interface DayCell {
