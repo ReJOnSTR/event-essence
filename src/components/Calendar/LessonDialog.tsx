@@ -51,7 +51,7 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
-        setRecurrenceType("none"); // Reset recurrence settings in edit mode
+        setRecurrenceType("none");
         setRecurrenceCount(1);
       } else {
         const workingHours = settings?.working_hours;
@@ -243,6 +243,10 @@ export default function LessonDialog({
     if (recurrenceType !== "none") {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
+        if (event) {
+          // Eğer düzenleme modundaysak, önce mevcut dersi silelim
+          onDelete?.(event.id);
+        }
         recurringLessons.forEach(lesson => onSave(lesson));
         onClose();
       }
@@ -267,6 +271,10 @@ export default function LessonDialog({
     setShowHolidayDialog(false);
     
     if (pendingLessons.length > 0) {
+      if (event) {
+        // Eğer düzenleme modundaysak, önce mevcut dersi silelim
+        onDelete?.(event.id);
+      }
       pendingLessons.forEach(lesson => onSave(lesson));
       setPendingLessons([]);
       onClose();
