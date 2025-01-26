@@ -243,11 +243,21 @@ export default function LessonDialog({
     if (recurrenceType !== "none") {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
+        // Düzenleme modunda mevcut dersi güncelle ve yeni tekrarlanan dersleri ekle
         if (event) {
-          // Eğer düzenleme modundaysak, önce mevcut dersi silelim
-          onDelete?.(event.id);
+          onSave({
+            ...event,
+            title: student ? `${student.name} Dersi` : "Ders",
+            description,
+            start,
+            end,
+            studentId: selectedStudentId,
+            recurrenceType: "none",
+            recurrenceCount: 1
+          });
         }
-        recurringLessons.forEach(lesson => onSave(lesson));
+        // Yeni tekrarlanan dersleri ekle
+        recurringLessons.slice(1).forEach(lesson => onSave(lesson));
         onClose();
       }
     } else {
@@ -271,11 +281,21 @@ export default function LessonDialog({
     setShowHolidayDialog(false);
     
     if (pendingLessons.length > 0) {
+      // Düzenleme modunda mevcut dersi güncelle ve yeni tekrarlanan dersleri ekle
       if (event) {
-        // Eğer düzenleme modundaysak, önce mevcut dersi silelim
-        onDelete?.(event.id);
+        onSave({
+          ...event,
+          title: pendingLessons[0].title,
+          description: pendingLessons[0].description,
+          start: pendingLessons[0].start,
+          end: pendingLessons[0].end,
+          studentId: pendingLessons[0].studentId,
+          recurrenceType: "none",
+          recurrenceCount: 1
+        });
       }
-      pendingLessons.forEach(lesson => onSave(lesson));
+      // Yeni tekrarlanan dersleri ekle
+      pendingLessons.slice(1).forEach(lesson => onSave(lesson));
       setPendingLessons([]);
       onClose();
     }
