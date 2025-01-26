@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
@@ -51,7 +51,7 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
-        setRecurrenceType(event.recurrenceType as "none" | "weekly" | "monthly" || "none");
+        setRecurrenceType(event.recurrenceType || "none");
         setRecurrenceCount(event.recurrenceCount || 1);
       } else {
         const workingHours = settings?.working_hours;
@@ -156,7 +156,8 @@ export default function LessonDialog({
           end: currentEnd,
           studentId: selectedStudentId,
           recurrenceType,
-          recurrenceCount
+          recurrenceCount,
+          parentLessonId: event?.id
         };
         setPendingLessons([...lessons, currentLesson]);
         return [];
@@ -170,7 +171,8 @@ export default function LessonDialog({
           end: currentEnd,
           studentId: selectedStudentId,
           recurrenceType,
-          recurrenceCount
+          recurrenceCount,
+          parentLessonId: event?.id
         });
         count++;
       }
@@ -241,7 +243,7 @@ export default function LessonDialog({
     
     const student = students.find(s => s.id === selectedStudentId);
     
-    if (recurrenceType !== "none" && !event) {
+    if (recurrenceType !== "none") {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
         recurringLessons.forEach(lesson => onSave(lesson));
@@ -255,85 +257,51 @@ export default function LessonDialog({
         end,
         studentId: selectedStudentId,
         recurrenceType,
-        recurrenceCount
+        recurrenceCount,
+        parentLessonId: event?.parentLessonId
       });
       onClose();
     }
   };
 
-  const handleHolidayConfirm = async () => {
-    await updateSettings.mutateAsync({
-      allow_work_on_holidays: true
-    });
-    setShowHolidayDialog(false);
-    
-    if (pendingLessons.length > 0) {
-      pendingLessons.forEach(lesson => onSave(lesson));
-      setPendingLessons([]);
-      onClose();
-    }
-  };
-
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px] overflow-hidden">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="p-6"
-          >
-            <LessonDialogHeader 
-              isEditing={!!event}
-              selectedDate={selectedDate}
-            />
-            
-            <LessonDialogForm
-              description={description}
-              onDescriptionChange={handleDescriptionChange}
-              startTime={startTime}
-              endTime={endTime}
-              selectedDate={selectedDate}
-              setStartTime={setStartTime}
-              setEndTime={setEndTime}
-              selectedStudentId={selectedStudentId}
-              setSelectedStudentId={setSelectedStudentId}
-              students={students}
-              onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
-              onClose={onClose}
-              onSubmit={handleSubmit}
-              recurrenceType={recurrenceType}
-              recurrenceCount={recurrenceCount}
-              onRecurrenceTypeChange={setRecurrenceType}
-              onRecurrenceCountChange={setRecurrenceCount}
-            />
-          </motion.div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showHolidayDialog} onOpenChange={setShowHolidayDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Tatil Günü Uyarısı</DialogTitle>
-            <DialogDescription>
-              {currentHolidayDate && `${format(currentHolidayDate, 'd MMMM yyyy')} tarihi tatil günü. Bu tarih için çalışma iznini açmak ister misiniz?`}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowHolidayDialog(false);
-              onClose();
-            }}>
-              İptal
-            </Button>
-            <Button onClick={handleHolidayConfirm}>
-              Çalışma İznini Aç
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px] overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="p-6"
+        >
+          <LessonDialogHeader 
+            isEditing={!!event}
+            selectedDate={selectedDate}
+            event={event}
+          />
+          
+          <LessonDialogForm
+            description={description}
+            onDescriptionChange={handleDescriptionChange}
+            startTime={startTime}
+            endTime={endTime}
+            selectedDate={selectedDate}
+            setStartTime={setStartTime}
+            setEndTime={setEndTime}
+            selectedStudentId={selectedStudentId}
+            setSelectedStudentId={setSelectedStudentId}
+            students={students}
+            onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
+            onClose={onClose}
+            onSubmit={handleSubmit}
+            recurrenceType={recurrenceType}
+            recurrenceCount={recurrenceCount}
+            onRecurrenceTypeChange={setRecurrenceType}
+            onRecurrenceCountChange={setRecurrenceCount}
+            event={event}
+          />
+        </motion.div>
+      </DialogContent>
+    </Dialog>
   );
 }
