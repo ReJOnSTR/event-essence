@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +10,7 @@ import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { supabase } from "@/integrations/supabase/client";
+import { LogIn } from "lucide-react";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -41,7 +43,6 @@ export default function LessonDialog({
   const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
   const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
   const [isPartOfRecurring, setIsPartOfRecurring] = useState(false);
-  const [parentLessonId, setParentLessonId] = useState<string | null>(null);
   
   const { toast } = useToast();
   const { settings, updateSettings } = useUserSettings();
@@ -59,16 +60,13 @@ export default function LessonDialog({
         // Check if this lesson is part of a recurring series
         const checkRecurringLesson = async () => {
           if (event.id) {
-            const { data: parentLesson } = await supabase
+            const { data: lesson } = await supabase
               .from('lessons')
               .select('parent_lesson_id')
               .eq('id', event.id)
               .single();
 
-            if (parentLesson?.parent_lesson_id) {
-              setIsPartOfRecurring(true);
-              setParentLessonId(parentLesson.parent_lesson_id);
-            }
+            setIsPartOfRecurring(!!lesson?.parent_lesson_id);
           }
         };
         
@@ -108,7 +106,6 @@ export default function LessonDialog({
         setRecurrenceType("none");
         setRecurrenceCount(1);
         setIsPartOfRecurring(false);
-        setParentLessonId(null);
       }
     }
   }, [isOpen, selectedDate, event, settings]);
@@ -178,8 +175,7 @@ export default function LessonDialog({
           end: currentEnd,
           studentId: selectedStudentId,
           recurrenceType,
-          recurrenceCount,
-          parent_lesson_id: event?.id || null
+          recurrenceCount
         };
         setPendingLessons([...lessons, currentLesson]);
         return [];
@@ -193,8 +189,7 @@ export default function LessonDialog({
           end: currentEnd,
           studentId: selectedStudentId,
           recurrenceType,
-          recurrenceCount,
-          parent_lesson_id: event?.id || null
+          recurrenceCount
         });
         count++;
       }
@@ -279,8 +274,7 @@ export default function LessonDialog({
         end,
         studentId: selectedStudentId,
         recurrenceType,
-        recurrenceCount,
-        parent_lesson_id: parentLessonId
+        recurrenceCount
       });
       onClose();
     }
