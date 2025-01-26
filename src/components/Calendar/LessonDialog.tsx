@@ -141,29 +141,45 @@ export default function LessonDialog({
     let attempts = 0;
     const maxAttempts = recurrenceCount * 3;
 
-    while (count < recurrenceCount && attempts < maxAttempts) {
+    // İlk dersi ekle (orijinal ders)
+    const student = students.find(s => s.id === selectedStudentId);
+    lessons.push({
+      title: student ? `${student.name} Dersi` : "Ders",
+      description,
+      start: currentStart,
+      end: currentEnd,
+      studentId: selectedStudentId,
+      recurrenceType,
+      recurrenceCount
+    });
+
+    // Tekrar eden dersleri oluştur
+    while (count < recurrenceCount - 1 && attempts < maxAttempts) {
+      // Bir sonraki tekrar tarihini hesapla
+      switch (recurrenceType) {
+        case "weekly":
+          currentStart = addWeeks(currentStart, 1);
+          currentEnd = addWeeks(currentEnd, 1);
+          break;
+        case "monthly":
+          currentStart = addMonths(currentStart, 1);
+          currentEnd = addMonths(currentEnd, 1);
+          break;
+      }
+
       const customHolidays = settings?.holidays || [];
       const holiday = isHoliday(currentStart, customHolidays);
       
       if (holiday && !settings?.allow_work_on_holidays) {
         setCurrentHolidayDate(currentStart);
         setShowHolidayDialog(true);
-        const currentLesson = {
-          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
-          description,
-          start: currentStart,
-          end: currentEnd,
-          studentId: selectedStudentId,
-          recurrenceType,
-          recurrenceCount
-        };
-        setPendingLessons([...lessons, currentLesson]);
+        setPendingLessons([...lessons]);
         return [];
       }
 
       if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
         lessons.push({
-          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
+          title: student ? `${student.name} Dersi` : "Ders",
           description,
           start: currentStart,
           end: currentEnd,
@@ -175,20 +191,9 @@ export default function LessonDialog({
       }
 
       attempts++;
-
-      switch (recurrenceType) {
-        case "weekly":
-          currentStart = addWeeks(currentStart, 1);
-          currentEnd = addWeeks(currentEnd, 1);
-          break;
-        case "monthly":
-          currentStart = addMonths(currentStart, 1);
-          currentEnd = addMonths(currentEnd, 1);
-          break;
-      }
     }
 
-    if (count < recurrenceCount) {
+    if (count < recurrenceCount - 1) {
       toast({
         title: "Uyarı",
         description: `Bazı tekrar eden dersler, çalışma saatleri kapalı veya tatil günlerine denk geldiği için oluşturulamadı.`,
@@ -237,30 +242,28 @@ export default function LessonDialog({
       });
       return;
     }
-    
-    const student = students.find(s => s.id === selectedStudentId);
-    
+
     if (recurrenceType !== "none") {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
-        // Düzenleme modunda mevcut dersi güncelle ve yeni tekrarlanan dersleri ekle
         if (event) {
+          // Düzenleme modunda, mevcut dersi ilk ders olarak güncelle
           onSave({
-            ...event,
-            title: student ? `${student.name} Dersi` : "Ders",
-            description,
-            start,
-            end,
-            studentId: selectedStudentId,
-            recurrenceType: "none",
-            recurrenceCount: 1
+            ...recurringLessons[0],
+            id: event.id
           });
+          
+          // Diğer tekrar eden dersleri ekle
+          recurringLessons.slice(1).forEach(lesson => onSave(lesson));
+        } else {
+          // Yeni ders ekleme modunda tüm dersleri ekle
+          recurringLessons.forEach(lesson => onSave(lesson));
         }
-        // Yeni tekrarlanan dersleri ekle
-        recurringLessons.slice(1).forEach(lesson => onSave(lesson));
         onClose();
       }
     } else {
+      // Tekrar olmayan normal ders
+      const student = students.find(s => s.id === selectedStudentId);
       onSave({
         title: student ? `${student.name} Dersi` : "Ders",
         description,
@@ -281,21 +284,19 @@ export default function LessonDialog({
     setShowHolidayDialog(false);
     
     if (pendingLessons.length > 0) {
-      // Düzenleme modunda mevcut dersi güncelle ve yeni tekrarlanan dersleri ekle
       if (event) {
+        // Düzenleme modunda, mevcut dersi ilk ders olarak güncelle
         onSave({
-          ...event,
-          title: pendingLessons[0].title,
-          description: pendingLessons[0].description,
-          start: pendingLessons[0].start,
-          end: pendingLessons[0].end,
-          studentId: pendingLessons[0].studentId,
-          recurrenceType: "none",
-          recurrenceCount: 1
+          ...pendingLessons[0],
+          id: event.id
         });
+        
+        // Diğer tekrar eden dersleri ekle
+        pendingLessons.slice(1).forEach(lesson => onSave(lesson));
+      } else {
+        // Yeni ders ekleme modunda tüm dersleri ekle
+        pendingLessons.forEach(lesson => onSave(lesson));
       }
-      // Yeni tekrarlanan dersleri ekle
-      pendingLessons.slice(1).forEach(lesson => onSave(lesson));
       setPendingLessons([]);
       onClose();
     }
