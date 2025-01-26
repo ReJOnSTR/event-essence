@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +8,7 @@ import { motion } from "framer-motion";
 import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -40,6 +40,8 @@ export default function LessonDialog({
   const [showHolidayDialog, setShowHolidayDialog] = useState(false);
   const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
   const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
+  const [isPartOfRecurring, setIsPartOfRecurring] = useState(false);
+  const [parentLessonId, setParentLessonId] = useState<string | null>(null);
   
   const { toast } = useToast();
   const { settings, updateSettings } = useUserSettings();
@@ -51,8 +53,26 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
-        setRecurrenceType(event.recurrenceType as "none" | "weekly" | "monthly" || "none");
+        setRecurrenceType(event.recurrenceType || "none");
         setRecurrenceCount(event.recurrenceCount || 1);
+
+        // Check if this lesson is part of a recurring series
+        const checkRecurringLesson = async () => {
+          if (event.id) {
+            const { data: parentLesson } = await supabase
+              .from('lessons')
+              .select('parent_lesson_id')
+              .eq('id', event.id)
+              .single();
+
+            if (parentLesson?.parent_lesson_id) {
+              setIsPartOfRecurring(true);
+              setParentLessonId(parentLesson.parent_lesson_id);
+            }
+          }
+        };
+        
+        checkRecurringLesson();
       } else {
         const workingHours = settings?.working_hours;
         const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -87,6 +107,8 @@ export default function LessonDialog({
         setSelectedStudentId("");
         setRecurrenceType("none");
         setRecurrenceCount(1);
+        setIsPartOfRecurring(false);
+        setParentLessonId(null);
       }
     }
   }, [isOpen, selectedDate, event, settings]);
@@ -156,7 +178,8 @@ export default function LessonDialog({
           end: currentEnd,
           studentId: selectedStudentId,
           recurrenceType,
-          recurrenceCount
+          recurrenceCount,
+          parent_lesson_id: event?.id || null
         };
         setPendingLessons([...lessons, currentLesson]);
         return [];
@@ -170,7 +193,8 @@ export default function LessonDialog({
           end: currentEnd,
           studentId: selectedStudentId,
           recurrenceType,
-          recurrenceCount
+          recurrenceCount,
+          parent_lesson_id: event?.id || null
         });
         count++;
       }
@@ -241,7 +265,7 @@ export default function LessonDialog({
     
     const student = students.find(s => s.id === selectedStudentId);
     
-    if (recurrenceType !== "none" && !event) {
+    if (recurrenceType !== "none") {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
         recurringLessons.forEach(lesson => onSave(lesson));
@@ -255,7 +279,8 @@ export default function LessonDialog({
         end,
         studentId: selectedStudentId,
         recurrenceType,
-        recurrenceCount
+        recurrenceCount,
+        parent_lesson_id: parentLessonId
       });
       onClose();
     }
@@ -288,6 +313,7 @@ export default function LessonDialog({
             <LessonDialogHeader 
               isEditing={!!event}
               selectedDate={selectedDate}
+              isPartOfRecurring={isPartOfRecurring}
             />
             
             <LessonDialogForm
@@ -308,6 +334,7 @@ export default function LessonDialog({
               recurrenceCount={recurrenceCount}
               onRecurrenceTypeChange={setRecurrenceType}
               onRecurrenceCountChange={setRecurrenceCount}
+              isPartOfRecurring={isPartOfRecurring}
             />
           </motion.div>
         </DialogContent>
