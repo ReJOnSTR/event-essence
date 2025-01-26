@@ -141,8 +141,9 @@ export default function LessonDialog({
     let attempts = 0;
     const maxAttempts = recurrenceCount * 3;
 
-    // İlk dersi ekle (orijinal ders)
     const student = students.find(s => s.id === selectedStudentId);
+    
+    // Add the first lesson (original lesson)
     lessons.push({
       title: student ? `${student.name} Dersi` : "Ders",
       description,
@@ -153,9 +154,7 @@ export default function LessonDialog({
       recurrenceCount
     });
 
-    // Tekrar eden dersleri oluştur
     while (count < recurrenceCount - 1 && attempts < maxAttempts) {
-      // Bir sonraki tekrar tarihini hesapla
       switch (recurrenceType) {
         case "weekly":
           currentStart = addWeeks(currentStart, 1);
@@ -246,23 +245,12 @@ export default function LessonDialog({
     if (recurrenceType !== "none") {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
-        if (event) {
-          // Düzenleme modunda, mevcut dersi ilk ders olarak güncelle
-          onSave({
-            ...recurringLessons[0],
-            id: event.id
-          });
-          
-          // Diğer tekrar eden dersleri ekle
-          recurringLessons.slice(1).forEach(lesson => onSave(lesson));
-        } else {
-          // Yeni ders ekleme modunda tüm dersleri ekle
-          recurringLessons.forEach(lesson => onSave(lesson));
-        }
+        // Save all recurring lessons
+        recurringLessons.forEach(lesson => onSave(lesson));
         onClose();
       }
     } else {
-      // Tekrar olmayan normal ders
+      // Save single lesson
       const student = students.find(s => s.id === selectedStudentId);
       onSave({
         title: student ? `${student.name} Dersi` : "Ders",
@@ -284,19 +272,7 @@ export default function LessonDialog({
     setShowHolidayDialog(false);
     
     if (pendingLessons.length > 0) {
-      if (event) {
-        // Düzenleme modunda, mevcut dersi ilk ders olarak güncelle
-        onSave({
-          ...pendingLessons[0],
-          id: event.id
-        });
-        
-        // Diğer tekrar eden dersleri ekle
-        pendingLessons.slice(1).forEach(lesson => onSave(lesson));
-      } else {
-        // Yeni ders ekleme modunda tüm dersleri ekle
-        pendingLessons.forEach(lesson => onSave(lesson));
-      }
+      pendingLessons.forEach(lesson => onSave(lesson));
       setPendingLessons([]);
       onClose();
     }
