@@ -1,4 +1,4 @@
-import { Student, Lesson } from "@/types/calendar";
+import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
@@ -31,7 +31,6 @@ interface LessonDialogFormProps {
   recurrenceCount: number;
   onRecurrenceTypeChange: (value: "none" | "weekly" | "monthly") => void;
   onRecurrenceCountChange: (count: number) => void;
-  event?: Lesson;
 }
 
 export default function LessonDialogForm({
@@ -51,11 +50,8 @@ export default function LessonDialogForm({
   recurrenceType,
   recurrenceCount,
   onRecurrenceTypeChange,
-  onRecurrenceCountChange,
-  event
+  onRecurrenceCountChange
 }: LessonDialogFormProps) {
-  const showRecurrenceSettings = !event?.parentLessonId;
-
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <motion.div
@@ -123,20 +119,18 @@ export default function LessonDialogForm({
         />
       </motion.div>
 
-      {showRecurrenceSettings && (
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <RecurrenceSettings
-            recurrenceType={recurrenceType}
-            recurrenceCount={recurrenceCount}
-            onRecurrenceTypeChange={onRecurrenceTypeChange}
-            onRecurrenceCountChange={onRecurrenceCountChange}
-          />
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <RecurrenceSettings
+          recurrenceType={recurrenceType}
+          recurrenceCount={recurrenceCount}
+          onRecurrenceTypeChange={onRecurrenceTypeChange}
+          onRecurrenceCountChange={onRecurrenceCountChange}
+        />
+      </motion.div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
