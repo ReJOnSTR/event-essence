@@ -25,6 +25,7 @@ export default function WeekView({
 }: WeekViewProps) {
   const { settings } = useUserSettings();
   
+  // Always initialize these variables, don't return early
   const workingHours = settings?.working_hours || {
     monday: { start: "09:00", end: "17:00", enabled: true },
     tuesday: { start: "09:00", end: "17:00", enabled: true },
@@ -59,14 +60,14 @@ export default function WeekView({
 
   return (
     <motion.div 
-      className="w-full h-full overflow-x-auto"
+      className="w-full overflow-x-auto"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
     >
-      <div className="border border-border rounded-lg overflow-hidden h-full">
+      <div className="border border-border rounded-lg overflow-hidden">
         <WeekViewHeader date={date} />
-        <div className="grid grid-cols-8 divide-x divide-border h-[calc(100%-2.5rem)]">
+        <div className="grid grid-cols-8 divide-x divide-border">
           <WeekViewTimeGrid
             weekDays={weekDays}
             hours={hours}
