@@ -137,30 +137,25 @@ export default function LessonDialog({
     const lessons: Omit<Lesson, "id">[] = [];
     let currentStart = baseStart;
     let currentEnd = baseEnd;
-    let successCount = 0;
-    let skippedCount = 0;
+    let remainingCount = recurrenceCount;
     
-    // Create exactly recurrenceCount lessons, accounting for holidays and working hours
-    while (successCount < recurrenceCount) {
+    while (remainingCount > 0) {
       const customHolidays = settings?.holidays || [];
       const holiday = isHoliday(currentStart, customHolidays);
       
       if (holiday && !settings?.allow_work_on_holidays) {
-        setCurrentHolidayDate(currentStart);
-        setShowHolidayDialog(true);
-        setPendingLessons([]);
-        const currentLesson = {
-          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
-          description,
-          start: currentStart,
-          end: currentEnd,
-          studentId: selectedStudentId,
-          recurrenceType,
-          recurrenceCount,
-          parentLessonId: event?.id
-        };
-        setPendingLessons([...lessons, currentLesson]);
-        return [];
+        // Skip holiday and move to next date
+        switch (recurrenceType) {
+          case "weekly":
+            currentStart = addWeeks(currentStart, 1);
+            currentEnd = addWeeks(currentEnd, 1);
+            break;
+          case "monthly":
+            currentStart = addMonths(currentStart, 1);
+            currentEnd = addMonths(currentEnd, 1);
+            break;
+        }
+        continue;
       }
 
       if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
@@ -174,12 +169,10 @@ export default function LessonDialog({
           recurrenceCount,
           parentLessonId: event?.id
         });
-        successCount++;
-      } else {
-        skippedCount++;
+        remainingCount--;
       }
 
-      // Move to next date based on recurrence type
+      // Always move to next date after attempting to create a lesson
       switch (recurrenceType) {
         case "weekly":
           currentStart = addWeeks(currentStart, 1);
@@ -191,8 +184,8 @@ export default function LessonDialog({
           break;
       }
 
-      // Prevent infinite loop if too many dates are unavailable
-      if (skippedCount > recurrenceCount * 3) {
+      // Safety check to prevent infinite loop
+      if (lessons.length + (recurrenceCount - remainingCount) > recurrenceCount * 10) {
         toast({
           title: "Uyarı",
           description: "Yeterli uygun tarih bulunamadı. Lütfen çalışma saatlerinizi kontrol edin.",
@@ -202,10 +195,10 @@ export default function LessonDialog({
       }
     }
 
-    if (successCount < recurrenceCount) {
+    if (lessons.length < recurrenceCount) {
       toast({
         title: "Uyarı",
-        description: `${recurrenceCount} dersten ${successCount} tanesi oluşturulabildi. Diğer tarihler çalışma saatleri dışında veya dolu.`,
+        description: `${recurrenceCount} dersten ${lessons.length} tanesi oluşturulabildi. Diğer tarihler uygun değil.`,
         variant: "warning"
       });
     }
