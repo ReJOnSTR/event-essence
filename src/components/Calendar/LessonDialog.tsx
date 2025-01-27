@@ -137,11 +137,11 @@ export default function LessonDialog({
     const lessons: Omit<Lesson, "id">[] = [];
     let currentStart = baseStart;
     let currentEnd = baseEnd;
-    let count = 0;
-    let attempts = 0;
-    const maxAttempts = recurrenceCount * 3;
-
-    while (count < recurrenceCount && attempts < maxAttempts) {
+    let successCount = 0;
+    let skippedCount = 0;
+    
+    // Create exactly recurrenceCount lessons, accounting for holidays and working hours
+    while (successCount < recurrenceCount) {
       const customHolidays = settings?.holidays || [];
       const holiday = isHoliday(currentStart, customHolidays);
       
@@ -174,11 +174,12 @@ export default function LessonDialog({
           recurrenceCount,
           parentLessonId: event?.id
         });
-        count++;
+        successCount++;
+      } else {
+        skippedCount++;
       }
 
-      attempts++;
-
+      // Move to next date based on recurrence type
       switch (recurrenceType) {
         case "weekly":
           currentStart = addWeeks(currentStart, 1);
@@ -189,12 +190,22 @@ export default function LessonDialog({
           currentEnd = addMonths(currentEnd, 1);
           break;
       }
+
+      // Prevent infinite loop if too many dates are unavailable
+      if (skippedCount > recurrenceCount * 3) {
+        toast({
+          title: "Uyarı",
+          description: "Yeterli uygun tarih bulunamadı. Lütfen çalışma saatlerinizi kontrol edin.",
+          variant: "warning"
+        });
+        break;
+      }
     }
 
-    if (count < recurrenceCount) {
+    if (successCount < recurrenceCount) {
       toast({
         title: "Uyarı",
-        description: `Bazı tekrar eden dersler, çalışma saatleri kapalı veya tatil günlerine denk geldiği için oluşturulamadı.`,
+        description: `${recurrenceCount} dersten ${successCount} tanesi oluşturulabildi. Diğer tarihler çalışma saatleri dışında veya dolu.`,
         variant: "warning"
       });
     }
