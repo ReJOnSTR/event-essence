@@ -138,13 +138,16 @@ export default function LessonDialog({
     let currentStart = baseStart;
     let currentEnd = baseEnd;
     let remainingCount = recurrenceCount;
+    let attemptCount = 0;
+    const maxAttempts = recurrenceCount * 10; // Safety limit
     
-    while (remainingCount > 0) {
+    while (remainingCount > 0 && attemptCount < maxAttempts) {
+      attemptCount++;
       const customHolidays = settings?.holidays || [];
       const holiday = isHoliday(currentStart, customHolidays);
       
       if (holiday && !settings?.allow_work_on_holidays) {
-        // Skip holiday and move to next date
+        // Skip holiday date
         switch (recurrenceType) {
           case "weekly":
             currentStart = addWeeks(currentStart, 1);
@@ -172,7 +175,7 @@ export default function LessonDialog({
         remainingCount--;
       }
 
-      // Always move to next date after attempting to create a lesson
+      // Move to next date
       switch (recurrenceType) {
         case "weekly":
           currentStart = addWeeks(currentStart, 1);
@@ -182,16 +185,6 @@ export default function LessonDialog({
           currentStart = addMonths(currentStart, 1);
           currentEnd = addMonths(currentEnd, 1);
           break;
-      }
-
-      // Safety check to prevent infinite loop
-      if (lessons.length + (recurrenceCount - remainingCount) > recurrenceCount * 10) {
-        toast({
-          title: "Uyarı",
-          description: "Yeterli uygun tarih bulunamadı. Lütfen çalışma saatlerinizi kontrol edin.",
-          variant: "warning"
-        });
-        break;
       }
     }
 
