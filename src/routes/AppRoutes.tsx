@@ -9,6 +9,11 @@ import LoginPage from "@/pages/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 
+interface AppRoutesProps {
+  headerHeight: number;
+  location: any;
+}
+
 const pageVariants = {
   initial: {
     opacity: 0,
@@ -30,7 +35,7 @@ const pageTransition = {
   duration: 0.3
 };
 
-export function AppRoutes() {
+export function AppRoutes({ headerHeight, location }: AppRoutesProps) {
   return (
     <motion.div
       key={location.pathname}
@@ -40,8 +45,13 @@ export function AppRoutes() {
       variants={pageVariants}
       transition={pageTransition}
       className="w-full h-full"
+      style={{ 
+        marginTop: headerHeight,
+        height: `calc(100vh - ${headerHeight}px)`,
+        transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
+      }}
     >
-      <Routes>
+      <Routes location={location}>
         <Route 
           path="/login" 
           element={
@@ -54,7 +64,7 @@ export function AppRoutes() {
           path="/calendar" 
           element={
             <ProtectedRoute>
-              <CalendarPage />
+              <CalendarPage headerHeight={headerHeight} />
             </ProtectedRoute>
           } 
         />
