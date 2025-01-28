@@ -6,7 +6,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { Mail, Lock } from "lucide-react";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Separator } from "@/components/ui/separator";
-import { useNavigate } from "react-router-dom";
 
 interface LoginFormProps {
   onToggleForm: () => void;
@@ -35,7 +34,6 @@ const getErrorMessage = (error: AuthError) => {
 
 export function LoginForm({ onToggleForm }: LoginFormProps) {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -43,21 +41,16 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Check and clear invalid session on mount
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        navigate('/calendar');
-        toast({
-          title: "Giriş başarılı",
-          description: "Ana sayfaya yönlendiriliyorsunuz...",
-        });
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error?.status === 403 || (session && !session.user)) {
+        await supabase.auth.signOut();
       }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+    checkSession();
+  }, []);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -89,19 +82,10 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
 
   const handleGoogleLogin = async () => {
     try {
-      setLoading(true);
-      const redirectTo = window.location.hostname === 'localhost' 
-        ? 'http://localhost:3000/calendar'
-        : `${window.location.origin}/calendar`;
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+          redirectTo: window.location.origin
         }
       });
 
@@ -109,7 +93,7 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
         toast({
           variant: "destructive",
           title: "Google ile giriş başarısız",
-          description: error instanceof AuthError ? getErrorMessage(error) : "Bir hata oluştu"
+          description: getErrorMessage(error)
         });
       }
     } catch (error) {
@@ -119,8 +103,6 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
         title: "Bir hata oluştu",
         description: "Google ile giriş yapılırken bir hata oluştu."
       });
-    } finally {
-      setLoading(false);
     }
   };
 

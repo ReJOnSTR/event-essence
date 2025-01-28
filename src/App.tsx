@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
 import StudentDialog from "@/components/Students/StudentDialog";
@@ -24,22 +24,7 @@ function AppContent() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
-  const navigate = useNavigate();
   
-  useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
-        localStorage.removeItem('returnUrl');
-        navigate(returnUrl);
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [navigate]);
-
   const { 
     isDialogOpen, 
     closeDialog, 
