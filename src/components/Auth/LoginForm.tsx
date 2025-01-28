@@ -90,10 +90,14 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
+      const redirectTo = window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000/calendar'
+        : `${window.location.origin}/calendar`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/calendar`,
+          redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
