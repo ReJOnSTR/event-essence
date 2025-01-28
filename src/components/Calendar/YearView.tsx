@@ -36,14 +36,14 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
               delay: index * 0.02,
               ease: [0.23, 1, 0.32, 1]
             }}
-            className="bg-background/80 rounded-lg shadow-sm overflow-hidden"
+            className="bg-background/80 rounded-lg shadow-sm overflow-hidden flex flex-col"
           >
             <div className="bg-muted/80 py-2 px-3 border-b border-border">
               <h2 className="text-base font-semibold text-foreground text-center">
                 {format(month, "MMMM", { locale: tr })}
               </h2>
             </div>
-            <div className="p-2">
+            <div className="p-2 flex-1 flex flex-col">
               <MonthView
                 date={month}
                 events={events}
