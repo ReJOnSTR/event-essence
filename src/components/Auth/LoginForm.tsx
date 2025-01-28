@@ -6,6 +6,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { Mail, Lock } from "lucide-react";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface LoginFormProps {
   onToggleForm: () => void;
@@ -35,6 +43,7 @@ const getErrorMessage = (error: AuthError) => {
 export function LoginForm({ onToggleForm }: LoginFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -77,6 +86,38 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
     }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handlePasswordReset = async (email: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Hata",
+          description: error.message,
+        });
+      } else {
+        setResetEmailSent(true);
+        toast({
+          title: "Email gönderildi",
+          description: "Şifre sıfırlama bağlantısı email adresinize gönderildi.",
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        variant: "destructive",
+        title: "Hata",
+        description: "Şifre sıfırlama işlemi sırasında bir hata oluştu.",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -160,18 +201,67 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
         required
       />
 
-      <InputField
-        id="password"
-        name="password"
-        type="password"
-        label="Şifre"
-        placeholder="••••••••"
-        value={formData.password}
-        onChange={handleInputChange}
-        error={errors.password}
-        icon={<Lock />}
-        required
-      />
+      <div className="space-y-1">
+        <InputField
+          id="password"
+          name="password"
+          type="password"
+          label="Şifre"
+          placeholder="••••••••"
+          value={formData.password}
+          onChange={handleInputChange}
+          error={errors.password}
+          icon={<Lock />}
+          required
+        />
+        
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button 
+              variant="link" 
+              className="px-0 font-normal h-auto text-sm"
+              type="button"
+            >
+              Şifremi unuttum
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Şifre Sıfırlama</DialogTitle>
+              <DialogDescription>
+                {resetEmailSent ? (
+                  "Şifre sıfırlama bağlantısı email adresinize gönderildi. Lütfen email kutunuzu kontrol edin."
+                ) : (
+                  "Email adresinizi girin ve size şifre sıfırlama bağlantısı gönderelim."
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            {!resetEmailSent && (
+              <div className="space-y-4">
+                <InputField
+                  id="resetEmail"
+                  name="resetEmail"
+                  type="email"
+                  label="Email Adresi"
+                  placeholder="ornek@email.com"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  icon={<Mail />}
+                  required
+                />
+                <Button 
+                  type="button"
+                  onClick={() => handlePasswordReset(formData.email)}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? "Gönderiliyor..." : "Şifre Sıfırlama Bağlantısı Gönder"}
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <Button 
         type="submit" 
