@@ -25,11 +25,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-interface CalendarPageProps {
-  headerHeight: number;
-}
-
-export default function CalendarPage({ headerHeight }: CalendarPageProps) {
+export default function CalendarPage() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
