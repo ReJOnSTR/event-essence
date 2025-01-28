@@ -246,3 +246,4 @@ export function LoginForm({ onToggleForm }: LoginFormProps) {
       </p>
     </form>
   );
+}
