@@ -125,8 +125,7 @@ export function RegisterForm({ onToggleForm }: RegisterFormProps) {
             full_name: `${formData.firstName} ${formData.lastName}`,
             phone_number: formData.phoneNumber,
             teaching_subjects: formData.teachingSubjects,
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          }
         }
       });
 
