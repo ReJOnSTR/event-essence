@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSessionContext } from "@supabase/auth-helpers-react";
-import AppRoutes from "./routes/AppRoutes";
+import { AppRoutes } from "./routes/AppRoutes";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 
