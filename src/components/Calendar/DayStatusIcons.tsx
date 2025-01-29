@@ -1,4 +1,4 @@
-import { CalendarOff, CalendarCheck, CalendarX } from "lucide-react";
+import { Flag, Moon, Sun } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DayStatusIconsProps {
@@ -24,7 +24,7 @@ export default function DayStatusIcons({
         {isHoliday && (
           <Tooltip>
             <TooltipTrigger>
-              <CalendarX className="h-4 w-4 text-holiday-icon" />
+              <Flag className="h-4 w-4 text-holiday-icon" />
             </TooltipTrigger>
             <TooltipContent>
               <p>{holidayName || "Resmi Tatil"}</p>
@@ -34,7 +34,7 @@ export default function DayStatusIcons({
         {isWorkingHoliday && (
           <Tooltip>
             <TooltipTrigger>
-              <CalendarCheck className="h-4 w-4 text-working-holiday-icon" />
+              <Sun className="h-4 w-4 text-working-holiday-icon" />
             </TooltipTrigger>
             <TooltipContent>
               <p>{holidayName} (Çalışmaya Açık)</p>
@@ -44,7 +44,7 @@ export default function DayStatusIcons({
         {isNonWorkingDay && (
           <Tooltip>
             <TooltipTrigger>
-              <CalendarOff className="h-4 w-4 text-non-working-icon" />
+              <Moon className="h-4 w-4 text-non-working-icon" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Çalışma Saatleri Kapalı</p>
