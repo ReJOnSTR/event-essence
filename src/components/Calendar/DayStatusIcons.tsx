@@ -1,4 +1,4 @@
-import { Flag, Moon, Sun } from "lucide-react";
+import { Flag, Sun, Moon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DayStatusIconsProps {

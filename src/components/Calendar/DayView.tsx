@@ -12,6 +12,7 @@ import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useMobileDragDrop } from "@/hooks/useMobileDragDrop";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import DayStatusIcons from "./DayStatusIcons";
 
 interface DayViewProps {
   date: Date;
@@ -149,27 +150,18 @@ export default function DayView({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <motion.div 
-        className="w-full"
+        className="w-full relative"
         initial={{ opacity: 0, y: 2 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
       >
-        <AnimatePresence>
-          {holiday && (
-            <motion.div 
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-              className={cn(
-                "mb-4 p-2 rounded-md border",
-                !allowWorkOnHolidays ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
-              )}
-            >
-              {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Tatil"}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <DayStatusIcons 
+          isHoliday={holiday && !allowWorkOnHolidays}
+          isWorkingHoliday={holiday && allowWorkOnHolidays}
+          isNonWorkingDay={!daySettings?.enabled}
+          holidayName={holiday?.name}
+          className="static flex justify-end mb-4"
+        />
 
         <div className="space-y-2">
           {hours.map((hour, index) => (
