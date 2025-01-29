@@ -155,20 +155,13 @@ export default function DayView({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">
-              {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
-            </h2>
-            <DayStatusIcons 
-              isHoliday={holiday && !allowWorkOnHolidays}
-              isWorkingHoliday={holiday && allowWorkOnHolidays}
-              isNonWorkingDay={!daySettings?.enabled}
-              holidayName={holiday?.name}
-              className="static flex"
-            />
-          </div>
-        </div>
+        <DayStatusIcons 
+          isHoliday={holiday && !allowWorkOnHolidays}
+          isWorkingHoliday={holiday && allowWorkOnHolidays}
+          isNonWorkingDay={!daySettings?.enabled}
+          holidayName={holiday?.name}
+          className="static flex justify-end mb-4"
+        />
 
         <div className="space-y-2">
           {hours.map((hour, index) => (
