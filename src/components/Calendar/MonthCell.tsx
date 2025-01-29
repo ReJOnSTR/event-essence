@@ -14,29 +14,27 @@ interface MonthCellProps {
     lessons: CalendarEvent[];
   };
   idx: number;
+  holiday: ReturnType<typeof isHoliday>;
+  allowWorkOnHolidays: boolean;
   handleDateClick: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   students?: Student[];
-  allowWorkOnHolidays: boolean;
-  customHolidays: Array<{ date: string; description?: string }>;
-  workingHours?: WeeklyWorkingHours;
+  workingHours: WeeklyWorkingHours;
 }
 
 export default function MonthCell({
   day,
   idx,
+  holiday,
+  allowWorkOnHolidays,
   handleDateClick,
   onEventClick,
   students,
-  allowWorkOnHolidays,
-  customHolidays,
   workingHours
 }: MonthCellProps) {
   const dayOfWeek = day.date.getDay();
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-  const daySettings = workingHours?.[days[dayOfWeek]];
-  
-  const holiday = isHoliday(day.date, customHolidays);
+  const daySettings = workingHours[days[dayOfWeek]];
   const isDisabled = !daySettings?.enabled || (holiday && !allowWorkOnHolidays);
 
   return (
@@ -64,18 +62,20 @@ export default function MonthCell({
             snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
           )}
         >
-          <div className="text-sm font-medium">
-            {format(day.date, "d")}
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium">
+              {format(day.date, "d")}
+            </div>
+            <DayStatusIcons 
+              isHoliday={holiday && !allowWorkOnHolidays}
+              isWorkingHoliday={holiday && allowWorkOnHolidays}
+              isNonWorkingDay={!daySettings?.enabled}
+              holidayName={holiday?.name}
+              className="static"
+            />
           </div>
-          
-          <DayStatusIcons 
-            isHoliday={holiday && !allowWorkOnHolidays}
-            isWorkingHoliday={holiday && allowWorkOnHolidays}
-            isNonWorkingDay={!daySettings?.enabled}
-            holidayName={holiday?.name}
-          />
 
-          <div className="space-y-1 mt-6">
+          <div className="space-y-1">
             {day.lessons.map((event, index) => (
               <MonthEventCard
                 key={event.id}
