@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import DayStatusIcons from "./DayStatusIcons";
 
 interface WeekViewHeaderProps {
   date: Date;
@@ -15,6 +16,7 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
   const { settings } = useUserSettings();
   const customHolidays = settings?.holidays || [];
   const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
+  const workingHours = settings?.working_hours;
   
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -24,6 +26,9 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
       <div className="bg-background w-16 border-b border-border" />
       {weekDays.map((day, index) => {
         const holiday = isHoliday(day, customHolidays);
+        const dayOfWeek = format(day, 'EEEE').toLowerCase();
+        const daySettings = workingHours?.[dayOfWeek as keyof typeof workingHours];
+
         return (
           <motion.div
             key={day.toString()}
@@ -48,21 +53,14 @@ export default function WeekViewHeader({ date }: WeekViewHeaderProps) {
                 {format(day, "d MMM", { locale: tr })}
               </div>
             </div>
-            {holiday && (
-              <div 
-                className={cn(
-                  "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded-md",
-                  !allowWorkOnHolidays 
-                    ? "bg-destructive/10 text-destructive border border-destructive/20" 
-                    : "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20",
-                  "truncate"
-                )}
-                title={holiday.name}
-              >
-                {holiday.name}
-                {allowWorkOnHolidays && " (Çalışmaya Açık)"}
-              </div>
-            )}
+
+            <DayStatusIcons 
+              isHoliday={holiday && !allowWorkOnHolidays}
+              isWorkingHoliday={holiday && allowWorkOnHolidays}
+              isNonWorkingDay={!daySettings?.enabled}
+              holidayName={holiday?.name}
+              className="static flex justify-center mt-1"
+            />
           </motion.div>
         );
       })}

@@ -5,6 +5,7 @@ import { Droppable } from "@hello-pangea/dnd";
 import MonthEventCard from "@/components/Calendar/MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
+import DayStatusIcons from "@/components/Calendar/DayStatusIcons";
 
 interface MonthCellProps {
   day: {
@@ -51,38 +52,28 @@ export default function MonthCell({
           }}
           onClick={() => !isDisabled && handleDateClick(day.date)}
           className={cn(
-            "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
+            "min-h-[120px] p-2 bg-background/80 transition-colors duration-150 relative",
             !day.isCurrentMonth && "text-muted-foreground/50 bg-muted/50",
             isToday(day.date) && "bg-accent text-accent-foreground",
-            holiday && !allowWorkOnHolidays && "bg-holiday text-holiday-foreground",
-            holiday && allowWorkOnHolidays && "bg-working-holiday text-working-holiday-foreground",
-            !daySettings?.enabled && "bg-muted",
+            holiday && !allowWorkOnHolidays && "bg-holiday",
+            holiday && allowWorkOnHolidays && "bg-working-holiday",
+            !daySettings?.enabled && "bg-non-working",
             isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
             snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
           )}
         >
-          <div className={cn(
-            "text-sm font-medium mb-1",
-            !day.isCurrentMonth && "text-muted-foreground/50",
-            isToday(day.date) && "text-accent-foreground"
-          )}>
+          <div className="text-sm font-medium">
             {format(day.date, "d")}
-            {holiday && (
-              <div className={cn(
-                "text-xs truncate",
-                !allowWorkOnHolidays ? "text-holiday-foreground" : "text-working-holiday-foreground"
-              )}>
-                {holiday.name}
-                {allowWorkOnHolidays && " (Çalışmaya Açık)"}
-              </div>
-            )}
-            {!holiday && !daySettings?.enabled && (
-              <div className="text-xs text-muted-foreground truncate">
-                Çalışma Saatleri Kapalı
-              </div>
-            )}
           </div>
-          <div className="space-y-1">
+          
+          <DayStatusIcons 
+            isHoliday={holiday && !allowWorkOnHolidays}
+            isWorkingHoliday={holiday && allowWorkOnHolidays}
+            isNonWorkingDay={!daySettings?.enabled}
+            holidayName={holiday?.name}
+          />
+
+          <div className="space-y-1 mt-2">
             {day.lessons.map((event, index) => (
               <MonthEventCard
                 key={event.id}
