@@ -64,18 +64,19 @@ export default function MonthCell({
             snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
           )}
         >
-          <div className="text-sm font-medium">
-            {format(day.date, "d")}
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium">
+              {format(day.date, "d")}
+            </div>
+            <DayStatusIcons 
+              isHoliday={holiday && !allowWorkOnHolidays}
+              isWorkingHoliday={holiday && allowWorkOnHolidays}
+              isNonWorkingDay={!daySettings?.enabled}
+              holidayName={holiday?.name}
+            />
           </div>
-          
-          <DayStatusIcons 
-            isHoliday={holiday && !allowWorkOnHolidays}
-            isWorkingHoliday={holiday && allowWorkOnHolidays}
-            isNonWorkingDay={!daySettings?.enabled}
-            holidayName={holiday?.name}
-          />
 
-          <div className="space-y-1 mt-6">
+          <div className="space-y-1">
             {day.lessons.map((event, index) => (
               <MonthEventCard
                 key={event.id}
