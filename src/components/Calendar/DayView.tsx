@@ -5,7 +5,7 @@ import LessonCard from "./LessonCard";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { getWorkingHours } from "@/utils/workingHours";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { TimeIndicator } from "./TimeIndicator";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
