@@ -5,6 +5,9 @@ import { tr } from 'date-fns/locale';
 import ViewSelector from "./ViewSelector";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { isHoliday } from "@/utils/turkishHolidays";
+import { useUserSettings } from "@/hooks/useUserSettings";
+import DayStatusIcons from "./DayStatusIcons";
 
 interface CalendarPageHeaderProps {
   date: Date;
@@ -24,6 +27,10 @@ export default function CalendarPageHeader({
   onToday
 }: CalendarPageHeaderProps) {
   const isMobile = useIsMobile();
+  const { settings } = useUserSettings();
+  const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
+  const customHolidays = settings?.holidays || [];
+  const workingHours = settings?.working_hours;
 
   const getDateFormat = () => {
     if (isMobile) {
@@ -55,6 +62,14 @@ export default function CalendarPageHeader({
     }
   };
 
+  const dayOfWeek = date.getDay();
+  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+  const daySettings = workingHours?.[days[dayOfWeek]];
+  const holiday = isHoliday(date, customHolidays);
+  const isCustomHoliday = customHolidays?.some(h => 
+    new Date(h.date).toDateString() === date.toDateString()
+  );
+
   return (
     <div className="p-2 md:p-4 border-b bg-background sticky top-0 z-10">
       <ViewSelector
@@ -70,6 +85,14 @@ export default function CalendarPageHeader({
           )}>
             {format(date, getDateFormat(), { locale: tr })}
           </h1>
+          {currentView === 'day' && (
+            <DayStatusIcons
+              isHoliday={!!holiday && !isCustomHoliday}
+              isCustomHoliday={isCustomHoliday}
+              allowWorkOnHolidays={allowWorkOnHolidays}
+              isWorkingDay={!!daySettings?.enabled}
+            />
+          )}
         </div>
         <div className="flex gap-1 md:gap-2">
           <Button 
