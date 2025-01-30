@@ -15,13 +15,14 @@ export default function RecurringLessonsSettings() {
   const { students } = useStudents();
   const { toast } = useToast();
 
-  // Only get lessons with recurrence_type set to weekly or monthly
+  // Filter lessons with recurrence_type set to weekly or monthly
   const recurringLessons = lessons.filter(lesson => 
     lesson.recurrenceType === "weekly" || lesson.recurrenceType === "monthly"
   );
 
   const groupedLessons = recurringLessons.reduce((acc, lesson) => {
-    const key = `${lesson.studentId}-${lesson.recurrenceType}`;
+    // Group by studentId and recurrenceType combination
+    const key = `${lesson.studentId}-${lesson.recurrenceType}-${lesson.recurrenceInterval}`;
     if (!acc[key]) {
       acc[key] = [];
     }
@@ -43,8 +44,9 @@ export default function RecurringLessonsSettings() {
     return students.find(s => s.id === studentId)?.name || "Öğrenci Silinmiş";
   };
 
-  const getRecurrenceText = (type: string) => {
-    return type === "weekly" ? "Her hafta" : "Her ay";
+  const getRecurrenceText = (type: string, interval: number = 1) => {
+    const baseText = type === "weekly" ? "Her hafta" : "Her ay";
+    return interval > 1 ? `${baseText} (${interval} aralıkla)` : baseText;
   };
 
   return (
@@ -72,7 +74,7 @@ export default function RecurringLessonsSettings() {
                       {getStudentName(lessons[0].studentId)}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {getRecurrenceText(lessons[0].recurrenceType || '')}
+                      {getRecurrenceText(lessons[0].recurrenceType || '', lessons[0].recurrenceInterval || 1)}
                     </p>
                   </div>
                   <Button
