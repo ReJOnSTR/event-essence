@@ -42,17 +42,10 @@ export default {
         "holiday": {
           DEFAULT: "hsl(var(--destructive) / 0.1)",
           foreground: "hsl(var(--destructive))",
-          icon: "hsl(var(--destructive))"
         },
         "working-holiday": {
           DEFAULT: "hsl(var(--warning) / 0.1)",
           foreground: "hsl(var(--warning))",
-          icon: "hsl(var(--warning))"
-        },
-        "non-working": {
-          DEFAULT: "hsl(var(--muted) / 0.3)",
-          foreground: "hsl(var(--muted-foreground))",
-          icon: "hsl(var(--muted-foreground))"
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
