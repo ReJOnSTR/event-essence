@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { Lesson, Student } from "@/types/calendar";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Calendar } from "lucide-react";
+import { Trash2, Edit } from "lucide-react";
 import { useLessons } from "@/hooks/useLessons";
 import { useStudents } from "@/hooks/useStudents";
 import { useToast } from "@/hooks/use-toast";
@@ -15,14 +15,9 @@ export default function RecurringLessonsSettings() {
   const { students } = useStudents();
   const { toast } = useToast();
 
-  // Filter lessons with recurrence_type set to weekly or monthly
-  const recurringLessons = lessons.filter(lesson => 
-    lesson.recurrenceType === "weekly" || lesson.recurrenceType === "monthly"
-  );
-
+  const recurringLessons = lessons.filter(lesson => lesson.recurrenceType !== "none");
   const groupedLessons = recurringLessons.reduce((acc, lesson) => {
-    // Group by studentId and recurrenceType combination
-    const key = `${lesson.studentId}-${lesson.recurrenceType}-${lesson.recurrenceInterval}`;
+    const key = `${lesson.studentId}-${lesson.recurrenceType}`;
     if (!acc[key]) {
       acc[key] = [];
     }
@@ -44,18 +39,10 @@ export default function RecurringLessonsSettings() {
     return students.find(s => s.id === studentId)?.name || "Öğrenci Silinmiş";
   };
 
-  const getRecurrenceText = (type: string, interval: number = 1) => {
-    const baseText = type === "weekly" ? "Her hafta" : "Her ay";
-    return interval > 1 ? `${baseText} (${interval} aralıkla)` : baseText;
-  };
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          Tekrarlanan Dersler
-        </CardTitle>
+        <CardTitle>Tekrarlanan Dersler</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px]">
@@ -74,7 +61,8 @@ export default function RecurringLessonsSettings() {
                       {getStudentName(lessons[0].studentId)}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {getRecurrenceText(lessons[0].recurrenceType || '', lessons[0].recurrenceInterval || 1)}
+                      {lessons[0].recurrenceType === "weekly" && "Her hafta"}
+                      {lessons[0].recurrenceType === "monthly" && "Her ay"}
                     </p>
                   </div>
                   <Button
