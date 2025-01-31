@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isEqual, addWeeks, addMonths } from "date-fns";
+import { format, isEqual, addWeeks, addMonths, isWithinInterval } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import LessonDialogHeader from "./LessonDialogHeader";
@@ -42,7 +43,7 @@ export default function LessonDialog({
   const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
   
   const { toast } = useToast();
-  const { settings } = useUserSettings();
+  const { settings, updateSettings } = useUserSettings();
 
   useEffect(() => {
     if (isOpen) {
