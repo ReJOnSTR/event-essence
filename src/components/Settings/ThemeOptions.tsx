@@ -1,29 +1,27 @@
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { Card } from "../ui/card";
 
 const themes = [
   {
     id: "system",
-    name: "Sistem Teması",
-    class: "system",
-    preview: "bg-gradient-to-r from-[#f8fafc] to-[#1A1F2C]",
-    description: "Sistem ayarlarına göre otomatik tema"
+    name: "Sistem varsayılanı",
+    description: "Sistem ayarlarına göre otomatik tema",
+    preview: "bg-gradient-to-r from-[#f8fafc] to-[#1A1F2C]"
   },
   {
     id: "light",
-    name: "Açık Tema",
-    class: "light",
-    preview: "bg-[#f8fafc]",
-    description: "Klasik açık tema"
+    name: "Açık",
+    description: "Klasik açık tema",
+    preview: "bg-[#f8fafc]"
   },
   {
     id: "dark",
-    name: "Koyu Tema",
-    class: "dark",
-    preview: "bg-[#1A1F2C]",
-    description: "Göz yormayan koyu tema"
+    name: "Koyu",
+    description: "Göz yormayan koyu tema",
+    preview: "bg-[#1A1F2C]"
   }
 ];
 
@@ -34,18 +32,24 @@ interface ThemeOptionsProps {
 
 export function ThemeOptions({ currentTheme, onThemeChange }: ThemeOptionsProps) {
   const [systemTheme, setSystemTheme] = useState<string>(() => {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    if (typeof window !== 'undefined') {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return "light";
   });
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
       setSystemTheme(e.matches ? "dark" : "light");
+      if (currentTheme === "system") {
+        document.documentElement.setAttribute("data-theme", e.matches ? "dark" : "light");
+      }
     };
 
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  }, [currentTheme]);
 
   const getThemePreview = (themeId: string) => {
     if (themeId === "system") {
@@ -64,14 +68,14 @@ export function ThemeOptions({ currentTheme, onThemeChange }: ThemeOptionsProps)
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
       >
         {themes.map((theme) => (
-          <div 
-            key={theme.id} 
+          <Card 
+            key={theme.id}
             className={cn(
-              "relative flex items-center space-x-2 rounded-lg border-2 p-4 cursor-pointer transition-all",
+              "relative flex items-center space-x-2 rounded-lg border-2 p-4 cursor-pointer transition-all hover:bg-accent",
               currentTheme === theme.id ? "border-primary" : "border-transparent hover:border-muted"
             )}
+            onClick={() => onThemeChange(theme.id)}
           >
-            <RadioGroupItem value={theme.id} id={theme.id} className="sr-only" />
             <Label
               htmlFor={theme.id}
               className="flex flex-col gap-2 cursor-pointer w-full"
@@ -96,7 +100,7 @@ export function ThemeOptions({ currentTheme, onThemeChange }: ThemeOptionsProps)
                 </div>
               </div>
             </Label>
-          </div>
+          </Card>
         ))}
       </RadioGroup>
     </div>

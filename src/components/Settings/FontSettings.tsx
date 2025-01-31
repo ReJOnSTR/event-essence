@@ -137,24 +137,56 @@ export function FontSettings({
         </Select>
       </div>
 
-      <Card className="p-4 mt-4">
-        <h4 className="text-lg font-medium mb-4">Önizleme</h4>
-        <div className="space-y-4">
-          <p style={{ 
-            fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
-            fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-          }}>
-            Bu bir örnek metindir. Seçtiğiniz yazı tipi ve boyutunu burada görebilirsiniz.
-            ABCÇDEFGĞHIIJKLMNOÖPRSŞTUÜVYZ
-            abcçdefgğhıijklmnoöprsştuüvyz
-            1234567890
-          </p>
-          <h2 style={{ 
-            fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.heading,
-            fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-          }}>
-            Bu bir başlık örneğidir
-          </h2>
+      <Card className="p-6 mt-4">
+        <h4 className="text-lg font-medium mb-6">Önizleme</h4>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h2 style={{ 
+              fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.heading,
+              fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
+            }} className="font-semibold">
+              Bu bir başlık örneğidir
+            </h2>
+            <p style={{ 
+              fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
+              fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
+            }} className="leading-relaxed">
+              Bu bir örnek metindir. Seçtiğiniz yazı tipi ve boyutunu burada görebilirsiniz.
+              ABCÇDEFGĞHIIJKLMNOÖPRSŞTUÜVYZ
+              abcçdefgğhıijklmnoöprsştuüvyz
+              1234567890
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-4">
+              <h5 style={{ 
+                fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
+                fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
+              }} className="font-medium mb-2">
+                Kart Başlığı
+              </h5>
+              <p style={{ 
+                fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
+                fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
+              }} className="text-muted-foreground">
+                Kart içeriği örneği
+              </p>
+            </Card>
+            <Card className="p-4 bg-primary text-primary-foreground">
+              <h5 style={{ 
+                fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
+                fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
+              }} className="font-medium mb-2">
+                Vurgulu Kart
+              </h5>
+              <p style={{ 
+                fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
+                fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
+              }}>
+                Renkli kart içeriği
+              </p>
+            </Card>
+          </div>
         </div>
       </Card>
     </div>
