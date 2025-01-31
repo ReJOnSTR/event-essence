@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Lesson, Student } from "@/types/calendar";
-import { format, isEqual, addWeeks, addMonths, isWithinInterval } from "date-fns";
+import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { motion } from "framer-motion";
 import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -38,7 +38,6 @@ export default function LessonDialog({
   const [recurrenceType, setRecurrenceType] = useState<"none" | "weekly" | "monthly">("none");
   const [recurrenceCount, setRecurrenceCount] = useState(1);
   const [showHolidayDialog, setShowHolidayDialog] = useState(false);
-  const [showRecurrenceDialog, setShowRecurrenceDialog] = useState(false);
   const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
   const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
   
@@ -239,12 +238,8 @@ export default function LessonDialog({
       });
       return;
     }
-
-    // Düzenleme modunda ve tekrar sıklığı değiştiyse
-    if (event && event.recurrenceType !== recurrenceType) {
-      setShowRecurrenceDialog(true);
-      return;
-    }
+    
+    const student = students.find(s => s.id === selectedStudentId);
     
     if (recurrenceType !== "none" && !event) {
       const recurringLessons = await createRecurringLessons(start, end);
@@ -254,7 +249,7 @@ export default function LessonDialog({
       }
     } else {
       onSave({
-        title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
+        title: student ? `${student.name} Dersi` : "Ders",
         description,
         start,
         end,
@@ -264,51 +259,6 @@ export default function LessonDialog({
       });
       onClose();
     }
-  };
-
-  const handleRecurrenceConfirm = async () => {
-    const [startHours, startMinutes] = startTime.split(":").map(Number);
-    const [endHours, endMinutes] = endTime.split(":").map(Number);
-    
-    const start = new Date(selectedDate);
-    start.setHours(startHours, startMinutes);
-    
-    const end = new Date(selectedDate);
-    end.setHours(endHours, endMinutes);
-
-    // Önce eski dersi ve ilişkili tekrar eden dersleri sil
-    if (event && onDelete) {
-      // Tüm tekrar eden dersleri bul ve sil
-      const relatedEvents = events.filter(e => 
-        e.recurrenceType === event.recurrenceType && 
-        e.studentId === event.studentId &&
-        format(e.start, "HH:mm") === format(event.start, "HH:mm") &&
-        format(e.end, "HH:mm") === format(event.end, "HH:mm")
-      );
-      
-      relatedEvents.forEach(e => onDelete(e.id));
-    }
-
-    // Yeni tekrar eden dersleri oluştur
-    if (recurrenceType !== "none") {
-      const recurringLessons = await createRecurringLessons(start, end);
-      if (recurringLessons.length > 0) {
-        recurringLessons.forEach(lesson => onSave(lesson));
-      }
-    } else {
-      onSave({
-        title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
-        description,
-        start,
-        end,
-        studentId: selectedStudentId,
-        recurrenceType,
-        recurrenceCount
-      });
-    }
-    
-    setShowRecurrenceDialog(false);
-    onClose();
   };
 
   const handleHolidayConfirm = async () => {
@@ -328,7 +278,13 @@ export default function LessonDialog({
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[425px] overflow-hidden">
-          <div className="p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="p-6"
+          >
             <LessonDialogHeader 
               isEditing={!!event}
               selectedDate={selectedDate}
@@ -353,28 +309,9 @@ export default function LessonDialog({
               onRecurrenceTypeChange={setRecurrenceType}
               onRecurrenceCountChange={setRecurrenceCount}
             />
-          </div>
+          </motion.div>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={showRecurrenceDialog} onOpenChange={setShowRecurrenceDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tekrar Sıklığı Değişikliği</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bu dersin tekrar sıklığını değiştirmek istediğinizden emin misiniz? Bu işlem mevcut tekrar eden dersleri silecek ve yeni tekrar sıklığına göre yeniden oluşturacaktır.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowRecurrenceDialog(false)}>
-              İptal
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleRecurrenceConfirm}>
-              Devam Et
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <Dialog open={showHolidayDialog} onOpenChange={setShowHolidayDialog}>
         <DialogContent>
