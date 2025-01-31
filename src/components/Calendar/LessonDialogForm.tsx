@@ -51,7 +51,7 @@ export default function LessonDialogForm({
   recurrenceType,
   recurrenceCount,
   onRecurrenceTypeChange,
-  onRecurrenceCountChange
+  onRecurrenceCountChange,
   isRecurringLesson = false
 }: LessonDialogFormProps) {
   return (
