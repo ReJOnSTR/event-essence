@@ -125,7 +125,7 @@ export function FontSettings({
               <SelectItem 
                 key={font.id} 
                 value={font.id}
-                className="flex flex-col py-3 px-8 relative" // Updated padding and positioning
+                className="py-3 px-2"
               >
                 <div className="flex flex-col gap-1">
                   <span style={{ fontFamily: font.value }}>{font.name}</span>
