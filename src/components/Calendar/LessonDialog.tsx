@@ -239,8 +239,6 @@ export default function LessonDialog({
       });
       return;
     }
-    
-    const student = students.find(s => s.id === selectedStudentId);
 
     // Düzenleme modunda ve tekrar sıklığı değiştiyse
     if (event && event.recurrenceType !== recurrenceType) {
@@ -256,7 +254,7 @@ export default function LessonDialog({
       }
     } else {
       onSave({
-        title: student ? `${student.name} Dersi` : "Ders",
+        title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
         description,
         start,
         end,
@@ -278,21 +276,28 @@ export default function LessonDialog({
     const end = new Date(selectedDate);
     end.setHours(endHours, endMinutes);
 
-    const student = students.find(s => s.id === selectedStudentId);
+    // Önce eski dersi ve ilişkili tekrar eden dersleri sil
+    if (event && onDelete) {
+      // Tüm tekrar eden dersleri bul ve sil
+      const relatedEvents = events.filter(e => 
+        e.recurrenceType === event.recurrenceType && 
+        e.studentId === event.studentId &&
+        format(e.start, "HH:mm") === format(event.start, "HH:mm") &&
+        format(e.end, "HH:mm") === format(event.end, "HH:mm")
+      );
+      
+      relatedEvents.forEach(e => onDelete(e.id));
+    }
 
+    // Yeni tekrar eden dersleri oluştur
     if (recurrenceType !== "none") {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
-        // Önce eski dersi sil
-        if (event && onDelete) {
-          onDelete(event.id);
-        }
-        // Sonra yeni tekrar eden dersleri ekle
         recurringLessons.forEach(lesson => onSave(lesson));
       }
     } else {
       onSave({
-        title: student ? `${student.name} Dersi` : "Ders",
+        title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
         description,
         start,
         end,
@@ -301,6 +306,7 @@ export default function LessonDialog({
         recurrenceCount
       });
     }
+    
     setShowRecurrenceDialog(false);
     onClose();
   };
