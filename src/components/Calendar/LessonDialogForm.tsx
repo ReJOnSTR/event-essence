@@ -31,6 +31,7 @@ interface LessonDialogFormProps {
   recurrenceCount: number;
   onRecurrenceTypeChange: (value: "none" | "weekly" | "monthly") => void;
   onRecurrenceCountChange: (count: number) => void;
+  isRecurringLesson?: boolean;
 }
 
 export default function LessonDialogForm({
@@ -51,6 +52,7 @@ export default function LessonDialogForm({
   recurrenceCount,
   onRecurrenceTypeChange,
   onRecurrenceCountChange
+  isRecurringLesson = false
 }: LessonDialogFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -118,19 +120,21 @@ export default function LessonDialogForm({
           onEndTimeChange={setEndTime}
         />
       </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <RecurrenceSettings
-          recurrenceType={recurrenceType}
-          recurrenceCount={recurrenceCount}
-          onRecurrenceTypeChange={onRecurrenceTypeChange}
-          onRecurrenceCountChange={onRecurrenceCountChange}
-        />
-      </motion.div>
+      
+      {!isRecurringLesson && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <RecurrenceSettings
+            recurrenceType={recurrenceType}
+            recurrenceCount={recurrenceCount}
+            onRecurrenceTypeChange={onRecurrenceTypeChange}
+            onRecurrenceCountChange={onRecurrenceCountChange}
+          />
+        </motion.div>
+      )}
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -146,14 +150,16 @@ export default function LessonDialogForm({
             className="flex items-center gap-2"
           >
             <Trash2 className="h-4 w-4" />
-            Sil
+            {isRecurringLesson ? "Tüm Dersleri Sil" : "Sil"}
           </Button>
         )}
         <div className="flex gap-2 ml-auto">
           <Button type="button" variant="outline" onClick={onClose}>
             İptal
           </Button>
-          <Button type="submit">Kaydet</Button>
+          <Button type="submit">
+            {isRecurringLesson ? "Tüm Dersleri Güncelle" : "Kaydet"}
+          </Button>
         </div>
       </motion.div>
     </form>

@@ -6,6 +6,8 @@ import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns
 import { useToast } from "@/hooks/use-toast";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { motion } from "framer-motion";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
 import { isHoliday } from "@/utils/turkishHolidays";
@@ -40,6 +42,7 @@ export default function LessonDialog({
   const [showHolidayDialog, setShowHolidayDialog] = useState(false);
   const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
   const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
+  const [isRecurringLesson, setIsRecurringLesson] = useState(false);
   
   const { toast } = useToast();
   const { settings, updateSettings } = useUserSettings();
@@ -53,6 +56,15 @@ export default function LessonDialog({
         setSelectedStudentId(event.studentId || "");
         setRecurrenceType(event.recurrenceType as "none" | "weekly" | "monthly" || "none");
         setRecurrenceCount(event.recurrenceCount || 1);
+        
+        // Tekrar eden ders kontrolü
+        const recurringLessons = events.filter(lesson => 
+          lesson.studentId === event.studentId &&
+          format(lesson.start, "HH:mm") === format(event.start, "HH:mm") &&
+          format(lesson.end, "HH:mm") === format(event.end, "HH:mm") &&
+          lesson.recurrenceType === event.recurrenceType
+        );
+        setIsRecurringLesson(recurringLessons.length > 1);
       } else {
         const workingHours = settings?.working_hours;
         const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -87,9 +99,10 @@ export default function LessonDialog({
         setSelectedStudentId("");
         setRecurrenceType("none");
         setRecurrenceCount(1);
+        setIsRecurringLesson(false);
       }
     }
-  }, [isOpen, selectedDate, event, settings]);
+  }, [isOpen, selectedDate, event, settings, events]);
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -240,8 +253,43 @@ export default function LessonDialog({
     }
     
     const student = students.find(s => s.id === selectedStudentId);
-    
-    if (recurrenceType !== "none" && !event) {
+
+    if (event && isRecurringLesson) {
+      // Tekrar eden dersi güncelleme
+      const confirmUpdate = window.confirm(
+        "Bu ders tekrar eden bir derstir. Tüm tekrar eden dersleri güncellemek istiyor musunuz?"
+      );
+      
+      if (confirmUpdate) {
+        const recurringLessons = events.filter(lesson => 
+          lesson.studentId === event.studentId &&
+          format(lesson.start, "HH:mm") === format(event.start, "HH:mm") &&
+          format(lesson.end, "HH:mm") === format(event.end, "HH:mm") &&
+          lesson.recurrenceType === event.recurrenceType
+        );
+        
+        // Tüm tekrar eden dersleri güncelle
+        recurringLessons.forEach(lesson => {
+          const lessonStart = new Date(lesson.start);
+          const lessonEnd = new Date(lesson.end);
+          
+          // Saatleri güncelle
+          lessonStart.setHours(startHours, startMinutes);
+          lessonEnd.setHours(endHours, endMinutes);
+          
+          onSave({
+            ...lesson,
+            title: student ? `${student.name} Dersi` : "Ders",
+            description,
+            start: lessonStart,
+            end: lessonEnd,
+            studentId: selectedStudentId,
+            recurrenceType,
+            recurrenceCount
+          });
+        });
+      }
+    } else if (recurrenceType !== "none" && !event) {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
         recurringLessons.forEach(lesson => onSave(lesson));
@@ -290,6 +338,15 @@ export default function LessonDialog({
               selectedDate={selectedDate}
             />
             
+            {isRecurringLesson && (
+              <Alert className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Bu ders tekrar eden bir derstir. Yapacağınız değişiklikler tüm tekrar eden dersleri etkileyecektir.
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <LessonDialogForm
               description={description}
               onDescriptionChange={handleDescriptionChange}
@@ -301,13 +358,33 @@ export default function LessonDialog({
               selectedStudentId={selectedStudentId}
               setSelectedStudentId={setSelectedStudentId}
               students={students}
-              onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
+              onDelete={event && onDelete ? () => {
+                if (isRecurringLesson) {
+                  const confirmDelete = window.confirm(
+                    "Bu ders tekrar eden bir derstir. Tüm tekrar eden dersleri silmek istiyor musunuz?"
+                  );
+                  if (confirmDelete) {
+                    const recurringLessons = events.filter(lesson => 
+                      lesson.studentId === event.studentId &&
+                      format(lesson.start, "HH:mm") === format(event.start, "HH:mm") &&
+                      format(lesson.end, "HH:mm") === format(event.end, "HH:mm") &&
+                      lesson.recurrenceType === event.recurrenceType
+                    );
+                    recurringLessons.forEach(lesson => onDelete(lesson.id));
+                  } else {
+                    onDelete(event.id);
+                  }
+                } else {
+                  onDelete(event.id);
+                }
+              } : undefined}
               onClose={onClose}
               onSubmit={handleSubmit}
               recurrenceType={recurrenceType}
               recurrenceCount={recurrenceCount}
               onRecurrenceTypeChange={setRecurrenceType}
               onRecurrenceCountChange={setRecurrenceCount}
+              isRecurringLesson={isRecurringLesson}
             />
           </motion.div>
         </DialogContent>
