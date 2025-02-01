@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Lesson, Student } from "@/types/calendar";
 import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -54,7 +53,7 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
-        setRecurrenceType(event.recurrenceType as "none" | "weekly" | "monthly" || "none");
+        setRecurrenceType(event.recurrenceType || "none");
         setRecurrenceCount(event.recurrenceCount || 1);
         
         // Tekrar eden ders kontrolü
@@ -103,19 +102,6 @@ export default function LessonDialog({
       }
     }
   }, [isOpen, selectedDate, event, settings, events]);
-
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    if (value.length <= 100) {
-      setDescription(value);
-    } else {
-      toast({
-        title: "Karakter Sınırı",
-        description: "Açıklama en fazla 100 karakter olabilir.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const checkLessonOverlap = (start: Date, end: Date) => {
     return events.some(existingEvent => {
@@ -255,7 +241,6 @@ export default function LessonDialog({
     const student = students.find(s => s.id === selectedStudentId);
 
     if (event && isRecurringLesson) {
-      // Tekrar eden dersi güncelleme
       const confirmUpdate = window.confirm(
         "Bu ders tekrar eden bir derstir. Tüm tekrar eden dersleri güncellemek istiyor musunuz?"
       );
@@ -268,12 +253,10 @@ export default function LessonDialog({
           lesson.recurrenceType === event.recurrenceType
         );
         
-        // Tüm tekrar eden dersleri güncelle
         recurringLessons.forEach(lesson => {
           const lessonStart = new Date(lesson.start);
           const lessonEnd = new Date(lesson.end);
           
-          // Saatleri güncelle
           lessonStart.setHours(startHours, startMinutes);
           lessonEnd.setHours(endHours, endMinutes);
           
@@ -288,11 +271,20 @@ export default function LessonDialog({
             recurrenceCount
           });
         });
+
+        toast({
+          title: "Başarılı",
+          description: "Tüm tekrar eden dersler güncellendi.",
+        });
       }
     } else if (recurrenceType !== "none" && !event) {
       const recurringLessons = await createRecurringLessons(start, end);
       if (recurringLessons.length > 0) {
         recurringLessons.forEach(lesson => onSave(lesson));
+        toast({
+          title: "Başarılı",
+          description: `${recurringLessons.length} adet tekrar eden ders oluşturuldu.`,
+        });
         onClose();
       }
     } else {
@@ -305,112 +297,94 @@ export default function LessonDialog({
         recurrenceType,
         recurrenceCount
       });
-      onClose();
-    }
-  };
-
-  const handleHolidayConfirm = async () => {
-    await updateSettings.mutateAsync({
-      allow_work_on_holidays: true
-    });
-    setShowHolidayDialog(false);
-    
-    if (pendingLessons.length > 0) {
-      pendingLessons.forEach(lesson => onSave(lesson));
-      setPendingLessons([]);
+      toast({
+        title: "Başarılı",
+        description: "Ders başarıyla kaydedildi.",
+      });
       onClose();
     }
   };
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px] overflow-hidden">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="p-6"
-          >
-            <LessonDialogHeader 
-              isEditing={!!event}
-              selectedDate={selectedDate}
-            />
-            
-            {isRecurringLesson && (
-              <Alert className="mb-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Bu ders tekrar eden bir derstir. Yapacağınız değişiklikler tüm tekrar eden dersleri etkileyecektir.
-                </AlertDescription>
-              </Alert>
-            )}
-            
-            <LessonDialogForm
-              description={description}
-              onDescriptionChange={handleDescriptionChange}
-              startTime={startTime}
-              endTime={endTime}
-              selectedDate={selectedDate}
-              setStartTime={setStartTime}
-              setEndTime={setEndTime}
-              selectedStudentId={selectedStudentId}
-              setSelectedStudentId={setSelectedStudentId}
-              students={students}
-              onDelete={event && onDelete ? () => {
-                if (isRecurringLesson) {
-                  const confirmDelete = window.confirm(
-                    "Bu ders tekrar eden bir derstir. Tüm tekrar eden dersleri silmek istiyor musunuz?"
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px] overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="p-6"
+        >
+          <LessonDialogHeader 
+            isEditing={!!event}
+            selectedDate={selectedDate}
+          />
+          
+          <LessonDialogForm
+            description={description}
+            onDescriptionChange={(e) => {
+              const value = e.target.value;
+              if (value.length <= 100) {
+                setDescription(value);
+              } else {
+                toast({
+                  title: "Karakter Sınırı",
+                  description: "Açıklama en fazla 100 karakter olabilir.",
+                  variant: "destructive",
+                });
+              }
+            }}
+            startTime={startTime}
+            endTime={endTime}
+            selectedDate={selectedDate}
+            setStartTime={setStartTime}
+            setEndTime={setEndTime}
+            selectedStudentId={selectedStudentId}
+            setSelectedStudentId={setSelectedStudentId}
+            students={students}
+            onDelete={event && onDelete ? () => {
+              if (isRecurringLesson) {
+                const confirmDelete = window.confirm(
+                  "Bu ders tekrar eden bir derstir. Tüm tekrar eden dersleri silmek istiyor musunuz?"
+                );
+                if (confirmDelete) {
+                  const recurringLessons = events.filter(lesson => 
+                    lesson.studentId === event.studentId &&
+                    format(lesson.start, "HH:mm") === format(event.start, "HH:mm") &&
+                    format(lesson.end, "HH:mm") === format(event.end, "HH:mm") &&
+                    lesson.recurrenceType === event.recurrenceType
                   );
-                  if (confirmDelete) {
-                    const recurringLessons = events.filter(lesson => 
-                      lesson.studentId === event.studentId &&
-                      format(lesson.start, "HH:mm") === format(event.start, "HH:mm") &&
-                      format(lesson.end, "HH:mm") === format(event.end, "HH:mm") &&
-                      lesson.recurrenceType === event.recurrenceType
-                    );
-                    recurringLessons.forEach(lesson => onDelete(lesson.id));
-                  } else {
-                    onDelete(event.id);
-                  }
+                  recurringLessons.forEach(lesson => onDelete(lesson.id));
+                  toast({
+                    title: "Başarılı",
+                    description: "Tüm tekrar eden dersler silindi.",
+                  });
                 } else {
                   onDelete(event.id);
+                  toast({
+                    title: "Başarılı",
+                    description: "Ders silindi.",
+                  });
                 }
-              } : undefined}
-              onClose={onClose}
-              onSubmit={handleSubmit}
-              recurrenceType={recurrenceType}
-              recurrenceCount={recurrenceCount}
-              onRecurrenceTypeChange={setRecurrenceType}
-              onRecurrenceCountChange={setRecurrenceCount}
-              isRecurringLesson={isRecurringLesson}
-            />
-          </motion.div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showHolidayDialog} onOpenChange={setShowHolidayDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Tatil Günü Uyarısı</DialogTitle>
-            <DialogDescription>
-              {currentHolidayDate && `${format(currentHolidayDate, 'd MMMM yyyy')} tarihi tatil günü. Bu tarih için çalışma iznini açmak ister misiniz?`}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowHolidayDialog(false);
-              onClose();
-            }}>
-              İptal
-            </Button>
-            <Button onClick={handleHolidayConfirm}>
-              Çalışma İznini Aç
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+              } else {
+                onDelete(event.id);
+                toast({
+                  title: "Başarılı",
+                  description: "Ders silindi.",
+                });
+              }
+            } : undefined}
+            onClose={onClose}
+            onSubmit={handleSubmit}
+            recurrenceType={recurrenceType}
+            recurrenceCount={recurrenceCount}
+            onRecurrenceTypeChange={setRecurrenceType}
+            onRecurrenceCountChange={setRecurrenceCount}
+            isRecurringLesson={isRecurringLesson}
+            isEditing={!!event}
+          />
+        </motion.div>
+      </DialogContent>
+    </Dialog>
   );
 }

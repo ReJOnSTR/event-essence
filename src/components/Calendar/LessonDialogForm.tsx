@@ -1,8 +1,9 @@
 import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2 } from "lucide-react";
+import { Trash2, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -32,6 +33,7 @@ interface LessonDialogFormProps {
   onRecurrenceTypeChange: (value: "none" | "weekly" | "monthly") => void;
   onRecurrenceCountChange: (count: number) => void;
   isRecurringLesson?: boolean;
+  isEditing?: boolean;
 }
 
 export default function LessonDialogForm({
@@ -52,10 +54,20 @@ export default function LessonDialogForm({
   recurrenceCount,
   onRecurrenceTypeChange,
   onRecurrenceCountChange,
-  isRecurringLesson = false
+  isRecurringLesson = false,
+  isEditing = false
 }: LessonDialogFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      {isRecurringLesson && (
+        <Alert className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Bu ders tekrar eden bir derstir. Yapacağınız değişiklikler tüm tekrar eden dersleri etkileyecektir.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -121,7 +133,7 @@ export default function LessonDialogForm({
         />
       </motion.div>
       
-      {!isRecurringLesson && (
+      {(!isRecurringLesson || !isEditing) && (
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -140,7 +152,7 @@ export default function LessonDialogForm({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="flex justify-between"
+        className="flex justify-between pt-4 border-t"
       >
         {onDelete && (
           <Button 
@@ -158,7 +170,7 @@ export default function LessonDialogForm({
             İptal
           </Button>
           <Button type="submit">
-            {isRecurringLesson ? "Tüm Dersleri Güncelle" : "Kaydet"}
+            {isRecurringLesson ? "Tüm Dersleri Güncelle" : isEditing ? "Güncelle" : "Kaydet"}
           </Button>
         </div>
       </motion.div>
