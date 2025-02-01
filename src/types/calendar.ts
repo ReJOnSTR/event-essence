@@ -15,7 +15,6 @@ export interface Lesson {
   recurrenceType?: "none" | "daily" | "weekly" | "monthly";
   recurrenceCount?: number;
   recurrenceInterval?: number;
-  parentLessonId?: string;
 }
 
 export interface DayCell {
