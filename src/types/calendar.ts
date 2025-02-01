@@ -15,9 +15,6 @@ export interface Lesson {
   recurrenceType?: "none" | "daily" | "weekly" | "monthly";
   recurrenceCount?: number;
   recurrenceInterval?: number;
-  seriesId?: string;
-  sequenceNumber?: number;
-  isRecurring?: boolean;
 }
 
 export interface DayCell {
@@ -55,5 +52,3 @@ export interface WeeklyWorkingHours {
   saturday: WorkingHours;
   sunday: WorkingHours;
 }
-
-export type EditMode = 'single' | 'future' | 'all';
