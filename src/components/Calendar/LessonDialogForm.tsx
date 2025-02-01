@@ -1,9 +1,8 @@
 import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, AlertCircle } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -32,8 +31,6 @@ interface LessonDialogFormProps {
   recurrenceCount: number;
   onRecurrenceTypeChange: (value: "none" | "weekly" | "monthly") => void;
   onRecurrenceCountChange: (count: number) => void;
-  isRecurringLesson?: boolean;
-  isEditing?: boolean;
 }
 
 export default function LessonDialogForm({
@@ -53,21 +50,10 @@ export default function LessonDialogForm({
   recurrenceType,
   recurrenceCount,
   onRecurrenceTypeChange,
-  onRecurrenceCountChange,
-  isRecurringLesson = false,
-  isEditing = false
+  onRecurrenceCountChange
 }: LessonDialogFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      {isRecurringLesson && (
-        <Alert className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Bu ders tekrar eden bir derstir. Yapacağınız değişiklikler tüm tekrar eden dersleri etkileyecektir.
-          </AlertDescription>
-        </Alert>
-      )}
-
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -132,27 +118,25 @@ export default function LessonDialogForm({
           onEndTimeChange={setEndTime}
         />
       </motion.div>
-      
-      {(!isRecurringLesson || !isEditing) && (
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <RecurrenceSettings
-            recurrenceType={recurrenceType}
-            recurrenceCount={recurrenceCount}
-            onRecurrenceTypeChange={onRecurrenceTypeChange}
-            onRecurrenceCountChange={onRecurrenceCountChange}
-          />
-        </motion.div>
-      )}
+
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <RecurrenceSettings
+          recurrenceType={recurrenceType}
+          recurrenceCount={recurrenceCount}
+          onRecurrenceTypeChange={onRecurrenceTypeChange}
+          onRecurrenceCountChange={onRecurrenceCountChange}
+        />
+      </motion.div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="flex justify-between pt-4 border-t"
+        className="flex justify-between"
       >
         {onDelete && (
           <Button 
@@ -162,16 +146,14 @@ export default function LessonDialogForm({
             className="flex items-center gap-2"
           >
             <Trash2 className="h-4 w-4" />
-            {isRecurringLesson ? "Tüm Dersleri Sil" : "Sil"}
+            Sil
           </Button>
         )}
         <div className="flex gap-2 ml-auto">
           <Button type="button" variant="outline" onClick={onClose}>
             İptal
           </Button>
-          <Button type="submit">
-            {isRecurringLesson ? "Tüm Dersleri Güncelle" : isEditing ? "Güncelle" : "Kaydet"}
-          </Button>
+          <Button type="submit">Kaydet</Button>
         </div>
       </motion.div>
     </form>
