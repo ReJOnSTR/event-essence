@@ -201,6 +201,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_lesson_access: {
+        Args: {
+          lesson_row: unknown
+        }
+        Returns: boolean
+      }
       delete_user: {
         Args: Record<PropertyKey, never>
         Returns: undefined

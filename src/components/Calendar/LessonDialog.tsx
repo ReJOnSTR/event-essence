@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { useRecurringLessons } from "@/hooks/useRecurringLessons";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -40,9 +41,12 @@ export default function LessonDialog({
   const [showHolidayDialog, setShowHolidayDialog] = useState(false);
   const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
   const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
+  const [editMode, setEditMode] = useState<EditMode>('single');
+  const [showEditModeDialog, setShowEditModeDialog] = useState(false);
   
   const { toast } = useToast();
-  const { settings, updateSettings } = useUserSettings();
+  const { settings } = useUserSettings();
+  const { createRecurringLessons, updateRecurringLessons, deleteRecurringLessons } = useRecurringLessons();
 
   useEffect(() => {
     if (isOpen) {
@@ -133,73 +137,6 @@ export default function LessonDialog({
     return true;
   };
 
-  const createRecurringLessons = async (baseStart: Date, baseEnd: Date) => {
-    const lessons: Omit<Lesson, "id">[] = [];
-    let currentStart = baseStart;
-    let currentEnd = baseEnd;
-    let count = 0;
-    let attempts = 0;
-    const maxAttempts = recurrenceCount * 3;
-
-    while (count < recurrenceCount && attempts < maxAttempts) {
-      const customHolidays = settings?.holidays || [];
-      const holiday = isHoliday(currentStart, customHolidays);
-      
-      if (holiday && !settings?.allow_work_on_holidays) {
-        setCurrentHolidayDate(currentStart);
-        setShowHolidayDialog(true);
-        setPendingLessons([]);
-        const currentLesson = {
-          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
-          description,
-          start: currentStart,
-          end: currentEnd,
-          studentId: selectedStudentId,
-          recurrenceType,
-          recurrenceCount
-        };
-        setPendingLessons([...lessons, currentLesson]);
-        return [];
-      }
-
-      if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
-        lessons.push({
-          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
-          description,
-          start: currentStart,
-          end: currentEnd,
-          studentId: selectedStudentId,
-          recurrenceType,
-          recurrenceCount
-        });
-        count++;
-      }
-
-      attempts++;
-
-      switch (recurrenceType) {
-        case "weekly":
-          currentStart = addWeeks(currentStart, 1);
-          currentEnd = addWeeks(currentEnd, 1);
-          break;
-        case "monthly":
-          currentStart = addMonths(currentStart, 1);
-          currentEnd = addMonths(currentEnd, 1);
-          break;
-      }
-    }
-
-    if (count < recurrenceCount) {
-      toast({
-        title: "Uyarı",
-        description: `Bazı tekrar eden dersler, çalışma saatleri kapalı veya tatil günlerine denk geldiği için oluşturulamadı.`,
-        variant: "warning"
-      });
-    }
-
-    return lessons;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -240,38 +177,71 @@ export default function LessonDialog({
     }
     
     const student = students.find(s => s.id === selectedStudentId);
+    const lessonData = {
+      title: student ? `${student.name} Dersi` : "Ders",
+      description,
+      start,
+      end,
+      studentId: selectedStudentId,
+      recurrenceType,
+      recurrenceCount,
+      recurrenceInterval: 1,
+      isRecurring: recurrenceType !== 'none'
+    };
     
-    if (recurrenceType !== "none" && !event) {
-      const recurringLessons = await createRecurringLessons(start, end);
-      if (recurringLessons.length > 0) {
-        recurringLessons.forEach(lesson => onSave(lesson));
-        onClose();
+    if (event) {
+      if (event.isRecurring) {
+        setShowEditModeDialog(true);
+        return;
       }
+      onSave(lessonData);
     } else {
-      onSave({
-        title: student ? `${student.name} Dersi` : "Ders",
-        description,
-        start,
-        end,
-        studentId: selectedStudentId,
-        recurrenceType,
-        recurrenceCount
-      });
-      onClose();
+      if (recurrenceType !== 'none') {
+        await createRecurringLessons(lessonData, recurrenceCount);
+      } else {
+        onSave(lessonData);
+      }
     }
+    onClose();
   };
 
-  const handleHolidayConfirm = async () => {
-    await updateSettings.mutateAsync({
-      allow_work_on_holidays: true
-    });
-    setShowHolidayDialog(false);
+  const handleEditModeSelect = async (mode: EditMode) => {
+    setShowEditModeDialog(false);
+    setEditMode(mode);
     
-    if (pendingLessons.length > 0) {
-      pendingLessons.forEach(lesson => onSave(lesson));
-      setPendingLessons([]);
-      onClose();
+    if (!event) return;
+
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const [endHours, endMinutes] = endTime.split(":").map(Number);
+    
+    const start = new Date(selectedDate);
+    start.setHours(startHours, startMinutes);
+    
+    const end = new Date(selectedDate);
+    end.setHours(endHours, endMinutes);
+
+    const updatedFields = {
+      title: event.title,
+      description,
+      start,
+      end,
+      studentId: selectedStudentId,
+    };
+
+    await updateRecurringLessons(event, updatedFields, mode);
+    onClose();
+  };
+
+  const handleDelete = async () => {
+    if (!event || !onDelete) return;
+
+    if (event.isRecurring) {
+      setShowEditModeDialog(true);
+      return;
     }
+
+    onDelete(event.id);
+    onClose();
   };
 
   return (
@@ -301,7 +271,7 @@ export default function LessonDialog({
               selectedStudentId={selectedStudentId}
               setSelectedStudentId={setSelectedStudentId}
               students={students}
-              onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
+              onDelete={event ? handleDelete : undefined}
               onClose={onClose}
               onSubmit={handleSubmit}
               recurrenceType={recurrenceType}
@@ -334,6 +304,13 @@ export default function LessonDialog({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <RecurringLessonDialog
+        isOpen={showEditModeDialog}
+        onClose={() => setShowEditModeDialog(false)}
+        onEditModeSelect={handleEditModeSelect}
+        isUpdate={!!event}
+      />
     </>
   );
 }

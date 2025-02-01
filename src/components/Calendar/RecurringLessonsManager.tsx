@@ -21,9 +21,9 @@ export default function RecurringLessonsManager({
 }: RecurringLessonsManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const recurringLessons = lessons.filter(lesson => lesson.recurrenceType !== "none");
+  const recurringLessons = lessons.filter(lesson => lesson.isRecurring);
   const groupedLessons = recurringLessons.reduce((acc, lesson) => {
-    const key = lesson.recurrenceType + lesson.recurrenceInterval + lesson.recurrenceCount;
+    const key = lesson.seriesId || '';
     if (!acc[key]) {
       acc[key] = [];
     }
@@ -68,10 +68,8 @@ export default function RecurringLessonsManager({
                         {lessons[0].title}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {lessons[0].recurrenceType === "daily" && "Her gün"}
                         {lessons[0].recurrenceType === "weekly" && "Her hafta"}
                         {lessons[0].recurrenceType === "monthly" && "Her ay"}
-                        {lessons[0].recurrenceInterval > 1 && ` (${lessons[0].recurrenceInterval} aralıkla)`}
                       </p>
                     </div>
                     <div className="flex gap-2">
