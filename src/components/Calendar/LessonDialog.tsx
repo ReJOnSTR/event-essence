@@ -53,10 +53,12 @@ export default function LessonDialog({
         setStartTime(format(event.start, "HH:mm"));
         setEndTime(format(event.end, "HH:mm"));
         setSelectedStudentId(event.studentId || "");
-        setRecurrenceType(event.recurrenceType || "none");
+        // Convert the recurrence type to match our state type
+        const convertedRecurrenceType = event.recurrenceType === "daily" ? "none" : 
+          (event.recurrenceType as "none" | "weekly" | "monthly") || "none";
+        setRecurrenceType(convertedRecurrenceType);
         setRecurrenceCount(event.recurrenceCount || 1);
         
-        // Tekrar eden ders kontrolü
         const recurringLessons = events.filter(lesson => 
           lesson.studentId === event.studentId &&
           format(lesson.start, "HH:mm") === format(event.start, "HH:mm") &&
