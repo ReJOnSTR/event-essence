@@ -15,12 +15,15 @@ export type Database = {
           description: string | null
           end_time: string
           id: string
+          is_recurring: boolean | null
           parent_lesson_id: string | null
           recurrence_end_date: string | null
           recurrence_interval: number | null
           recurrence_type:
             | Database["public"]["Enums"]["lesson_recurrence_type"]
             | null
+          sequence_number: number | null
+          series_id: string | null
           start_time: string
           student_id: string | null
           title: string
@@ -32,12 +35,15 @@ export type Database = {
           description?: string | null
           end_time: string
           id?: string
+          is_recurring?: boolean | null
           parent_lesson_id?: string | null
           recurrence_end_date?: string | null
           recurrence_interval?: number | null
           recurrence_type?:
             | Database["public"]["Enums"]["lesson_recurrence_type"]
             | null
+          sequence_number?: number | null
+          series_id?: string | null
           start_time: string
           student_id?: string | null
           title: string
@@ -49,12 +55,15 @@ export type Database = {
           description?: string | null
           end_time?: string
           id?: string
+          is_recurring?: boolean | null
           parent_lesson_id?: string | null
           recurrence_end_date?: string | null
           recurrence_interval?: number | null
           recurrence_type?:
             | Database["public"]["Enums"]["lesson_recurrence_type"]
             | null
+          sequence_number?: number | null
+          series_id?: string | null
           start_time?: string
           student_id?: string | null
           title?: string
@@ -65,6 +74,13 @@ export type Database = {
           {
             foreignKeyName: "lessons_parent_lesson_id_fkey"
             columns: ["parent_lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_series_id_fkey"
+            columns: ["series_id"]
             isOneToOne: false
             referencedRelation: "lessons"
             referencedColumns: ["id"]
