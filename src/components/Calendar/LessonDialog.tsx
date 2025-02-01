@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Lesson, Student } from "@/types/calendar";
+import { Lesson, Student, EditMode } from "@/types/calendar";
 import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useUserSettings } from "@/hooks/useUserSettings";
@@ -10,6 +10,7 @@ import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { useRecurringLessons } from "@/hooks/useRecurringLessons";
+import RecurringLessonDialog from "./RecurringLessonDialog";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -242,6 +243,21 @@ export default function LessonDialog({
 
     onDelete(event.id);
     onClose();
+  };
+
+  const handleHolidayConfirm = async () => {
+    if (!currentHolidayDate || !settings) return;
+    
+    const updatedHolidays = settings.holidays.filter(
+      holiday => !isEqual(new Date(holiday.date), currentHolidayDate)
+    );
+    
+    await updateSettings.mutateAsync({
+      holidays: updatedHolidays
+    });
+    
+    setShowHolidayDialog(false);
+    setCurrentHolidayDate(null);
   };
 
   return (
