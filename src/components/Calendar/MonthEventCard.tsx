@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { Repeat } from "lucide-react";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -21,8 +20,6 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
     onClick?.(event);
   };
 
-  const isRecurring = event.recurrenceType && event.recurrenceType !== 'none';
-
   return (
     <Draggable draggableId={event.id} index={index}>
       {(provided, snapshot) => (
@@ -31,7 +28,7 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={cn(
-            "p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm",
+            "p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm truncate",
             snapshot.isDragging ? "shadow-lg opacity-70" : ""
           )}
           style={{ 
@@ -41,15 +38,10 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
           onClick={handleClick}
         >
           <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-[13px] leading-tight md:text-sm text-primary-foreground truncate">
-                {student?.name || "İsimsiz Öğrenci"}
-              </span>
-              {isRecurring && (
-                <Repeat className="h-4 w-4 text-primary-foreground/80" />
-              )}
-            </div>
-            <span className="text-[12px] md:text-xs text-primary-foreground/90">
+            <span className="font-medium text-[13px] leading-tight md:text-sm text-primary-foreground truncate">
+              {student?.name || "İsimsiz Öğrenci"}
+            </span>
+            <span className="text-[12px] md:text-xs text-primary-foreground/90 truncate">
               {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
             </span>
           </div>
