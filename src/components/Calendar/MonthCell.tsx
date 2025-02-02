@@ -6,12 +6,6 @@ import MonthEventCard from "@/components/Calendar/MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { Sun, Moon, Flag } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface MonthCellProps {
   day: {
@@ -50,42 +44,23 @@ export default function MonthCell({
   const isDisabled = !daySettings?.enabled || 
     ((officialHoliday || customHoliday) && !allowWorkOnHolidays);
 
-  const getStatusInfo = () => {
+  const getHolidayInfo = () => {
     if (customHoliday) {
       return {
-        icon: <Flag className={cn(
-          "h-4 w-4",
-          !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
-        )} />,
-        tooltip: `${customHoliday.description || "Özel Tatil"}${allowWorkOnHolidays ? ' (Çalışmaya Açık)' : ''}`,
-        bgClass: !allowWorkOnHolidays ? "bg-destructive/10" : "bg-yellow-500/10"
+        name: customHoliday.description || "Özel Tatil",
+        isCustom: true
       };
     }
     if (officialHoliday) {
       return {
-        icon: <Flag className={cn(
-          "h-4 w-4",
-          !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
-        )} />,
-        tooltip: `${officialHoliday.name}${allowWorkOnHolidays ? ' (Çalışmaya Açık)' : ''}`,
-        bgClass: !allowWorkOnHolidays ? "bg-destructive/10" : "bg-yellow-500/10"
+        name: officialHoliday.name,
+        isCustom: false
       };
     }
-    if (!daySettings?.enabled) {
-      return {
-        icon: <Moon className="h-4 w-4 text-muted-foreground" />,
-        tooltip: "Çalışma Saatleri Kapalı",
-        bgClass: "bg-muted"
-      };
-    }
-    return {
-      icon: <Sun className="h-4 w-4 text-green-500" />,
-      tooltip: `Çalışma Saatleri: ${daySettings?.start} - ${daySettings?.end}`,
-      bgClass: ""
-    };
+    return null;
   };
 
-  const status = getStatusInfo();
+  const holidayInfo = getHolidayInfo();
 
   return (
     <Droppable droppableId={`${idx}`} isDropDisabled={isDisabled}>
@@ -105,7 +80,8 @@ export default function MonthCell({
             "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
             !day.isCurrentMonth && "text-muted-foreground/50 bg-muted/50",
             isToday(day.date) && "bg-accent text-accent-foreground",
-            status.bgClass,
+            holidayInfo && !allowWorkOnHolidays && "bg-destructive/10",
+            holidayInfo && allowWorkOnHolidays && "bg-yellow-500/10",
             !daySettings?.enabled && "bg-muted",
             isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
             snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
@@ -117,18 +93,21 @@ export default function MonthCell({
             isToday(day.date) && "text-accent-foreground"
           )}>
             <span className="text-sm font-medium">{format(day.date, "d")}</span>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="p-0.5 rounded-full hover:bg-accent/50 transition-colors">
-                    {status.icon}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{status.tooltip}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="flex items-center gap-1">
+              {holidayInfo && (
+                <Flag className={cn(
+                  "h-4 w-4",
+                  !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500"
+                )} />
+              )}
+              {!holidayInfo && (
+                daySettings?.enabled ? (
+                  <Sun className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Moon className="h-4 w-4 text-muted-foreground" />
+                )
+              )}
+            </div>
           </div>
 
           <div className="space-y-1">
