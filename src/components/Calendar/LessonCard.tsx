@@ -3,6 +3,7 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { Repeat } from "lucide-react";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -26,6 +27,7 @@ export default function LessonCard({
   const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40);
   const student = students?.find(s => s.id === event.studentId);
   const isCompact = heightInPixels <= 40;
+  const isRecurring = event.recurrenceType && event.recurrenceType !== 'none';
 
   const style = {
     height: `${heightInPixels}px`,
@@ -67,8 +69,9 @@ export default function LessonCard({
     >
       {isCompact ? (
         <>
-          <div className="font-medium text-xs truncate flex-1">
+          <div className="font-medium text-xs truncate flex-1 flex items-center gap-1">
             {student?.name || "İsimsiz Öğrenci"}
+            {isRecurring && <Repeat className="h-3 w-3 flex-shrink-0" />}
           </div>
           <div className="text-xs whitespace-nowrap">
             {format(event.start, "HH:mm", { locale: tr })}
@@ -78,8 +81,11 @@ export default function LessonCard({
         </>
       ) : (
         <>
-          <div className="font-medium text-[13px] leading-tight md:text-sm">
-            {student?.name || "İsimsiz Öğrenci"}
+          <div className="flex items-center justify-between">
+            <div className="font-medium text-[13px] leading-tight md:text-sm">
+              {student?.name || "İsimsiz Öğrenci"}
+            </div>
+            {isRecurring && <Repeat className="h-4 w-4" />}
           </div>
           <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90 mt-0.5">
             <span>{format(event.start, "HH:mm", { locale: tr })}</span>
