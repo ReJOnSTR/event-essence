@@ -20,32 +20,34 @@ export default function SettingsPage() {
       <ScrollArea className="flex-1">
         <div className="p-4">
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="w-full justify-start mb-4">
-              <TabsTrigger value="general">Genel</TabsTrigger>
-              <TabsTrigger value="working-hours">Çalışma Saatleri</TabsTrigger>
-              <TabsTrigger value="custom-holidays">Tatil Günleri</TabsTrigger>
-              <TabsTrigger value="recurring-lessons">Tekrarlanan Dersler</TabsTrigger>
-              <TabsTrigger value="theme">Tema</TabsTrigger>
-              <TabsTrigger value="data">Veri Yönetimi</TabsTrigger>
+            <TabsList className="w-full justify-start mb-4 overflow-auto flex-wrap gap-2">
+              <TabsTrigger value="general" className="flex-shrink-0">Genel</TabsTrigger>
+              <TabsTrigger value="working-hours" className="flex-shrink-0">Çalışma Saatleri</TabsTrigger>
+              <TabsTrigger value="custom-holidays" className="flex-shrink-0">Tatil Günleri</TabsTrigger>
+              <TabsTrigger value="recurring-lessons" className="flex-shrink-0">Tekrarlanan Dersler</TabsTrigger>
+              <TabsTrigger value="theme" className="flex-shrink-0">Tema</TabsTrigger>
+              <TabsTrigger value="data" className="flex-shrink-0">Veri Yönetimi</TabsTrigger>
             </TabsList>
-            <TabsContent value="general">
-              <GeneralSettings />
-            </TabsContent>
-            <TabsContent value="working-hours">
-              <WorkingHoursSettings />
-            </TabsContent>
-            <TabsContent value="custom-holidays">
-              <CustomHolidaySettings />
-            </TabsContent>
-            <TabsContent value="recurring-lessons">
-              <RecurringLessonsSettings />
-            </TabsContent>
-            <TabsContent value="theme">
-              <ThemeSettings />
-            </TabsContent>
-            <TabsContent value="data">
-              <DataManagement />
-            </TabsContent>
+            <div className="space-y-4">
+              <TabsContent value="general" className="mt-0">
+                <GeneralSettings />
+              </TabsContent>
+              <TabsContent value="working-hours" className="mt-0">
+                <WorkingHoursSettings />
+              </TabsContent>
+              <TabsContent value="custom-holidays" className="mt-0">
+                <CustomHolidaySettings />
+              </TabsContent>
+              <TabsContent value="recurring-lessons" className="mt-0">
+                <RecurringLessonsSettings />
+              </TabsContent>
+              <TabsContent value="theme" className="mt-0">
+                <ThemeSettings />
+              </TabsContent>
+              <TabsContent value="data" className="mt-0">
+                <DataManagement />
+              </TabsContent>
+            </div>
           </Tabs>
         </div>
       </ScrollArea>
