@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 
-export function PublicRoute({ children }: { children: React.ReactNode }) {
+export function PublicRoute() {
   const { session, isLoading } = useSessionContext();
   const navigate = useNavigate();
 
@@ -22,5 +22,7 @@ export function PublicRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return !session ? <>{children}</> : null;
+  return !session ? <Outlet /> : null;
 }
+
+export default PublicRoute;

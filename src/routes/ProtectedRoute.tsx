@@ -1,16 +1,16 @@
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useSessionContext } from "@supabase/auth-helpers-react";
 import { useToast } from "@/components/ui/use-toast";
 
-export function ProtectedRoute({ children, requireAuth = false }: { children: React.ReactNode, requireAuth?: boolean }) {
+export function ProtectedRoute() {
   const { session, isLoading } = useSessionContext();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!session && !isLoading && requireAuth) {
+    if (!session && !isLoading) {
       localStorage.setItem('returnUrl', location.pathname);
       navigate('/login', { replace: true });
       toast({
@@ -19,7 +19,7 @@ export function ProtectedRoute({ children, requireAuth = false }: { children: Re
         variant: "destructive",
       });
     }
-  }, [session, isLoading, navigate, location, toast, requireAuth]);
+  }, [session, isLoading, navigate, location, toast]);
 
   if (isLoading) {
     return (
@@ -29,5 +29,7 @@ export function ProtectedRoute({ children, requireAuth = false }: { children: Re
     );
   }
 
-  return <>{children}</>;
+  return session ? <Outlet /> : null;
 }
+
+export default ProtectedRoute;
