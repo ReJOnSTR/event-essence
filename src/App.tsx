@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, useLocation } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { 
@@ -23,7 +23,6 @@ import { AppRoutes } from "./routes/AppRoutes";
 function AppContent() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const location = useLocation();
   
   const { 
     isDialogOpen, 
@@ -72,7 +71,7 @@ function AppContent() {
           onSearchChange={setSearchTerm}
         />
         <AnimatePresence mode="wait" initial={false}>
-          <AppRoutes headerHeight={headerHeight} location={location} />
+          <AppRoutes headerHeight={headerHeight} />
         </AnimatePresence>
       </div>
       <StudentDialog
