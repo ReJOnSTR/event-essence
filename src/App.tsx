@@ -1,32 +1,24 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter } from "react-router-dom";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
+import { supabase } from "@/integrations/supabase/client";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { BrowserRouter } from "react-router-dom";
-import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { supabase } from "@/integrations/supabase/client";
-import { AppRoutes } from "./routes/AppRoutes";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import AppRoutes from "@/routes/AppRoutes";
 
-function App() {
-  const [headerHeight, setHeaderHeight] = useState(64); // Default header height
-
-  useEffect(() => {
-    const header = document.querySelector('header');
-    if (header) {
-      const height = header.getBoundingClientRect().height;
-      setHeaderHeight(height);
-    }
-  }, []);
-
+export default function App() {
   return (
-    <SessionContextProvider supabaseClient={supabase} initialSession={null}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <BrowserRouter>
-          <AppRoutes headerHeight={headerHeight} />
+    <BrowserRouter>
+      <SessionContextProvider supabaseClient={supabase}>
+        <ThemeProvider>
+          <SidebarProvider>
+            <div className="min-h-screen flex w-full">
+              <AppRoutes />
+            </div>
+          </SidebarProvider>
           <Toaster />
-        </BrowserRouter>
-      </ThemeProvider>
-    </SessionContextProvider>
+        </ThemeProvider>
+      </SessionContextProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;
