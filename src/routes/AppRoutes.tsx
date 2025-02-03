@@ -22,6 +22,7 @@ export function AppRoutes({ headerHeight }: AppRoutesProps) {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<CalendarPage headerHeight={headerHeight} />} />
+        <Route path="/calendar" element={<CalendarPage headerHeight={headerHeight} />} />
         <Route path="/students" element={<StudentsManagementPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/settings/:settingId" element={<SettingDetailPage />} />
