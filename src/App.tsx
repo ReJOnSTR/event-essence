@@ -8,7 +8,8 @@ import {
   SidebarProvider, 
   Sidebar, 
   SidebarContent,
-  SidebarRail
+  SidebarRail,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { supabase } from "@/integrations/supabase/client";
@@ -19,11 +20,13 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { AppRoutes } from "./routes/AppRoutes";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function AppContent() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   const { 
     isDialogOpen, 
@@ -60,7 +63,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex w-full overflow-hidden bg-background">
-      <Sidebar>
+      <Sidebar defaultCollapsed={isMobile}>
         <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
           <SideMenu searchTerm={searchTerm} />
         </SidebarContent>
@@ -71,6 +74,14 @@ function AppContent() {
           onHeightChange={setHeaderHeight} 
           onSearchChange={setSearchTerm}
         />
+        {isMobile && (
+          <div className="px-4 py-2 border-b">
+            <SidebarTrigger className="w-full flex items-center justify-between p-2 rounded-lg border">
+              <span className="text-sm font-medium">Menü</span>
+              <span className="text-xs text-muted-foreground">Menüyü aç/kapat</span>
+            </SidebarTrigger>
+          </div>
+        )}
         <AnimatePresence mode="wait" initial={false}>
           <AppRoutes headerHeight={headerHeight} location={location} />
         </AnimatePresence>
@@ -100,7 +111,7 @@ const App = () => {
     >
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <TooltipProvider>
-          <SidebarProvider defaultOpen={true}>
+          <SidebarProvider defaultOpen={false}>
             <BrowserRouter>
               <AppContent />
             </BrowserRouter>
