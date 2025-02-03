@@ -9,22 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      lesson_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_sent: boolean | null
+          lesson_id: string | null
+          notification_time: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_sent?: boolean | null
+          lesson_id?: string | null
+          notification_time: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_sent?: boolean | null
+          lesson_id?: string | null
+          notification_time?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_notifications_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           created_at: string | null
           description: string | null
           end_time: string
           id: string
-          is_recurring: boolean | null
           parent_lesson_id: string | null
           recurrence_end_date: string | null
           recurrence_interval: number | null
+          recurrence_pattern: Json | null
           recurrence_type:
             | Database["public"]["Enums"]["lesson_recurrence_type"]
             | null
-          sequence_number: number | null
-          series_id: string | null
           start_time: string
+          status: Database["public"]["Enums"]["lesson_status"] | null
           student_id: string | null
           title: string
           updated_at: string | null
@@ -35,16 +72,15 @@ export type Database = {
           description?: string | null
           end_time: string
           id?: string
-          is_recurring?: boolean | null
           parent_lesson_id?: string | null
           recurrence_end_date?: string | null
           recurrence_interval?: number | null
+          recurrence_pattern?: Json | null
           recurrence_type?:
             | Database["public"]["Enums"]["lesson_recurrence_type"]
             | null
-          sequence_number?: number | null
-          series_id?: string | null
           start_time: string
+          status?: Database["public"]["Enums"]["lesson_status"] | null
           student_id?: string | null
           title: string
           updated_at?: string | null
@@ -55,16 +91,15 @@ export type Database = {
           description?: string | null
           end_time?: string
           id?: string
-          is_recurring?: boolean | null
           parent_lesson_id?: string | null
           recurrence_end_date?: string | null
           recurrence_interval?: number | null
+          recurrence_pattern?: Json | null
           recurrence_type?:
             | Database["public"]["Enums"]["lesson_recurrence_type"]
             | null
-          sequence_number?: number | null
-          series_id?: string | null
           start_time?: string
+          status?: Database["public"]["Enums"]["lesson_status"] | null
           student_id?: string | null
           title?: string
           updated_at?: string | null
@@ -74,13 +109,6 @@ export type Database = {
           {
             foreignKeyName: "lessons_parent_lesson_id_fkey"
             columns: ["parent_lesson_id"]
-            isOneToOne: false
-            referencedRelation: "lessons"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lessons_series_id_fkey"
-            columns: ["series_id"]
             isOneToOne: false
             referencedRelation: "lessons"
             referencedColumns: ["id"]
@@ -201,12 +229,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_lesson_access: {
-        Args: {
-          lesson_row: unknown
-        }
-        Returns: boolean
-      }
       delete_user: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -214,6 +236,7 @@ export type Database = {
     }
     Enums: {
       lesson_recurrence_type: "daily" | "weekly" | "monthly" | "none"
+      lesson_status: "scheduled" | "completed" | "cancelled"
       setting_type: "working_hours" | "holidays" | "theme" | "general"
     }
     CompositeTypes: {
