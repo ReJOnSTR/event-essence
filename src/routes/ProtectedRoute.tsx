@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useSessionContext } from "@supabase/auth-helpers-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export function ProtectedRoute() {
   const { session, isLoading } = useSessionContext();
