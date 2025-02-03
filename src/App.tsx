@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { BrowserRouter } from "react-router-dom";
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+import { supabase } from "@/integrations/supabase/client";
 import { AppRoutes } from "./routes/AppRoutes";
 
 function App() {
@@ -15,10 +18,14 @@ function App() {
   }, []);
 
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <AppRoutes headerHeight={headerHeight} />
-      <Toaster />
-    </ThemeProvider>
+    <SessionContextProvider supabaseClient={supabase} initialSession={null}>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <BrowserRouter>
+          <AppRoutes headerHeight={headerHeight} />
+          <Toaster />
+        </BrowserRouter>
+      </ThemeProvider>
+    </SessionContextProvider>
   );
 }
 
