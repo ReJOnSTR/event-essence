@@ -61,7 +61,7 @@ export default function SettingsPage() {
             {menuItems.map((item) => (
               <Route
                 key={item.path}
-                path={item.path}
+                path={`${item.path}/*`}
                 element={<item.component />}
               />
             ))}
