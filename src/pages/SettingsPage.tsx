@@ -55,13 +55,13 @@ export default function SettingsPage() {
       />
 
       <ScrollArea className="flex-1">
-        <div className="p-4">
+        <div className="container p-4 max-w-4xl mx-auto">
           <Routes>
             <Route index element={<SettingsMenu />} />
             {menuItems.map((item) => (
               <Route
                 key={item.path}
-                path={`${item.path}/*`}
+                path={item.path}
                 element={<item.component />}
               />
             ))}
