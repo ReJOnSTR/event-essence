@@ -8,6 +8,8 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { Lock, Calendar } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -140,6 +142,44 @@ export default function WeekViewTimeGrid({
     });
   };
 
+  const getCellLockMessage = (day: Date, hour: number) => {
+    const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours[dayOfWeek];
+    const holiday = isHoliday(day, customHolidays);
+    
+    if (holiday) {
+      return `${holiday.name} nedeniyle kapalı`;
+    }
+    
+    if (!daySettings?.enabled) {
+      return "Çalışma saatleri kapalı";
+    }
+    
+    const [startHour] = daySettings.start.split(':').map(Number);
+    const [endHour] = daySettings.end.split(':').map(Number);
+    
+    if (hour < startHour || hour >= endHour) {
+      return "Çalışma saatleri dışında";
+    }
+    
+    return "Bu saat kapalı";
+  };
+
+  const isCellLocked = (day: Date, hour: number) => {
+    const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours[dayOfWeek];
+    const holiday = isHoliday(day, customHolidays);
+    
+    if (!daySettings?.enabled || (holiday && !allowWorkOnHolidays)) {
+      return true;
+    }
+    
+    const [startHour] = daySettings.start.split(':').map(Number);
+    const [endHour] = daySettings.end.split(':').map(Number);
+    
+    return hour < startHour || hour >= endHour;
+  };
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       {hours.map((hour) => (
@@ -148,14 +188,8 @@ export default function WeekViewTimeGrid({
             {`${hour.toString().padStart(2, '0')}:00`}
           </div>
           {weekDays.map((day, dayIndex) => {
-            const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
-            const daySettings = workingHours[dayOfWeek];
-            const isDayEnabled = daySettings?.enabled;
+            const isLocked = isCellLocked(day, hour);
             const holiday = isHoliday(day, customHolidays);
-            const isWorkDisabled = (holiday && !allowWorkOnHolidays) || !isDayEnabled;
-            const [startHour] = (daySettings?.start || "09:00").split(':').map(Number);
-            const [endHour] = (daySettings?.end || "17:00").split(':').map(Number);
-            const isHourDisabled = hour < startHour || hour >= endHour;
 
             return (
               <Droppable droppableId={`${dayIndex}-${hour}`} key={`${day}-${hour}`}>
@@ -166,32 +200,55 @@ export default function WeekViewTimeGrid({
                     className={cn(
                       "bg-background border-b border-border min-h-[60px] relative",
                       isToday(day) && "bg-accent text-accent-foreground",
-                      (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
-                      !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
-                      snapshot.isDraggingOver && "bg-accent"
+                      isLocked && "bg-muted/50",
+                      !isLocked && "cursor-pointer hover:bg-accent/50",
+                      snapshot.isDraggingOver && !isLocked && "bg-accent/50"
                     )}
-                    onClick={() => handleCellClick(day, hour)}
+                    onClick={() => !isLocked && handleCellClick(day, hour)}
                   >
-                    {events
-                      .filter(
-                        event =>
-                          format(new Date(event.start), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
-                          new Date(event.start).getHours() === hour
-                      )
-                      .map((event, index) => (
-                        <LessonCard 
-                          key={event.id} 
-                          event={{
-                            ...event,
-                            start: new Date(event.start),
-                            end: new Date(event.end)
-                          }}
-                          onClick={onEventClick}
-                          students={students}
-                          index={index}
-                        />
-                      ))}
-                    {provided.placeholder}
+                    {isLocked && (
+                      <>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="absolute top-1 right-1 flex items-center gap-1">
+                                {holiday && (
+                                  <Calendar className="h-3 w-3 text-muted-foreground" />
+                                )}
+                                <Lock className="h-3 w-3 text-muted-foreground" />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{getCellLockMessage(day, hour)}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <div className="absolute inset-0 bg-background/40 backdrop-blur-[1px]" />
+                      </>
+                    )}
+                    
+                    <div className="relative">
+                      {events
+                        .filter(
+                          event =>
+                            format(new Date(event.start), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd') &&
+                            new Date(event.start).getHours() === hour
+                        )
+                        .map((event, index) => (
+                          <LessonCard 
+                            key={event.id} 
+                            event={{
+                              ...event,
+                              start: new Date(event.start),
+                              end: new Date(event.end)
+                            }}
+                            onClick={onEventClick}
+                            students={students}
+                            index={index}
+                          />
+                        ))}
+                      {provided.placeholder}
+                    </div>
                   </div>
                 )}
               </Droppable>
