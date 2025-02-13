@@ -1,5 +1,6 @@
+
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
@@ -15,19 +16,27 @@ export default function LoginPage() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
-        localStorage.removeItem('returnUrl');
-        
-        toast({
-          title: "Giriş başarılı",
-          description: "Yönlendiriliyorsunuz...",
-          duration: 2000,
-        });
-        
-        navigate(returnUrl, { replace: true });
+        // Önce session'ın geçerli olduğundan emin olalım
+        if (session.user && session.user.id) {
+          const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
+          localStorage.removeItem('returnUrl');
+          
+          // Kullanıcıya bilgi verelim
+          toast({
+            title: "Giriş başarılı",
+            description: "Yönlendiriliyorsunuz...",
+            duration: 2000,
+          });
+          
+          // Kısa bir gecikme ile yönlendirelim ki toast mesajı görülebilsin
+          setTimeout(() => {
+            navigate(returnUrl, { replace: true });
+          }, 100);
+        }
       }
     });
 
+    // Cleanup function
     return () => {
       subscription.unsubscribe();
     };
