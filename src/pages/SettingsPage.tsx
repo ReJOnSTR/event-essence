@@ -1,4 +1,3 @@
-
 import { PageHeader } from "@/components/Layout/PageHeader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -18,9 +17,7 @@ import {
   Palette,
   Database,
   Settings2,
-  ChevronLeft,
 } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 type SettingsSection = {
   id: string;
@@ -70,67 +67,21 @@ const settingsSections: SettingsSection[] = [
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("general");
-  const isMobile = useIsMobile();
-  const [showSidebar, setShowSidebar] = useState(!isMobile);
 
   const ActiveComponent = settingsSections.find(
     (section) => section.id === activeSection
   )?.component || GeneralSettings;
 
-  const activeTitle = settingsSections.find(
-    (section) => section.id === activeSection
-  )?.title;
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-  };
-
   return (
-    <div className="flex-1 flex flex-col h-screen">
+    <div className="flex-1 flex flex-col">
       <PageHeader
-        title={isMobile ? activeTitle || "Ayarlar" : "Ayarlar"}
+        title="Ayarlar"
         backTo="/"
         backLabel="Takvime Dön"
       />
-      <div className="flex-1 flex md:gap-6 p-4 md:p-6 relative">
-        {/* Mobil menü butonu */}
-        {isMobile && !showSidebar && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="fixed bottom-4 right-4 z-50 rounded-full shadow-lg"
-            onClick={toggleSidebar}
-          >
-            <Settings2 className="h-4 w-4" />
-          </Button>
-        )}
-
-        {/* Kenar çubuğu */}
-        <div
-          className={cn(
-            "fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden transition-opacity",
-            showSidebar ? "opacity-100" : "opacity-0 pointer-events-none"
-          )}
-          onClick={() => setShowSidebar(false)}
-        />
-        
-        <div
-          className={cn(
-            "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r p-4 transition-transform duration-200 ease-in-out md:static md:translate-x-0",
-            showSidebar ? "translate-x-0" : "-translate-x-full"
-          )}
-        >
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-4 top-4"
-              onClick={() => setShowSidebar(false)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          )}
-          <div className="space-y-1 mt-isMobile ? 8 : 0">
+      <div className="flex-1 flex gap-6 p-6">
+        <div className="w-64 flex-shrink-0">
+          <div className="space-y-1">
             {settingsSections.map((section) => (
               <Button
                 key={section.id}
@@ -139,10 +90,7 @@ export default function SettingsPage() {
                   "w-full justify-start gap-2",
                   activeSection === section.id && "bg-muted"
                 )}
-                onClick={() => {
-                  setActiveSection(section.id);
-                  if (isMobile) setShowSidebar(false);
-                }}
+                onClick={() => setActiveSection(section.id)}
               >
                 {section.icon}
                 {section.title}
@@ -150,11 +98,10 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
-
-        {/* Ana içerik */}
-        <div className={cn("flex-1 max-w-3xl mx-auto w-full", isMobile ? "mt-0" : "")}>
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            <div className="pr-4 md:pr-6">
+        <Separator orientation="vertical" className="h-auto" />
+        <div className="flex-1 max-w-3xl">
+          <ScrollArea className="h-[calc(100vh-10rem)]">
+            <div className="pr-6">
               <ActiveComponent />
             </div>
           </ScrollArea>

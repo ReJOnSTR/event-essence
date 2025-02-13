@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,27 +15,19 @@ export default function LoginPage() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        // Önce session'ın geçerli olduğundan emin olalım
-        if (session.user && session.user.id) {
-          const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
-          localStorage.removeItem('returnUrl');
-          
-          // Kullanıcıya bilgi verelim
-          toast({
-            title: "Giriş başarılı",
-            description: "Yönlendiriliyorsunuz...",
-            duration: 2000,
-          });
-          
-          // Kısa bir gecikme ile yönlendirelim ki toast mesajı görülebilsin
-          setTimeout(() => {
-            navigate(returnUrl, { replace: true });
-          }, 100);
-        }
+        const returnUrl = localStorage.getItem('returnUrl') || '/calendar';
+        localStorage.removeItem('returnUrl');
+        
+        toast({
+          title: "Giriş başarılı",
+          description: "Yönlendiriliyorsunuz...",
+          duration: 2000,
+        });
+        
+        navigate(returnUrl, { replace: true });
       }
     });
 
-    // Cleanup function
     return () => {
       subscription.unsubscribe();
     };
