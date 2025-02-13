@@ -20,7 +20,7 @@ import {
   Settings2,
   ChevronLeft,
 } from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type SettingsSection = {
   id: string;
@@ -70,7 +70,7 @@ const settingsSections: SettingsSection[] = [
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("general");
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [showSidebar, setShowSidebar] = useState(!isMobile);
 
   const ActiveComponent = settingsSections.find(
