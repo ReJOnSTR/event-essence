@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import { useMonthView } from "@/features/calendar/hooks/useMonthView";
-import MonthCell from "./MonthCell";
+import MonthCell from "../MonthCell";
 import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface MonthViewProps {
@@ -45,8 +45,8 @@ export default function MonthView({
     if (!event) return;
 
     const dayOfWeek = targetDay.getDay();
-    const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-    const daySettings = settings?.working_hours?.[weekDays[dayOfWeek]];
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const daySettings = settings?.working_hours?.[days[dayOfWeek]];
 
     if (!daySettings?.enabled) {
       toast({
