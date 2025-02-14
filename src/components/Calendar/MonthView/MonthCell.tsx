@@ -1,3 +1,4 @@
+
 import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student, WeeklyWorkingHours } from "@/types/calendar";
@@ -5,6 +6,8 @@ import { Droppable } from "@hello-pangea/dnd";
 import MonthEventCard from "@/components/Calendar/MonthEventCard";
 import { motion } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { Lock, Calendar } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface MonthCellProps {
   day: {
@@ -61,6 +64,16 @@ export default function MonthCell({
 
   const holidayInfo = getHolidayInfo();
 
+  const getLockMessage = () => {
+    if (holidayInfo) {
+      return `${holidayInfo.name} nedeniyle kapalı`;
+    }
+    if (!daySettings?.enabled) {
+      return "Çalışma saatleri kapalı";
+    }
+    return "Bu gün kapalı";
+  };
+
   return (
     <Droppable droppableId={`${idx}`} isDropDisabled={isDisabled}>
       {(provided, snapshot) => (
@@ -76,39 +89,46 @@ export default function MonthCell({
           }}
           onClick={() => !isDisabled && handleDateClick(day.date)}
           className={cn(
-            "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
+            "min-h-[120px] p-2 bg-background/80 transition-colors duration-150 relative",
             !day.isCurrentMonth && "text-muted-foreground/50 bg-muted/50",
             isToday(day.date) && "bg-accent text-accent-foreground",
-            holidayInfo && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
-            holidayInfo && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
-            !daySettings?.enabled && "bg-muted",
-            isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
+            isDisabled && "bg-muted/50",
+            !isDisabled && "cursor-pointer hover:bg-accent/50",
             snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
           )}
         >
           <div className={cn(
-            "text-sm font-medium mb-1",
+            "flex items-center justify-between mb-1",
             !day.isCurrentMonth && "text-muted-foreground/50",
             isToday(day.date) && "text-accent-foreground"
           )}>
-            {format(day.date, "d")}
-            {holidayInfo && (
-              <div className={cn(
-                "text-xs truncate",
-                !allowWorkOnHolidays ? "text-destructive" : "text-yellow-500",
-                holidayInfo.isCustom && "italic"
-              )}>
-                {holidayInfo.name}
-                {allowWorkOnHolidays && " (Çalışmaya Açık)"}
-              </div>
-            )}
-            {!holidayInfo && !daySettings?.enabled && (
-              <div className="text-xs text-muted-foreground truncate">
-                Çalışma Saatleri Kapalı
-              </div>
+            <span className="text-sm font-medium">
+              {format(day.date, "d")}
+            </span>
+            {isDisabled && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1">
+                      {holidayInfo && (
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{getLockMessage()}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
-          <div className="space-y-1">
+          
+          {isDisabled && (
+            <div className="absolute inset-0 bg-background/40 backdrop-blur-[1px]" />
+          )}
+
+          <div className="space-y-1 relative">
             {day.lessons.map((event, index) => (
               <MonthEventCard
                 key={event.id}
