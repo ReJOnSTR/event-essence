@@ -1,11 +1,10 @@
-
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { motion } from "framer-motion";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { useToast } from "@/components/ui/use-toast";
 import { useMonthView } from "@/features/calendar/hooks/useMonthView";
-import MonthCell from "../MonthCell";
+import MonthCell from "./MonthCell";
 import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface MonthViewProps {
@@ -32,26 +31,39 @@ export default function MonthView({
   const { settings } = useUserSettings();
   const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
   const customHolidays = settings?.holidays || [];
-  const monthDays = getDaysInMonth(date);
+  const days = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
     const [dayIndex] = result.destination.droppableId.split('-').map(Number);
-    const targetDay = monthDays[dayIndex].date;
+    const targetDay = days[dayIndex].date;
     const event = events.find(e => e.id === result.draggableId);
     
     if (!event) return;
 
     const dayOfWeek = targetDay.getDay();
-    const weekDayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-    const daySettings = settings?.working_hours?.[weekDayNames[dayOfWeek]];
+    const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const daySettings = settings?.working_hours?.[weekDays[dayOfWeek]];
 
     if (!daySettings?.enabled) {
       toast({
         title: "Çalışma saatleri dışında",
         description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const isCustomHoliday = customHolidays.some(holiday => 
+      new Date(holiday.date).toDateString() === targetDay.toDateString()
+    );
+
+    if (isCustomHoliday && !allowWorkOnHolidays) {
+      toast({
+        title: "Tatil günü",
+        description: "Bu gün özel tatil günü olarak işaretlenmiş.",
         variant: "destructive"
       });
       return;
@@ -102,7 +114,7 @@ export default function MonthView({
             </motion.div>
           ))}
           
-          {monthDays.map((day, idx) => (
+          {days.map((day, idx) => (
             <MonthCell
               key={idx}
               day={day}
