@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { motion } from "framer-motion";
@@ -51,19 +52,6 @@ export default function MonthView({
       toast({
         title: "Çalışma saatleri dışında",
         description: "Bu gün için çalışma saatleri kapalıdır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const isCustomHoliday = customHolidays.some(holiday => 
-      new Date(holiday.date).toDateString() === targetDay.toDateString()
-    );
-
-    if (isCustomHoliday && !allowWorkOnHolidays) {
-      toast({
-        title: "Tatil günü",
-        description: "Bu gün özel tatil günü olarak işaretlenmiş.",
         variant: "destructive"
       });
       return;
