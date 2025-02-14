@@ -69,16 +69,6 @@ export default function MonthCell({
 
   const holidayInfo = getHolidayInfo();
 
-  const getLockMessage = () => {
-    if (holidayInfo) {
-      return `${holidayInfo.name} nedeniyle kapalı`;
-    }
-    if (!daySettings?.enabled) {
-      return "Çalışma saatleri kapalı";
-    }
-    return "Bu gün kapalı";
-  };
-
   return (
     <Droppable droppableId={`${idx}`} isDropDisabled={isDisabled}>
       {(provided, snapshot) => (
@@ -110,30 +100,25 @@ export default function MonthCell({
             <span className="text-sm font-medium">
               {format(day.date, "d")}
             </span>
-            {isDisabled && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1">
-                      {holidayInfo && (
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                      )}
-                      <Lock className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{getLockMessage()}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
           </div>
-          
-          {isDisabled && (
-            <div className="absolute inset-0 bg-background/40 backdrop-blur-[1px]" />
-          )}
 
           <div className="space-y-1 relative">
+            {isDisabled && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-muted/80 backdrop-blur-[1px] rounded p-2">
+                <div className="flex items-center gap-1">
+                  {holidayInfo && <Calendar className="h-4 w-4 text-muted-foreground" />}
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <span className="text-xs text-muted-foreground text-center">
+                  {holidayInfo 
+                    ? holidayInfo.name
+                    : !daySettings?.enabled 
+                      ? "Çalışma Saatleri Kapalı"
+                      : "Bu Gün Kapalı"}
+                </span>
+              </div>
+            )}
+
             {day.lessons.map((event, index) => (
               <MonthEventCard
                 key={event.id}
