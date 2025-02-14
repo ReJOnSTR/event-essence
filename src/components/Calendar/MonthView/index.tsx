@@ -32,21 +32,21 @@ export default function MonthView({
   const { settings } = useUserSettings();
   const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
   const customHolidays = settings?.holidays || [];
-  const days = getDaysInMonth(date);
+  const monthDays = getDaysInMonth(date);
   const weekDays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
     const [dayIndex] = result.destination.droppableId.split('-').map(Number);
-    const targetDay = days[dayIndex].date;
+    const targetDay = monthDays[dayIndex].date;
     const event = events.find(e => e.id === result.draggableId);
     
     if (!event) return;
 
     const dayOfWeek = targetDay.getDay();
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-    const daySettings = settings?.working_hours?.[days[dayOfWeek]];
+    const weekDayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const daySettings = settings?.working_hours?.[weekDayNames[dayOfWeek]];
 
     if (!daySettings?.enabled) {
       toast({
@@ -102,7 +102,7 @@ export default function MonthView({
             </motion.div>
           ))}
           
-          {days.map((day, idx) => (
+          {monthDays.map((day, idx) => (
             <MonthCell
               key={idx}
               day={day}
