@@ -1,3 +1,4 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
@@ -10,6 +11,7 @@ import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { cn } from "@/lib/utils";
 import DayViewCell from "./DayViewCell";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DayViewProps {
   date: Date;
@@ -136,7 +138,7 @@ export default function DayView({
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <motion.div 
-        className="w-full"
+        className="w-full h-[calc(100vh-9rem)] md:h-[calc(100vh-8rem)] flex flex-col"
         initial={{ opacity: 0, y: 2 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
@@ -159,35 +161,37 @@ export default function DayView({
           )}
         </AnimatePresence>
 
-        <div className="space-y-2">
-          {hours.map((hour, index) => (
-            <motion.div 
-              key={hour}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.25,
-                delay: index * 0.02,
-                ease: [0.23, 1, 0.32, 1]
-              }}
-              className="grid grid-cols-12 gap-2"
-            >
-              <div className="col-span-1 text-right text-sm text-muted-foreground relative">
-                {`${hour.toString().padStart(2, '0')}:00`}
-                <TimeIndicator events={dayEvents} hour={hour} />
-              </div>
-              <DayViewCell
-                hour={hour}
-                events={dayEvents}
-                isDraggingOver={false}
-                isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
-                onCellClick={() => handleHourClick(hour)}
-                onEventClick={onEventClick}
-                students={students}
-              />
-            </motion.div>
-          ))}
-        </div>
+        <ScrollArea className="flex-1">
+          <div className="space-y-2 pb-6">
+            {hours.map((hour, index) => (
+              <motion.div 
+                key={hour}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.25,
+                  delay: index * 0.02,
+                  ease: [0.23, 1, 0.32, 1]
+                }}
+                className="grid grid-cols-12 gap-2"
+              >
+                <div className="col-span-1 text-right text-sm text-muted-foreground relative">
+                  {`${hour.toString().padStart(2, '0')}:00`}
+                  <TimeIndicator events={dayEvents} hour={hour} />
+                </div>
+                <DayViewCell
+                  hour={hour}
+                  events={dayEvents}
+                  isDraggingOver={false}
+                  isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
+                  onCellClick={() => handleHourClick(hour)}
+                  onEventClick={onEventClick}
+                  students={students}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </ScrollArea>
       </motion.div>
     </DragDropContext>
   );
