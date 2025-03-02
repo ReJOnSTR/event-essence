@@ -8,6 +8,7 @@ import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { UserSettings } from "@/hooks/useUserSettings";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -272,18 +273,20 @@ export default function MonthView({
                         </div>
                       )}
                     </div>
-                    <div className="space-y-1">
-                      {day.lessons.map((event, index) => (
-                        <MonthEventCard
-                          key={event.id}
-                          event={event}
-                          students={students}
-                          index={index}
-                          onClick={onEventClick}
-                        />
-                      ))}
-                      {provided.placeholder}
-                    </div>
+                    <ScrollArea className="h-[80px]">
+                      <div className="space-y-1">
+                        {day.lessons.map((event, index) => (
+                          <MonthEventCard
+                            key={event.id}
+                            event={event}
+                            students={students}
+                            index={index}
+                            onClick={onEventClick}
+                          />
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    </ScrollArea>
                   </motion.div>
                 )}
               </Droppable>
