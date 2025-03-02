@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { startOfWeek, addDays } from "date-fns";
@@ -5,6 +6,7 @@ import { motion } from "framer-motion";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface WeekViewProps {
   date: Date;
@@ -60,26 +62,28 @@ export default function WeekView({
 
   return (
     <motion.div 
-      className="w-full overflow-x-auto"
+      className="w-full h-[calc(100vh-12rem)] flex flex-col"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
     >
-      <div className="border border-border rounded-lg overflow-hidden">
+      <div className="border border-border rounded-lg flex flex-col h-full">
         <WeekViewHeader date={date} />
-        <div className="grid grid-cols-8 divide-x divide-border">
-          <WeekViewTimeGrid
-            weekDays={weekDays}
-            hours={hours}
-            events={events}
-            workingHours={workingHours}
-            allowWorkOnHolidays={settings?.allow_work_on_holidays ?? true}
-            onCellClick={handleCellClick}
-            onEventClick={onEventClick}
-            onEventUpdate={onEventUpdate}
-            students={students}
-          />
-        </div>
+        <ScrollArea className="flex-1 h-[calc(100%-3rem)]">
+          <div className="grid grid-cols-8 divide-x divide-border min-w-[800px]">
+            <WeekViewTimeGrid
+              weekDays={weekDays}
+              hours={hours}
+              events={events}
+              workingHours={workingHours}
+              allowWorkOnHolidays={settings?.allow_work_on_holidays ?? true}
+              onCellClick={handleCellClick}
+              onEventClick={onEventClick}
+              onEventUpdate={onEventUpdate}
+              students={students}
+            />
+          </div>
+        </ScrollArea>
       </div>
     </motion.div>
   );

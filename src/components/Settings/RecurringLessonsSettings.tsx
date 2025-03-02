@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -40,12 +41,12 @@ export default function RecurringLessonsSettings() {
   };
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Tekrarlanan Dersler</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[400px]">
+      <CardContent className="h-[calc(100%-4rem)]">
+        <ScrollArea className="h-full max-h-[400px]">
           <AnimatePresence>
             {Object.entries(groupedLessons).map(([key, lessons]) => (
               <motion.div
