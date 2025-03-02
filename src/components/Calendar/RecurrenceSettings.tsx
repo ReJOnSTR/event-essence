@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -38,7 +37,7 @@ export default function RecurrenceSettings({
       </div>
 
       <Select value={recurrenceType} onValueChange={onRecurrenceTypeChange}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger>
           <SelectValue placeholder="Tekrar sıklığını seçin" />
         </SelectTrigger>
         <SelectContent>

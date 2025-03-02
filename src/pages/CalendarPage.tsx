@@ -98,7 +98,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
 
   return (
     <ProtectedRoute requireAuth={false}>
-      <div className="flex-1 flex flex-col h-[100vh] overflow-hidden">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <PageHeader title="Takvim">
           <div className="flex items-center gap-1 md:gap-2">
             {session && (
@@ -133,8 +133,8 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
           onToday={handleTodayClick}
         />
         
-        <div className="flex-1 overflow-hidden bg-background">
-          <div className="h-full p-0 md:p-2">
+        <div className="flex-1 overflow-auto bg-background">
+          <div className="p-2 md:p-4">
             <CalendarContent
               currentView={currentView}
               selectedDate={selectedDate}
