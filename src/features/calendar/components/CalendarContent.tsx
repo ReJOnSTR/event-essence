@@ -5,7 +5,6 @@ import DayView from "@/components/Calendar/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import { ViewType } from "@/store/calendarStore";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CalendarContentProps {
   currentView: ViewType;
