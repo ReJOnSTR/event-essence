@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -41,7 +42,7 @@ export default function StudentsManagementPage() {
       <PageHeader 
         title="Öğrenci Yönetimi"
         actions={
-          <Button onClick={handleAddStudent}>
+          <Button onClick={handleAddStudent} disabled={studentDialog.isSaving}>
             <Plus className="h-4 w-4 mr-2" />
             Öğrenci Ekle
           </Button>
@@ -70,6 +71,7 @@ export default function StudentsManagementPage() {
         setStudentPrice={studentDialog.setStudentPrice}
         studentColor={studentDialog.studentColor}
         setStudentColor={studentDialog.setStudentColor}
+        isSaving={studentDialog.isSaving}
       />
 
       <LoginRequiredDialog 
