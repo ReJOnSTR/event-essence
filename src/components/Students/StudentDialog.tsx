@@ -1,4 +1,3 @@
-
 import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +23,6 @@ interface StudentDialogProps {
   setStudentPrice: (price: number) => void;
   studentColor: string;
   setStudentColor: (color: string) => void;
-  isSaving?: boolean;
 }
 
 const dialogVariants = {
@@ -65,10 +63,9 @@ export default function StudentDialog({
   setStudentPrice,
   studentColor,
   setStudentColor,
-  isSaving = false,
 }: StudentDialogProps) {
   const handleSave = async () => {
-    if (!studentName.trim() || isSaving) {
+    if (!studentName.trim()) {
       return;
     }
     onSave();
@@ -104,7 +101,6 @@ export default function StudentDialog({
                 studentColor={studentColor}
                 setStudentColor={setStudentColor}
                 onDelete={onDelete}
-                isSaving={isSaving}
               />
 
               <DialogFooter className="flex items-center justify-end mt-6">
@@ -114,11 +110,11 @@ export default function StudentDialog({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05, duration: 0.15 }}
                 >
-                  <Button variant="outline" onClick={onClose} disabled={isSaving}>
+                  <Button variant="outline" onClick={onClose}>
                     İptal
                   </Button>
-                  <Button onClick={handleSave} disabled={isSaving || !studentName.trim()}>
-                    {isSaving ? "Kaydediliyor..." : student ? "Güncelle" : "Ekle"}
+                  <Button onClick={handleSave}>
+                    {student ? "Güncelle" : "Ekle"}
                   </Button>
                 </motion.div>
               </DialogFooter>

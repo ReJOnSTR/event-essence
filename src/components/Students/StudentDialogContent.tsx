@@ -17,7 +17,6 @@ interface StudentDialogContentProps {
   studentColor: string;
   setStudentColor: (color: string) => void;
   onDelete?: () => void;
-  isSaving?: boolean;
 }
 
 export default function StudentDialogContent({
@@ -29,7 +28,6 @@ export default function StudentDialogContent({
   studentColor,
   setStudentColor,
   onDelete,
-  isSaving = false,
 }: StudentDialogContentProps) {
   const { toast } = useToast();
   const [localName, setLocalName] = useState(studentName);
@@ -88,7 +86,6 @@ export default function StudentDialogContent({
           placeholder="Öğrenci adı"
           maxLength={25}
           required
-          disabled={isSaving}
         />
         <div className="text-xs text-muted-foreground">
           {localName.length}/25 karakter
@@ -106,7 +103,6 @@ export default function StudentDialogContent({
           max="999999.99"
           step="0.01"
           required
-          disabled={isSaving}
         />
       </div>
 
@@ -122,7 +118,6 @@ export default function StudentDialogContent({
         <SliderPicker
           color={studentColor}
           onChange={handleColorChange}
-          disabled={isSaving}
         />
       </div>
 
@@ -132,7 +127,6 @@ export default function StudentDialogContent({
             variant="ghost"
             onClick={onDelete}
             className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            disabled={isSaving}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Sil
