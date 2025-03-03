@@ -49,10 +49,10 @@ export default function CalendarContent({
   };
 
   return (
-    <ScrollArea className="h-[calc(100vh-12rem)] w-full">
+    <div className="h-[calc(100vh-12rem)] w-full overflow-auto">
       <div className="min-h-full w-full pb-8">
         {renderView()}
       </div>
-    </ScrollArea>
+    </div>
   );
 }
