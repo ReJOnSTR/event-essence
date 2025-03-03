@@ -1,4 +1,3 @@
-
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, addMonths, startOfYear } from "date-fns";
 import { tr } from 'date-fns/locale';
@@ -21,7 +20,7 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
 
   return (
     <motion.div 
-      className="w-full pb-8" // Added padding at bottom to ensure full visibility
+      className="w-full"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
