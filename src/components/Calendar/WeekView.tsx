@@ -1,4 +1,3 @@
-
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { startOfWeek, addDays } from "date-fns";
@@ -61,12 +60,12 @@ export default function WeekView({
 
   return (
     <motion.div 
-      className="w-full"
+      className="w-full overflow-x-auto"
       initial={{ opacity: 0, y: 2 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
     >
-      <div className="border border-border rounded-lg overflow-hidden min-w-[900px]">
+      <div className="border border-border rounded-lg overflow-hidden">
         <WeekViewHeader date={date} />
         <div className="grid grid-cols-8 divide-x divide-border">
           <WeekViewTimeGrid

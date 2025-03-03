@@ -243,7 +243,7 @@ export default function MonthView({
                     }}
                     onClick={() => !isDisabled && handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] max-h-[120px] p-2 bg-background/80 transition-colors duration-150 overflow-auto",
+                      "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
                       !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
                       isToday(day.date) && "bg-accent text-accent-foreground",
                       holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
