@@ -8,7 +8,6 @@ import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { UserSettings } from "@/hooks/useUserSettings";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -244,7 +243,7 @@ export default function MonthView({
                     }}
                     onClick={() => !isDisabled && handleDateClick(day.date)}
                     className={cn(
-                      "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
+                      "min-h-[120px] max-h-[120px] p-2 bg-background/80 transition-colors duration-150 overflow-auto",
                       !day.isCurrentMonth && "text-muted-foreground bg-muted/50",
                       isToday(day.date) && "bg-accent text-accent-foreground",
                       holiday && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
@@ -273,20 +272,18 @@ export default function MonthView({
                         </div>
                       )}
                     </div>
-                    <ScrollArea className="h-[80px]">
-                      <div className="space-y-1">
-                        {day.lessons.map((event, index) => (
-                          <MonthEventCard
-                            key={event.id}
-                            event={event}
-                            students={students}
-                            index={index}
-                            onClick={onEventClick}
-                          />
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    </ScrollArea>
+                    <div className="space-y-1">
+                      {day.lessons.map((event, index) => (
+                        <MonthEventCard
+                          key={event.id}
+                          event={event}
+                          students={students}
+                          index={index}
+                          onClick={onEventClick}
+                        />
+                      ))}
+                      {provided.placeholder}
+                    </div>
                   </motion.div>
                 )}
               </Droppable>

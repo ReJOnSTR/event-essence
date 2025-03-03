@@ -5,7 +5,6 @@ import { DayPicker } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -16,7 +15,7 @@ function Calendar({
   ...props
 }: CalendarProps) {
   return (
-    <ScrollArea className="max-h-[350px]">
+    <div className="max-h-[350px] overflow-auto">
       <DayPicker
         showOutsideDays={showOutsideDays}
         className={cn("p-3", className)}
@@ -60,7 +59,7 @@ function Calendar({
         }}
         {...props}
       />
-    </ScrollArea>
+    </div>
   );
 }
 Calendar.displayName = "Calendar";

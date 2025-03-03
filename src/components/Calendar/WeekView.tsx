@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import WeekViewHeader from "./WeekViewHeader";
 import WeekViewTimeGrid from "./WeekViewTimeGrid";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface WeekViewProps {
   date: Date;
@@ -69,21 +68,19 @@ export default function WeekView({
     >
       <div className="border border-border rounded-lg overflow-hidden min-w-[900px]">
         <WeekViewHeader date={date} />
-        <ScrollArea className="max-h-[calc(100vh-16rem)]">
-          <div className="grid grid-cols-8 divide-x divide-border">
-            <WeekViewTimeGrid
-              weekDays={weekDays}
-              hours={hours}
-              events={events}
-              workingHours={workingHours}
-              allowWorkOnHolidays={settings?.allow_work_on_holidays ?? true}
-              onCellClick={handleCellClick}
-              onEventClick={onEventClick}
-              onEventUpdate={onEventUpdate}
-              students={students}
-            />
-          </div>
-        </ScrollArea>
+        <div className="grid grid-cols-8 divide-x divide-border">
+          <WeekViewTimeGrid
+            weekDays={weekDays}
+            hours={hours}
+            events={events}
+            workingHours={workingHours}
+            allowWorkOnHolidays={settings?.allow_work_on_holidays ?? true}
+            onCellClick={handleCellClick}
+            onEventClick={onEventClick}
+            onEventUpdate={onEventUpdate}
+            students={students}
+          />
+        </div>
       </div>
     </motion.div>
   );
