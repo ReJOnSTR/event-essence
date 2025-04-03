@@ -4,6 +4,7 @@ import { CalendarEvent } from '@/types/calendar';
 import { useToast } from '@/components/ui/use-toast';
 import { differenceInMinutes, addMinutes } from 'date-fns';
 import { checkLessonConflict } from '@/utils/lessonConflict';
+import { motion, useAnimation } from 'framer-motion';
 
 export const useMobileDragDrop = (
   onEventUpdate?: (event: CalendarEvent) => void
@@ -12,12 +13,17 @@ export const useMobileDragDrop = (
   const [touchStartY, setTouchStartY] = useState<number>(0);
   const [touchStartTime, setTouchStartTime] = useState<Date | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const controls = useAnimation();
   const { toast } = useToast();
 
   const handleTouchStart = (event: CalendarEvent, e: React.TouchEvent) => {
     setDraggedEvent(event);
     setTouchStartY(e.touches[0].clientY);
     setTouchStartTime(new Date());
+    
+    // Başlangıç pozisyonunu ayarla
+    setDragPosition({ x: 0, y: 0 });
     
     // Wait to determine if this is a drag or just a tap
     setTimeout(() => {
@@ -33,6 +39,21 @@ export const useMobileDragDrop = (
     // Prevent scrolling when dragging lessons
     if (isDragging) {
       e.preventDefault();
+      
+      // Dokunmatik hareketi takip et
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchY - touchStartY;
+      
+      // Görsel geri bildirim için pozisyonu güncelle
+      setDragPosition({ x: 0, y: deltaY });
+      
+      // Framer Motion animasyonunu güncelle
+      controls.start({
+        y: deltaY,
+        scale: 1.05,
+        boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+        transition: { type: "spring", damping: 25, stiffness: 300 }
+      });
     }
     
     // Visual feedback that dragging is happening
@@ -62,34 +83,54 @@ export const useMobileDragDrop = (
     );
 
     if (hasConflict) {
-      toast({
-        title: "Ders çakışması",
-        description: "Seçilen saatte başka bir ders bulunuyor.",
-        variant: "destructive"
+      // Çakışma durumunda hızlı bir şekilde titreşim animasyonu
+      controls.start({
+        x: [0, -10, 10, -5, 5, 0],
+        transition: { duration: 0.4, ease: "easeInOut" }
+      }).then(() => {
+        controls.start({ x: 0, y: 0, scale: 1, transition: { type: "spring" } });
+        
+        toast({
+          title: "Ders çakışması",
+          description: "Seçilen saatte başka bir ders bulunuyor.",
+          variant: "destructive"
+        });
+        resetDrag();
       });
-      resetDrag();
       return;
     }
 
-    onEventUpdate({
-      ...draggedEvent,
-      start: newStart,
-      end: newEnd
-    });
+    // Başarılı taşıma animasyonu
+    controls.start({
+      y: 0,
+      scale: 1,
+      opacity: [1, 0.8, 1],
+      transition: { type: "spring", damping: 20, stiffness: 300 }
+    }).then(() => {
+      onEventUpdate({
+        ...draggedEvent,
+        start: newStart,
+        end: newEnd
+      });
 
-    toast({
-      title: "Ders taşındı",
-      description: "Ders başarıyla yeni saate taşındı.",
-    });
+      toast({
+        title: "Ders taşındı",
+        description: "Ders başarıyla yeni saate taşındı.",
+      });
 
-    resetDrag();
+      resetDrag();
+    });
   };
 
   const resetDrag = () => {
+    // Animasyonu sıfırla
+    controls.start({ x: 0, y: 0, scale: 1, transition: { type: "spring" } });
+    
     setDraggedEvent(null);
     setTouchStartY(0);
     setTouchStartTime(null);
     setIsDragging(false);
+    setDragPosition({ x: 0, y: 0 });
     document.body.style.cursor = 'auto';
   };
 
@@ -113,6 +154,8 @@ export const useMobileDragDrop = (
     draggedEvent,
     handleTouchStart,
     handleTouchEnd,
-    isDragging
+    isDragging,
+    dragPosition,
+    controls
   };
 };

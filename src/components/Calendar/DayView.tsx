@@ -40,8 +40,8 @@ export default function DayView({
   
   const holiday = isHoliday(date, customHolidays);
   
-  const { draggedEvent, handleTouchStart, handleTouchEnd } = useMobileDragDrop(onEventUpdate);
-  const { handleResizeStart, isResizing } = useResizableLesson({ events, onEventUpdate });
+  const { draggedEvent, handleTouchStart, handleTouchEnd, isDragging, controls } = useMobileDragDrop(onEventUpdate);
+  const { handleResizeStart, isResizing, resizeControls } = useResizableLesson({ events, onEventUpdate });
   
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
@@ -86,7 +86,6 @@ export default function DayView({
       return;
     }
 
-    const currentTime = `${hour}:00`;
     if (hour < startHour || hour >= endHour) {
       toast({
         title: "Çalışma saatleri dışında",
@@ -149,25 +148,84 @@ export default function DayView({
     });
   };
 
+  // Animasyon varyantları
+  const containerVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        duration: 0.3, 
+        ease: [0.23, 1, 0.32, 1],
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const hourVariants = {
+    hidden: { opacity: 0, y: -10 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        type: "spring", 
+        damping: 15, 
+        stiffness: 100 
+      }
+    }
+  };
+
+  const holidayVariants = {
+    hidden: { opacity: 0, y: -10, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { 
+        type: "spring", 
+        damping: 20, 
+        stiffness: 120 
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -10, 
+      scale: 0.95,
+      transition: { duration: 0.2 }
+    }
+  };
+
+  const cellVariants = {
+    initial: { backgroundColor: "var(--background)" },
+    hover: { backgroundColor: "var(--accent)", transition: { duration: 0.2 } },
+    draggingOver: { 
+      backgroundColor: "var(--accent)",
+      scale: 1.01,
+      transition: { duration: 0.2 }
+    },
+    disabled: { backgroundColor: "var(--muted)" }
+  };
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <motion.div 
         className="w-full"
-        initial={{ opacity: 0, y: 2 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
       >
         <AnimatePresence>
           {holiday && (
             <motion.div 
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+              variants={holidayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
               className={cn(
                 "mb-4 p-2 rounded-md border",
                 !allowWorkOnHolidays ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
               )}
+              layout
             >
               {holiday.name} - {allowWorkOnHolidays ? "Çalışmaya Açık Tatil" : "Tatil"}
             </motion.div>
@@ -178,13 +236,8 @@ export default function DayView({
           {hours.map((hour, index) => (
             <motion.div 
               key={hour}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.25,
-                delay: index * 0.02,
-                ease: [0.23, 1, 0.32, 1]
-              }}
+              variants={hourVariants}
+              custom={index}
               className="grid grid-cols-12 gap-2"
             >
               <div className="col-span-1 text-right text-sm text-muted-foreground relative">
@@ -193,18 +246,21 @@ export default function DayView({
               </div>
               <Droppable droppableId={`${hour}:0`}>
                 {(provided, snapshot) => (
-                  <div 
+                  <motion.div 
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
                       "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
-                      snapshot.isDraggingOver && "bg-accent",
-                      draggedEvent && "bg-accent/50",
+                      isDragging && "bg-accent/50",
                       isResizing && "bg-accent/30",
                       (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
                       "bg-muted cursor-not-allowed"
                     )}
                     onClick={() => handleHourClick(hour, 0)}
+                    variants={cellVariants}
+                    initial="initial"
+                    whileHover={(!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) ? "disabled" : "hover"}
+                    animate={snapshot.isDraggingOver ? "draggingOver" : "initial"}
                   >
                     {dayEvents
                       .filter(event => new Date(event.start).getHours() === hour)
@@ -221,7 +277,7 @@ export default function DayView({
                         />
                       ))}
                     {provided.placeholder}
-                  </div>
+                  </motion.div>
                 )}
               </Droppable>
             </motion.div>

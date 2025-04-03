@@ -4,6 +4,7 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -67,14 +68,53 @@ export default function LessonCard({
     }
   };
 
+  // Animasyon varyantları
+  const cardVariants = {
+    initial: { opacity: 0, scale: 0.9 },
+    animate: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { 
+        type: "spring", 
+        damping: 12,
+        stiffness: 100 
+      } 
+    },
+    hover: { 
+      scale: 1.02,
+      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+      transition: { 
+        type: "spring", 
+        damping: 10,
+        stiffness: 120 
+      }
+    },
+    tap: { 
+      scale: 0.98 
+    },
+    drag: {
+      scale: 1.05,
+      boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+      zIndex: 20
+    }
+  };
+
+  const resizeHandleVariants = {
+    initial: { opacity: 0 },
+    hover: { 
+      opacity: 1,
+      transition: { duration: 0.2 }
+    }
+  };
+
   const content = (provided?: any, snapshot?: any) => (
-    <div
+    <motion.div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
         "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm touch-none",
-        snapshot?.isDragging ? "shadow-lg opacity-70" : "",
+        snapshot?.isDragging ? "shadow-lg opacity-90 z-50" : "",
         isCompact ? "flex items-center justify-between gap-1" : "",
         isResizable ? "group" : ""
       )}
@@ -84,18 +124,33 @@ export default function LessonCard({
       }}
       onClick={handleClick}
       onTouchStart={handleTouchStart}
+      variants={cardVariants}
+      initial="initial"
+      animate="animate"
+      whileHover="hover"
+      whileTap="tap"
+      whileDrag={snapshot?.isDragging ? "drag" : undefined}
+      layout
     >
       {isResizable && (
         <>
-          <div 
-            className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-black/20 rounded-t"
+          <motion.div 
+            className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize bg-black/20 rounded-t"
             onMouseDown={handleResizeStart('start')}
             onTouchStart={handleTouchResizeStart('start')}
+            variants={resizeHandleVariants}
+            initial="initial"
+            whileHover="hover"
+            animate={isResizable ? "hover" : "initial"}
           />
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-black/20 rounded-b"
+          <motion.div 
+            className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-black/20 rounded-b"
             onMouseDown={handleResizeStart('end')}
             onTouchStart={handleTouchResizeStart('end')}
+            variants={resizeHandleVariants}
+            initial="initial"
+            whileHover="hover"
+            animate={isResizable ? "hover" : "initial"}
           />
         </>
       )}
@@ -123,7 +178,7 @@ export default function LessonCard({
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   );
 
   if (!isDraggable) {
