@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -18,7 +17,7 @@ export default function StudentsManagementPage() {
   const studentDialog = useStudentDialog();
 
   const handleAddStudent = () => {
-    if (!session) {a
+    if (!session) {
       setIsLoginDialogOpen(true);
       return;
     }
