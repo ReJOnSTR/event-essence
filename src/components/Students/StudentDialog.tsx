@@ -1,3 +1,4 @@
+
 import { Student } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ interface StudentDialogProps {
   setStudentPrice: (price: number) => void;
   studentColor: string;
   setStudentColor: (color: string) => void;
+  isSaving?: boolean;
 }
 
 const dialogVariants = {
@@ -63,16 +65,17 @@ export default function StudentDialog({
   setStudentPrice,
   studentColor,
   setStudentColor,
+  isSaving = false,
 }: StudentDialogProps) {
   const handleSave = async () => {
-    if (!studentName.trim()) {
+    if (!studentName.trim() || isSaving) {
       return;
     }
     onSave();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={isSaving ? undefined : onClose}>
       <DialogContent className="sm:max-w-[425px] overflow-hidden p-0">
         <AnimatePresence mode="wait">
           {isOpen && (
@@ -101,6 +104,7 @@ export default function StudentDialog({
                 studentColor={studentColor}
                 setStudentColor={setStudentColor}
                 onDelete={onDelete}
+                isSaving={isSaving}
               />
 
               <DialogFooter className="flex items-center justify-end mt-6">
@@ -110,11 +114,11 @@ export default function StudentDialog({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05, duration: 0.15 }}
                 >
-                  <Button variant="outline" onClick={onClose}>
+                  <Button variant="outline" onClick={onClose} disabled={isSaving}>
                     İptal
                   </Button>
-                  <Button onClick={handleSave}>
-                    {student ? "Güncelle" : "Ekle"}
+                  <Button onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? 'Kaydediliyor...' : student ? "Güncelle" : "Ekle"}
                   </Button>
                 </motion.div>
               </DialogFooter>
