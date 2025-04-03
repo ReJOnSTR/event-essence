@@ -15,6 +15,7 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
   const [resizeType, setResizeType] = useState<'start' | 'end' | null>(null);
   const [initialY, setInitialY] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<Date | null>(null);
+  const [previewEvent, setPreviewEvent] = useState<CalendarEvent | null>(null);
   const { toast } = useToast();
 
   const handleResizeStart = (event: CalendarEvent, type: 'start' | 'end', y: number) => {
@@ -22,6 +23,13 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     setResizeType(type);
     setInitialY(y);
     setInitialTime(type === 'start' ? new Date(event.start) : new Date(event.end));
+    setPreviewEvent(event);
+    
+    // Add visual feedback that resize is happening
+    const element = document.getElementById(`lesson-${event.id}`);
+    if (element) {
+      element.classList.add('resizing');
+    }
   };
 
   const handleResizeMove = (e: MouseEvent | TouchEvent) => {
@@ -30,12 +38,11 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const deltaY = clientY - initialY;
     
-    // Convert pixels to minutes (assuming 1px = 1min or adjust as needed)
-    // We're using pixelsPerMinute of 1 for simplicity, can be adjusted
+    // Convert pixels to minutes (60px = 60min as per our grid)
     const pixelsPerMinute = 1;
     const deltaMinutes = Math.round(deltaY / pixelsPerMinute);
     
-    // Create new dates
+    // Create new dates for preview
     let newStart = new Date(resizingEvent.start);
     let newEnd = new Date(resizingEvent.end);
     
@@ -55,51 +62,40 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
       }
     }
     
-    // Preview the resize
-    const previewEvent = {
+    // Update preview
+    setPreviewEvent({
       ...resizingEvent,
       start: newStart,
       end: newEnd
-    };
+    });
     
-    // We could add visual feedback here
+    // Visual feedback for resize
     document.body.style.cursor = 'ns-resize';
+    
+    // Update visual representation of the resize
+    const element = document.getElementById(`lesson-${resizingEvent.id}`);
+    if (element) {
+      if (resizeType === 'start') {
+        const top = (newStart.getMinutes() / 60) * 60;
+        const height = Math.max((differenceInMinutes(newEnd, newStart) / 60) * 60, 40);
+        element.style.top = `${top}px`;
+        element.style.height = `${height}px`;
+      } else {
+        const height = Math.max((differenceInMinutes(newEnd, newStart) / 60) * 60, 40);
+        element.style.height = `${height}px`;
+      }
+    }
   };
 
   const handleResizeEnd = (e: MouseEvent | TouchEvent) => {
-    if (!resizingEvent || !resizeType || !initialTime || !onEventUpdate) {
+    if (!resizingEvent || !resizeType || !initialTime || !onEventUpdate || !previewEvent) {
       resetResize();
       return;
     }
 
-    const clientY = 'changedTouches' in e ? e.changedTouches[0].clientY : e.clientY;
-    const deltaY = clientY - initialY;
-    
-    // Convert pixels to minutes (assuming 1px = 1min or adjust as needed)
-    const pixelsPerMinute = 1;
-    const deltaMinutes = Math.round(deltaY / pixelsPerMinute);
-    
-    // Create new dates
-    let newStart = new Date(resizingEvent.start);
-    let newEnd = new Date(resizingEvent.end);
-    
-    if (resizeType === 'start') {
-      newStart = addMinutes(initialTime, deltaMinutes);
-      // Ensure lesson duration is at least 15 minutes
-      if (differenceInMinutes(newEnd, newStart) < 15) {
-        newStart = addMinutes(newEnd, -15);
-      }
-    } else {
-      newEnd = addMinutes(initialTime, deltaMinutes);
-      // Ensure lesson duration is at least 15 minutes
-      if (differenceInMinutes(newEnd, newStart) < 15) {
-        newEnd = addMinutes(newStart, 15);
-      }
-    }
-    
     // Check for conflicts
     const hasConflict = checkLessonConflict(
-      { start: newStart, end: newEnd },
+      { start: previewEvent.start, end: previewEvent.end },
       events,
       resizingEvent.id
     );
@@ -110,6 +106,22 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
         description: "Seçilen saatte başka bir ders bulunuyor.",
         variant: "destructive"
       });
+      
+      // Add shake animation to indicate conflict
+      const element = document.getElementById(`lesson-${resizingEvent.id}`);
+      if (element) {
+        element.classList.add('animate-shake');
+        setTimeout(() => {
+          element.classList.remove('animate-shake');
+          // Reset to original size
+          const startMinutes = new Date(resizingEvent.start).getMinutes();
+          const durationInMinutes = differenceInMinutes(resizingEvent.end, resizingEvent.start);
+          const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40);
+          element.style.top = `${(startMinutes / 60) * 60}px`;
+          element.style.height = `${heightInPixels}px`;
+        }, 500);
+      }
+      
       resetResize();
       return;
     }
@@ -117,23 +129,30 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     // Update the event
     onEventUpdate({
       ...resizingEvent,
-      start: newStart,
-      end: newEnd
+      start: previewEvent.start,
+      end: previewEvent.end
     });
     
     toast({
       title: "Ders süresi güncellendi",
-      description: `Ders süresi ${differenceInMinutes(newEnd, newStart)} dakika olarak ayarlandı.`,
+      description: `Ders süresi ${differenceInMinutes(previewEvent.end, previewEvent.start)} dakika olarak ayarlandı.`,
     });
     
     resetResize();
   };
 
   const resetResize = () => {
+    // Remove visual feedback
+    const element = document.getElementById(`lesson-${resizingEvent?.id}`);
+    if (element) {
+      element.classList.remove('resizing');
+    }
+    
     setResizingEvent(null);
     setResizeType(null);
     setInitialY(0);
     setInitialTime(null);
+    setPreviewEvent(null);
     document.body.style.cursor = 'auto';
   };
 
@@ -151,10 +170,11 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
         document.removeEventListener('touchend', handleResizeEnd);
       };
     }
-  }, [resizingEvent, resizeType, initialY, initialTime]);
+  }, [resizingEvent, resizeType, initialY, initialTime, previewEvent]);
 
   return {
     handleResizeStart,
     isResizing: !!resizingEvent,
+    previewEvent
   };
 };

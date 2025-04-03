@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import CalendarPage from "@/pages/CalendarPage";
@@ -46,10 +47,11 @@ export function AppRoutes({ headerHeight, location }: AppRoutesProps) {
       transition={pageTransition}
       className="w-full h-full"
       style={{ 
-        marginTop: headerHeight,
+        --header-height: `${headerHeight}px`,
         height: `calc(100vh - ${headerHeight}px)`,
-        transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
-      }}
+        transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
+        overflowY: 'hidden'
+      } as React.CSSProperties}
     >
       <Routes location={location}>
         <Route 
@@ -63,9 +65,7 @@ export function AppRoutes({ headerHeight, location }: AppRoutesProps) {
         <Route 
           path="/calendar" 
           element={
-            <ProtectedRoute>
-              <CalendarPage headerHeight={headerHeight} />
-            </ProtectedRoute>
+            <CalendarPage headerHeight={headerHeight} />
           } 
         />
         <Route 
