@@ -49,7 +49,7 @@ export function AppRoutes({ headerHeight, location }: AppRoutesProps) {
       style={{ 
         height: `calc(100vh - ${headerHeight}px)`,
         transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
-        overflowY: 'hidden'
+        overflowY: 'auto'
       }}
     >
       <Routes location={location}>

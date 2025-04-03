@@ -5,7 +5,6 @@ import { tr } from 'date-fns/locale';
 import MonthView from "./MonthView";
 import { motion } from "framer-motion";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface YearViewProps {
   date: Date;
@@ -21,46 +20,44 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
   const { settings } = useUserSettings();
 
   return (
-    <ScrollArea className="h-[calc(100vh-180px)]">
-      <motion.div 
-        className="w-full pb-6"
-        initial={{ opacity: 0, y: 2 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {months.map((month, index) => (
-            <motion.div
-              key={month.toString()}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.25,
-                delay: index * 0.02,
-                ease: [0.23, 1, 0.32, 1]
-              }}
-              className="bg-background/80 rounded-lg shadow-sm overflow-hidden"
-            >
-              <div className="bg-muted/80 py-2 px-3 border-b border-border">
-                <h2 className="text-base font-semibold text-foreground text-center">
-                  {format(month, "MMMM", { locale: tr })}
-                </h2>
-              </div>
-              <div className="p-2">
-                <MonthView
-                  date={month}
-                  events={events}
-                  onDateSelect={onDateSelect}
-                  onEventClick={onEventClick}
-                  isYearView={true}
-                  students={students}
-                  settings={settings}
-                />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-    </ScrollArea>
+    <motion.div 
+      className="w-full pb-6 h-full overflow-auto"
+      initial={{ opacity: 0, y: 2 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {months.map((month, index) => (
+          <motion.div
+            key={month.toString()}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 0.25,
+              delay: index * 0.02,
+              ease: [0.23, 1, 0.32, 1]
+            }}
+            className="bg-background/80 rounded-lg shadow-sm overflow-hidden"
+          >
+            <div className="bg-muted/80 py-2 px-3 border-b border-border">
+              <h2 className="text-base font-semibold text-foreground text-center">
+                {format(month, "MMMM", { locale: tr })}
+              </h2>
+            </div>
+            <div className="p-2">
+              <MonthView
+                date={month}
+                events={events}
+                onDateSelect={onDateSelect}
+                onEventClick={onEventClick}
+                isYearView={true}
+                students={students}
+                settings={settings}
+              />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
   );
 }
