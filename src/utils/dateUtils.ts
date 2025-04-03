@@ -1,3 +1,4 @@
+
 import { 
   startOfWeek, 
   endOfWeek, 
@@ -8,7 +9,9 @@ import {
   isSameMonth,
   format,
   setHours,
-  setMinutes
+  setMinutes,
+  differenceInMinutes,
+  addMinutes
 } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { CalendarEvent } from "@/types/calendar";
@@ -50,4 +53,46 @@ export const formatTime = (date: Date) => {
 
 export const createDateWithTime = (date: Date, hour: number, minute: number = 0) => {
   return setMinutes(setHours(date, hour), minute);
+};
+
+export const resizeEvent = (
+  event: CalendarEvent, 
+  resizeType: 'start' | 'end', 
+  deltaMinutes: number,
+  minDuration: number = 15
+): { start: Date, end: Date } => {
+  const start = new Date(event.start);
+  const end = new Date(event.end);
+  
+  if (resizeType === 'start') {
+    const newStart = addMinutes(start, deltaMinutes);
+    const currentDuration = differenceInMinutes(end, newStart);
+    
+    if (currentDuration < minDuration) {
+      return {
+        start: addMinutes(end, -minDuration),
+        end
+      };
+    }
+    
+    return {
+      start: newStart,
+      end
+    };
+  } else {
+    const newEnd = addMinutes(end, deltaMinutes);
+    const currentDuration = differenceInMinutes(newEnd, start);
+    
+    if (currentDuration < minDuration) {
+      return {
+        start,
+        end: addMinutes(start, minDuration)
+      };
+    }
+    
+    return {
+      start,
+      end: newEnd
+    };
+  }
 };

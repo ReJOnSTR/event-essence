@@ -1,3 +1,4 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday, setHours, setMinutes, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
@@ -12,6 +13,7 @@ import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useMobileDragDrop } from "@/hooks/useMobileDragDrop";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useResizableLesson } from "@/hooks/useResizableLesson";
 
 interface DayViewProps {
   date: Date;
@@ -39,6 +41,7 @@ export default function DayView({
   const holiday = isHoliday(date, customHolidays);
   
   const { draggedEvent, handleTouchStart, handleTouchEnd } = useMobileDragDrop(onEventUpdate);
+  const { handleResizeStart, isResizing } = useResizableLesson({ events, onEventUpdate });
   
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
@@ -197,6 +200,7 @@ export default function DayView({
                       "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
                       snapshot.isDraggingOver && "bg-accent",
                       draggedEvent && "bg-accent/50",
+                      isResizing && "bg-accent/30",
                       (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
                       "bg-muted cursor-not-allowed"
                     )}
@@ -212,6 +216,8 @@ export default function DayView({
                           students={students}
                           index={index}
                           onTouchStart={(e) => handleTouchStart(event, e)}
+                          onResizeStart={handleResizeStart}
+                          isResizable={true}
                         />
                       ))}
                     {provided.placeholder}

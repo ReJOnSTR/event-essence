@@ -1,3 +1,4 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
@@ -11,6 +12,8 @@ interface EventCardProps {
   index: number;
   isDraggable?: boolean;
   onTouchStart?: (e: React.TouchEvent) => void;
+  onResizeStart?: (event: CalendarEvent, type: 'start' | 'end', y: number) => void;
+  isResizable?: boolean;
 }
 
 export default function LessonCard({ 
@@ -19,7 +22,9 @@ export default function LessonCard({
   students, 
   index,
   isDraggable = true,
-  onTouchStart 
+  onTouchStart,
+  onResizeStart,
+  isResizable = true
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
   const durationInMinutes = differenceInMinutes(event.end, event.start);
@@ -48,6 +53,20 @@ export default function LessonCard({
     }
   };
 
+  const handleResizeStart = (type: 'start' | 'end') => (e: React.MouseEvent) => {
+    if (onResizeStart) {
+      e.stopPropagation();
+      onResizeStart(event, type, e.clientY);
+    }
+  };
+
+  const handleTouchResizeStart = (type: 'start' | 'end') => (e: React.TouchEvent) => {
+    if (onResizeStart) {
+      e.stopPropagation();
+      onResizeStart(event, type, e.touches[0].clientY);
+    }
+  };
+
   const content = (provided?: any, snapshot?: any) => (
     <div
       ref={provided?.innerRef}
@@ -56,7 +75,8 @@ export default function LessonCard({
       className={cn(
         "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm touch-none",
         snapshot?.isDragging ? "shadow-lg opacity-70" : "",
-        isCompact ? "flex items-center justify-between gap-1" : ""
+        isCompact ? "flex items-center justify-between gap-1" : "",
+        isResizable ? "group" : ""
       )}
       style={{
         ...style,
@@ -65,6 +85,21 @@ export default function LessonCard({
       onClick={handleClick}
       onTouchStart={handleTouchStart}
     >
+      {isResizable && (
+        <>
+          <div 
+            className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-black/20 rounded-t"
+            onMouseDown={handleResizeStart('start')}
+            onTouchStart={handleTouchResizeStart('start')}
+          />
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-black/20 rounded-b"
+            onMouseDown={handleResizeStart('end')}
+            onTouchStart={handleTouchResizeStart('end')}
+          />
+        </>
+      )}
+
       {isCompact ? (
         <>
           <div className="font-medium text-xs truncate flex-1">
