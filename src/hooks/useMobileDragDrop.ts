@@ -39,14 +39,6 @@ export const useMobileDragDrop = (
     if (Math.abs(e.touches[0].clientY - touchStartY) > 10) {
       setIsDragging(true);
       document.body.style.cursor = 'grabbing';
-      
-      // Add visual feedback for mobile dragging
-      const element = document.getElementById(`lesson-${draggedEvent.id}`);
-      if (element) {
-        element.style.opacity = '0.8';
-        element.style.transform = 'scale(1.02)';
-        element.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-      }
     }
   };
 
@@ -75,16 +67,6 @@ export const useMobileDragDrop = (
         description: "Seçilen saatte başka bir ders bulunuyor.",
         variant: "destructive"
       });
-      
-      // Add shake animation to indicate conflict
-      const element = document.getElementById(`lesson-${draggedEvent.id}`);
-      if (element) {
-        element.classList.add('animate-shake');
-        setTimeout(() => {
-          element.classList.remove('animate-shake');
-        }, 500);
-      }
-      
       resetDrag();
       return;
     }
@@ -104,14 +86,6 @@ export const useMobileDragDrop = (
   };
 
   const resetDrag = () => {
-    // Reset any visual feedback
-    const element = document.getElementById(`lesson-${draggedEvent?.id}`);
-    if (element) {
-      element.style.opacity = '1';
-      element.style.transform = 'scale(1)';
-      element.style.boxShadow = 'none';
-    }
-    
     setDraggedEvent(null);
     setTouchStartY(0);
     setTouchStartTime(null);

@@ -4,7 +4,6 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -69,19 +68,13 @@ export default function LessonCard({
   };
 
   const content = (provided?: any, snapshot?: any) => (
-    <motion.div
-      initial={{ scale: 0.98, opacity: 0.8 }}
-      animate={{ 
-        scale: snapshot?.isDragging ? 1.02 : 1, 
-        opacity: snapshot?.isDragging ? 0.8 : 1
-      }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    <div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
         "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm touch-none",
-        snapshot?.isDragging ? "shadow-md opacity-80 z-50" : "",
+        snapshot?.isDragging ? "shadow-lg opacity-70" : "",
         isCompact ? "flex items-center justify-between gap-1" : "",
         isResizable ? "group" : ""
       )}
@@ -94,17 +87,15 @@ export default function LessonCard({
     >
       {isResizable && (
         <>
-          <motion.div 
+          <div 
             className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-black/20 rounded-t"
             onMouseDown={handleResizeStart('start')}
             onTouchStart={handleTouchResizeStart('start')}
-            whileHover={{ backgroundColor: "rgba(0,0,0,0.3)" }}
           />
-          <motion.div 
+          <div 
             className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-black/20 rounded-b"
             onMouseDown={handleResizeStart('end')}
             onTouchStart={handleTouchResizeStart('end')}
-            whileHover={{ backgroundColor: "rgba(0,0,0,0.3)" }}
           />
         </>
       )}
@@ -132,7 +123,7 @@ export default function LessonCard({
           </div>
         </>
       )}
-    </motion.div>
+    </div>
   );
 
   if (!isDraggable) {
