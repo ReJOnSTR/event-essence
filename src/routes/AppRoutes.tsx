@@ -47,11 +47,10 @@ export function AppRoutes({ headerHeight, location }: AppRoutesProps) {
       transition={pageTransition}
       className="w-full h-full"
       style={{ 
-        --header-height: `${headerHeight}px`,
         height: `calc(100vh - ${headerHeight}px)`,
         transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
         overflowY: 'hidden'
-      } as React.CSSProperties}
+      }}
     >
       <Routes location={location}>
         <Route 

@@ -35,9 +35,25 @@ export default function CalendarContent({
     students,
   };
 
+  // Calculate appropriate height based on view type to ensure full content is visible
+  const getViewHeight = () => {
+    switch(currentView) {
+      case "day":
+        return "h-[calc(100vh-180px)]";
+      case "week":
+        return "h-[calc(100vh-180px)]";
+      case "month":
+        return "h-[calc(100vh-180px)]";
+      case "year":
+        return "h-[calc(100vh-180px)]";
+      default:
+        return "h-full";
+    }
+  };
+
   return (
-    <ScrollArea className="h-full overflow-y-auto">
-      <div className="pb-6">
+    <ScrollArea className={`${getViewHeight()} overflow-y-auto`}>
+      <div className="pb-6 w-full">
         {currentView === "day" && <DayView {...viewProps} />}
         {currentView === "week" && <WeekView {...viewProps} />}
         {currentView === "month" && <MonthView {...viewProps} />}
