@@ -6,6 +6,7 @@ import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import { ViewType } from "@/store/calendarStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CalendarContentProps {
   currentView: ViewType;
@@ -36,21 +37,39 @@ export default function CalendarContent({
   };
 
   const renderCalendarView = () => {
-    switch (currentView) {
-      case "day":
-        return <DayView {...viewProps} />;
-      case "week":
-        return <WeekView {...viewProps} />;
-      case "year":
-        return <YearView {...viewProps} />;
-      default:
-        return <MonthView {...viewProps} />;
-    }
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentView}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 300,
+            damping: 30
+          }}
+        >
+          {(() => {
+            switch (currentView) {
+              case "day":
+                return <DayView {...viewProps} />;
+              case "week":
+                return <WeekView {...viewProps} />;
+              case "year":
+                return <YearView {...viewProps} />;
+              default:
+                return <MonthView {...viewProps} />;
+            }
+          })()}
+        </motion.div>
+      </AnimatePresence>
+    );
   };
 
   return (
     <ScrollArea className="h-full w-full pr-4">
-      <div className="pb-10">
+      <div className="pb-20">
         {renderCalendarView()}
       </div>
     </ScrollArea>

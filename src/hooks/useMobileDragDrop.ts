@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { CalendarEvent } from '@/types/calendar';
 import { useToast } from '@/components/ui/use-toast';
-import { differenceInMinutes, addMinutes } from 'date-fns';
+import { differenceInMinutes, addMinutes, setHours, setMinutes } from 'date-fns';
 import { checkLessonConflict } from '@/utils/lessonConflict';
 
 export const useMobileDragDrop = (
@@ -12,6 +12,7 @@ export const useMobileDragDrop = (
   const [touchStartY, setTouchStartY] = useState<number>(0);
   const [touchStartTime, setTouchStartTime] = useState<Date | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [previewPosition, setPreviewPosition] = useState<{hour: number, minute: number} | null>(null);
   const { toast } = useToast();
 
   const handleTouchStart = (event: CalendarEvent, e: React.TouchEvent) => {
@@ -33,6 +34,21 @@ export const useMobileDragDrop = (
     // Prevent scrolling when dragging lessons
     if (isDragging) {
       e.preventDefault();
+      
+      // Calculate preview position for visual feedback
+      // This would need to translate Y position to hour/minute
+      // For simplicity, just showing the concept
+      const deltaY = e.touches[0].clientY - touchStartY;
+      const deltaMinutes = Math.round(deltaY / 2); // 2px per minute approximation
+      
+      // Approximate hour and minute from current position
+      const currentTime = new Date(draggedEvent.start);
+      const newTime = addMinutes(currentTime, deltaMinutes);
+      
+      setPreviewPosition({
+        hour: newTime.getHours(),
+        minute: Math.floor(newTime.getMinutes() / 15) * 15 // Snap to 15 min intervals
+      });
     }
     
     // Visual feedback that dragging is happening
@@ -90,6 +106,7 @@ export const useMobileDragDrop = (
     setTouchStartY(0);
     setTouchStartTime(null);
     setIsDragging(false);
+    setPreviewPosition(null);
     document.body.style.cursor = 'auto';
   };
 
@@ -113,6 +130,7 @@ export const useMobileDragDrop = (
     draggedEvent,
     handleTouchStart,
     handleTouchEnd,
-    isDragging
+    isDragging,
+    previewPosition
   };
 };

@@ -1,3 +1,4 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
@@ -10,6 +11,7 @@ import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { cn } from "@/lib/utils";
 import DayViewCell from "./DayViewCell";
+import { useResizableLesson } from "@/hooks/useResizableLesson";
 
 interface DayViewProps {
   date: Date;
@@ -37,7 +39,7 @@ export default function DayView({
   const daySettings = workingHours[dayOfWeek];
 
   const dayEvents = events.filter(event => 
-    format(event.start, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+    format(new Date(event.start), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
   );
 
   const startHour = daySettings?.enabled ? 
@@ -184,6 +186,7 @@ export default function DayView({
                 onCellClick={() => handleHourClick(hour)}
                 onEventClick={onEventClick}
                 students={students}
+                onEventUpdate={onEventUpdate}
               />
             </motion.div>
           ))}

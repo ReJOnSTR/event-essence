@@ -64,11 +64,15 @@ export const resizeEvent = (
   const start = new Date(event.start);
   const end = new Date(event.end);
   
+  // Snap to 5-minute intervals for more precise control
+  const snappedDeltaMinutes = Math.round(deltaMinutes / 5) * 5;
+  
   if (resizeType === 'start') {
-    const newStart = addMinutes(start, deltaMinutes);
+    const newStart = addMinutes(start, snappedDeltaMinutes);
     const currentDuration = differenceInMinutes(end, newStart);
     
     if (currentDuration < minDuration) {
+      // Ensure minimum duration
       return {
         start: addMinutes(end, -minDuration),
         end
@@ -80,10 +84,11 @@ export const resizeEvent = (
       end
     };
   } else {
-    const newEnd = addMinutes(end, deltaMinutes);
+    const newEnd = addMinutes(end, snappedDeltaMinutes);
     const currentDuration = differenceInMinutes(newEnd, start);
     
     if (currentDuration < minDuration) {
+      // Ensure minimum duration
       return {
         start,
         end: addMinutes(start, minDuration)
