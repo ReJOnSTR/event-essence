@@ -1,3 +1,4 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
@@ -10,6 +11,7 @@ import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { cn } from "@/lib/utils";
 import DayViewCell from "./DayViewCell";
+import { useState } from "react";
 
 interface DayViewProps {
   date: Date;
@@ -32,6 +34,8 @@ export default function DayView({
   const workingHours = getWorkingHours();
   const holiday = isHoliday(date);
   const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+  const [draggingEventId, setDraggingEventId] = useState<string | null>(null);
+  const [draggingOverHour, setDraggingOverHour] = useState<number | null>(null);
   
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
@@ -83,6 +87,9 @@ export default function DayView({
   };
 
   const onDragEnd = (result: DropResult) => {
+    setDraggingEventId(null);
+    setDraggingOverHour(null);
+
     if (!result.destination || !onEventUpdate) return;
 
     const [hourStr, minuteStr] = result.destination.droppableId.split(':');
@@ -133,8 +140,23 @@ export default function DayView({
     });
   };
 
+  const handleDragStart = (result: any) => {
+    setDraggingEventId(result.draggableId);
+  };
+
+  const handleDragUpdate = (result: any) => {
+    if (result.destination) {
+      const [hourStr] = result.destination.droppableId.split(':');
+      setDraggingOverHour(parseInt(hourStr));
+    }
+  };
+
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext 
+      onDragEnd={onDragEnd} 
+      onDragStart={handleDragStart}
+      onDragUpdate={handleDragUpdate}
+    >
       <motion.div 
         className="w-full"
         initial={{ opacity: 0, y: 2 }}
@@ -179,7 +201,7 @@ export default function DayView({
               <DayViewCell
                 hour={hour}
                 events={dayEvents}
-                isDraggingOver={false}
+                isDraggingOver={draggingOverHour === hour}
                 isDisabled={!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)}
                 onCellClick={() => handleHourClick(hour)}
                 onEventClick={onEventClick}

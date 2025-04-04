@@ -74,7 +74,7 @@ export default function LessonCard({
       {...(provided?.dragHandleProps || {})}
       className={cn(
         "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm touch-none",
-        snapshot?.isDragging ? "shadow-lg opacity-70" : "",
+        snapshot?.isDragging ? "shadow-lg opacity-70 scale-[1.02] z-50" : "",
         isCompact ? "flex items-center justify-between gap-1" : "",
         isResizable ? "group" : ""
       )}
