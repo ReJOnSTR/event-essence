@@ -1,3 +1,4 @@
+
 import React, { forwardRef } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
             ref={ref}
             id={id}
             className={cn(
-              "pl-10",
+              "pl-10 focus:outline-none focus:ring-0",
               error && "border-destructive",
               isValid && "border-green-500 pr-10",
               className

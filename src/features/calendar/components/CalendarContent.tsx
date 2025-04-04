@@ -1,3 +1,4 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import MonthView from "./MonthView";
 import DayView from "@/components/Calendar/DayView";
@@ -33,14 +34,20 @@ export default function CalendarContent({
     students,
   };
 
-  switch (currentView) {
-    case "day":
-      return <DayView {...viewProps} />;
-    case "week":
-      return <WeekView {...viewProps} />;
-    case "year":
-      return <YearView {...viewProps} />;
-    default:
-      return <MonthView {...viewProps} />;
-  }
+  return (
+    <div className="pb-6">
+      {(() => {
+        switch (currentView) {
+          case "day":
+            return <DayView {...viewProps} />;
+          case "week":
+            return <WeekView {...viewProps} />;
+          case "year":
+            return <YearView {...viewProps} />;
+          default:
+            return <MonthView {...viewProps} />;
+        }
+      })()}
+    </div>
+  );
 }
