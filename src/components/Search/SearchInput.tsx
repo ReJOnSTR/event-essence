@@ -1,3 +1,4 @@
+
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -14,7 +15,7 @@ export function SearchInput({ value, onChange, className }: SearchInputProps) {
       <Input
         type="search"
         placeholder="Ders, öğrenci veya tarih ara..."
-        className={`w-full pl-10 bg-muted/30 border-none ${className}`}
+        className={`w-full pl-10 bg-muted/30 border-none focus:ring-0 ${className}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
