@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
@@ -30,7 +29,7 @@ export default function DayViewCell({
           ref={provided.innerRef}
           {...provided.droppableProps}
           className={cn(
-            "col-span-11 min-h-[60px] border-t border-border relative transition-colors duration-150",
+            "col-span-11 min-h-[60px] border-t border-border relative",
             snapshot.isDraggingOver && "bg-accent",
             isDisabled && "bg-muted cursor-not-allowed",
             !isDisabled && "cursor-pointer hover:bg-accent/50"

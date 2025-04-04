@@ -1,4 +1,3 @@
-
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { motion } from "framer-motion";

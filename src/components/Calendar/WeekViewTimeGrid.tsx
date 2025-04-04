@@ -1,4 +1,3 @@
-
 import React from "react";
 import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -9,7 +8,6 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { useResizableLesson } from "@/hooks/useResizableLesson";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -37,7 +35,6 @@ export default function WeekViewTimeGrid({
   const { toast } = useToast();
   const { settings } = useUserSettings();
   const customHolidays = settings?.holidays || [];
-  const { handleResizeStart, isResizing } = useResizableLesson({ events, onEventUpdate });
 
   const handleCellClick = (day: Date, hour: number) => {
     const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -171,8 +168,7 @@ export default function WeekViewTimeGrid({
                       isToday(day) && "bg-accent text-accent-foreground",
                       (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
-                      snapshot.isDraggingOver && "bg-accent",
-                      isResizing && "bg-accent/30"
+                      snapshot.isDraggingOver && "bg-accent"
                     )}
                     onClick={() => handleCellClick(day, hour)}
                   >
@@ -193,8 +189,6 @@ export default function WeekViewTimeGrid({
                           onClick={onEventClick}
                           students={students}
                           index={index}
-                          onResizeStart={handleResizeStart}
-                          isResizable={true}
                         />
                       ))}
                     {provided.placeholder}
