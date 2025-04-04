@@ -7,8 +7,6 @@ import YearView from "@/components/Calendar/YearView";
 import { ViewType } from "@/store/calendarStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
-import { DragDropContext } from "@hello-pangea/dnd";
-import { useCalendarDragDrop } from "@/hooks/useCalendarDragDrop";
 
 interface CalendarContentProps {
   currentView: ViewType;

@@ -14,7 +14,6 @@ import DayViewCell from "./DayViewCell";
 import { useResizableLesson } from "@/hooks/useResizableLesson";
 import { useCalendarDragDrop } from "@/hooks/useCalendarDragDrop";
 import { createDateWithTime } from "@/utils/dateUtils";
-import { useMobileDragDrop } from "@/hooks/useMobileDragDrop";
 
 interface DayViewProps {
   date: Date;
@@ -47,7 +46,6 @@ export default function DayView({
 
   const { handleResizeStart, isResizing, resizingEventId } = useResizableLesson({ events, onEventUpdate });
   const { handleDragStart, handleDragEnd, isDragging, draggedEventId } = useCalendarDragDrop(events, onEventUpdate);
-  const { draggedEvent, handleTouchStart } = useMobileDragDrop(events, onEventUpdate);
 
   const startHour = daySettings?.enabled ? 
     parseInt(daySettings.start.split(':')[0]) : 
