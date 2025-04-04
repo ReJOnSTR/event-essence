@@ -15,6 +15,9 @@ interface DayViewCellProps {
   onEventClick?: (event: CalendarEvent) => void;
   students?: Student[];
   onEventUpdate?: (event: CalendarEvent) => void;
+  isResizing?: boolean;
+  resizingEventId?: string | null;
+  draggedEventId?: string | null;
 }
 
 export default function DayViewCell({
@@ -25,12 +28,14 @@ export default function DayViewCell({
   onCellClick,
   onEventClick,
   students,
-  onEventUpdate
+  onEventUpdate,
+  isResizing,
+  resizingEventId,
+  draggedEventId
 }: DayViewCellProps) {
+  const hourEvents = events.filter(event => new Date(event.start).getHours() === hour);
   const { handleResizeStart, previewEvent } = useResizableLesson({ events, onEventUpdate });
 
-  const hourEvents = events.filter(event => new Date(event.start).getHours() === hour);
-  
   return (
     <Droppable droppableId={`${hour}:0`}>
       {(provided, snapshot) => (
@@ -41,12 +46,14 @@ export default function DayViewCell({
             "col-span-11 min-h-[60px] border-t border-border relative",
             snapshot.isDraggingOver && "bg-accent/50",
             isDisabled && "bg-muted cursor-not-allowed",
-            !isDisabled && "cursor-pointer hover:bg-accent/20"
+            !isDisabled && "cursor-pointer hover:bg-accent/20",
+            isResizing && "bg-accent/30"
           )}
           onClick={onCellClick}
         >
           {hourEvents.map((event, index) => {
-            const isBeingResized = previewEvent && previewEvent.id === event.id;
+            const isBeingResized = resizingEventId === event.id;
+            const isBeingDragged = draggedEventId === event.id;
             
             // If this event is being resized, we don't render it normally
             // as we'll show the preview version instead
@@ -61,6 +68,7 @@ export default function DayViewCell({
                 index={index}
                 onResizeStart={onEventUpdate ? handleResizeStart : undefined}
                 isResizable={!!onEventUpdate}
+                isBeingDragged={isBeingDragged}
               />
             );
           })}

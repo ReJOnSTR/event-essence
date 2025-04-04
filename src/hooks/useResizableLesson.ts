@@ -25,7 +25,13 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     setInitialY(y);
     setInitialTime(type === 'start' ? new Date(event.start) : new Date(event.end));
     setPreviewEvent(event);
+    
+    // Add resize cursor and disable text selection during resize
     document.body.style.cursor = 'ns-resize';
+    document.body.classList.add('pointer-events-none');
+    document.querySelectorAll('.event-card').forEach(el => {
+      (el as HTMLElement).style.pointerEvents = 'none';
+    });
   };
 
   const handleResizeMove = (e: MouseEvent | TouchEvent) => {
@@ -34,8 +40,8 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const deltaY = clientY - initialY;
     
-    // Convert pixels to minutes (15 minutes per 20px)
-    const pixelsPerMinute = 1/3; // approximately 20px per hour / 60 minutes
+    // Convert pixels to minutes (15 minutes per 15px)
+    const pixelsPerMinute = 1/4; // approximately 15px per hour / 60 minutes
     const deltaMinutes = Math.round(deltaY / pixelsPerMinute);
     
     // Create new dates based on resize type
@@ -54,7 +60,7 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     });
   };
 
-  const handleResizeEnd = (e: MouseEvent | TouchEvent) => {
+  const handleResizeEnd = () => {
     if (!resizingEvent || !resizeType || !initialTime || !onEventUpdate || !previewEvent) {
       resetResize();
       return;
@@ -96,12 +102,18 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     setInitialY(0);
     setInitialTime(null);
     setPreviewEvent(null);
+    
+    // Restore default cursor and pointer events
     document.body.style.cursor = 'auto';
+    document.body.classList.remove('pointer-events-none');
+    document.querySelectorAll('.event-card').forEach(el => {
+      (el as HTMLElement).style.pointerEvents = '';
+    });
   };
 
   useEffect(() => {
     if (resizingEvent) {
-      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mousemove', handleResizeMove, { passive: false });
       document.addEventListener('mouseup', handleResizeEnd);
       document.addEventListener('touchmove', handleResizeMove, { passive: false });
       document.addEventListener('touchend', handleResizeEnd);
@@ -119,5 +131,6 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     handleResizeStart,
     isResizing: !!resizingEvent,
     previewEvent,
+    resizingEventId: resizingEvent?.id || null
   };
 };

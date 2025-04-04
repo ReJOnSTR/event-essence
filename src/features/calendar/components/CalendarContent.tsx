@@ -1,12 +1,14 @@
 
 import { CalendarEvent, Student } from "@/types/calendar";
 import MonthView from "./MonthView";
-import DayView from "@/components/Calendar/DayView";
+import DayView from "@/features/calendar/components/DayView";
 import WeekView from "@/components/Calendar/WeekView";
 import YearView from "@/components/Calendar/YearView";
 import { ViewType } from "@/store/calendarStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
+import { DragDropContext } from "@hello-pangea/dnd";
+import { useCalendarDragDrop } from "@/hooks/useCalendarDragDrop";
 
 interface CalendarContentProps {
   currentView: ViewType;
@@ -36,6 +38,30 @@ export default function CalendarContent({
     students,
   };
 
+  // Add global styles for dragging
+  const injectGlobalStyles = () => {
+    const styleId = 'calendar-drag-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        .dragging-active .event-card:not(.is-dragged) {
+          opacity: 0.5;
+          transition: opacity 0.2s ease;
+        }
+        body.pointer-events-none {
+          user-select: none;
+        }
+        body.pointer-events-none * {
+          cursor: ns-resize !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  };
+  
+  injectGlobalStyles();
+
   const renderCalendarView = () => {
     return (
       <AnimatePresence mode="wait">
@@ -49,6 +75,7 @@ export default function CalendarContent({
             stiffness: 300,
             damping: 30
           }}
+          className="h-full"
         >
           {(() => {
             switch (currentView) {

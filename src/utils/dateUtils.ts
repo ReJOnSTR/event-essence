@@ -101,3 +101,25 @@ export const resizeEvent = (
     };
   }
 };
+
+// Function to snap minutes to the nearest 5 minute interval
+export const snapMinutesToGrid = (date: Date): Date => {
+  const minutes = date.getMinutes();
+  const snappedMinutes = Math.round(minutes / 5) * 5;
+  return setMinutes(date, snappedMinutes >= 60 ? 0 : snappedMinutes);
+};
+
+// Function to get time position for grid
+export const getTimePosition = (date: Date): { hour: number, minutes: number } => {
+  return {
+    hour: date.getHours(),
+    minutes: date.getMinutes()
+  };
+};
+
+// Convert a time to pixels for positioning
+export const timeToPixels = (time: Date): number => {
+  const hours = time.getHours();
+  const minutes = time.getMinutes();
+  return (hours * 60 + minutes) * (60 / 60); // 60px per hour
+};

@@ -12,6 +12,9 @@ import { checkLessonConflict } from "@/utils/lessonConflict";
 import { cn } from "@/lib/utils";
 import DayViewCell from "./DayViewCell";
 import { useResizableLesson } from "@/hooks/useResizableLesson";
+import { useCalendarDragDrop } from "@/hooks/useCalendarDragDrop";
+import { createDateWithTime } from "@/utils/dateUtils";
+import { useMobileDragDrop } from "@/hooks/useMobileDragDrop";
 
 interface DayViewProps {
   date: Date;
@@ -41,6 +44,10 @@ export default function DayView({
   const dayEvents = events.filter(event => 
     format(new Date(event.start), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
   );
+
+  const { handleResizeStart, isResizing, resizingEventId } = useResizableLesson({ events, onEventUpdate });
+  const { handleDragStart, handleDragEnd, isDragging, draggedEventId } = useCalendarDragDrop(events, onEventUpdate);
+  const { draggedEvent, handleTouchStart } = useMobileDragDrop(events, onEventUpdate);
 
   const startHour = daySettings?.enabled ? 
     parseInt(daySettings.start.split(':')[0]) : 
@@ -79,60 +86,33 @@ export default function DayView({
       return;
     }
 
-    const eventDate = new Date(date);
-    eventDate.setHours(hour, 0);
+    const eventDate = createDateWithTime(date, hour);
     onDateSelect(eventDate);
   };
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
-    const [hourStr, minuteStr] = result.destination.droppableId.split(':');
-    const hour = parseInt(hourStr);
-    const minute = parseInt(minuteStr);
+    const getNewEventTimes = (result: DropResult) => {
+      if (!result.destination) return null;
+      
+      const [hourStr, minuteStr] = result.destination.droppableId.split(':');
+      const hour = parseInt(hourStr);
+      const minute = parseInt(minuteStr || '0');
 
-    if (hour < startHour || hour >= endHour) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Seçilen saat çalışma saatleri dışındadır.",
-        variant: "destructive"
-      });
-      return;
-    }
+      if (hour < startHour || hour >= endHour) return null;
 
-    const event = events.find(e => e.id === result.draggableId);
-    if (!event) return;
+      const event = events.find(e => e.id === result.draggableId);
+      if (!event) return null;
 
-    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
-    const newStart = new Date(date);
-    newStart.setHours(hour, minute);
-    const newEnd = new Date(newStart.getTime() + duration);
+      const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
+      const newStart = createDateWithTime(date, hour, minute);
+      const newEnd = new Date(newStart.getTime() + duration);
+      
+      return { start: newStart, end: newEnd };
+    };
 
-    const hasConflict = checkLessonConflict(
-      { start: newStart, end: newEnd },
-      events,
-      event.id
-    );
-
-    if (hasConflict) {
-      toast({
-        title: "Ders çakışması",
-        description: "Seçilen saatte başka bir ders bulunuyor.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onEventUpdate({
-      ...event,
-      start: newStart,
-      end: newEnd
-    });
-
-    toast({
-      title: "Ders taşındı",
-      description: "Ders başarıyla yeni saate taşındı.",
-    });
+    handleDragEnd(result, getNewEventTimes);
   };
 
   return (
@@ -187,6 +167,9 @@ export default function DayView({
                 onEventClick={onEventClick}
                 students={students}
                 onEventUpdate={onEventUpdate}
+                isResizing={isResizing}
+                resizingEventId={resizingEventId}
+                draggedEventId={draggedEventId}
               />
             </motion.div>
           ))}

@@ -6,6 +6,7 @@ import { differenceInMinutes, addMinutes, setHours, setMinutes } from 'date-fns'
 import { checkLessonConflict } from '@/utils/lessonConflict';
 
 export const useMobileDragDrop = (
+  events: CalendarEvent[],
   onEventUpdate?: (event: CalendarEvent) => void
 ) => {
   const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
@@ -13,33 +14,60 @@ export const useMobileDragDrop = (
   const [touchStartTime, setTouchStartTime] = useState<Date | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [previewPosition, setPreviewPosition] = useState<{hour: number, minute: number} | null>(null);
+  const [previewElement, setPreviewElement] = useState<HTMLElement | null>(null);
   const { toast } = useToast();
 
   const handleTouchStart = (event: CalendarEvent, e: React.TouchEvent) => {
+    e.stopPropagation();
+    
     setDraggedEvent(event);
     setTouchStartY(e.touches[0].clientY);
     setTouchStartTime(new Date());
+    
+    // Create preview element
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const preview = target.cloneNode(true) as HTMLElement;
+    
+    preview.style.position = 'absolute';
+    preview.style.width = `${rect.width}px`;
+    preview.style.height = `${rect.height}px`;
+    preview.style.left = `${rect.left}px`;
+    preview.style.top = `${rect.top}px`;
+    preview.style.opacity = '0.8';
+    preview.style.zIndex = '1000';
+    preview.style.pointerEvents = 'none';
+    preview.classList.add('event-drag-preview');
+    
+    document.body.appendChild(preview);
+    setPreviewElement(preview);
     
     // Wait to determine if this is a drag or just a tap
     setTimeout(() => {
       if (touchStartTime && new Date().getTime() - touchStartTime.getTime() > 150) {
         setIsDragging(true);
+        
+        // Hide original element
+        target.style.opacity = '0.3';
       }
     }, 150);
   };
 
   const handleTouchMove = (e: TouchEvent) => {
-    if (!draggedEvent) return;
+    if (!draggedEvent || !previewElement) return;
     
     // Prevent scrolling when dragging lessons
     if (isDragging) {
       e.preventDefault();
       
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - touchStartY;
+      
+      // Move the preview element
+      previewElement.style.transform = `translateY(${deltaY}px)`;
+      
       // Calculate preview position for visual feedback
-      // This would need to translate Y position to hour/minute
-      // For simplicity, just showing the concept
-      const deltaY = e.touches[0].clientY - touchStartY;
-      const deltaMinutes = Math.round(deltaY / 2); // 2px per minute approximation
+      const deltaMinutes = Math.round(deltaY / 4); // 4px per minute approximation
       
       // Approximate hour and minute from current position
       const currentTime = new Date(draggedEvent.start);
@@ -52,14 +80,25 @@ export const useMobileDragDrop = (
     }
     
     // Visual feedback that dragging is happening
-    if (Math.abs(e.touches[0].clientY - touchStartY) > 10) {
+    if (Math.abs(e.touches[0].clientY - touchStartY) > 10 && !isDragging) {
       setIsDragging(true);
       document.body.style.cursor = 'grabbing';
     }
   };
 
   const handleTouchEnd = (hour: number, minute: number) => {
-    if (!draggedEvent || !onEventUpdate || !isDragging) {
+    // Clean up preview element
+    if (previewElement) {
+      document.body.removeChild(previewElement);
+      setPreviewElement(null);
+    }
+    
+    // Restore original element opacity
+    document.querySelectorAll('.event-card').forEach(el => {
+      (el as HTMLElement).style.opacity = '1';
+    });
+    
+    if (!draggedEvent || !onEventUpdate || !isDragging || !events) {
       resetDrag();
       return;
     }
@@ -73,7 +112,7 @@ export const useMobileDragDrop = (
     // Check for conflicts
     const hasConflict = checkLessonConflict(
       { start: newStart, end: newEnd },
-      [draggedEvent], // This ensures we don't conflict with the current lesson
+      events,
       draggedEvent.id
     );
 
@@ -107,6 +146,12 @@ export const useMobileDragDrop = (
     setTouchStartTime(null);
     setIsDragging(false);
     setPreviewPosition(null);
+    
+    if (previewElement && document.body.contains(previewElement)) {
+      document.body.removeChild(previewElement);
+    }
+    
+    setPreviewElement(null);
     document.body.style.cursor = 'auto';
   };
 

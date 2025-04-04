@@ -1,8 +1,10 @@
+
 import { useToast } from "@/components/ui/use-toast";
 import { DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent } from "@/types/calendar";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useWorkingHours } from "./useWorkingHours";
+import { useState } from "react";
 
 export const useCalendarDragDrop = (
   events: CalendarEvent[],
@@ -10,11 +12,25 @@ export const useCalendarDragDrop = (
 ) => {
   const { toast } = useToast();
   const { checkWorkingHours } = useWorkingHours();
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggedEventId, setDraggedEventId] = useState<string | null>(null);
+
+  const handleDragStart = (eventId: string) => {
+    setIsDragging(true);
+    setDraggedEventId(eventId);
+    
+    // Add visual indicator for dragging
+    document.body.classList.add('dragging-active');
+  };
 
   const handleDragEnd = (
     result: DropResult,
     getNewEventTimes: (result: DropResult) => { start: Date; end: Date } | null
   ) => {
+    setIsDragging(false);
+    setDraggedEventId(null);
+    document.body.classList.remove('dragging-active');
+    
     if (!result.destination || !onEventUpdate) return;
 
     const event = events.find(e => e.id === result.draggableId);
@@ -61,5 +77,10 @@ export const useCalendarDragDrop = (
     });
   };
 
-  return { handleDragEnd };
+  return { 
+    handleDragStart,
+    handleDragEnd,
+    isDragging,
+    draggedEventId
+  };
 };

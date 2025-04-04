@@ -16,6 +16,8 @@ interface EventCardProps {
   onResizeStart?: (event: CalendarEvent, type: 'start' | 'end', y: number) => void;
   isResizable?: boolean;
   isPreview?: boolean;
+  isResizing?: boolean;
+  isBeingDragged?: boolean;
 }
 
 export default function LessonCard({ 
@@ -27,7 +29,9 @@ export default function LessonCard({
   onTouchStart,
   onResizeStart,
   isResizable = true,
-  isPreview = false
+  isPreview = false,
+  isResizing = false,
+  isBeingDragged = false
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
   const durationInMinutes = differenceInMinutes(new Date(event.end), new Date(event.start));
@@ -38,7 +42,7 @@ export default function LessonCard({
   const style = {
     height: `${heightInPixels}px`,
     top: `${(startMinutes / 60) * 60}px`,
-    zIndex: isPreview ? 20 : 10,
+    zIndex: isPreview || isBeingDragged ? 20 : 10,
     backgroundColor: student?.color || "#039be5",
   };
 
@@ -72,12 +76,16 @@ export default function LessonCard({
 
   // Create the element with appropriate animations
   const content = (provided?: any, snapshot?: any) => {
+    const isDragging = snapshot?.isDragging || isBeingDragged;
+    
     const card = (
       <motion.div
         ref={provided?.innerRef}
         {...(provided?.draggableProps || {})}
         {...(provided?.dragHandleProps || {})}
-        layout
+        layout={!isDragging && !isResizing}
+        initial={isPreview ? { opacity: 0, scale: 0.95 } : false}
+        animate={isPreview ? { opacity: 1, scale: 1 } : false}
         transition={{
           type: "spring",
           stiffness: 500,
@@ -85,11 +93,12 @@ export default function LessonCard({
           mass: 1
         }}
         className={cn(
-          "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer transition-all shadow-sm touch-none",
-          snapshot?.isDragging || isPreview ? "shadow-md ring-2 ring-white/30 z-50" : "",
+          "event-card text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer transition-all shadow-sm touch-none",
+          isDragging || isPreview ? "shadow-md ring-2 ring-white/30 z-50" : "",
           isCompact ? "flex items-center justify-between gap-1" : "",
           isResizable ? "group" : "",
-          isPreview ? "opacity-90" : ""
+          isPreview ? "opacity-90" : "",
+          isResizing ? "pointer-events-none" : ""
         )}
         style={{
           ...style,
@@ -101,12 +110,12 @@ export default function LessonCard({
         {isResizable && (
           <>
             <div 
-              className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize group-hover:bg-black/20 rounded-t"
+              className="absolute top-0 left-0 right-0 h-3 cursor-ns-resize group-hover:bg-black/20 rounded-t"
               onMouseDown={handleResizeStart('start')}
               onTouchStart={handleTouchResizeStart('start')}
             />
             <div 
-              className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize group-hover:bg-black/20 rounded-b"
+              className="absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize group-hover:bg-black/20 rounded-b"
               onMouseDown={handleResizeStart('end')}
               onTouchStart={handleTouchResizeStart('end')}
             />
