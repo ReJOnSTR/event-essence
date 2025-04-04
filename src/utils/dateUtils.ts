@@ -64,15 +64,11 @@ export const resizeEvent = (
   const start = new Date(event.start);
   const end = new Date(event.end);
   
-  // Snap to 5-minute intervals for more precise control
-  const snappedDeltaMinutes = Math.round(deltaMinutes / 5) * 5;
-  
   if (resizeType === 'start') {
-    const newStart = addMinutes(start, snappedDeltaMinutes);
+    const newStart = addMinutes(start, deltaMinutes);
     const currentDuration = differenceInMinutes(end, newStart);
     
     if (currentDuration < minDuration) {
-      // Ensure minimum duration
       return {
         start: addMinutes(end, -minDuration),
         end
@@ -84,11 +80,10 @@ export const resizeEvent = (
       end
     };
   } else {
-    const newEnd = addMinutes(end, snappedDeltaMinutes);
+    const newEnd = addMinutes(end, deltaMinutes);
     const currentDuration = differenceInMinutes(newEnd, start);
     
     if (currentDuration < minDuration) {
-      // Ensure minimum duration
       return {
         start,
         end: addMinutes(start, minDuration)
@@ -100,26 +95,4 @@ export const resizeEvent = (
       end: newEnd
     };
   }
-};
-
-// Function to snap minutes to the nearest 5 minute interval
-export const snapMinutesToGrid = (date: Date): Date => {
-  const minutes = date.getMinutes();
-  const snappedMinutes = Math.round(minutes / 5) * 5;
-  return setMinutes(date, snappedMinutes >= 60 ? 0 : snappedMinutes);
-};
-
-// Function to get time position for grid
-export const getTimePosition = (date: Date): { hour: number, minutes: number } => {
-  return {
-    hour: date.getHours(),
-    minutes: date.getMinutes()
-  };
-};
-
-// Convert a time to pixels for positioning
-export const timeToPixels = (time: Date): number => {
-  const hours = time.getHours();
-  const minutes = time.getMinutes();
-  return (hours * 60 + minutes) * (60 / 60); // 60px per hour
 };

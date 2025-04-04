@@ -4,7 +4,6 @@ import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -15,9 +14,6 @@ interface EventCardProps {
   onTouchStart?: (e: React.TouchEvent) => void;
   onResizeStart?: (event: CalendarEvent, type: 'start' | 'end', y: number) => void;
   isResizable?: boolean;
-  isPreview?: boolean;
-  isResizing?: boolean;
-  isBeingDragged?: boolean;
 }
 
 export default function LessonCard({ 
@@ -28,13 +24,10 @@ export default function LessonCard({
   isDraggable = true,
   onTouchStart,
   onResizeStart,
-  isResizable = true,
-  isPreview = false,
-  isResizing = false,
-  isBeingDragged = false
+  isResizable = true
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
-  const durationInMinutes = differenceInMinutes(new Date(event.end), new Date(event.start));
+  const durationInMinutes = differenceInMinutes(event.end, event.start);
   const heightInPixels = Math.max((durationInMinutes / 60) * 60, 40);
   const student = students?.find(s => s.id === event.studentId);
   const isCompact = heightInPixels <= 40;
@@ -42,7 +35,7 @@ export default function LessonCard({
   const style = {
     height: `${heightInPixels}px`,
     top: `${(startMinutes / 60) * 60}px`,
-    zIndex: isPreview || isBeingDragged ? 20 : 10,
+    zIndex: 10,
     backgroundColor: student?.color || "#039be5",
   };
 
@@ -74,82 +67,64 @@ export default function LessonCard({
     }
   };
 
-  // Create the element with appropriate animations
-  const content = (provided?: any, snapshot?: any) => {
-    const isDragging = snapshot?.isDragging || isBeingDragged;
-    
-    const card = (
-      <motion.div
-        ref={provided?.innerRef}
-        {...(provided?.draggableProps || {})}
-        {...(provided?.dragHandleProps || {})}
-        layout={!isDragging && !isResizing}
-        initial={isPreview ? { opacity: 0, scale: 0.95 } : false}
-        animate={isPreview ? { opacity: 1, scale: 1 } : false}
-        transition={{
-          type: "spring",
-          stiffness: 500,
-          damping: 30,
-          mass: 1
-        }}
-        className={cn(
-          "event-card text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer transition-all shadow-sm touch-none",
-          isDragging || isPreview ? "shadow-md ring-2 ring-white/30 z-50" : "",
-          isCompact ? "flex items-center justify-between gap-1" : "",
-          isResizable ? "group" : "",
-          isPreview ? "opacity-90" : "",
-          isResizing ? "pointer-events-none" : ""
-        )}
-        style={{
-          ...style,
-          ...(provided?.draggableProps?.style || {}),
-        }}
-        onClick={handleClick}
-        onTouchStart={handleTouchStart}
-      >
-        {isResizable && (
-          <>
-            <div 
-              className="absolute top-0 left-0 right-0 h-3 cursor-ns-resize group-hover:bg-black/20 rounded-t"
-              onMouseDown={handleResizeStart('start')}
-              onTouchStart={handleTouchResizeStart('start')}
-            />
-            <div 
-              className="absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize group-hover:bg-black/20 rounded-b"
-              onMouseDown={handleResizeStart('end')}
-              onTouchStart={handleTouchResizeStart('end')}
-            />
-          </>
-        )}
+  const content = (provided?: any, snapshot?: any) => (
+    <div
+      ref={provided?.innerRef}
+      {...(provided?.draggableProps || {})}
+      {...(provided?.dragHandleProps || {})}
+      className={cn(
+        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm touch-none",
+        snapshot?.isDragging ? "shadow-lg opacity-70" : "",
+        isCompact ? "flex items-center justify-between gap-1" : "",
+        isResizable ? "group" : ""
+      )}
+      style={{
+        ...style,
+        ...(provided?.draggableProps?.style || {}),
+      }}
+      onClick={handleClick}
+      onTouchStart={handleTouchStart}
+    >
+      {isResizable && (
+        <>
+          <div 
+            className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-black/20 rounded-t"
+            onMouseDown={handleResizeStart('start')}
+            onTouchStart={handleTouchResizeStart('start')}
+          />
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-black/20 rounded-b"
+            onMouseDown={handleResizeStart('end')}
+            onTouchStart={handleTouchResizeStart('end')}
+          />
+        </>
+      )}
 
-        {isCompact ? (
-          <>
-            <div className="font-medium text-xs truncate flex-1">
-              {student?.name || "İsimsiz Öğrenci"}
-            </div>
-            <div className="text-xs whitespace-nowrap">
-              {format(new Date(event.start), "HH:mm", { locale: tr })}
-              <span className="mx-0.5">-</span>
-              {format(new Date(event.end), "HH:mm", { locale: tr })}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="font-medium text-[13px] leading-tight md:text-sm">
-              {student?.name || "İsimsiz Öğrenci"}
-            </div>
-            <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90 mt-0.5">
-              <span>{format(new Date(event.start), "HH:mm", { locale: tr })}</span>
-              <span className="text-white/90">-</span>
-              <span>{format(new Date(event.end), "HH:mm", { locale: tr })}</span>
-            </div>
-          </>
-        )}
-      </motion.div>
-    );
-    
-    return card;
-  };
+      {isCompact ? (
+        <>
+          <div className="font-medium text-xs truncate flex-1">
+            {student?.name || "İsimsiz Öğrenci"}
+          </div>
+          <div className="text-xs whitespace-nowrap">
+            {format(event.start, "HH:mm", { locale: tr })}
+            <span className="mx-0.5">-</span>
+            {format(event.end, "HH:mm", { locale: tr })}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="font-medium text-[13px] leading-tight md:text-sm">
+            {student?.name || "İsimsiz Öğrenci"}
+          </div>
+          <div className="text-[12px] md:text-xs flex items-center gap-1.5 opacity-90 mt-0.5">
+            <span>{format(event.start, "HH:mm", { locale: tr })}</span>
+            <span className="text-white/90">-</span>
+            <span>{format(event.end, "HH:mm", { locale: tr })}</span>
+          </div>
+        </>
+      )}
+    </div>
+  );
 
   if (!isDraggable) {
     return content();

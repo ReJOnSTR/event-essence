@@ -4,7 +4,6 @@ import { CalendarEvent } from '@/types/calendar';
 import { differenceInMinutes, addMinutes } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
 import { checkLessonConflict } from '@/utils/lessonConflict';
-import { resizeEvent } from '@/utils/dateUtils';
 
 interface ResizeHandleOptions {
   events: CalendarEvent[];
@@ -16,7 +15,6 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
   const [resizeType, setResizeType] = useState<'start' | 'end' | null>(null);
   const [initialY, setInitialY] = useState<number>(0);
   const [initialTime, setInitialTime] = useState<Date | null>(null);
-  const [previewEvent, setPreviewEvent] = useState<CalendarEvent | null>(null);
   const { toast } = useToast();
 
   const handleResizeStart = (event: CalendarEvent, type: 'start' | 'end', y: number) => {
@@ -24,14 +22,6 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     setResizeType(type);
     setInitialY(y);
     setInitialTime(type === 'start' ? new Date(event.start) : new Date(event.end));
-    setPreviewEvent(event);
-    
-    // Add resize cursor and disable text selection during resize
-    document.body.style.cursor = 'ns-resize';
-    document.body.classList.add('pointer-events-none');
-    document.querySelectorAll('.event-card').forEach(el => {
-      (el as HTMLElement).style.pointerEvents = 'none';
-    });
   };
 
   const handleResizeMove = (e: MouseEvent | TouchEvent) => {
@@ -40,35 +30,76 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const deltaY = clientY - initialY;
     
-    // Convert pixels to minutes (15 minutes per 15px)
-    const pixelsPerMinute = 1/4; // approximately 15px per hour / 60 minutes
+    // Convert pixels to minutes (assuming 1px = 1min or adjust as needed)
+    // We're using pixelsPerMinute of 1 for simplicity, can be adjusted
+    const pixelsPerMinute = 1;
     const deltaMinutes = Math.round(deltaY / pixelsPerMinute);
     
-    // Create new dates based on resize type
-    const { start: newStart, end: newEnd } = resizeEvent(
-      resizingEvent,
-      resizeType,
-      deltaMinutes,
-      15 // minimum duration of 15 minutes
-    );
+    // Create new dates
+    let newStart = new Date(resizingEvent.start);
+    let newEnd = new Date(resizingEvent.end);
     
-    // Update preview
-    setPreviewEvent({
+    if (resizeType === 'start') {
+      newStart = addMinutes(initialTime, deltaMinutes);
+      
+      // Ensure lesson duration is at least 15 minutes
+      if (differenceInMinutes(newEnd, newStart) < 15) {
+        newStart = addMinutes(newEnd, -15);
+      }
+    } else {
+      newEnd = addMinutes(initialTime, deltaMinutes);
+      
+      // Ensure lesson duration is at least 15 minutes
+      if (differenceInMinutes(newEnd, newStart) < 15) {
+        newEnd = addMinutes(newStart, 15);
+      }
+    }
+    
+    // Preview the resize
+    const previewEvent = {
       ...resizingEvent,
       start: newStart,
       end: newEnd
-    });
+    };
+    
+    // We could add visual feedback here
+    document.body.style.cursor = 'ns-resize';
   };
 
-  const handleResizeEnd = () => {
-    if (!resizingEvent || !resizeType || !initialTime || !onEventUpdate || !previewEvent) {
+  const handleResizeEnd = (e: MouseEvent | TouchEvent) => {
+    if (!resizingEvent || !resizeType || !initialTime || !onEventUpdate) {
       resetResize();
       return;
     }
 
-    // Check for conflicts with the final position
+    const clientY = 'changedTouches' in e ? e.changedTouches[0].clientY : e.clientY;
+    const deltaY = clientY - initialY;
+    
+    // Convert pixels to minutes (assuming 1px = 1min or adjust as needed)
+    const pixelsPerMinute = 1;
+    const deltaMinutes = Math.round(deltaY / pixelsPerMinute);
+    
+    // Create new dates
+    let newStart = new Date(resizingEvent.start);
+    let newEnd = new Date(resizingEvent.end);
+    
+    if (resizeType === 'start') {
+      newStart = addMinutes(initialTime, deltaMinutes);
+      // Ensure lesson duration is at least 15 minutes
+      if (differenceInMinutes(newEnd, newStart) < 15) {
+        newStart = addMinutes(newEnd, -15);
+      }
+    } else {
+      newEnd = addMinutes(initialTime, deltaMinutes);
+      // Ensure lesson duration is at least 15 minutes
+      if (differenceInMinutes(newEnd, newStart) < 15) {
+        newEnd = addMinutes(newStart, 15);
+      }
+    }
+    
+    // Check for conflicts
     const hasConflict = checkLessonConflict(
-      { start: previewEvent.start, end: previewEvent.end },
+      { start: newStart, end: newEnd },
       events,
       resizingEvent.id
     );
@@ -85,12 +116,14 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     
     // Update the event
     onEventUpdate({
-      ...previewEvent
+      ...resizingEvent,
+      start: newStart,
+      end: newEnd
     });
     
     toast({
       title: "Ders süresi güncellendi",
-      description: `Ders süresi ${differenceInMinutes(previewEvent.end, previewEvent.start)} dakika olarak ayarlandı.`,
+      description: `Ders süresi ${differenceInMinutes(newEnd, newStart)} dakika olarak ayarlandı.`,
     });
     
     resetResize();
@@ -101,19 +134,12 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
     setResizeType(null);
     setInitialY(0);
     setInitialTime(null);
-    setPreviewEvent(null);
-    
-    // Restore default cursor and pointer events
     document.body.style.cursor = 'auto';
-    document.body.classList.remove('pointer-events-none');
-    document.querySelectorAll('.event-card').forEach(el => {
-      (el as HTMLElement).style.pointerEvents = '';
-    });
   };
 
   useEffect(() => {
     if (resizingEvent) {
-      document.addEventListener('mousemove', handleResizeMove, { passive: false });
+      document.addEventListener('mousemove', handleResizeMove);
       document.addEventListener('mouseup', handleResizeEnd);
       document.addEventListener('touchmove', handleResizeMove, { passive: false });
       document.addEventListener('touchend', handleResizeEnd);
@@ -125,12 +151,10 @@ export const useResizableLesson = ({ events, onEventUpdate }: ResizeHandleOption
         document.removeEventListener('touchend', handleResizeEnd);
       };
     }
-  }, [resizingEvent, resizeType, initialY, initialTime, previewEvent]);
+  }, [resizingEvent, resizeType, initialY, initialTime]);
 
   return {
     handleResizeStart,
     isResizing: !!resizingEvent,
-    previewEvent,
-    resizingEventId: resizingEvent?.id || null
   };
 };
