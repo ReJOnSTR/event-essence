@@ -35,7 +35,7 @@ export default function CalendarContent({
   };
 
   return (
-    <div className="pb-6">
+    <div className="pb-16">
       {(() => {
         switch (currentView) {
           case "day":
