@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { CalendarEvent, Student, WeeklyWorkingHours } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
 import MonthEventCard from "@/components/Calendar/MonthEventCard";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthCellProps {
@@ -46,7 +46,11 @@ export default function MonthCell({
           ref={provided.innerRef}
           {...provided.droppableProps}
           initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            boxShadow: snapshot.isDraggingOver ? '0 4px 12px rgba(0,0,0,0.1)' : 'none'
+          }}
           transition={{ 
             duration: 0.15,
             delay: idx * 0.01,
@@ -85,7 +89,20 @@ export default function MonthCell({
               </div>
             )}
           </div>
-          <div className="space-y-1">
+          
+          <AnimatePresence>
+            {snapshot.isDraggingOver && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-primary/5 border-2 border-dashed border-primary/20 rounded-sm pointer-events-none"
+                style={{ zIndex: 0 }}
+              />
+            )}
+          </AnimatePresence>
+          
+          <div className="space-y-1 relative z-10">
             {day.lessons.map((event, index) => (
               <MonthEventCard
                 key={event.id}

@@ -1,3 +1,5 @@
+
+import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, isToday } from "date-fns";
 import { tr } from 'date-fns/locale';
@@ -6,10 +8,13 @@ import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { motion, AnimatePresence } from "framer-motion";
 import { TimeIndicator } from "@/components/Calendar/TimeIndicator";
-import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import { DropResult } from "@hello-pangea/dnd";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { cn } from "@/lib/utils";
 import DayViewCell from "./DayViewCell";
+import { useEnhancedDragDrop } from "@/hooks/useEnhancedDragDrop";
+import DragDropContainer from "@/components/Calendar/DragDropContainer";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface DayViewProps {
   date: Date;
@@ -29,9 +34,24 @@ export default function DayView({
   students 
 }: DayViewProps) {
   const { toast } = useToast();
+  const { settings } = useUserSettings();
   const workingHours = getWorkingHours();
-  const holiday = isHoliday(date);
-  const allowWorkOnHolidays = localStorage.getItem('allowWorkOnHolidays') === 'true';
+  const customHolidays = settings?.holidays || [];
+  const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
+  
+  const holiday = isHoliday(date, customHolidays);
+  
+  const {
+    isDragging,
+    activeEvent,
+    handleDragEnd
+  } = useEnhancedDragDrop(
+    events,
+    onEventUpdate,
+    workingHours,
+    allowWorkOnHolidays,
+    customHolidays
+  );
   
   const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
   const daySettings = workingHours[dayOfWeek];
@@ -82,59 +102,30 @@ export default function DayView({
     onDateSelect(eventDate);
   };
 
-  const onDragEnd = (result: DropResult) => {
-    if (!result.destination || !onEventUpdate) return;
+  const onDragEndHandler = (result: DropResult) => {
+    handleDragEnd(result, (result) => {
+      const [hourStr, minuteStr] = result.destination!.droppableId.split(':');
+      const hour = parseInt(hourStr);
+      const minute = parseInt(minuteStr);
+      
+      const event = events.find(e => e.id === result.draggableId);
+      if (!event) return null;
 
-    const [hourStr, minuteStr] = result.destination.droppableId.split(':');
-    const hour = parseInt(hourStr);
-    const minute = parseInt(minuteStr);
+      const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
+      const newStart = new Date(date);
+      newStart.setHours(hour, minute);
+      const newEnd = new Date(newStart.getTime() + duration);
 
-    if (hour < startHour || hour >= endHour) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Seçilen saat çalışma saatleri dışındadır.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const event = events.find(e => e.id === result.draggableId);
-    if (!event) return;
-
-    const duration = new Date(event.end).getTime() - new Date(event.start).getTime();
-    const newStart = new Date(date);
-    newStart.setHours(hour, minute);
-    const newEnd = new Date(newStart.getTime() + duration);
-
-    const hasConflict = checkLessonConflict(
-      { start: newStart, end: newEnd },
-      events,
-      event.id
-    );
-
-    if (hasConflict) {
-      toast({
-        title: "Ders çakışması",
-        description: "Seçilen saatte başka bir ders bulunuyor.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onEventUpdate({
-      ...event,
-      start: newStart,
-      end: newEnd
-    });
-
-    toast({
-      title: "Ders taşındı",
-      description: "Ders başarıyla yeni saate taşındı.",
+      return { start: newStart, end: newEnd };
     });
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContainer 
+      onDragEnd={onDragEndHandler}
+      activeEvent={activeEvent}
+      isDragging={isDragging}
+    >
       <motion.div 
         className="w-full pb-12"
         initial={{ opacity: 0, y: 2 }}
@@ -189,6 +180,6 @@ export default function DayView({
           ))}
         </div>
       </motion.div>
-    </DragDropContext>
+    </DragDropContainer>
   );
 }

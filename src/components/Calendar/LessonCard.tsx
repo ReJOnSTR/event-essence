@@ -1,8 +1,11 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { GripVertical } from "lucide-react";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -11,6 +14,7 @@ interface EventCardProps {
   index: number;
   isDraggable?: boolean;
   onTouchStart?: (e: React.TouchEvent) => void;
+  customDragHandle?: boolean;
 }
 
 export default function LessonCard({ 
@@ -19,7 +23,8 @@ export default function LessonCard({
   students, 
   index,
   isDraggable = true,
-  onTouchStart 
+  onTouchStart,
+  customDragHandle = false
 }: EventCardProps) {
   const startMinutes = new Date(event.start).getMinutes();
   const durationInMinutes = differenceInMinutes(event.end, event.start);
@@ -49,13 +54,18 @@ export default function LessonCard({
   };
 
   const content = (provided?: any, snapshot?: any) => (
-    <div
+    <motion.div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
-      {...(provided?.dragHandleProps || {})}
+      {...(customDragHandle ? {} : provided?.dragHandleProps || {})}
+      animate={{ 
+        boxShadow: snapshot?.isDragging ? "0 8px 16px rgba(0,0,0,0.2)" : "0 1px 3px rgba(0,0,0,0.1)",
+        scale: snapshot?.isDragging ? 1.03 : 1
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className={cn(
-        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm touch-none",
-        snapshot?.isDragging ? "shadow-lg opacity-70" : "",
+        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all touch-none",
+        snapshot?.isDragging ? "shadow-lg opacity-85 z-50" : "",
         isCompact ? "flex items-center justify-between gap-1" : ""
       )}
       style={{
@@ -65,6 +75,15 @@ export default function LessonCard({
       onClick={handleClick}
       onTouchStart={handleTouchStart}
     >
+      {customDragHandle && provided?.dragHandleProps && (
+        <div 
+          {...provided.dragHandleProps} 
+          className="absolute top-1 right-1 p-1 rounded-full opacity-60 hover:opacity-100 hover:bg-white/20"
+        >
+          <GripVertical size={12} />
+        </div>
+      )}
+      
       {isCompact ? (
         <>
           <div className="font-medium text-xs truncate flex-1">
@@ -88,7 +107,7 @@ export default function LessonCard({
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   );
 
   if (!isDraggable) {

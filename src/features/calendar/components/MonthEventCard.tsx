@@ -1,8 +1,11 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { GripHorizontal } from "lucide-react";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -21,13 +24,19 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
   };
 
   const content = (provided?: any, snapshot?: any) => (
-    <div
+    <motion.div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
+      animate={{ 
+        boxShadow: snapshot?.isDragging ? "0 8px 16px rgba(0,0,0,0.2)" : "0 1px 3px rgba(0,0,0,0.1)",
+        scale: snapshot?.isDragging ? 1.03 : 1,
+        opacity: snapshot?.isDragging ? 0.85 : 1
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className={cn(
-        "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
-        snapshot?.isDragging ? "shadow-lg opacity-70" : ""
+        "text-white p-2 rounded mb-1.5 cursor-grab hover:brightness-90 transition-all shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent relative",
+        snapshot?.isDragging && "shadow-lg cursor-grabbing z-50"
       )}
       style={{ 
         backgroundColor: student?.color || "#039be5",
@@ -35,15 +44,22 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
       }}
       onClick={handleClick}
     >
-      <div className="flex flex-col gap-1">
-        <span className="font-medium text-[13px] leading-tight md:text-sm">
-          {student?.name || "İsimsiz Öğrenci"}
-        </span>
-        <span className="text-[12px] md:text-xs opacity-90">
-          {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <div className="font-medium text-[13px] leading-tight md:text-sm">
+            {student?.name || "İsimsiz Öğrenci"}
+          </div>
+          <div className="text-[12px] md:text-xs opacity-90">
+            {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
+          </div>
+        </div>
+        {snapshot?.isDragging && (
+          <span className="ml-1 opacity-60">
+            <GripHorizontal size={14} />
+          </span>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 
   return (
