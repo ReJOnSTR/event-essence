@@ -1,3 +1,4 @@
+
 import React from "react";
 import { CalendarEvent, Student } from "@/types/calendar";
 import { motion } from "framer-motion";
@@ -6,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useMonthView } from "@/features/calendar/hooks/useMonthView";
 import MonthCell from "./MonthCell";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -114,19 +116,31 @@ export default function MonthView({
             </motion.div>
           ))}
           
-          {days.map((day, idx) => (
-            <MonthCell
-              key={idx}
-              day={day}
-              idx={idx}
-              handleDateClick={onDateSelect}
-              onEventClick={onEventClick}
-              students={students}
-              allowWorkOnHolidays={allowWorkOnHolidays}
-              customHolidays={customHolidays}
-              workingHours={settings?.working_hours}
-            />
-          ))}
+          {days.map((day, idx) => {
+            const holiday = isHoliday(day.date, customHolidays);
+            return (
+              <MonthCell
+                key={idx}
+                day={day}
+                idx={idx}
+                holiday={holiday}
+                handleDateClick={onDateSelect}
+                onEventClick={onEventClick}
+                students={students}
+                allowWorkOnHolidays={allowWorkOnHolidays}
+                workingHours={settings?.working_hours || {
+                  monday: { start: "09:00", end: "17:00", enabled: true },
+                  tuesday: { start: "09:00", end: "17:00", enabled: true },
+                  wednesday: { start: "09:00", end: "17:00", enabled: true },
+                  thursday: { start: "09:00", end: "17:00", enabled: true },
+                  friday: { start: "09:00", end: "17:00", enabled: true },
+                  saturday: { start: "09:00", end: "17:00", enabled: false },
+                  sunday: { start: "09:00", end: "17:00", enabled: false },
+                }}
+                customHolidays={customHolidays}
+              />
+            );
+          })}
         </div>
       </motion.div>
     </DragDropContext>

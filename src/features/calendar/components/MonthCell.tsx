@@ -1,3 +1,4 @@
+
 import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarEvent, Student, WeeklyWorkingHours } from "@/types/calendar";
@@ -19,6 +20,7 @@ interface MonthCellProps {
   onEventClick?: (event: CalendarEvent) => void;
   students?: Student[];
   workingHours: WeeklyWorkingHours;
+  customHolidays: Array<{ date: string; description?: string }>;
 }
 
 export default function MonthCell({
@@ -29,7 +31,8 @@ export default function MonthCell({
   handleDateClick,
   onEventClick,
   students,
-  workingHours
+  workingHours,
+  customHolidays
 }: MonthCellProps) {
   const dayOfWeek = day.date.getDay();
   const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
