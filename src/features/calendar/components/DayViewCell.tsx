@@ -24,21 +24,19 @@ export default function DayViewCell({
   onEventClick,
   students
 }: DayViewCellProps) {
+  // Compute background color class instead of using motion animate
+  const cellBgClass = isDisabled ? "bg-muted" : "bg-transparent";
+  
   return (
     <Droppable droppableId={`${hour}:0`}>
       {(provided, snapshot) => (
-        <motion.div 
+        <div 
           ref={provided.innerRef}
           {...provided.droppableProps}
-          animate={{
-            backgroundColor: snapshot.isDraggingOver 
-              ? 'hsl(var(--accent))' 
-              : isDisabled 
-                ? 'hsl(var(--muted))' 
-                : 'transparent'
-          }}
           className={cn(
             "col-span-11 min-h-[60px] border-t border-border relative",
+            cellBgClass,
+            snapshot.isDraggingOver && "bg-accent",
             isDisabled && "cursor-not-allowed",
             !isDisabled && "cursor-pointer hover:bg-accent/50"
           )}
@@ -68,7 +66,7 @@ export default function DayViewCell({
               />
             ))}
           {provided.placeholder}
-        </motion.div>
+        </div>
       )}
     </Droppable>
   );

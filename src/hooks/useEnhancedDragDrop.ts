@@ -4,9 +4,7 @@ import { CalendarEvent } from '@/types/calendar';
 import { useToast } from '@/components/ui/use-toast';
 import { checkLessonConflict } from '@/utils/lessonConflict';
 import { DropResult } from '@hello-pangea/dnd';
-import { differenceInMinutes, addMinutes } from 'date-fns';
 import { isHoliday } from '@/utils/turkishHolidays';
-import { motion } from 'framer-motion';
 
 export const useEnhancedDragDrop = (
   events: CalendarEvent[],
@@ -128,22 +126,11 @@ export const useEnhancedDragDrop = (
     });
   };
 
-  const getDragStyles = (isDragging: boolean) => {
-    return {
-      cursor: isDragging ? 'grabbing' : 'grab',
-      boxShadow: isDragging ? '0 10px 25px -5px rgba(0, 0, 0, 0.2)' : 'none',
-      zIndex: isDragging ? 50 : 10,
-      transform: isDragging ? 'scale(1.02)' : 'scale(1)',
-      opacity: isDragging ? 0.8 : 1
-    };
-  };
-
   return {
     isDragging,
     activeEvent,
     handleDragStart,
     handleDragEnd,
-    getDragStyles,
     endDrag
   };
 };

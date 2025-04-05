@@ -134,25 +134,24 @@ export default function WeekViewTimeGrid({
             const [startHour] = (daySettings?.start || "09:00").split(':').map(Number);
             const [endHour] = (daySettings?.end || "17:00").split(':').map(Number);
             const isHourDisabled = hour < startHour || hour >= endHour;
+            
+            // Compute background color class instead of using motion animate
+            const cellBgClass = isWorkDisabled || isHourDisabled 
+              ? "bg-muted" 
+              : isToday(day) 
+                ? "bg-accent" 
+                : "bg-background";
 
             return (
               <Droppable droppableId={`${dayIndex}-${hour}`} key={`${day}-${hour}`}>
                 {(provided, snapshot) => (
-                  <motion.div
+                  <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    animate={{
-                      backgroundColor: snapshot.isDraggingOver 
-                        ? 'hsl(var(--accent))' 
-                        : isWorkDisabled || isHourDisabled 
-                          ? 'hsl(var(--muted))' 
-                          : isToday(day) 
-                            ? 'hsl(var(--accent))' 
-                            : 'hsl(var(--background))'
-                    }}
-                    transition={{ type: "tween", duration: 0.15 }}
                     className={cn(
                       "border-b border-border min-h-[60px] relative transition-colors duration-150",
+                      cellBgClass,
+                      snapshot.isDraggingOver && "bg-accent",
                       isToday(day) && "text-accent-foreground",
                       (isWorkDisabled || isHourDisabled) && "cursor-not-allowed",
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
@@ -191,7 +190,7 @@ export default function WeekViewTimeGrid({
                         />
                       ))}
                     {provided.placeholder}
-                  </motion.div>
+                  </div>
                 )}
               </Droppable>
             );
