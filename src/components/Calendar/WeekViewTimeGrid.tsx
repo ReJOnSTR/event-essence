@@ -1,16 +1,13 @@
-
 import React from "react";
 import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { isHoliday } from "@/utils/turkishHolidays";
-import { Droppable, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
+import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import DragDropContainer from "./DragDropContainer";
-import { useEnhancedDragDrop } from "@/hooks/useEnhancedDragDrop";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -38,18 +35,6 @@ export default function WeekViewTimeGrid({
   const { toast } = useToast();
   const { settings } = useUserSettings();
   const customHolidays = settings?.holidays || [];
-
-  const {
-    isDragging,
-    activeEvent,
-    handleDragEnd
-  } = useEnhancedDragDrop(
-    events,
-    onEventUpdate,
-    workingHours,
-    allowWorkOnHolidays,
-    customHolidays
-  );
 
   const handleCellClick = (day: Date, hour: number) => {
     const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -89,37 +74,74 @@ export default function WeekViewTimeGrid({
     onCellClick(day, hour);
   };
 
-  const onDragEndHandler = (result: DropResult) => {
+  const onDragEnd = (result: DropResult) => {
     if (!result.destination || !onEventUpdate) return;
 
     const [dayIndex, hour] = result.destination.droppableId.split('-').map(Number);
     const targetDay = weekDays[dayIndex];
+    const event = events.find(e => e.id === result.draggableId);
     
-    handleDragEnd(result, (result) => {
-      const [dayIndex, hour] = result.destination!.droppableId.split('-').map(Number);
-      const targetDay = weekDays[dayIndex];
-      const event = events.find(e => e.id === result.draggableId);
-      
-      if (!event) return null;
+    if (!event) return;
 
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
-      
-      const newStart = new Date(targetDay);
-      newStart.setHours(hour, 0, 0, 0);
-      const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
-      const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
+    const dayOfWeek = format(targetDay, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours[dayOfWeek];
+    
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-      return { start: newStart, end: newEnd };
+    const holiday = isHoliday(targetDay, customHolidays);
+    if (holiday && !allowWorkOnHolidays) {
+      toast({
+        title: "Tatil Günü",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+    
+    const newStart = new Date(targetDay);
+    newStart.setHours(hour, 0, 0, 0);
+    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
+    const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
+
+    const hasConflict = checkLessonConflict(
+      { start: newStart, end: newEnd },
+      events,
+      event.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders çakışması",
+        description: "Seçilen saatte başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onEventUpdate({
+      ...event,
+      start: newStart,
+      end: newEnd
+    });
+
+    toast({
+      title: "Ders taşındı",
+      description: "Ders başarıyla yeni saate taşındı.",
     });
   };
 
   return (
-    <DragDropContainer 
-      onDragEnd={onDragEndHandler}
-      activeEvent={activeEvent}
-      isDragging={isDragging}
-    >
+    <DragDropContext onDragEnd={onDragEnd}>
       {hours.map((hour) => (
         <React.Fragment key={`hour-${hour}`}>
           <div className="bg-background p-2 text-right text-sm text-muted-foreground border-b border-border">
@@ -134,13 +156,6 @@ export default function WeekViewTimeGrid({
             const [startHour] = (daySettings?.start || "09:00").split(':').map(Number);
             const [endHour] = (daySettings?.end || "17:00").split(':').map(Number);
             const isHourDisabled = hour < startHour || hour >= endHour;
-            
-            // Compute background color class instead of using motion animate
-            const cellBgClass = isWorkDisabled || isHourDisabled 
-              ? "bg-muted" 
-              : isToday(day) 
-                ? "bg-accent" 
-                : "bg-background";
 
             return (
               <Droppable droppableId={`${dayIndex}-${hour}`} key={`${day}-${hour}`}>
@@ -149,26 +164,14 @@ export default function WeekViewTimeGrid({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "border-b border-border min-h-[60px] relative transition-colors duration-150",
-                      cellBgClass,
-                      snapshot.isDraggingOver && "bg-accent",
-                      isToday(day) && "text-accent-foreground",
-                      (isWorkDisabled || isHourDisabled) && "cursor-not-allowed",
+                      "bg-background border-b border-border min-h-[60px] relative",
+                      isToday(day) && "bg-accent text-accent-foreground",
+                      (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
                       !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
+                      snapshot.isDraggingOver && "bg-accent"
                     )}
                     onClick={() => handleCellClick(day, hour)}
                   >
-                    <AnimatePresence>
-                      {snapshot.isDraggingOver && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary/30 rounded-sm pointer-events-none"
-                        />
-                      )}
-                    </AnimatePresence>
-                    
                     {events
                       .filter(
                         event =>
@@ -186,7 +189,6 @@ export default function WeekViewTimeGrid({
                           onClick={onEventClick}
                           students={students}
                           index={index}
-                          customDragHandle={true}
                         />
                       ))}
                     {provided.placeholder}
@@ -197,6 +199,6 @@ export default function WeekViewTimeGrid({
           })}
         </React.Fragment>
       ))}
-    </DragDropContainer>
+    </DragDropContext>
   );
 }
