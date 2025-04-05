@@ -1,64 +1,63 @@
+
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Calendar, LayoutGrid, CalendarDays, Calendar as CalendarIcon } from "lucide-react";
 
 interface ViewSelectorProps {
   currentView: string;
   onViewChange: (view: string) => void;
 }
 
-const tabVariants = {
-  initial: { y: -5, opacity: 0 },
-  animate: { y: 0, opacity: 1 },
-  hover: { scale: 1.02 },
-  tap: { scale: 0.98 }
-};
-
 export default function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
   const isMobile = useIsMobile();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, type: "tween" }}
-      className="w-full bg-background/80 rounded-lg shadow-sm sticky top-0 z-10"
-    >
+    <div className="w-full bg-background/80 rounded-lg shadow-sm sticky top-0 z-10 pb-1">
       <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2">
-          {["day", "week", "month", "year"].map((view, index) => (
-            <motion.div
-              key={view}
-              variants={tabVariants}
-              initial="initial"
-              animate="animate"
-              whileHover="hover"
-              whileTap="tap"
-              transition={{ duration: 0.15, delay: index * 0.05 }}
-              className="w-full"
+        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2 p-1 bg-muted/50 rounded-lg">
+          {[
+            { id: "day", icon: <Calendar className="w-4 h-4" />, label: isMobile ? "Gün" : "Günlük" },
+            { id: "week", icon: <LayoutGrid className="w-4 h-4" />, label: isMobile ? "Hafta" : "Haftalık" },
+            { id: "month", icon: <CalendarDays className="w-4 h-4" />, label: isMobile ? "Ay" : "Aylık" },
+            { id: "year", icon: <CalendarIcon className="w-4 h-4" />, label: isMobile ? "Yıl" : "Yıllık" }
+          ].map((view) => (
+            <TabsTrigger 
+              key={view.id}
+              value={view.id} 
+              onClick={() => onViewChange(view.id)}
+              className={cn(
+                "w-full flex items-center justify-center gap-1.5 py-2.5 relative transition-all duration-300",
+                "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground",
+                "data-[state=active]:shadow-md hover:bg-accent/50",
+                "rounded-md text-xs md:text-sm"
+              )}
             >
-              <TabsTrigger 
-                value={view} 
-                onClick={() => onViewChange(view)}
-                className="w-full relative text-xs md:text-sm py-1.5 md:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                {view === "day" && (isMobile ? "Gün" : "Günlük")}
-                {view === "week" && (isMobile ? "Hafta" : "Haftalık")}
-                {view === "month" && (isMobile ? "Ay" : "Aylık")}
-                {view === "year" && (isMobile ? "Yıl" : "Yıllık")}
-                {currentView === view && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                    initial={false}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </TabsTrigger>
-            </motion.div>
+              <span className={cn(
+                "transition-opacity duration-300",
+                currentView === view.id ? "opacity-100" : "opacity-70"
+              )}>
+                {view.icon}
+              </span>
+              <span className={cn(
+                "font-medium transition-all duration-300",
+                currentView === view.id ? "translate-x-0" : "-translate-x-0"
+              )}>
+                {view.label}
+              </span>
+              
+              {currentView === view.id && (
+                <span 
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-foreground/50 rounded-full"
+                  style={{
+                    animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                  }}
+                />
+              )}
+            </TabsTrigger>
           ))}
         </TabsList>
       </Tabs>
-    </motion.div>
+    </div>
   );
 }
