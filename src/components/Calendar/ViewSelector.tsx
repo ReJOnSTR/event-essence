@@ -1,3 +1,4 @@
+
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -35,12 +36,12 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
               whileHover="hover"
               whileTap="tap"
               transition={{ duration: 0.15, delay: index * 0.05 }}
-              className="w-full"
+              className="w-full flex justify-center items-center"
             >
               <TabsTrigger 
                 value={view} 
                 onClick={() => onViewChange(view)}
-                className="w-full relative text-xs md:text-sm py-1.5 md:py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="w-full relative text-xs md:text-sm py-1.5 md:py-2 flex justify-center items-center data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 {view === "day" && (isMobile ? "Gün" : "Günlük")}
                 {view === "week" && (isMobile ? "Hafta" : "Haftalık")}
