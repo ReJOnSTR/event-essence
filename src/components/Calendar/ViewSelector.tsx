@@ -1,19 +1,19 @@
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface ViewSelectorProps {
   currentView: string;
   onViewChange: (view: string) => void;
 }
 
-const tabVariants = {
-  initial: { y: -5, opacity: 0 },
-  animate: { y: 0, opacity: 1 },
-  hover: { scale: 1.02 },
-  tap: { scale: 0.98 }
-};
+const viewOptions = [
+  { value: "day", labelShort: "Gün", labelFull: "Günlük" },
+  { value: "week", labelShort: "Hafta", labelFull: "Haftalık" },
+  { value: "month", labelShort: "Ay", labelFull: "Aylık" },
+  { value: "year", labelShort: "Yıl", labelFull: "Yıllık" },
+];
 
 export default function ViewSelector({ currentView, onViewChange }: ViewSelectorProps) {
   const isMobile = useIsMobile();
@@ -22,44 +22,41 @@ export default function ViewSelector({ currentView, onViewChange }: ViewSelector
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, type: "tween" }}
-      className="w-full bg-background/80 rounded-lg shadow-sm sticky top-0 z-10"
+      transition={{ duration: 0.2 }}
+      className="w-full bg-background/5 backdrop-blur-sm rounded-md shadow-md sticky top-0 z-10 overflow-hidden"
     >
-      <Tabs value={currentView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 gap-1 md:gap-2">
-          {["day", "week", "month", "year"].map((view, index) => (
-            <motion.div
-              key={view}
-              variants={tabVariants}
-              initial="initial"
-              animate="animate"
-              whileHover="hover"
-              whileTap="tap"
-              transition={{ duration: 0.15, delay: index * 0.05 }}
-              className="w-full flex justify-center items-center"
-            >
-              <TabsTrigger 
-                value={view} 
-                onClick={() => onViewChange(view)}
-                className="w-full relative text-xs md:text-sm py-1.5 md:py-2 flex justify-center items-center data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                {view === "day" && (isMobile ? "Gün" : "Günlük")}
-                {view === "week" && (isMobile ? "Hafta" : "Haftalık")}
-                {view === "month" && (isMobile ? "Ay" : "Aylık")}
-                {view === "year" && (isMobile ? "Yıl" : "Yıllık")}
-                {currentView === view && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                    initial={false}
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </TabsTrigger>
-            </motion.div>
-          ))}
-        </TabsList>
-      </Tabs>
+      <div className="flex w-full h-12">
+        {viewOptions.map((option) => (
+          <motion.button
+            key={option.value}
+            onClick={() => onViewChange(option.value)}
+            className={cn(
+              "relative flex-1 flex items-center justify-center text-sm font-medium transition-all duration-200 h-full",
+              currentView === option.value 
+                ? "text-foreground bg-white"
+                : "text-foreground/70 hover:text-foreground hover:bg-white/10"
+            )}
+            initial={false}
+            animate={{
+              backgroundColor: currentView === option.value ? "rgba(255, 255, 255, 1)" : "transparent",
+              color: currentView === option.value ? "#333333" : "rgba(255, 255, 255, 0.7)",
+            }}
+            transition={{ duration: 0.2 }}
+          >
+            {isMobile ? option.labelShort : option.labelFull}
+            
+            {currentView === option.value && (
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-full bg-white"
+                layoutId="activeViewIndicator"
+                initial={false}
+                style={{ zIndex: -1 }}
+                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+              />
+            )}
+          </motion.button>
+        ))}
+      </div>
     </motion.div>
   );
 }
