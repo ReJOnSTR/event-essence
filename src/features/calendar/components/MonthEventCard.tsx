@@ -1,8 +1,10 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -21,17 +23,26 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
   };
 
   const content = (provided?: any, snapshot?: any) => (
-    <div
+    <motion.div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 transition-colors shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
-        snapshot?.isDragging ? "shadow-lg opacity-70" : ""
+        "text-white p-2 rounded mb-1.5 cursor-pointer hover:brightness-90 shadow-sm overflow-y-auto max-h-[60px] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
+        snapshot?.isDragging ? "drag-item-dragging" : "drag-item"
       )}
       style={{ 
         backgroundColor: student?.color || "#039be5",
         ...(provided?.draggableProps?.style || {})
+      }}
+      animate={{
+        scale: snapshot?.isDragging ? 1.03 : 1,
+        boxShadow: snapshot?.isDragging ? "0 5px 15px rgba(0,0,0,0.3)" : "0 1px 3px rgba(0,0,0,0.1)",
+        opacity: snapshot?.isDragging ? 0.85 : 1
+      }}
+      transition={{
+        duration: 0.15,
+        ease: "easeOut"
       }}
       onClick={handleClick}
     >
@@ -43,7 +54,7 @@ export default function MonthEventCard({ event, students, index, onClick }: Even
           {format(new Date(event.start), "HH:mm", { locale: tr })} - {format(new Date(event.end), "HH:mm", { locale: tr })}
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 
   return (

@@ -1,8 +1,10 @@
+
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format, differenceInMinutes } from "date-fns";
 import { tr } from 'date-fns/locale';
 import { Draggable } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface EventCardProps {
   event: CalendarEvent;
@@ -49,18 +51,27 @@ export default function LessonCard({
   };
 
   const content = (provided?: any, snapshot?: any) => (
-    <div
+    <motion.div
       ref={provided?.innerRef}
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 transition-all shadow-sm touch-none",
-        snapshot?.isDragging ? "shadow-lg opacity-70" : "",
+        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 touch-none",
+        snapshot?.isDragging ? "drag-item-dragging" : "drag-item",
         isCompact ? "flex items-center justify-between gap-1" : ""
       )}
       style={{
         ...style,
         ...(provided?.draggableProps?.style || {}),
+      }}
+      animate={{
+        scale: snapshot?.isDragging ? 1.03 : 1,
+        boxShadow: snapshot?.isDragging ? "0 5px 15px rgba(0,0,0,0.3)" : "0 1px 3px rgba(0,0,0,0.1)",
+        opacity: snapshot?.isDragging ? 0.85 : 1
+      }}
+      transition={{
+        duration: 0.15,
+        ease: "easeOut"
       }}
       onClick={handleClick}
       onTouchStart={handleTouchStart}
@@ -88,7 +99,7 @@ export default function LessonCard({
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   );
 
   if (!isDraggable) {

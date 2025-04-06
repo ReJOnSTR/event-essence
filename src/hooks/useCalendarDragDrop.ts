@@ -1,3 +1,4 @@
+
 import { useToast } from "@/components/ui/use-toast";
 import { DropResult } from "@hello-pangea/dnd";
 import { CalendarEvent } from "@/types/calendar";
@@ -20,45 +21,48 @@ export const useCalendarDragDrop = (
     const event = events.find(e => e.id === result.draggableId);
     if (!event) return;
 
-    const newTimes = getNewEventTimes(result);
-    if (!newTimes) return;
+    // Short delay to allow animation to complete visually before updating state
+    setTimeout(() => {
+      const newTimes = getNewEventTimes(result);
+      if (!newTimes) return;
 
-    const { start: newStart, end: newEnd } = newTimes;
+      const { start: newStart, end: newEnd } = newTimes;
 
-    if (!checkWorkingHours(newStart, newStart.getHours())) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Bu saat için çalışma saatleri kapalıdır.",
-        variant: "destructive"
+      if (!checkWorkingHours(newStart, newStart.getHours())) {
+        toast({
+          title: "Çalışma saatleri dışında",
+          description: "Bu saat için çalışma saatleri kapalıdır.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const hasConflict = checkLessonConflict(
+        { start: newStart, end: newEnd },
+        events,
+        event.id
+      );
+
+      if (hasConflict) {
+        toast({
+          title: "Ders çakışması",
+          description: "Seçilen saatte başka bir ders bulunuyor.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      onEventUpdate({
+        ...event,
+        start: newStart,
+        end: newEnd
       });
-      return;
-    }
 
-    const hasConflict = checkLessonConflict(
-      { start: newStart, end: newEnd },
-      events,
-      event.id
-    );
-
-    if (hasConflict) {
       toast({
-        title: "Ders çakışması",
-        description: "Seçilen saatte başka bir ders bulunuyor.",
-        variant: "destructive"
+        title: "Ders taşındı",
+        description: "Ders başarıyla yeni konuma taşındı.",
       });
-      return;
-    }
-
-    onEventUpdate({
-      ...event,
-      start: newStart,
-      end: newEnd
-    });
-
-    toast({
-      title: "Ders taşındı",
-      description: "Ders başarıyla yeni konuma taşındı.",
-    });
+    }, 150); // Short delay for better visual feedback
   };
 
   return { handleDragEnd };

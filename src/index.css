@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,5 +105,37 @@
   
   .scrollbar-track-transparent {
     scrollbar-track-color: transparent;
+  }
+}
+
+/* Drag and drop animations */
+@layer utilities {
+  .drag-item {
+    @apply transition-transform duration-150;
+  }
+  
+  .drag-item-dragging {
+    @apply shadow-lg opacity-90 scale-105 z-50;
+    animation: pulse 1.5s infinite alternate;
+  }
+  
+  .drop-target-active {
+    @apply bg-accent/70 transition-colors duration-200;
+  }
+  
+  .drop-target-hover {
+    @apply bg-accent shadow-inner;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
   }
 }

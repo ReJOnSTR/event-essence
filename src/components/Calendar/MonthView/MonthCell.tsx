@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { CalendarEvent, Student, WeeklyWorkingHours } from "@/types/calendar";
 import { Droppable } from "@hello-pangea/dnd";
 import MonthEventCard from "@/components/Calendar/MonthEventCard";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { isHoliday } from "@/utils/turkishHolidays";
 
 interface MonthCellProps {
@@ -83,8 +83,7 @@ export default function MonthCell({
             holidayInfo && !allowWorkOnHolidays && "bg-destructive/10 text-destructive",
             holidayInfo && allowWorkOnHolidays && "bg-yellow-500/10 text-yellow-500",
             !daySettings?.enabled && "bg-muted",
-            isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
-            snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
+            isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50"
           )}
         >
           <div className={cn(
@@ -121,6 +120,18 @@ export default function MonthCell({
             ))}
             {provided.placeholder}
           </div>
+          
+          <AnimatePresence>
+            {snapshot.isDraggingOver && !isDisabled && (
+              <motion.div 
+                className="absolute inset-0 bg-accent/30 pointer-events-none rounded"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              />
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </Droppable>
