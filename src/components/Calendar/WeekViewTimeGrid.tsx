@@ -8,8 +8,6 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { motion } from "framer-motion";
-import { useEnhancedDragDrop } from "@/hooks/useEnhancedDragDrop";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -37,7 +35,6 @@ export default function WeekViewTimeGrid({
   const { toast } = useToast();
   const { settings } = useUserSettings();
   const customHolidays = settings?.holidays || [];
-  const { handleDragEnd } = useEnhancedDragDrop({ events, onEventUpdate });
 
   const handleCellClick = (day: Date, hour: number) => {
     const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -78,27 +75,69 @@ export default function WeekViewTimeGrid({
   };
 
   const onDragEnd = (result: DropResult) => {
-    const getNewEventTimes = (result: DropResult) => {
-      if (!result.destination) return null;
-      
-      const [dayIndex, hour] = result.destination.droppableId.split('-').map(Number);
-      const targetDay = weekDays[dayIndex];
-      const event = events.find(e => e.id === result.draggableId);
-      
-      if (!event) return null;
+    if (!result.destination || !onEventUpdate) return;
 
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
-      
-      const newStart = new Date(targetDay);
-      newStart.setHours(hour, 0, 0, 0);
-      const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
-      const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
+    const [dayIndex, hour] = result.destination.droppableId.split('-').map(Number);
+    const targetDay = weekDays[dayIndex];
+    const event = events.find(e => e.id === result.draggableId);
+    
+    if (!event) return;
 
-      return { start: newStart, end: newEnd };
-    };
+    const dayOfWeek = format(targetDay, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours[dayOfWeek];
+    
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    handleDragEnd(result, getNewEventTimes);
+    const holiday = isHoliday(targetDay, customHolidays);
+    if (holiday && !allowWorkOnHolidays) {
+      toast({
+        title: "Tatil Günü",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+    
+    const newStart = new Date(targetDay);
+    newStart.setHours(hour, 0, 0, 0);
+    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
+    const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
+
+    const hasConflict = checkLessonConflict(
+      { start: newStart, end: newEnd },
+      events,
+      event.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders çakışması",
+        description: "Seçilen saatte başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onEventUpdate({
+      ...event,
+      start: newStart,
+      end: newEnd
+    });
+
+    toast({
+      title: "Ders taşındı",
+      description: "Ders başarıyla yeni saate taşındı.",
+    });
   };
 
   return (
@@ -121,39 +160,18 @@ export default function WeekViewTimeGrid({
             return (
               <Droppable droppableId={`${dayIndex}-${hour}`} key={`${day}-${hour}`}>
                 {(provided, snapshot) => (
-                  <motion.div
+                  <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "bg-background border-b border-border min-h-[60px] relative transition-all duration-200",
-                      isToday(day) && "bg-accent/10",
+                      "bg-background border-b border-border min-h-[60px] relative",
+                      isToday(day) && "bg-accent text-accent-foreground",
                       (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
-                      !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/20"
+                      !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
+                      snapshot.isDraggingOver && "bg-accent"
                     )}
-                    animate={{
-                      backgroundColor: snapshot.isDraggingOver && !isWorkDisabled && !isHourDisabled ? 
-                        "hsl(var(--accent) / 0.25)" : 
-                        isToday(day) ? "hsl(var(--accent) / 0.1)" : "transparent",
-                      borderColor: snapshot.isDraggingOver ? "hsl(var(--accent))" : "hsl(var(--border))",
-                      scale: snapshot.isDraggingOver ? 1.001 : 1
-                    }}
-                    transition={{ 
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 30
-                    }}
                     onClick={() => handleCellClick(day, hour)}
                   >
-                    {snapshot.isDraggingOver && !isWorkDisabled && !isHourDisabled && (
-                      <motion.div
-                        className="absolute inset-0 pointer-events-none z-10"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-accent/15 to-accent/5 animate-pulse" />
-                      </motion.div>
-                    )}
                     {events
                       .filter(
                         event =>
@@ -174,7 +192,7 @@ export default function WeekViewTimeGrid({
                         />
                       ))}
                     {provided.placeholder}
-                  </motion.div>
+                  </div>
                 )}
               </Droppable>
             );

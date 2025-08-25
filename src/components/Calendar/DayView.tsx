@@ -12,7 +12,6 @@ import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useMobileDragDrop } from "@/hooks/useMobileDragDrop";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { useEnhancedDragDrop } from "@/hooks/useEnhancedDragDrop";
 
 interface DayViewProps {
   date: Date;
@@ -97,31 +96,54 @@ export default function DayView({
     onDateSelect(eventDate);
   };
 
-  const { handleDragEnd } = useEnhancedDragDrop({ events, onEventUpdate });
-
   const onDragEnd = (result: DropResult) => {
-    const getNewEventTimes = (result: DropResult) => {
-      if (!result.destination) return null;
-      
-      const [hourStr, minuteStr] = result.destination.droppableId.split(':');
-      const hour = parseInt(hourStr);
-      const minute = parseInt(minuteStr);
+    if (!result.destination || !onEventUpdate) return;
 
-      if (hour < startHour || hour >= endHour) {
-        return null;
-      }
+    const [hourStr, minuteStr] = result.destination.droppableId.split(':');
+    const hour = parseInt(hourStr);
+    const minute = parseInt(minuteStr);
 
-      const event = events.find(e => e.id === result.draggableId);
-      if (!event) return null;
+    if (hour < startHour || hour >= endHour) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Seçilen saat çalışma saatleri dışındadır.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-      const duration = differenceInMinutes(event.end, event.start);
-      const newStart = setMinutes(setHours(date, hour), minute);
-      const newEnd = new Date(newStart.getTime() + duration * 60000);
+    const event = events.find(e => e.id === result.draggableId);
+    if (!event) return;
 
-      return { start: newStart, end: newEnd };
-    };
+    const duration = differenceInMinutes(event.end, event.start);
+    const newStart = setMinutes(setHours(date, hour), minute);
+    const newEnd = new Date(newStart.getTime() + duration * 60000);
 
-    handleDragEnd(result, getNewEventTimes);
+    const hasConflict = checkLessonConflict(
+      { start: newStart, end: newEnd },
+      events,
+      event.id
+    );
+
+    if (hasConflict) {
+      toast({
+        title: "Ders çakışması",
+        description: "Seçilen saatte başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onEventUpdate({
+      ...event,
+      start: newStart,
+      end: newEnd
+    });
+
+    toast({
+      title: "Ders taşındı",
+      description: "Ders başarıyla yeni saate taşındı.",
+    });
   };
 
   return (
@@ -168,39 +190,18 @@ export default function DayView({
               </div>
               <Droppable droppableId={`${hour}:0`}>
                 {(provided, snapshot) => (
-                  <motion.div 
+                  <div 
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative transition-all duration-200",
-                      draggedEvent && "bg-accent/30",
+                      "col-span-11 min-h-[60px] border-t border-border cursor-pointer relative",
+                      snapshot.isDraggingOver && "bg-accent",
+                      draggedEvent && "bg-accent/50",
                       (!daySettings?.enabled || hour < startHour || hour >= endHour || (holiday && !allowWorkOnHolidays)) && 
                       "bg-muted cursor-not-allowed"
                     )}
-                    animate={{
-                      backgroundColor: snapshot.isDraggingOver && daySettings?.enabled ? 
-                        "hsl(var(--accent) / 0.25)" : 
-                        draggedEvent ? "hsl(var(--accent) / 0.15)" : "transparent",
-                      borderColor: snapshot.isDraggingOver ? "hsl(var(--accent))" : "hsl(var(--border))",
-                      scale: snapshot.isDraggingOver ? 1.002 : 1
-                    }}
-                    transition={{ 
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 30
-                    }}
                     onClick={() => handleHourClick(hour, 0)}
                   >
-                    {snapshot.isDraggingOver && daySettings?.enabled && (
-                      <motion.div
-                        className="absolute inset-0 pointer-events-none"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-accent/10 via-accent/20 to-accent/10 animate-pulse" />
-                      </motion.div>
-                    )}
                     {dayEvents
                       .filter(event => new Date(event.start).getHours() === hour)
                       .map((event, index) => (
@@ -214,7 +215,7 @@ export default function DayView({
                         />
                       ))}
                     {provided.placeholder}
-                  </motion.div>
+                  </div>
                 )}
               </Droppable>
             </motion.div>

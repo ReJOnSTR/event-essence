@@ -56,8 +56,8 @@ export default function LessonCard({
       {...(provided?.draggableProps || {})}
       {...(provided?.dragHandleProps || {})}
       className={cn(
-        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer touch-none",
-        snapshot?.isDragging ? "z-50" : "",
+        "text-white p-2 rounded absolute left-1 right-1 overflow-hidden cursor-pointer hover:brightness-90 touch-none",
+        snapshot?.isDragging ? "drag-item-dragging" : "drag-item",
         isCompact ? "flex items-center justify-between gap-1" : ""
       )}
       style={{
@@ -65,23 +65,13 @@ export default function LessonCard({
         ...(provided?.draggableProps?.style || {}),
       }}
       animate={{
-        scale: snapshot?.isDragging ? 1.05 : 1,
-        boxShadow: snapshot?.isDragging ? 
-          "0 20px 35px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,255,255,0.3)" : 
-          "0 1px 3px rgba(0,0,0,0.1)",
-        opacity: snapshot?.isDragging ? 0.9 : 1,
-        rotate: snapshot?.isDragging ? 2 : 0,
-      }}
-      whileHover={{ 
-        scale: 1.02, 
-        boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-        brightness: 1.1 
+        scale: snapshot?.isDragging ? 1.03 : 1,
+        boxShadow: snapshot?.isDragging ? "0 5px 15px rgba(0,0,0,0.3)" : "0 1px 3px rgba(0,0,0,0.1)",
+        opacity: snapshot?.isDragging ? 0.85 : 1
       }}
       transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 25,
-        mass: 0.5
+        duration: 0.15,
+        ease: "easeOut"
       }}
       onClick={handleClick}
       onTouchStart={handleTouchStart}

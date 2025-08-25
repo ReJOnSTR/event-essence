@@ -8,7 +8,6 @@ import MonthEventCard from "./MonthEventCard";
 import { getWorkingHours } from "@/utils/workingHours";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { UserSettings } from "@/hooks/useUserSettings";
-import { useEnhancedDragDrop } from "@/hooks/useEnhancedDragDrop";
 
 interface MonthViewProps {
   events: CalendarEvent[];
@@ -32,7 +31,6 @@ export default function MonthView({
   settings
 }: MonthViewProps) {
   const { toast } = useToast();
-  const { handleDragEnd } = useEnhancedDragDrop({ events, onEventUpdate });
   const allowWorkOnHolidays = settings?.allow_work_on_holidays ?? true;
   const customHolidays = settings?.holidays || [];
   const workingHours = getWorkingHours();
@@ -64,12 +62,10 @@ export default function MonthView({
     }));
   };
 
-  const days = getDaysInMonth(date);
-
   const handleDateClick = (clickedDate: Date) => {
     const dayOfWeek = clickedDate.getDay();
-    const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-    const daySettings = workingHours[daysOfWeek[dayOfWeek]];
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const daySettings = workingHours[days[dayOfWeek]];
 
     if (!daySettings?.enabled) {
       toast({
@@ -102,29 +98,58 @@ export default function MonthView({
   };
 
   const onDragEnd = (result: DropResult) => {
-    const getNewEventTimes = (result: DropResult) => {
-      if (!result.destination) return null;
-      
-      const dayIndex = parseInt(result.destination.droppableId);
-      const targetDay = days[dayIndex].date;
-      const event = events.find(e => e.id === result.draggableId);
-      
-      if (!event) return null;
+    if (!result.destination || !onEventUpdate) return;
 
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
-      const duration = eventEnd.getTime() - eventStart.getTime();
-      
-      const newStart = new Date(targetDay);
-      newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
-      const newEnd = new Date(newStart.getTime() + duration);
+    const [dayIndex] = result.destination.droppableId.split('-').map(Number);
+    const targetDay = days[dayIndex].date;
+    const event = events.find(e => e.id === result.draggableId);
+    
+    if (!event) return;
 
-      return { start: newStart, end: newEnd };
-    };
+    const dayOfWeek = targetDay.getDay();
+    const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    const daySettings = workingHours[weekDays[dayOfWeek]];
 
-    handleDragEnd(result, getNewEventTimes);
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma saatleri dışında",
+        description: "Bu gün için çalışma saatleri kapalıdır.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+    const duration = eventEnd.getTime() - eventStart.getTime();
+    
+    const newStart = new Date(targetDay);
+    newStart.setHours(eventStart.getHours(), eventStart.getMinutes(), 0);
+    const newEnd = new Date(newStart.getTime() + duration);
+
+    const holiday = isHoliday(targetDay, customHolidays);
+    if (holiday && !allowWorkOnHolidays) {
+      toast({
+        title: "Tatil günü",
+        description: `${holiday.name} nedeniyle bu gün tatildir.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onEventUpdate({
+      ...event,
+      start: newStart,
+      end: newEnd
+    });
+
+    toast({
+      title: "Ders taşındı",
+      description: "Ders başarıyla yeni güne taşındı.",
+    });
   };
 
+  const days = getDaysInMonth(date);
 
   const isDateDisabled = (date: Date) => {
     const dayOfWeek = date.getDay();
