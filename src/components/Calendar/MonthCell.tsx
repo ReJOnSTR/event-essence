@@ -69,22 +69,28 @@ export default function MonthCell({
           ref={provided.innerRef}
           {...provided.droppableProps}
           initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            backgroundColor: snapshot.isDraggingOver && !isDisabled ? 
+              "hsl(var(--accent) / 0.3)" : 
+              isToday(day.date) ? "hsl(var(--accent) / 0.15)" : 
+              "hsl(var(--background) / 0.8)",
+            scale: snapshot.isDraggingOver ? 1.005 : 1
+          }}
           transition={{ 
-            duration: 0.15,
-            delay: idx * 0.01,
+            duration: 0.2,
+            delay: idx * 0.005,
             ease: [0.23, 1, 0.32, 1]
           }}
           onClick={() => !isDisabled && handleDateClick(day.date)}
           className={cn(
-            "min-h-[120px] p-2 bg-background/80 transition-colors duration-150",
+            "min-h-[120px] p-2 transition-all duration-200 relative",
             !day.isCurrentMonth && "text-muted-foreground/50 bg-muted/50",
-            isToday(day.date) && "bg-accent text-accent-foreground",
             holidayInfo && !allowWorkOnHolidays && "bg-destructive/10",
             holidayInfo && allowWorkOnHolidays && "bg-yellow-500/10",
             !daySettings?.enabled && "bg-muted",
-            isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/50",
-            snapshot.isDraggingOver && !isDisabled && "bg-accent/50"
+            isDisabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-accent/30"
           )}
         >
           <div className={cn(

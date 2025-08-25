@@ -62,7 +62,7 @@ export const useCalendarDragDrop = (
         title: "Ders taşındı",
         description: "Ders başarıyla yeni konuma taşındı.",
       });
-    }, 150); // Short delay for better visual feedback
+    }, 100); // Optimized delay for smoother visual feedback
   };
 
   return { handleDragEnd };

@@ -8,6 +8,7 @@ import { CalendarEvent, Student } from "@/types/calendar";
 import LessonCard from "./LessonCard";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { motion } from "framer-motion";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -160,18 +161,39 @@ export default function WeekViewTimeGrid({
             return (
               <Droppable droppableId={`${dayIndex}-${hour}`} key={`${day}-${hour}`}>
                 {(provided, snapshot) => (
-                  <div
+                  <motion.div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "bg-background border-b border-border min-h-[60px] relative",
-                      isToday(day) && "bg-accent text-accent-foreground",
+                      "bg-background border-b border-border min-h-[60px] relative transition-all duration-200",
+                      isToday(day) && "bg-accent/10",
                       (isWorkDisabled || isHourDisabled) && "bg-muted cursor-not-allowed",
-                      !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/50",
-                      snapshot.isDraggingOver && "bg-accent"
+                      !isWorkDisabled && !isHourDisabled && "cursor-pointer hover:bg-accent/20"
                     )}
+                    animate={{
+                      backgroundColor: snapshot.isDraggingOver && !isWorkDisabled && !isHourDisabled ? 
+                        "hsl(var(--accent) / 0.25)" : 
+                        isToday(day) ? "hsl(var(--accent) / 0.1)" : "transparent",
+                      borderColor: snapshot.isDraggingOver ? "hsl(var(--accent))" : "hsl(var(--border))",
+                      scale: snapshot.isDraggingOver ? 1.001 : 1
+                    }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 400,
+                      damping: 30
+                    }}
                     onClick={() => handleCellClick(day, hour)}
                   >
+                    {snapshot.isDraggingOver && !isWorkDisabled && !isHourDisabled && (
+                      <motion.div
+                        className="absolute inset-0 pointer-events-none z-10"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-b from-accent/5 via-accent/15 to-accent/5 animate-pulse" />
+                      </motion.div>
+                    )}
                     {events
                       .filter(
                         event =>
@@ -192,7 +214,7 @@ export default function WeekViewTimeGrid({
                         />
                       ))}
                     {provided.placeholder}
-                  </div>
+                  </motion.div>
                 )}
               </Droppable>
             );
