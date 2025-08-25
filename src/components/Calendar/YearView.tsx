@@ -11,10 +11,11 @@ interface YearViewProps {
   events: CalendarEvent[];
   onDateSelect: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventUpdate?: (event: CalendarEvent) => void;
   students?: Student[];
 }
 
-export default function YearView({ date, events, onDateSelect, onEventClick, students }: YearViewProps) {
+export default function YearView({ date, events, onDateSelect, onEventClick, onEventUpdate, students }: YearViewProps) {
   const yearStart = startOfYear(date);
   const months = Array.from({ length: 12 }, (_, i) => addMonths(yearStart, i));
   const { settings } = useUserSettings();
@@ -50,6 +51,7 @@ export default function YearView({ date, events, onDateSelect, onEventClick, stu
                 events={events}
                 onDateSelect={onDateSelect}
                 onEventClick={onEventClick}
+                onEventUpdate={onEventUpdate}
                 isYearView={true}
                 students={students}
                 settings={settings}

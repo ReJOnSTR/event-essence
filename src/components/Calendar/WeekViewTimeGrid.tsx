@@ -9,6 +9,7 @@ import LessonCard from "./LessonCard";
 import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { motion } from "framer-motion";
+import { useEnhancedDragDrop } from "@/hooks/useEnhancedDragDrop";
 
 interface WeekViewTimeGridProps {
   weekDays: Date[];
@@ -36,6 +37,7 @@ export default function WeekViewTimeGrid({
   const { toast } = useToast();
   const { settings } = useUserSettings();
   const customHolidays = settings?.holidays || [];
+  const { handleDragEnd } = useEnhancedDragDrop({ events, onEventUpdate });
 
   const handleCellClick = (day: Date, hour: number) => {
     const dayOfWeek = format(day, 'EEEE').toLowerCase() as keyof typeof workingHours;
@@ -76,69 +78,27 @@ export default function WeekViewTimeGrid({
   };
 
   const onDragEnd = (result: DropResult) => {
-    if (!result.destination || !onEventUpdate) return;
+    const getNewEventTimes = (result: DropResult) => {
+      if (!result.destination) return null;
+      
+      const [dayIndex, hour] = result.destination.droppableId.split('-').map(Number);
+      const targetDay = weekDays[dayIndex];
+      const event = events.find(e => e.id === result.draggableId);
+      
+      if (!event) return null;
 
-    const [dayIndex, hour] = result.destination.droppableId.split('-').map(Number);
-    const targetDay = weekDays[dayIndex];
-    const event = events.find(e => e.id === result.draggableId);
-    
-    if (!event) return;
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      
+      const newStart = new Date(targetDay);
+      newStart.setHours(hour, 0, 0, 0);
+      const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
+      const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
 
-    const dayOfWeek = format(targetDay, 'EEEE').toLowerCase() as keyof typeof workingHours;
-    const daySettings = workingHours[dayOfWeek];
-    
-    if (!daySettings?.enabled) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Bu gün için çalışma saatleri kapalıdır.",
-        variant: "destructive"
-      });
-      return;
-    }
+      return { start: newStart, end: newEnd };
+    };
 
-    const holiday = isHoliday(targetDay, customHolidays);
-    if (holiday && !allowWorkOnHolidays) {
-      toast({
-        title: "Tatil Günü",
-        description: `${holiday.name} nedeniyle bu gün tatildir.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const eventStart = new Date(event.start);
-    const eventEnd = new Date(event.end);
-    
-    const newStart = new Date(targetDay);
-    newStart.setHours(hour, 0, 0, 0);
-    const duration = (eventEnd.getTime() - eventStart.getTime()) / (1000 * 60);
-    const newEnd = new Date(newStart.getTime() + duration * 60 * 1000);
-
-    const hasConflict = checkLessonConflict(
-      { start: newStart, end: newEnd },
-      events,
-      event.id
-    );
-
-    if (hasConflict) {
-      toast({
-        title: "Ders çakışması",
-        description: "Seçilen saatte başka bir ders bulunuyor.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onEventUpdate({
-      ...event,
-      start: newStart,
-      end: newEnd
-    });
-
-    toast({
-      title: "Ders taşındı",
-      description: "Ders başarıyla yeni saate taşındı.",
-    });
+    handleDragEnd(result, getNewEventTimes);
   };
 
   return (

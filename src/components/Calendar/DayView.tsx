@@ -12,6 +12,7 @@ import { checkLessonConflict } from "@/utils/lessonConflict";
 import { useMobileDragDrop } from "@/hooks/useMobileDragDrop";
 import { isHoliday } from "@/utils/turkishHolidays";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useEnhancedDragDrop } from "@/hooks/useEnhancedDragDrop";
 
 interface DayViewProps {
   date: Date;
@@ -96,54 +97,31 @@ export default function DayView({
     onDateSelect(eventDate);
   };
 
+  const { handleDragEnd } = useEnhancedDragDrop({ events, onEventUpdate });
+
   const onDragEnd = (result: DropResult) => {
-    if (!result.destination || !onEventUpdate) return;
+    const getNewEventTimes = (result: DropResult) => {
+      if (!result.destination) return null;
+      
+      const [hourStr, minuteStr] = result.destination.droppableId.split(':');
+      const hour = parseInt(hourStr);
+      const minute = parseInt(minuteStr);
 
-    const [hourStr, minuteStr] = result.destination.droppableId.split(':');
-    const hour = parseInt(hourStr);
-    const minute = parseInt(minuteStr);
+      if (hour < startHour || hour >= endHour) {
+        return null;
+      }
 
-    if (hour < startHour || hour >= endHour) {
-      toast({
-        title: "Çalışma saatleri dışında",
-        description: "Seçilen saat çalışma saatleri dışındadır.",
-        variant: "destructive"
-      });
-      return;
-    }
+      const event = events.find(e => e.id === result.draggableId);
+      if (!event) return null;
 
-    const event = events.find(e => e.id === result.draggableId);
-    if (!event) return;
+      const duration = differenceInMinutes(event.end, event.start);
+      const newStart = setMinutes(setHours(date, hour), minute);
+      const newEnd = new Date(newStart.getTime() + duration * 60000);
 
-    const duration = differenceInMinutes(event.end, event.start);
-    const newStart = setMinutes(setHours(date, hour), minute);
-    const newEnd = new Date(newStart.getTime() + duration * 60000);
+      return { start: newStart, end: newEnd };
+    };
 
-    const hasConflict = checkLessonConflict(
-      { start: newStart, end: newEnd },
-      events,
-      event.id
-    );
-
-    if (hasConflict) {
-      toast({
-        title: "Ders çakışması",
-        description: "Seçilen saatte başka bir ders bulunuyor.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    onEventUpdate({
-      ...event,
-      start: newStart,
-      end: newEnd
-    });
-
-    toast({
-      title: "Ders taşındı",
-      description: "Ders başarıyla yeni saate taşındı.",
-    });
+    handleDragEnd(result, getNewEventTimes);
   };
 
   return (
