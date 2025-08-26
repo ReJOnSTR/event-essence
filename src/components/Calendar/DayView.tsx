@@ -1,3 +1,4 @@
+// Fixed: Removed useMobileDragDrop and using centralized drag-drop manager
 import { CalendarEvent, Student } from "@/types/calendar";
 import { format } from "date-fns";
 import { tr } from 'date-fns/locale';
