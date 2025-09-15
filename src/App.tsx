@@ -19,6 +19,7 @@ import StudentDialog from "@/components/Students/StudentDialog";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { AppRoutes } from "./routes/AppRoutes";
+import { InstallPrompt } from "@/components/PWA/InstallPrompt";
 
 function AppContent() {
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -60,6 +61,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex w-full overflow-hidden bg-background">
+      <InstallPrompt />
       <Sidebar>
         <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
           <SideMenu searchTerm={searchTerm} />
