@@ -60,15 +60,14 @@ function AppContent() {
   };
 
   return (
-    <>
+    <div className="min-h-screen flex w-full overflow-hidden bg-background">
       <InstallPrompt />
-      <div className="min-h-screen flex w-full overflow-hidden bg-background">
-        <Sidebar>
-          <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-            <SideMenu searchTerm={searchTerm} />
-          </SidebarContent>
-          <SidebarRail />
-        </Sidebar>
+      <Sidebar>
+        <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+          <SideMenu searchTerm={searchTerm} />
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
       <div className="flex-1 flex flex-col">
         <AuthHeader 
           onHeightChange={setHeaderHeight} 
@@ -91,8 +90,7 @@ function AppContent() {
         studentColor={studentColor}
         setStudentColor={setStudentColor}
       />
-      </div>
-    </>
+    </div>
   );
 }
 
