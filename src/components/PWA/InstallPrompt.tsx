@@ -20,7 +20,14 @@ export function InstallPrompt() {
       return;
     }
 
+    // Check localStorage to see if user dismissed before
+    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    if (dismissed === 'true') {
+      return;
+    }
+
     const handleBeforeInstall = (e: Event) => {
+      console.log('PWA install prompt triggered');
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowInstallPrompt(true);
@@ -62,8 +69,20 @@ export function InstallPrompt() {
   };
 
   const handleDismiss = () => {
+    localStorage.setItem('pwa-install-dismissed', 'true');
     setShowInstallPrompt(false);
   };
+
+  // Test için her zaman göster (development modda)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && !isInstalled) {
+      // Simüle et - tarayıcı desteklemese bile göster
+      setTimeout(() => {
+        setShowInstallPrompt(true);
+        console.log('PWA install prompt simulated for testing');
+      }, 1000);
+    }
+  }, [isInstalled]);
 
   if (isInstalled || !showInstallPrompt) return null;
 

@@ -60,37 +60,39 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex w-full overflow-hidden bg-background">
+    <>
       <InstallPrompt />
-      <Sidebar>
-        <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-          <SideMenu searchTerm={searchTerm} />
-        </SidebarContent>
-        <SidebarRail />
-      </Sidebar>
-      <div className="flex-1 flex flex-col">
-        <AuthHeader 
-          onHeightChange={setHeaderHeight} 
-          onSearchChange={setSearchTerm}
+      <div className="min-h-screen flex w-full overflow-hidden bg-background">
+        <Sidebar>
+          <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+            <SideMenu searchTerm={searchTerm} />
+          </SidebarContent>
+          <SidebarRail />
+        </Sidebar>
+        <div className="flex-1 flex flex-col">
+          <AuthHeader 
+            onHeightChange={setHeaderHeight} 
+            onSearchChange={setSearchTerm}
+          />
+          <AnimatePresence mode="wait" initial={false}>
+            <AppRoutes headerHeight={headerHeight} location={location} />
+          </AnimatePresence>
+        </div>
+        <StudentDialog
+          isOpen={isDialogOpen}
+          onClose={closeDialog}
+          onSave={handleSaveStudent}
+          onDelete={selectedStudent ? handleDeleteStudent : undefined}
+          student={selectedStudent}
+          studentName={studentName}
+          setStudentName={setStudentName}
+          studentPrice={studentPrice}
+          setStudentPrice={setStudentPrice}
+          studentColor={studentColor}
+          setStudentColor={setStudentColor}
         />
-        <AnimatePresence mode="wait" initial={false}>
-          <AppRoutes headerHeight={headerHeight} location={location} />
-        </AnimatePresence>
       </div>
-      <StudentDialog
-        isOpen={isDialogOpen}
-        onClose={closeDialog}
-        onSave={handleSaveStudent}
-        onDelete={selectedStudent ? handleDeleteStudent : undefined}
-        student={selectedStudent}
-        studentName={studentName}
-        setStudentName={setStudentName}
-        studentPrice={studentPrice}
-        setStudentPrice={setStudentPrice}
-        studentColor={studentColor}
-        setStudentColor={setStudentColor}
-      />
-    </div>
+    </>
   );
 }
 
