@@ -92,8 +92,7 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
   return (
     <div
       ref={headerRef}
-      className="w-full bg-background border-b fixed top-0 left-0 right-0 z-40 shadow-sm"
-      style={{ marginTop: '52px' }}
+      className="w-full bg-background border-b fixed top-16 left-0 right-0 z-40 shadow-sm"
     >
       <div className="h-16 px-4 flex items-center justify-between max-w-[2000px] mx-auto">
         <div className="flex items-center space-x-4">
