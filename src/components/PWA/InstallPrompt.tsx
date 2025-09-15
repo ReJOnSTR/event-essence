@@ -88,46 +88,44 @@ export function InstallPrompt() {
 
   return (
     <AnimatePresence>
-      {showInstallPrompt && (
-        <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-          className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary/90 to-primary backdrop-blur-sm shadow-lg"
-        >
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Download className="h-5 w-5 text-primary-foreground animate-pulse" />
-                <div className="text-primary-foreground">
-                  <p className="font-semibold text-sm">Event Essence'ı Yükle</p>
-                  <p className="text-xs opacity-90">Hızlı erişim için uygulamayı cihazınıza yükleyin</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={handleInstallClick}
-                  size="sm"
-                  variant="secondary"
-                  className="shadow-md hover:shadow-lg transition-shadow"
-                >
-                  <Download className="h-4 w-4 mr-1" />
-                  Yükle
-                </Button>
-                <Button
-                  onClick={handleDismiss}
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/10"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -100, opacity: 0 }}
+        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+        className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-primary/90 to-primary backdrop-blur-sm shadow-lg"
+      >
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Download className="h-5 w-5 text-primary-foreground animate-pulse" />
+              <div className="text-primary-foreground">
+                <p className="font-semibold text-sm">Event Essence'ı Yükle</p>
+                <p className="text-xs opacity-90">Hızlı erişim için uygulamayı cihazınıza yükleyin</p>
               </div>
             </div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleInstallClick}
+                size="sm"
+                variant="secondary"
+                className="shadow-md hover:shadow-lg transition-shadow"
+              >
+                <Download className="h-4 w-4 mr-1" />
+                Yükle
+              </Button>
+              <Button
+                onClick={handleDismiss}
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </motion.div>
-      )}
+        </div>
+      </motion.div>
     </AnimatePresence>
   );
 }
