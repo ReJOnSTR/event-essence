@@ -281,10 +281,11 @@ export default function DataManagement() {
         <CardTitle>Veri Yönetimi</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3">
           <Button
             variant="outline"
             onClick={handleExport}
+            className="w-full sm:w-auto"
           >
             <Download className="h-4 w-4 mr-2" />
             Verileri İndir
@@ -292,27 +293,28 @@ export default function DataManagement() {
           <Button
             variant="outline"
             onClick={() => document.getElementById('import-project-file')?.click()}
+            className="w-full sm:w-auto"
           >
             <Upload className="h-4 w-4 mr-2" />
             Verileri Yükle
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive">
+              <Button variant="destructive" className="w-full sm:w-auto">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Tüm Verileri Sil
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
               <AlertDialogHeader>
                 <AlertDialogTitle>Tüm verileri silmek istediğinizden emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
                   Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>İptal</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>
+              <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                <AlertDialogCancel className="w-full sm:w-auto">İptal</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="w-full sm:w-auto">
                   Evet, Sil
                 </AlertDialogAction>
               </AlertDialogFooter>

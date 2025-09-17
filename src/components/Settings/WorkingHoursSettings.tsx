@@ -79,48 +79,53 @@ export default function WorkingHoursSettings() {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <CardTitle>Çalışma Saatleri</CardTitle>
         <Button
           variant="outline"
           size="sm"
           onClick={resetAll}
+          className="w-full sm:w-auto"
         >
           <RotateCcw className="h-4 w-4 mr-2" />
           Tümünü Sıfırla
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
+        <div className="space-y-4">
           {(Object.entries(DAYS) as [keyof WeeklyWorkingHours, string][]).map(([day, label]) => (
-            <div key={day} className="flex items-center gap-4">
-              <div className="flex items-center gap-2 w-40">
+            <div key={day} className="flex flex-col sm:flex-row gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+              <div className="flex items-center justify-between sm:justify-start gap-3 sm:w-40">
                 <Switch
                   checked={localWorkingHours[day]?.enabled ?? false}
                   onCheckedChange={(checked) => handleChange(day, "enabled", checked)}
+                  className="order-2 sm:order-1"
                 />
-                <Label>{label}</Label>
+                <Label className="order-1 sm:order-2 font-medium">{label}</Label>
               </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="time"
-                  value={localWorkingHours[day]?.start ?? "09:00"}
-                  onChange={(e) => handleChange(day, "start", e.target.value)}
-                  disabled={!localWorkingHours[day]?.enabled}
-                  className="w-32"
-                />
-                <span>-</span>
-                <Input
-                  type="time"
-                  value={localWorkingHours[day]?.end ?? "17:00"}
-                  onChange={(e) => handleChange(day, "end", e.target.value)}
-                  disabled={!localWorkingHours[day]?.enabled}
-                  className="w-32"
-                />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 flex-1">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Input
+                    type="time"
+                    value={localWorkingHours[day]?.start ?? "09:00"}
+                    onChange={(e) => handleChange(day, "start", e.target.value)}
+                    disabled={!localWorkingHours[day]?.enabled}
+                    className="w-full sm:w-32"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <Input
+                    type="time"
+                    value={localWorkingHours[day]?.end ?? "17:00"}
+                    onChange={(e) => handleChange(day, "end", e.target.value)}
+                    disabled={!localWorkingHours[day]?.enabled}
+                    className="w-full sm:w-32"
+                  />
+                </div>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => resetDay(day)}
+                  className="ml-0 sm:ml-auto"
                 >
                   <RotateCcw className="h-4 w-4" />
                 </Button>

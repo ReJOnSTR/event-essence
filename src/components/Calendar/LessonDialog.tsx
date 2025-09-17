@@ -301,13 +301,13 @@ export default function LessonDialog({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px] overflow-hidden">
+        <DialogContent className="w-[95vw] max-w-[425px] max-h-[90vh] overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="p-6"
+            className="p-4 sm:p-6"
           >
             <LessonDialogHeader 
               isEditing={!!event}
@@ -338,21 +338,21 @@ export default function LessonDialog({
       </Dialog>
 
       <Dialog open={showHolidayDialog} onOpenChange={setShowHolidayDialog}>
-        <DialogContent>
+        <DialogContent className="w-[90vw] max-w-lg">
           <DialogHeader>
             <DialogTitle>Tatil Günü Uyarısı</DialogTitle>
             <DialogDescription>
               {currentHolidayDate && `${format(currentHolidayDate, 'd MMMM yyyy')} tarihi tatil günü. Bu tarih için çalışma iznini açmak ister misiniz?`}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button variant="outline" onClick={() => {
               setShowHolidayDialog(false);
               onClose();
-            }}>
+            }} className="w-full sm:w-auto">
               İptal
             </Button>
-            <Button onClick={handleHolidayConfirm}>
+            <Button onClick={handleHolidayConfirm} className="w-full sm:w-auto">
               Çalışma İznini Aç
             </Button>
           </DialogFooter>

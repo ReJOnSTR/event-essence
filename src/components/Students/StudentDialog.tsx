@@ -76,7 +76,7 @@ export default function StudentDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={isSaving ? undefined : onClose}>
-      <DialogContent className="sm:max-w-[425px] overflow-hidden p-0">
+      <DialogContent className="w-[95vw] max-w-[425px] max-h-[90vh] overflow-y-auto p-0">
         <AnimatePresence mode="wait">
           {isOpen && (
             <motion.div
