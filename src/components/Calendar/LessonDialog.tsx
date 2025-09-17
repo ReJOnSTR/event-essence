@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import LessonDialogHeader from "./LessonDialogHeader";
 import LessonDialogForm from "./LessonDialogForm";
 import { isHoliday } from "@/utils/turkishHolidays";
+import { tr } from "date-fns/locale";
 
 interface LessonDialogProps {
   isOpen: boolean;
@@ -212,6 +213,20 @@ export default function LessonDialog({
       return;
     }
 
+    // Check if working hours are enabled for this day
+    const workingHours = settings?.working_hours;
+    const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours?.[dayOfWeek];
+
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma Saatleri Kapalı",
+        description: `${format(selectedDate, 'EEEE', { locale: tr })} günü için çalışma saatleri kapalı. Ayarlardan açabilirsiniz.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     const [startHours, startMinutes] = startTime.split(":").map(Number);
     const [endHours, endMinutes] = endTime.split(":").map(Number);
     
@@ -221,10 +236,19 @@ export default function LessonDialog({
     const end = new Date(selectedDate);
     end.setHours(endHours, endMinutes);
 
-    if (!isDateAvailable(start)) {
+    // Validate time is within working hours
+    const [workStartHour, workStartMin] = daySettings.start.split(':').map(Number);
+    const [workEndHour, workEndMin] = daySettings.end.split(':').map(Number);
+    
+    const startMinutesTotal = startHours * 60 + startMinutes;
+    const endMinutesTotal = endHours * 60 + endMinutes;
+    const workStartMinutes = workStartHour * 60 + workStartMin;
+    const workEndMinutes = workEndHour * 60 + workEndMin;
+    
+    if (startMinutesTotal < workStartMinutes || endMinutesTotal > workEndMinutes) {
       toast({
-        title: "Uygun Olmayan Tarih",
-        description: "Seçilen tarih çalışma saatleri dışında.",
+        title: "Çalışma Saatleri Dışında",
+        description: `Bu gün için çalışma saatleri: ${daySettings.start} - ${daySettings.end}`,
         variant: "destructive"
       });
       return;
