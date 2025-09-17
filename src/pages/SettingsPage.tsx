@@ -17,7 +17,10 @@ import {
   Palette,
   Database,
   Settings2,
+  ChevronRight,
 } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type SettingsSection = {
   id: string;
@@ -67,10 +70,45 @@ const settingsSections: SettingsSection[] = [
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("general");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const ActiveComponent = settingsSections.find(
     (section) => section.id === activeSection
   )?.component || GeneralSettings;
+
+  const activeTitle = settingsSections.find(
+    (section) => section.id === activeSection
+  )?.title || "Genel";
+
+  const handleSectionChange = (sectionId: string) => {
+    setActiveSection(sectionId);
+    if (isMobile) {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const SidebarContent = () => (
+    <div className="space-y-1">
+      {settingsSections.map((section) => (
+        <Button
+          key={section.id}
+          variant={activeSection === section.id ? "secondary" : "ghost"}
+          className={cn(
+            "w-full justify-start gap-2",
+            activeSection === section.id && "bg-muted"
+          )}
+          onClick={() => handleSectionChange(section.id)}
+        >
+          {section.icon}
+          <span className="flex-1 text-left">{section.title}</span>
+          {activeSection === section.id && (
+            <ChevronRight className="w-4 h-4 ml-auto" />
+          )}
+        </Button>
+      ))}
+    </div>
+  );
 
   return (
     <div className="flex-1 flex flex-col">
@@ -79,34 +117,57 @@ export default function SettingsPage() {
         backTo="/"
         backLabel="Takvime Dön"
       />
-      <div className="flex-1 flex gap-6 p-6">
-        <div className="w-64 flex-shrink-0">
-          <div className="space-y-1">
-            {settingsSections.map((section) => (
-              <Button
-                key={section.id}
-                variant={activeSection === section.id ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full justify-start gap-2",
-                  activeSection === section.id && "bg-muted"
-                )}
-                onClick={() => setActiveSection(section.id)}
-              >
-                {section.icon}
-                {section.title}
-              </Button>
-            ))}
+      
+      {/* Mobile Layout */}
+      {isMobile ? (
+        <div className="flex-1 flex flex-col">
+          {/* Mobile Section Selector */}
+          <div className="px-4 py-2 border-b">
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    {settingsSections.find(s => s.id === activeSection)?.icon}
+                    {activeTitle}
+                  </span>
+                  <ChevronRight className="w-4 h-4 rotate-90" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[50vh]">
+                <div className="py-4">
+                  <h3 className="font-semibold mb-4 px-2">Ayar Kategorileri</h3>
+                  <SidebarContent />
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
-        </div>
-        <Separator orientation="vertical" className="h-auto" />
-        <div className="flex-1 max-w-3xl">
-          <ScrollArea className="h-[calc(100vh-10rem)]">
-            <div className="pr-6">
+          
+          {/* Mobile Content */}
+          <ScrollArea className="flex-1">
+            <div className="p-4">
               <ActiveComponent />
             </div>
           </ScrollArea>
         </div>
-      </div>
+      ) : (
+        /* Desktop Layout */
+        <div className="flex-1 flex gap-6 p-6">
+          <div className="w-64 flex-shrink-0">
+            <SidebarContent />
+          </div>
+          <Separator orientation="vertical" className="h-auto" />
+          <div className="flex-1 max-w-3xl">
+            <ScrollArea className="h-[calc(100vh-10rem)]">
+              <div className="pr-6">
+                <ActiveComponent />
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
