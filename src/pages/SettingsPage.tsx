@@ -111,7 +111,7 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-screen">
       <PageHeader
         title="Ayarlar"
         backTo="/"
@@ -120,9 +120,9 @@ export default function SettingsPage() {
       
       {/* Mobile Layout */}
       {isMobile ? (
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Mobile Section Selector */}
-          <div className="px-4 py-2 border-b bg-background flex-shrink-0">
+          <div className="px-4 py-2 border-b bg-background">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
@@ -136,35 +136,35 @@ export default function SettingsPage() {
                   <ChevronRight className="w-4 h-4 rotate-90" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="max-h-[70vh]">
-                <div className="flex flex-col h-full">
+              <SheetContent side="bottom" className="h-[50vh] rounded-t-xl">
+                <div className="py-4 overflow-y-auto">
                   <h3 className="font-semibold mb-4 px-2">Ayar Kategorileri</h3>
-                  <div className="flex-1 overflow-y-auto">
-                    <SidebarContent />
-                  </div>
+                  <SidebarContent />
                 </div>
               </SheetContent>
             </Sheet>
           </div>
           
-          {/* Mobile Content - Properly scrollable */}
+          {/* Mobile Content */}
           <div className="flex-1 overflow-y-auto">
-            <div className="p-4 pb-24">
+            <div className="p-4 pb-20">
               <ActiveComponent />
             </div>
           </div>
         </div>
       ) : (
         /* Desktop Layout */
-        <div className="flex-1 flex gap-6 p-6 h-full overflow-hidden">
-          <div className="w-64 flex-shrink-0 h-full overflow-y-auto">
+        <div className="flex-1 flex gap-6 p-6 overflow-hidden">
+          <div className="w-64 flex-shrink-0">
             <SidebarContent />
           </div>
-          <Separator orientation="vertical" className="h-full" />
-          <div className="flex-1 max-w-3xl overflow-y-auto">
-            <div className="pr-6 pb-6">
-              <ActiveComponent />
-            </div>
+          <Separator orientation="vertical" className="h-auto" />
+          <div className="flex-1 max-w-3xl">
+            <ScrollArea className="h-[calc(100vh-10rem)]">
+              <div className="pr-6">
+                <ActiveComponent />
+              </div>
+            </ScrollArea>
           </div>
         </div>
       )}

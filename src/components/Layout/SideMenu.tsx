@@ -1,4 +1,4 @@
-import { Plus, FileBarChart, Calendar, Users, X, ChevronRight } from "lucide-react";
+import { Plus, FileBarChart, Calendar, Users, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -11,7 +11,6 @@ import {
   useSidebar
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { useStudents } from "@/hooks/useStudents";
 import { useStudentStore } from "@/store/studentStore";
 import { SearchResults } from "@/components/Search/SearchResults";
@@ -23,7 +22,6 @@ import LoginRequiredDialog from "@/components/Auth/LoginRequiredDialog";
 import { useLessons } from "@/hooks/useLessons";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface SideMenuProps {
   searchTerm: string;
@@ -117,141 +115,86 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
 
   return (
     <div className="flex flex-col h-full bg-background w-full">
-      {/* Mobile Close Button */}
       {isMobile && (
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="font-semibold text-lg">Menü</h2>
+        <div className="flex justify-end p-2 border-b">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setOpen(false)}
-            className="h-8 w-8 hover:bg-accent"
+            className="h-8 w-8"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
       )}
-      
-      {/* Main Navigation */}
-      <div className="px-2 py-4">
-        <SidebarGroup className="space-y-1">
-          {menuItems.map((item) => (
-            <Link 
-              key={item.path} 
-              to={item.path}
-              onClick={() => isMobile && setOpen(false)}
-              className="block"
+      <SidebarGroup className="space-y-2">
+        {menuItems.map((item) => (
+          <Link 
+            key={item.path} 
+            to={item.path}
+            className="block"
+          >
+            <SidebarMenuButton 
+              className="w-full hover:bg-secondary rounded-md transition-colors"
+              data-active={isActive(item.path)}
             >
+              <item.icon className="h-4 w-4" />
+              <span>{item.label}</span>
+            </SidebarMenuButton>
+          </Link>
+        ))}
+      </SidebarGroup>
+
+      <SidebarGroup className="mt-6">
+        <SidebarGroupLabel className="px-2">Öğrenciler</SidebarGroupLabel>
+        <SidebarGroupContent className="mt-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
               <SidebarMenuButton 
-                className={cn(
-                  "w-full hover:bg-accent rounded-lg transition-all duration-200",
-                  isActive(item.path) && "bg-accent text-accent-foreground font-medium"
-                )}
-                data-active={isActive(item.path)}
+                onClick={handleAddStudent}
+                className="w-full hover:bg-secondary rounded-md transition-colors"
               >
-                <item.icon className="h-4 w-4 mr-2" />
-                <span>{item.label}</span>
-                {isActive(item.path) && (
-                  <ChevronRight className="ml-auto h-4 w-4" />
-                )}
+                <Plus className="h-4 w-4" />
+                <span>Öğrenci Ekle</span>
               </SidebarMenuButton>
-            </Link>
-          ))}
-        </SidebarGroup>
-      </div>
+            </SidebarMenuItem>
 
-      <Separator className="mx-4" />
-
-      {/* Students Section */}
-      <div className="px-2 py-4 flex-1 flex flex-col overflow-hidden">
-        <SidebarGroup className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-2 mb-2">
-            <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wide">
-              Öğrenciler
-            </SidebarGroupLabel>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleAddStudent}
-              className="h-6 w-6 hover:bg-accent"
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
-          </div>
-          
-          <SidebarGroupContent className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <SidebarMenu className="space-y-1">
-                {students?.map((student) => (
-                  <SidebarMenuItem key={student.id}>
-                    <SidebarMenuButton 
-                      onClick={() => {
-                        handleStudentClick(student);
-                        isMobile && setOpen(false);
-                      }}
-                      className="w-full hover:bg-accent rounded-lg transition-all duration-200 group"
-                    >
-                      <div
-                        className="h-2.5 w-2.5 rounded-full ring-2 ring-background"
-                        style={{ backgroundColor: student.color }}
-                      />
-                      <span className="truncate flex-1 text-left">
-                        {student.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                        ₺{student.price}
-                      </span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-                
-                {(!students || students.length === 0) && (
-                  <div className="px-3 py-8 text-center">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Henüz öğrenci eklenmemiş
-                    </p>
-                    <Button
-                      onClick={handleAddStudent}
-                      size="sm"
-                      variant="outline"
-                      className="w-full"
-                    >
-                      <Plus className="h-3 w-3 mr-2" />
-                      İlk Öğrenciyi Ekle
-                    </Button>
-                  </div>
-                )}
-              </SidebarMenu>
+            <ScrollArea className="h-[200px] px-1">
+              {students?.map((student) => (
+                <SidebarMenuItem key={student.id}>
+                  <SidebarMenuButton 
+                    onClick={() => handleStudentClick(student)}
+                    className="w-full hover:bg-secondary rounded-md transition-colors group"
+                  >
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{ backgroundColor: student.color }}
+                    />
+                    <span className="truncate group-hover:text-secondary-foreground">
+                      {student.name}
+                    </span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </ScrollArea>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      {searchTerm && (
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupLabel className="px-2">Arama Sonuçları</SidebarGroupLabel>
+          <SidebarGroupContent className="mt-2">
+            <SearchResults
+              searchTerm={searchTerm}
+              filteredLessons={filteredLessons}
+              filteredStudents={filteredStudents}
+              students={students || []}
+              onStudentClick={handleStudentClick}
+              onDateSelect={handleDateSelect}
+            />
           </SidebarGroupContent>
         </SidebarGroup>
-      </div>
-
-      {/* Search Results */}
-      {searchTerm && (
-        <div className="border-t px-2 py-4">
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wide px-2 mb-2">
-              Arama Sonuçları ({filteredLessons.length + filteredStudents.length})
-            </SidebarGroupLabel>
-            <SidebarGroupContent className="max-h-48 overflow-y-auto">
-              <SearchResults
-                searchTerm={searchTerm}
-                filteredLessons={filteredLessons}
-                filteredStudents={filteredStudents}
-                students={students || []}
-                onStudentClick={(student) => {
-                  handleStudentClick(student);
-                  isMobile && setOpen(false);
-                }}
-                onDateSelect={(date) => {
-                  handleDateSelect(date);
-                  isMobile && setOpen(false);
-                }}
-              />
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </div>
       )}
 
       <LoginRequiredDialog 
