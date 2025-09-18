@@ -137,28 +137,28 @@ export function FontSettings({
         </Select>
       </div>
 
-      <Card className="p-6 mt-4">
-        <h4 className="text-lg font-medium mb-6">Önizleme</h4>
-        <div className="space-y-6">
+      <Card className="p-4 sm:p-6 mt-4">
+        <h4 className="text-base sm:text-lg font-medium mb-4 sm:mb-6">Önizleme</h4>
+        <div className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <h2 style={{ 
               fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.heading,
               fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-            }} className="font-semibold">
+            }} className="font-semibold break-words">
               Bu bir başlık örneğidir
             </h2>
             <p style={{ 
               fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
               fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-            }} className="leading-relaxed">
+            }} className="leading-relaxed break-words">
               Bu bir örnek metindir. Seçtiğiniz yazı tipi ve boyutunu burada görebilirsiniz.
               ABCÇDEFGĞHIIJKLMNOÖPRSŞTUÜVYZ
               abcçdefgğhıijklmnoöprsştuüvyz
               1234567890
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <Card className="p-3 sm:p-4">
               <h5 style={{ 
                 fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
                 fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
@@ -172,7 +172,7 @@ export function FontSettings({
                 Kart içeriği örneği
               </p>
             </Card>
-            <Card className="p-4 bg-primary text-primary-foreground">
+            <Card className="p-3 sm:p-4 bg-primary text-primary-foreground">
               <h5 style={{ 
                 fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
                 fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value

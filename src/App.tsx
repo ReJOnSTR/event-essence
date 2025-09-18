@@ -62,14 +62,14 @@ function AppContent() {
   return (
     <>
       <InstallPrompt />
-      <div className="min-h-screen flex w-full overflow-hidden bg-background">
-        <Sidebar>
+      <div className="min-h-screen flex w-full bg-background">
+        <Sidebar collapsible="icon">
           <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
             <SideMenu searchTerm={searchTerm} />
           </SidebarContent>
           <SidebarRail />
         </Sidebar>
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
           <AuthHeader 
             onHeightChange={setHeaderHeight} 
             onSearchChange={setSearchTerm}
