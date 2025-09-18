@@ -1,4 +1,4 @@
-import { Plus, FileBarChart, Calendar, Users, X } from "lucide-react";
+import { Plus, FileBarChart, Calendar, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Student } from "@/types/calendar";
 import { 
@@ -7,8 +7,7 @@ import {
   SidebarMenuButton, 
   SidebarGroup, 
   SidebarGroupLabel,
-  SidebarGroupContent,
-  useSidebar
+  SidebarGroupContent
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStudents } from "@/hooks/useStudents";
@@ -20,8 +19,6 @@ import { format, isFuture, compareAsc } from "date-fns";
 import { useSessionContext } from '@supabase/auth-helpers-react';
 import LoginRequiredDialog from "@/components/Auth/LoginRequiredDialog";
 import { useLessons } from "@/hooks/useLessons";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
 
 interface SideMenuProps {
   searchTerm: string;
@@ -37,8 +34,6 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const { session } = useSessionContext();
-  const { setOpen } = useSidebar();
-  const isMobile = useIsMobile();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -115,18 +110,6 @@ export default function SideMenu({ searchTerm }: SideMenuProps) {
 
   return (
     <div className="flex flex-col h-full bg-background w-full">
-      {isMobile && (
-        <div className="flex justify-end p-2 border-b">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setOpen(false)}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
       <SidebarGroup className="space-y-2">
         {menuItems.map((item) => (
           <Link 

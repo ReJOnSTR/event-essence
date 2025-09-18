@@ -44,10 +44,10 @@ export function AppRoutes({ headerHeight, location }: AppRoutesProps) {
       exit="exit"
       variants={pageVariants}
       transition={pageTransition}
-      className="w-full flex-1 overflow-hidden"
+      className="w-full h-full"
       style={{ 
         marginTop: headerHeight,
-        minHeight: `calc(100vh - ${headerHeight}px)`,
+        height: `calc(100vh - ${headerHeight}px)`,
         transition: 'margin-top 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)'
       }}
     >

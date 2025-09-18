@@ -111,7 +111,7 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen">
+    <div className="flex-1 flex flex-col">
       <PageHeader
         title="Ayarlar"
         backTo="/"
@@ -120,9 +120,9 @@ export default function SettingsPage() {
       
       {/* Mobile Layout */}
       {isMobile ? (
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col">
           {/* Mobile Section Selector */}
-          <div className="px-4 py-2 border-b bg-background">
+          <div className="px-4 py-2 border-b">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
@@ -136,8 +136,8 @@ export default function SettingsPage() {
                   <ChevronRight className="w-4 h-4 rotate-90" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[50vh] rounded-t-xl">
-                <div className="py-4 overflow-y-auto">
+              <SheetContent side="bottom" className="h-[50vh]">
+                <div className="py-4">
                   <h3 className="font-semibold mb-4 px-2">Ayar Kategorileri</h3>
                   <SidebarContent />
                 </div>
@@ -146,15 +146,15 @@ export default function SettingsPage() {
           </div>
           
           {/* Mobile Content */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4 pb-20">
+          <ScrollArea className="flex-1">
+            <div className="p-4">
               <ActiveComponent />
             </div>
-          </div>
+          </ScrollArea>
         </div>
       ) : (
         /* Desktop Layout */
-        <div className="flex-1 flex gap-6 p-6 overflow-hidden">
+        <div className="flex-1 flex gap-6 p-6">
           <div className="w-64 flex-shrink-0">
             <SidebarContent />
           </div>
