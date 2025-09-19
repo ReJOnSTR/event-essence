@@ -111,7 +111,7 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col">
       <PageHeader
         title="Ayarlar"
         backTo="/"
@@ -120,9 +120,9 @@ export default function SettingsPage() {
       
       {/* Mobile Layout */}
       {isMobile ? (
-        <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+        <div className="flex-1 flex flex-col relative">
           {/* Mobile Section Selector */}
-          <div className="px-4 py-2 border-b bg-background shrink-0">
+          <div className="px-4 py-2 border-b bg-background">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
@@ -147,9 +147,9 @@ export default function SettingsPage() {
             </Sheet>
           </div>
           
-          {/* Mobile Content - Properly constrained with scroll */}
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="p-4 pb-safe">
+          {/* Mobile Content - Fixed with proper scroll */}
+          <div className="flex-1 overflow-y-scroll overscroll-y-contain">
+            <div className="p-4 pb-24">
               <ActiveComponent />
             </div>
           </div>
