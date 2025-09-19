@@ -120,7 +120,7 @@ export default function SettingsPage() {
       
       {/* Mobile Layout */}
       {isMobile ? (
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
           {/* Mobile Section Selector */}
           <div className="px-4 py-2 border-b bg-background shrink-0">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -147,9 +147,9 @@ export default function SettingsPage() {
             </Sheet>
           </div>
           
-          {/* Mobile Content - Fixed height with scroll */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-4 pb-20">
+          {/* Mobile Content - Properly constrained with scroll */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="p-4 pb-safe">
               <ActiveComponent />
             </div>
           </div>
