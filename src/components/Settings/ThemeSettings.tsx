@@ -19,21 +19,21 @@ export default function ThemeSettings() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="border shadow-sm">
-        <CardHeader>
-          <CardTitle>Tema Seçimi</CardTitle>
+    <div className="space-y-4 w-full max-w-full">
+      <Card className="border shadow-sm overflow-hidden">
+        <CardHeader className="px-4 py-3">
+          <CardTitle className="text-lg">Tema Seçimi</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 pb-4">
           <ThemeOptions currentTheme={theme} onThemeChange={updateTheme} />
         </CardContent>
       </Card>
       
-      <Card className="border shadow-sm">
-        <CardHeader>
-          <CardTitle>Yazı Ayarları</CardTitle>
+      <Card className="border shadow-sm overflow-hidden">
+        <CardHeader className="px-4 py-3">
+          <CardTitle className="text-lg">Yazı Ayarları</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 pb-4">
           <FontSettings 
             fontSize={fontSize}
             onFontSizeChange={updateFontSize}
