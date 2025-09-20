@@ -19,19 +19,29 @@ export default function ThemeSettings() {
   }
 
   return (
-    <Card className="border shadow-sm">
-      <CardHeader>
-        <CardTitle>Görünüm Ayarları</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <ThemeOptions currentTheme={theme} onThemeChange={updateTheme} />
-        <FontSettings 
-          fontSize={fontSize}
-          onFontSizeChange={updateFontSize}
-          fontFamily={fontFamily}
-          onFontFamilyChange={updateFontFamily}
-        />
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Card className="border shadow-sm">
+        <CardHeader>
+          <CardTitle>Tema Seçimi</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ThemeOptions currentTheme={theme} onThemeChange={updateTheme} />
+        </CardContent>
+      </Card>
+      
+      <Card className="border shadow-sm">
+        <CardHeader>
+          <CardTitle>Yazı Ayarları</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <FontSettings 
+            fontSize={fontSize}
+            onFontSizeChange={updateFontSize}
+            fontFamily={fontFamily}
+            onFontFamilyChange={updateFontFamily}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

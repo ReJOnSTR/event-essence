@@ -97,7 +97,12 @@ function AuthHeader({ onHeightChange, children, onSearchChange }: AuthHeaderProp
       <div className="h-16 px-4 flex items-center justify-between max-w-[2000px] mx-auto">
         <div className="flex items-center space-x-4">
           {children}
-          <h1 className="text-xl font-semibold">EventEssence</h1>
+          <h1 
+            className="text-xl font-semibold cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/calendar')}
+          >
+            EventEssence
+          </h1>
         </div>
 
         <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
