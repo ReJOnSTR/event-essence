@@ -101,9 +101,9 @@ export function FontSettings({
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Yazı Boyutu</h3>
+        <h3 className="text-base sm:text-lg font-medium">Yazı Boyutu</h3>
         <Select value={fontSize} onValueChange={onFontSizeChange}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Yazı boyutu seçin" />
           </SelectTrigger>
           <SelectContent>
@@ -115,21 +115,21 @@ export function FontSettings({
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Yazı Tipi</h3>
+        <h3 className="text-base sm:text-lg font-medium">Yazı Tipi</h3>
         <Select value={fontFamily} onValueChange={onFontFamilyChange}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Yazı tipi seçin" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-[300px]">
             {fontFamilies.map((font) => (
               <SelectItem 
                 key={font.id} 
                 value={font.id}
-                className="py-3 px-2"
+                className="py-2 px-2"
               >
-                <div className="flex flex-col gap-1">
-                  <span style={{ fontFamily: font.value }}>{font.name}</span>
-                  <span className="text-xs text-muted-foreground">{font.description}</span>
+                <div className="flex flex-col gap-0.5">
+                  <span style={{ fontFamily: font.value }} className="text-sm">{font.name}</span>
+                  <span className="text-xs text-muted-foreground line-clamp-1">{font.description}</span>
                 </div>
               </SelectItem>
             ))}
@@ -137,9 +137,9 @@ export function FontSettings({
         </Select>
       </div>
 
-      <Card className="p-6 mt-4">
-        <h4 className="text-lg font-medium mb-6">Önizleme</h4>
-        <div className="space-y-6">
+      <Card className="p-4 sm:p-6 mt-4">
+        <h4 className="text-base sm:text-lg font-medium mb-4 sm:mb-6">Önizleme</h4>
+        <div className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <h2 style={{ 
               fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.heading,
@@ -150,39 +150,39 @@ export function FontSettings({
             <p style={{ 
               fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
               fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-            }} className="leading-relaxed">
+            }} className="leading-relaxed text-sm sm:text-base">
               Bu bir örnek metindir. Seçtiğiniz yazı tipi ve boyutunu burada görebilirsiniz.
               ABCÇDEFGĞHIIJKLMNOÖPRSŞTUÜVYZ
               abcçdefgğhıijklmnoöprsştuüvyz
               1234567890
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <Card className="p-3 sm:p-4">
               <h5 style={{ 
                 fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
                 fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-              }} className="font-medium mb-2">
+              }} className="font-medium mb-1 sm:mb-2 text-sm sm:text-base">
                 Kart Başlığı
               </h5>
               <p style={{ 
                 fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
                 fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-              }} className="text-muted-foreground">
+              }} className="text-muted-foreground text-xs sm:text-sm">
                 Kart içeriği örneği
               </p>
             </Card>
-            <Card className="p-4 bg-primary text-primary-foreground">
+            <Card className="p-3 sm:p-4 bg-primary text-primary-foreground">
               <h5 style={{ 
                 fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
                 fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-              }} className="font-medium mb-2">
+              }} className="font-medium mb-1 sm:mb-2 text-sm sm:text-base">
                 Vurgulu Kart
               </h5>
               <p style={{ 
                 fontSize: fontSizes[fontSize as keyof typeof fontSizes]?.base,
                 fontFamily: fontFamilies.find(f => f.id === fontFamily)?.value
-              }}>
+              }} className="text-xs sm:text-sm">
                 Renkli kart içeriği
               </p>
             </Card>

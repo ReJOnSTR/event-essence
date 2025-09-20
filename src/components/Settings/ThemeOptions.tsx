@@ -61,42 +61,40 @@ export function ThemeOptions({ currentTheme, onThemeChange }: ThemeOptionsProps)
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Tema</h3>
+      <h3 className="text-base sm:text-lg font-medium">Tema</h3>
       <RadioGroup
         value={currentTheme}
         onValueChange={onThemeChange}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        className="grid grid-cols-1 gap-3"
       >
         {themes.map((theme) => (
           <Card 
             key={theme.id}
             className={cn(
-              "relative flex items-center space-x-2 rounded-lg border-2 p-4 cursor-pointer transition-all hover:bg-accent",
+              "relative flex items-center rounded-lg border-2 p-3 cursor-pointer transition-all hover:bg-accent",
               currentTheme === theme.id ? "border-primary" : "border-transparent hover:border-muted"
             )}
             onClick={() => onThemeChange(theme.id)}
           >
             <Label
               htmlFor={theme.id}
-              className="flex flex-col gap-2 cursor-pointer w-full"
+              className="flex items-center gap-3 cursor-pointer w-full"
             >
-              <div className="flex items-center gap-2">
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-md shadow-sm",
-                    theme.id === "system" ? getThemePreview(theme.id) : theme.preview
+              <div
+                className={cn(
+                  "w-8 h-8 sm:w-10 sm:h-10 rounded-md shadow-sm flex-shrink-0",
+                  theme.id === "system" ? getThemePreview(theme.id) : theme.preview
+                )}
+              />
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm sm:text-base">{theme.name}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground break-words">
+                  {theme.description}
+                  {theme.id === "system" && (
+                    <span className="ml-1 inline-block">
+                      (Şu an: {systemTheme === "dark" ? "Koyu" : "Açık"})
+                    </span>
                   )}
-                />
-                <div>
-                  <div className="font-medium">{theme.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {theme.description}
-                    {theme.id === "system" && (
-                      <span className="ml-1">
-                        (Şu an: {systemTheme === "dark" ? "Koyu" : "Açık"})
-                      </span>
-                    )}
-                  </div>
                 </div>
               </div>
             </Label>
