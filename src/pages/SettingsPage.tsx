@@ -114,7 +114,7 @@ export default function SettingsPage() {
     <div className="flex flex-col min-h-screen">
       <PageHeader
         title="Ayarlar"
-        backTo="/"
+        backTo="/calendar"
         backLabel="Takvime Dön"
       />
       
