@@ -20,11 +20,17 @@ import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { AppRoutes } from "./routes/AppRoutes";
 import { InstallPrompt } from "@/components/PWA/InstallPrompt";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function AppContent() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   const { 
     isDialogOpen, 
@@ -63,21 +69,53 @@ function AppContent() {
     <>
       <InstallPrompt />
       <div className="min-h-screen flex w-full overflow-hidden bg-background">
-        <Sidebar>
-          <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
-            <SideMenu searchTerm={searchTerm} />
-          </SidebarContent>
-          <SidebarRail />
-        </Sidebar>
-        <div className="flex-1 flex flex-col">
-          <AuthHeader 
-            onHeightChange={setHeaderHeight} 
-            onSearchChange={setSearchTerm}
-          />
-          <AnimatePresence mode="wait" initial={false}>
-            <AppRoutes headerHeight={headerHeight} location={location} />
-          </AnimatePresence>
-        </div>
+        {isMobile ? (
+          <>
+            <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+              <DrawerTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="fixed bottom-4 left-4 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 lg:hidden"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="max-h-[85vh]">
+                <div className="px-4 pb-4">
+                  <SideMenu searchTerm={searchTerm} />
+                </div>
+              </DrawerContent>
+            </Drawer>
+            <div className="flex-1 flex flex-col">
+              <AuthHeader 
+                onHeightChange={setHeaderHeight} 
+                onSearchChange={setSearchTerm}
+              />
+              <AnimatePresence mode="wait" initial={false}>
+                <AppRoutes headerHeight={headerHeight} location={location} />
+              </AnimatePresence>
+            </div>
+          </>
+        ) : (
+          <>
+            <Sidebar>
+              <SidebarContent className="p-4" style={{ marginTop: headerHeight }}>
+                <SideMenu searchTerm={searchTerm} />
+              </SidebarContent>
+              <SidebarRail />
+            </Sidebar>
+            <div className="flex-1 flex flex-col">
+              <AuthHeader 
+                onHeightChange={setHeaderHeight} 
+                onSearchChange={setSearchTerm}
+              />
+              <AnimatePresence mode="wait" initial={false}>
+                <AppRoutes headerHeight={headerHeight} location={location} />
+              </AnimatePresence>
+            </div>
+          </>
+        )}
         <StudentDialog
           isOpen={isDialogOpen}
           onClose={closeDialog}
