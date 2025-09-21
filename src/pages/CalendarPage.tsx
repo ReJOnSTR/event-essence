@@ -8,7 +8,7 @@ import { CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn } from "lucide-react";
 import CalendarPageHeader from "@/components/Calendar/CalendarPageHeader";
-import LessonDialog from "@/components/Calendar/LessonDialog";
+import LessonDialogWrapper from "@/components/Calendar/LessonDialogWrapper";
 import StudentDialog from "@/components/Students/StudentDialog";
 import { WeeklySchedulePdf } from "@/components/Calendar/WeeklySchedulePdf";
 import CalendarContent from "@/features/calendar/components/CalendarContent";
@@ -150,7 +150,7 @@ export default function CalendarPage({ headerHeight }: CalendarPageProps) {
         
         {session && (
           <>
-            <LessonDialog
+            <LessonDialogWrapper
               isOpen={isDialogOpen}
               onClose={() => {
                 setIsDialogOpen(false);

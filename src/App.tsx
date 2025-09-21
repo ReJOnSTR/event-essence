@@ -15,13 +15,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import AuthHeader from "@/components/Auth/AuthHeader";
 import SideMenu from "@/components/Layout/SideMenu";
-import StudentDialog from "@/components/Students/StudentDialog";
+import StudentDialogWrapper from "@/components/Students/StudentDialogWrapper";
 import { useStudentStore } from "@/store/studentStore";
 import { useStudents } from "@/hooks/useStudents";
 import { AppRoutes } from "./routes/AppRoutes";
 import { InstallPrompt } from "@/components/PWA/InstallPrompt";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -71,22 +71,22 @@ function AppContent() {
       <div className="min-h-screen flex w-full overflow-hidden bg-background">
         {isMobile ? (
           <>
-            <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-              <DrawerTrigger asChild>
+            <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+              <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="fixed bottom-4 left-4 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 lg:hidden"
+                  className="fixed top-20 left-4 z-50 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 lg:hidden"
                 >
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-5 w-5" />
                 </Button>
-              </DrawerTrigger>
-              <DrawerContent className="max-h-[85vh]">
-                <div className="px-4 pb-4">
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[85vw] max-w-sm p-0">
+                <div className="h-full overflow-auto p-4">
                   <SideMenu searchTerm={searchTerm} />
                 </div>
-              </DrawerContent>
-            </Drawer>
+              </SheetContent>
+            </Sheet>
             <div className="flex-1 flex flex-col">
               <AuthHeader 
                 onHeightChange={setHeaderHeight} 
@@ -116,7 +116,7 @@ function AppContent() {
             </div>
           </>
         )}
-        <StudentDialog
+        <StudentDialogWrapper
           isOpen={isDialogOpen}
           onClose={closeDialog}
           onSave={handleSaveStudent}

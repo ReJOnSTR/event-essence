@@ -1,0 +1,414 @@
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { Lesson, Student } from "@/types/calendar";
+import { format, isWithinInterval, isEqual, addWeeks, addMonths } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { useUserSettings } from "@/hooks/useUserSettings";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
+import LessonDialogHeader from "./LessonDialogHeader";
+import LessonDialogForm from "./LessonDialogForm";
+import { isHoliday } from "@/utils/turkishHolidays";
+import { tr } from "date-fns/locale";
+
+interface LessonDialogWrapperProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (lesson: Omit<Lesson, "id">) => void;
+  onDelete?: (lessonId: string) => void;
+  selectedDate: Date;
+  event?: Lesson;
+  events: Lesson[];
+  students: Student[];
+}
+
+export default function LessonDialogWrapper({ 
+  isOpen, 
+  onClose, 
+  onSave, 
+  onDelete,
+  selectedDate,
+  event,
+  events,
+  students
+}: LessonDialogWrapperProps) {
+  const [description, setDescription] = useState("");
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("10:00");
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [recurrenceType, setRecurrenceType] = useState<"none" | "weekly" | "monthly">("none");
+  const [recurrenceCount, setRecurrenceCount] = useState(1);
+  const [showHolidayDialog, setShowHolidayDialog] = useState(false);
+  const [currentHolidayDate, setCurrentHolidayDate] = useState<Date | null>(null);
+  const [pendingLessons, setPendingLessons] = useState<Omit<Lesson, "id">[]>([]);
+  
+  const { toast } = useToast();
+  const { settings, updateSettings } = useUserSettings();
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (isOpen) {
+      if (event) {
+        setDescription(event.description || "");
+        setStartTime(format(event.start, "HH:mm"));
+        setEndTime(format(event.end, "HH:mm"));
+        setSelectedStudentId(event.studentId || "");
+        setRecurrenceType(event.recurrenceType as "none" | "weekly" | "monthly" || "none");
+        setRecurrenceCount(event.recurrenceCount || 1);
+      } else {
+        const workingHours = settings?.working_hours;
+        const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
+        const daySettings = workingHours?.[dayOfWeek];
+
+        let initialStartTime;
+        if (daySettings?.enabled) {
+          const [startHour] = daySettings.start.split(':');
+          const currentHours = selectedDate.getHours();
+          const currentMinutes = selectedDate.getMinutes();
+
+          if (currentHours < parseInt(startHour)) {
+            initialStartTime = daySettings.start;
+          } else {
+            initialStartTime = `${currentHours.toString().padStart(2, '0')}:${currentMinutes.toString().padStart(2, '0')}`;
+          }
+        } else {
+          initialStartTime = "09:00";
+        }
+
+        setStartTime(initialStartTime);
+        
+        const [hours, minutes] = initialStartTime.split(':').map(Number);
+        const startDate = new Date(selectedDate);
+        startDate.setHours(hours, minutes, 0, 0);
+        
+        const defaultDuration = settings?.default_lesson_duration || 60;
+        const endDate = new Date(startDate.getTime() + defaultDuration * 60000);
+        
+        setEndTime(format(endDate, 'HH:mm'));
+        setDescription("");
+        setSelectedStudentId("");
+        setRecurrenceType("none");
+        setRecurrenceCount(1);
+      }
+    }
+  }, [isOpen, selectedDate, event, settings]);
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= 100) {
+      setDescription(value);
+    } else {
+      toast({
+        title: "Karakter Sınırı",
+        description: "Açıklama en fazla 100 karakter olabilir.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const checkLessonOverlap = (start: Date, end: Date) => {
+    return events.some(existingEvent => {
+      if (event && existingEvent.id === event.id) return false;
+      
+      if (isEqual(start, existingEvent.end) || isEqual(end, existingEvent.start)) {
+        return false;
+      }
+
+      return (
+        isWithinInterval(start, { start: existingEvent.start, end: existingEvent.end }) ||
+        isWithinInterval(end, { start: existingEvent.start, end: existingEvent.end }) ||
+        isWithinInterval(existingEvent.start, { start, end }) ||
+        isWithinInterval(existingEvent.end, { start, end })
+      );
+    });
+  };
+
+  const isDateAvailable = (date: Date) => {
+    const workingHours = settings?.working_hours;
+    const dayOfWeek = format(date, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours?.[dayOfWeek];
+
+    if (!daySettings?.enabled) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const createRecurringLessons = async (baseStart: Date, baseEnd: Date) => {
+    const lessons: Omit<Lesson, "id">[] = [];
+    let currentStart = baseStart;
+    let currentEnd = baseEnd;
+    let count = 0;
+    let attempts = 0;
+    const maxAttempts = recurrenceCount * 3;
+
+    while (count < recurrenceCount && attempts < maxAttempts) {
+      const customHolidays = settings?.holidays || [];
+      const holiday = isHoliday(currentStart, customHolidays);
+      
+      if (holiday && !settings?.allow_work_on_holidays) {
+        setCurrentHolidayDate(currentStart);
+        setShowHolidayDialog(true);
+        setPendingLessons([]);
+        const currentLesson = {
+          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
+          description,
+          start: currentStart,
+          end: currentEnd,
+          studentId: selectedStudentId,
+          recurrenceType,
+          recurrenceCount
+        };
+        setPendingLessons([...lessons, currentLesson]);
+        return [];
+      }
+
+      if (isDateAvailable(currentStart) && !checkLessonOverlap(currentStart, currentEnd)) {
+        lessons.push({
+          title: `${students.find(s => s.id === selectedStudentId)?.name || ""} Dersi`,
+          description,
+          start: currentStart,
+          end: currentEnd,
+          studentId: selectedStudentId,
+          recurrenceType,
+          recurrenceCount
+        });
+        count++;
+      }
+
+      attempts++;
+
+      switch (recurrenceType) {
+        case "weekly":
+          currentStart = addWeeks(currentStart, 1);
+          currentEnd = addWeeks(currentEnd, 1);
+          break;
+        case "monthly":
+          currentStart = addMonths(currentStart, 1);
+          currentEnd = addMonths(currentEnd, 1);
+          break;
+      }
+    }
+
+    if (count < recurrenceCount) {
+      toast({
+        title: "Uyarı",
+        description: `Bazı tekrar eden dersler, çalışma saatleri kapalı veya tatil günlerine denk geldiği için oluşturulamadı.`,
+        variant: "warning"
+      });
+    }
+
+    return lessons;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedStudentId) {
+      toast({
+        title: "Öğrenci Seçilmedi",
+        description: "Lütfen bir öğrenci seçin.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if working hours are enabled for this day
+    const workingHours = settings?.working_hours;
+    const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase() as keyof typeof workingHours;
+    const daySettings = workingHours?.[dayOfWeek];
+
+    if (!daySettings?.enabled) {
+      toast({
+        title: "Çalışma Saatleri Kapalı",
+        description: `${format(selectedDate, 'EEEE', { locale: tr })} günü için çalışma saatleri kapalı. Ayarlardan açabilirsiniz.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const [endHours, endMinutes] = endTime.split(":").map(Number);
+    
+    const start = new Date(selectedDate);
+    start.setHours(startHours, startMinutes);
+    
+    const end = new Date(selectedDate);
+    end.setHours(endHours, endMinutes);
+
+    // Validate time is within working hours
+    const [workStartHour, workStartMin] = daySettings.start.split(':').map(Number);
+    const [workEndHour, workEndMin] = daySettings.end.split(':').map(Number);
+    
+    const startMinutesTotal = startHours * 60 + startMinutes;
+    const endMinutesTotal = endHours * 60 + endMinutes;
+    const workStartMinutes = workStartHour * 60 + workStartMin;
+    const workEndMinutes = workEndHour * 60 + workEndMin;
+    
+    if (startMinutesTotal < workStartMinutes || endMinutesTotal > workEndMinutes) {
+      toast({
+        title: "Çalışma Saatleri Dışında",
+        description: `Bu gün için çalışma saatleri: ${daySettings.start} - ${daySettings.end}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (checkLessonOverlap(start, end)) {
+      toast({
+        title: "Zaman Çakışması",
+        description: "Bu zaman aralığında başka bir ders bulunuyor.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const student = students.find(s => s.id === selectedStudentId);
+    
+    if (recurrenceType !== "none" && !event) {
+      const recurringLessons = await createRecurringLessons(start, end);
+      if (recurringLessons.length > 0) {
+        recurringLessons.forEach(lesson => onSave(lesson));
+        onClose();
+      }
+    } else {
+      onSave({
+        title: student ? `${student.name} Dersi` : "Ders",
+        description,
+        start,
+        end,
+        studentId: selectedStudentId,
+        recurrenceType,
+        recurrenceCount
+      });
+      onClose();
+    }
+  };
+
+  const handleHolidayConfirm = async () => {
+    await updateSettings.mutateAsync({
+      allow_work_on_holidays: true
+    });
+    setShowHolidayDialog(false);
+    
+    if (pendingLessons.length > 0) {
+      pendingLessons.forEach(lesson => onSave(lesson));
+      setPendingLessons([]);
+      onClose();
+    }
+  };
+
+  const dialogContent = (
+    <LessonDialogForm
+      description={description}
+      onDescriptionChange={handleDescriptionChange}
+      startTime={startTime}
+      endTime={endTime}
+      selectedDate={selectedDate}
+      setStartTime={setStartTime}
+      setEndTime={setEndTime}
+      selectedStudentId={selectedStudentId}
+      setSelectedStudentId={setSelectedStudentId}
+      students={students}
+      onDelete={event && onDelete ? () => onDelete(event.id) : undefined}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      recurrenceType={recurrenceType}
+      recurrenceCount={recurrenceCount}
+      onRecurrenceTypeChange={setRecurrenceType}
+      onRecurrenceCountChange={setRecurrenceCount}
+    />
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        <Drawer open={isOpen} onOpenChange={onClose}>
+          <DrawerContent className="max-h-[90vh]">
+            <DrawerHeader>
+              <DrawerTitle>
+                {event ? "Ders Düzenle" : "Ders Ekle"}
+              </DrawerTitle>
+              <DrawerDescription>
+                {format(selectedDate, "d MMMM yyyy, EEEE", { locale: tr })}
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4 pb-4 overflow-y-auto max-h-[60vh]">
+              {dialogContent}
+            </div>
+          </DrawerContent>
+        </Drawer>
+
+        <Drawer open={showHolidayDialog} onOpenChange={setShowHolidayDialog}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Tatil Günü Uyarısı</DrawerTitle>
+              <DrawerDescription>
+                {currentHolidayDate && `${format(currentHolidayDate, 'd MMMM yyyy')} tarihi tatil günü. Bu tarih için çalışma iznini açmak ister misiniz?`}
+              </DrawerDescription>
+            </DrawerHeader>
+            <DrawerFooter>
+              <Button variant="outline" onClick={() => {
+                setShowHolidayDialog(false);
+                onClose();
+              }} className="w-full">
+                İptal
+              </Button>
+              <Button onClick={handleHolidayConfirm} className="w-full">
+                Çalışma İznini Aç
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="w-[95vw] max-w-[425px] max-h-[90vh] overflow-y-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="p-4 sm:p-6"
+          >
+            <LessonDialogHeader 
+              isEditing={!!event}
+              selectedDate={selectedDate}
+            />
+            
+            {dialogContent}
+          </motion.div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showHolidayDialog} onOpenChange={setShowHolidayDialog}>
+        <DialogContent className="w-[90vw] max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Tatil Günü Uyarısı</DialogTitle>
+            <DialogDescription>
+              {currentHolidayDate && `${format(currentHolidayDate, 'd MMMM yyyy')} tarihi tatil günü. Bu tarih için çalışma iznini açmak ister misiniz?`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => {
+              setShowHolidayDialog(false);
+              onClose();
+            }} className="w-full sm:w-auto">
+              İptal
+            </Button>
+            <Button onClick={handleHolidayConfirm} className="w-full sm:w-auto">
+              Çalışma İznini Aç
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
