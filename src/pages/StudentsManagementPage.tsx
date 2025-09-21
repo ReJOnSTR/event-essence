@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useStudents } from "@/hooks/useStudents";
-import StudentDialog from "@/components/Students/StudentDialog";
+import StudentDialogWrapper from "@/components/Students/StudentDialogWrapper";
 import StudentCard from "@/components/Students/StudentCard";
 import { Student } from "@/types/calendar";
 import { PageHeader } from "@/components/Layout/PageHeader";
@@ -58,7 +58,7 @@ export default function StudentsManagementPage() {
         ))}
       </div>
 
-      <StudentDialog
+      <StudentDialogWrapper
         isOpen={studentDialog.isOpen}
         onClose={studentDialog.handleClose}
         onSave={studentDialog.handleSave}
